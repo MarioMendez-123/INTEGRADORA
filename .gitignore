@@ -1,0 +1,15 @@
+# Entornos virtuales de Python (edge/.venv, backend/.venv)
+.venv/
+
+# Archivos temporales generados por Python
+__pycache__/
+*.pyc
+
+# Logs locales (edge/logs/, backend/logs/) — no se suben a GitHub
+logs/
+
+# Variables de entorno / secretos (contraseñas, llaves)
+.env
+
+# Dependencias de Node.js (por si el dashboard usa JavaScript/React)
+node_modules/

@@ -1,0 +1,9 @@
+# Dependencias de DESARROLLO (linting, formato, pruebas) — separadas de
+# requirements.txt a propósito. Estas nunca se instalan en el Jetson real ni
+# en producción; existen solo para el flujo de trabajo local del equipo.
+# Solo se agregan herramientas ya decididas y adoptadas por el equipo, para
+# no fabricar dependencias especulativas (principio 4.5, aether_context_docs.md).
+
+# ruff: linting (detección de errores comunes) y formato de código en una
+# sola herramienta.
+ruff

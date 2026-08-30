@@ -1,0 +1,9 @@
+# Stack de backend — ver aether_context_docs.md, sección 5.
+# SQLite (desarrollo) no necesita driver aparte: viene en la librería estándar
+# de Python. No se instala driver de PostgreSQL todavía porque esa decisión
+# ("candidato a escalar") no está cerrada — evitar dependencias especulativas
+# (principio 4.5).
+
+fastapi
+uvicorn[standard]
+sqlalchemy

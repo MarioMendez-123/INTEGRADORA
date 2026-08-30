@@ -1,0 +1,14 @@
+# Stack de edge/percepción — ver aether_context_docs.md, sección 5.
+# Esta es una instalación de DESARROLLO (CPU, en esta máquina Windows), no la
+# de despliegue. El Jetson Orin Nano Super (Decisión 4) requiere las builds de
+# PyTorch/OpenCV empaquetadas por NVIDIA JetPack, distintas a estas — no
+# asumir que estos mismos wheels sirven ahí sin verificarlo.
+
+numpy
+opencv-contrib-python   # incluye el módulo aruco (Decisión 2: verificación de posición, no navegación)
+ultralytics             # YOLO (Decisión 1: detección/conteo)
+pyzbar                  # lectura de código de barras/QR (Decisión 1)
+paho-mqtt               # cliente MQTT (Decisión 6: telemetría)
+
+# torch se instala aparte (ver README.md de esta carpeta) usando el índice CPU
+# de PyTorch, para no arrastrar una build CUDA innecesaria en esta máquina.
