@@ -262,8 +262,6 @@ aether/
 │
 ├── dashboard/                       # Opción B (Decisión 7): inventario declarado + historial/trazabilidad, solo REST
 │
-├── simulation/                      # PyBullet / Gazebo — sin uso actual (LfD descartado); se conserva por si se retoma
-│
 ├── hardware/
 │   ├── bom/                         # bill of materials, cotizaciones por subsistema
 │   └── wiring/
@@ -293,6 +291,10 @@ aether/
 - `docs/architecture/decisions/` lleva una ADR por cada decisión de Fase 0 (1 a
   8, con 8a/8b/8c como sub-decisiones dentro de la ADR 0008). Fase 0 ya está
   cerrada — ver sección 3.
+- `simulation/` (PyBullet/Gazebo) se eliminó de esta estructura: estaba
+  reservada para el stack de LfD, que ADR 0008 evaluó y descartó
+  formalmente. Sin ninguna decisión activa que la reclame, se quitó en vez
+  de mantenerla vacía indefinidamente "por si se retoma".
 
 ---
 

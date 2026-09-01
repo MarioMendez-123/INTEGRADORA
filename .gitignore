@@ -8,6 +8,25 @@ __pycache__/
 # Logs locales (edge/logs/, backend/logs/) — no se suben a GitHub
 logs/
 
+# Output de prueba local del pipeline combinado de percepción (Observations
+# en JSON) y de su agregación a Declared Inventory — no es código fuente, no
+# se sube a GitHub
+edge/perception/observations_output.json
+edge/inventory_engine/declared_inventory_output.json
+
+# Imágenes de marcadores ArUco generadas por
+# edge/perception/generate_aruco_markers.py — archivos generados, no código
+# fuente
+edge/perception/aruco_markers/
+
+# Base de datos local de desarrollo (SQLite) — no es código fuente
+backend/aether.db
+
+# Pesos de YOLOv8n descargados automáticamente por ultralytics en la
+# primera corrida de cualquier script de percepción — no es código fuente,
+# se regenera solo (ver docstring de edge/perception/test_yolo.py)
+yolov8n.pt
+
 # Variables de entorno / secretos (contraseñas, llaves)
 .env
 
