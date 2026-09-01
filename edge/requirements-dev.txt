@@ -7,3 +7,6 @@
 # ruff: linting (detección de errores comunes) y formato de código en una
 # sola herramienta.
 ruff
+
+# pytest: framework para pruebas automáticas.
+pytest
