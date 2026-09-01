@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aether</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <canvas id="field" aria-hidden="true"></canvas>
+    <div class="veil" aria-hidden="true"></div>
+
+    <nav class="site-nav site-nav--fixed">
+      <a class="wordmark" href="/"><b>AETHER</b> · industrial systems</a>
+      <div class="navlinks">
+        <a href="#sistema">Sistema</a>
+        <a href="#arquitectura">Arquitectura</a>
+        <a href="#equipo">Equipo</a>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="txt">Percepción · Inventory Engine · Backend — funcionando</span>
+      </div>
+    </nav>
+
+    <main class="hero">
+      <div class="kicker">proyecto integrador · manufactura + inventario robótico</div>
+      <h1>AETHER</h1>
+      <p class="tagline">
+        Una unidad móvil que <b>inspecciona inventario</b> y una línea de manufactura
+        con <b>brazos robóticos</b>, verificación por visión, unidas en un solo
+        sistema — no dos proyectos por separado.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="#percepcion">INICIALIZAR SISTEMA</a>
+        <a class="btn" href="/inventory.html">INVENTARIO</a>
+      </div>
+    </main>
+
+    <div class="scroll-cue" aria-hidden="true">
+      <span>DESPLAZAR</span>
+      <div class="scroll-line"></div>
+    </div>
+
+    <section class="page-section" id="percepcion">
+      <div class="section-shell">
+        <span class="section-kicker">M.01 — Percepción</span>
+        <h2 class="section-title">Vista en vivo</h2>
+        <p class="section-note">
+          Esto es lo que verá esta interfaz cuando la cámara del robot esté
+          conectada — todavía no lo está. El módulo de percepción en sí ya
+          funciona (<code>edge/perception/</code>, Decisión 1); lo que falta es
+          transmitir ese flujo hasta aquí.
+        </p>
+        <div class="camera-placeholder reticle">
+          <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+          <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+          <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+          <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+          <span class="camera-label">CAM_01 · SIN SEÑAL</span>
+          <p class="camera-placeholder-text">
+            Vista en vivo de la cámara — próximamente en esta interfaz.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" id="sistema" aria-labelledby="modules-heading">
+      <div class="section-shell">
+        <span class="section-kicker">01 · Módulos</span>
+        <h2 class="section-title" id="modules-heading">Módulos del sistema</h2>
+        <p class="section-note">
+          Esquinas de mira + borde sólido = módulo activo, con interfaz propia.
+          Borde punteado = pendiente de hardware, sin interfaz todavía.
+        </p>
+
+        <div class="module-grid">
+          <a class="module-card module-card--active reticle span-1" href="/inventory.html">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+            <div class="module-head">
+              <span class="module-tag">M.01</span>
+              <h3 class="module-title">Percepción</h3>
+            </div>
+            <p class="module-desc">
+              Detección YOLO + lectura de código de barras/QR sobre el flujo de
+              cámara (Decisión 1). <code>edge/perception/</code>.
+            </p>
+            <div class="module-status module-status--active">
+              <span class="status-dot" aria-hidden="true"></span>Funcionando
+              <span class="module-nav-arrow" aria-hidden="true">→ inventory.html</span>
+            </div>
+          </a>
+
+          <a class="module-card module-card--active reticle span-1" href="/inventory.html">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+            <div class="module-head">
+              <span class="module-tag">M.02</span>
+              <h3 class="module-title">Inventory Engine</h3>
+            </div>
+            <p class="module-desc">
+              Separación Observations (crudo) vs. Declared Inventory (declarado)
+              (Decisión 5). <code>edge/inventory_engine/</code>.
+            </p>
+            <div class="module-status module-status--active">
+              <span class="status-dot" aria-hidden="true"></span>Funcionando
+              <span class="module-nav-arrow" aria-hidden="true">→ inventory.html</span>
+            </div>
+          </a>
+
+          <a class="module-card module-card--active reticle span-1" href="/inventory.html">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+            <div class="module-head">
+              <span class="module-tag">M.03</span>
+              <h3 class="module-title">Backend + Dashboard</h3>
+            </div>
+            <p class="module-desc">
+              API REST de solo lectura sobre Declared Inventory, más bitácora de
+              inspecciones (Decisión 7, Opción B). <code>backend/</code> +
+              <code>dashboard/</code>.
+            </p>
+            <p class="module-live">
+              Declared Inventory: <strong id="portada-stat-value">consultando…</strong>
+            </p>
+            <div class="module-status module-status--active">
+              <span class="status-dot" aria-hidden="true"></span>Funcionando
+              <span class="module-nav-arrow" aria-hidden="true">→ inventory.html</span>
+            </div>
+          </a>
+
+          <div class="module-card module-card--pending span-1" aria-disabled="true">
+            <div class="module-head">
+              <span class="module-tag">M.04</span>
+              <h3 class="module-title">Navegación</h3>
+            </div>
+            <p class="module-desc">
+              Waypoints con odometría por encoders + detección reactiva de
+              obstáculos (Decisión 3). Depende de la plataforma móvil, hardware
+              que el equipo todavía no tiene integrado.
+            </p>
+            <div class="module-status module-status--pending">
+              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+              <span class="module-no-route" aria-hidden="true">sin interfaz</span>
+            </div>
+          </div>
+
+          <div class="module-card module-card--pending span-2" aria-disabled="true">
+            <div class="module-head">
+              <span class="module-tag">M.05</span>
+              <h3 class="module-title">Línea de manufactura</h3>
+            </div>
+            <p class="module-desc">
+              KUKA KR6 → UR5 → visión de verificación → Aether Inventory.
+              Arquitectura ya cerrada en ADR 0008 (handshake punto a punto entre
+              estaciones + registro pasivo de cada evento vía MQTT); pendiente de
+              los tres robots físicos para operar end-to-end.
+            </p>
+            <div class="module-status module-status--pending">
+              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+              <span class="module-no-route" aria-hidden="true">sin interfaz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" id="arquitectura" aria-labelledby="arch-heading">
+      <div class="section-shell">
+        <span class="section-kicker">02 · Fase 0</span>
+        <h2 class="section-title" id="arch-heading">Arquitectura</h2>
+        <p class="section-note">
+          8 decisiones cerradas, ADR completo en <code>docs/architecture/decisions/</code>.
+        </p>
+
+        <div class="table-scroll">
+          <table class="decision-table">
+            <thead>
+              <tr>
+                <th scope="col">№</th>
+                <th scope="col">Decisión</th>
+                <th scope="col">Resolución</th>
+                <th scope="col">ADR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="decision-num">1</td>
+                <td class="decision-name">Percepción</td>
+                <td>
+                  Híbrido: detección/conteo por YOLO + identificación por código
+                  de barras/QR como MVP. Clasificación visual pura de SKU
+                  diferida.
+                </td>
+                <td class="decision-ref">ADR 0001</td>
+              </tr>
+              <tr>
+                <td class="decision-num">2</td>
+                <td class="decision-name">Localización</td>
+                <td>
+                  Marcadores ArUco para verificación de posición — no es un
+                  sistema de navegación.
+                </td>
+                <td class="decision-ref">ADR 0002</td>
+              </tr>
+              <tr>
+                <td class="decision-num">3</td>
+                <td class="decision-name">Navegación</td>
+                <td>
+                  Waypoints con odometría por encoders + detección reactiva de
+                  obstáculos (no "evasión inteligente").
+                </td>
+                <td class="decision-ref">ADR 0003</td>
+              </tr>
+              <tr>
+                <td class="decision-num">4</td>
+                <td class="decision-name">Hardware de cómputo</td>
+                <td>
+                  NVIDIA Jetson Orin Nano Super 8GB (principal) / Raspberry Pi 5 +
+                  AI HAT+ (contingencia). Control de bajo nivel: ESP32 o STM32.
+                </td>
+                <td class="decision-ref">ADR 0004</td>
+              </tr>
+              <tr>
+                <td class="decision-num">5</td>
+                <td class="decision-name">Esquema de datos</td>
+                <td>
+                  Observations (crudo) vs. Declared Inventory (declarado); estados
+                  <code>PARTIAL</code> / <code>COMPLETE</code> /
+                  <code>INVALID</code>.
+                </td>
+                <td class="decision-ref">ADR 0005</td>
+              </tr>
+              <tr>
+                <td class="decision-num">6</td>
+                <td class="decision-name">Comunicaciones</td>
+                <td>
+                  MQTT para telemetría, REST para el dashboard. La parada de
+                  seguridad es independiente de la conectividad de red.
+                </td>
+                <td class="decision-ref">ADR 0006</td>
+              </tr>
+              <tr>
+                <td class="decision-num">7</td>
+                <td class="decision-name">Alcance del dashboard</td>
+                <td>
+                  Opción B: Inventario Declarado + Historial y Trazabilidad.
+                  Monitoreo en vivo (Opción C) queda como evolución obligatoria
+                  posterior al MVP, no como parte de él.
+                </td>
+                <td class="decision-ref">ADR 0007</td>
+              </tr>
+              <tr>
+                <td class="decision-num">8</td>
+                <td class="decision-name">Línea de manufactura</td>
+                <td>
+                  KUKA → UR5 → visión → Aether Inventory, con handshake punto a
+                  punto entre estaciones y registro pasivo vía MQTT. Trayectorias
+                  pre-programadas por el fabricante, sin Learning from
+                  Demonstration.
+                </td>
+                <td class="decision-ref">ADR 0008</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer" id="equipo">
+      <div class="footer-shell">
+        <p>
+          Proyecto integrador de ingeniería — equipo de 6 integrantes, Chihuahua,
+          México. Ventana de desarrollo: ~4 meses, ~240 horas totales.
+        </p>
+        <p class="footer-note">
+          El conteo de Declared Inventory de arriba (M.03) viene de una llamada
+          en vivo a <code>GET /inventory</code> — ver
+          <code>dashboard/portada.js</code>. Ningún número en esta página está
+          escrito a mano.
+        </p>
+      </div>
+    </footer>
+
+    <script src="/node-field.js"></script>
+    <script src="/portada.js"></script>
+  </body>
+</html>

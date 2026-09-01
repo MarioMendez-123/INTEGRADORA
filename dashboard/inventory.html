@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aether Inventory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <canvas id="field" data-density="low" aria-hidden="true"></canvas>
+    <div class="veil veil--dense" aria-hidden="true"></div>
+
+    <nav class="site-nav site-nav--framed">
+      <a class="wordmark" href="/"><b>AETHER</b> · inventory</a>
+      <div class="navlinks">
+        <a href="/">Portada</a>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="txt">Declared Inventory: <span id="nav-stat-value">consultando…</span></span>
+      </div>
+    </nav>
+
+    <div class="shell">
+      <p class="section-note">
+        Inventario declarado a partir de percepción en piso de planta — detección
+        YOLO combinada con lectura de código de barras/QR (Decisión 1).
+      </p>
+
+      <p class="coverage-note">
+        El estado de cobertura de cada inspección — si un recorrido fue completo o
+        parcial — todavía no está disponible: depende del módulo de Navegación, que
+        aún no existe. Lo que se muestra abajo es lo observado hasta ahora, no una
+        garantía de cobertura total.
+      </p>
+
+      <section class="gauge-strip" aria-label="Resumen de inventario">
+        <div class="gauge-cell">
+          <span class="gauge-label">Identificados por código</span>
+          <span class="gauge-value" id="stat-identified">—</span>
+        </div>
+        <div class="gauge-cell">
+          <span class="gauge-label">Sin identificar</span>
+          <span class="gauge-value gauge-value--warn" id="stat-unidentified">—</span>
+        </div>
+        <div class="gauge-cell">
+          <span class="gauge-label">Observaciones acumuladas</span>
+          <span class="gauge-value" id="stat-total-observations">—</span>
+        </div>
+        <div class="gauge-cell">
+          <span class="gauge-label">Última actualización</span>
+          <span class="gauge-value gauge-value--small" id="stat-last-updated">—</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="inventory-heading">
+        <div class="panel-head">
+          <h2 id="inventory-heading">Declared Inventory</h2>
+          <div class="panel-head-right">
+            <label class="toggle-field">
+              <input type="checkbox" id="show-retired-toggle" />
+              Mostrar retirados
+            </label>
+            <span class="panel-meta" id="inventory-count"></span>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Identificador</th>
+                <th scope="col">Clase detectada</th>
+                <th scope="col" class="num">Observaciones</th>
+                <th scope="col" class="num">Códigos leídos</th>
+                <th scope="col" class="num">Confianza prom.</th>
+                <th scope="col">Primera vez</th>
+                <th scope="col">Última vez</th>
+                <th scope="col">Ubicaciones</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-body">
+              <tr class="state-row">
+                <td colspan="9">Cargando…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="history-heading">
+        <div class="panel-head">
+          <h2 id="history-heading">Bitácora de inspecciones</h2>
+          <span class="panel-meta" id="history-count"></span>
+        </div>
+        <div class="history-list" id="history-list">
+          <p class="state-text">Cargando…</p>
+        </div>
+      </section>
+    </div>
+
+    <dialog class="retire-dialog" id="retire-dialog" aria-labelledby="retire-dialog-title">
+      <form class="retire-dialog-body" id="retire-form">
+        <h2 class="retire-dialog-title" id="retire-dialog-title">Retirar producto</h2>
+        <p class="retire-dialog-subtitle">
+          <code id="retire-dialog-identifier"></code> pasará a estado
+          <code>retired</code>. Sigue existiendo y consultable con "Mostrar
+          retirados" — esto no borra nada de la base de datos.
+        </p>
+        <div class="field">
+          <label class="field-label" for="retire-password">Contraseña</label>
+          <input
+            class="field-input"
+            type="password"
+            id="retire-password"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <p class="dialog-error" id="retire-error" hidden></p>
+        <div class="retire-dialog-actions">
+          <button type="button" class="btn" id="retire-cancel">Cancelar</button>
+          <button type="submit" class="btn btn--warn" id="retire-confirm">Retirar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="/node-field.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
