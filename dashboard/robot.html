@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aether Robot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/robot.css" />
+  </head>
+  <body class="robot-body">
+    <!--
+      dashboard/robot.html — tercera interfaz del proyecto: la del robot
+      móvil en campo/presentación. Mucho más simple que index.html e
+      inventory.html a propósito — se ve desde lejos, no se lee de cerca.
+
+      HONESTIDAD EXPLÍCITA (léase antes de tocar este archivo):
+
+      1. Esta interfaz asume UNA sola cámara: la de Percepción del robot
+         móvil (/perception/stream, mismo CameraPublisher que ya usa
+         index.html — por eso puede convivir con esa pestaña sin competir
+         por la cámara física). NUNCA la cámara de Visión de línea
+         (/line/vision/stream): en producción real esa vive en una PC fija
+         dedicada dentro de la celda de manufactura, en un dispositivo
+         completamente distinto al robot móvil (ver ADR 0008, sub-decisión
+         8c) — no tendría sentido mostrarla aquí.
+
+      2. Las expresiones de la cara (ver robot.js) son estados visuales
+         PREDEFINIDOS, elegidos a mano — no hay ningún modelo de IA
+         detrás todavía. "confundido", "pensando", etc. no significan que
+         el sistema esté razonando o sintiendo nada; son solo la
+         expresión que setFaceExpression() dibuja cuando se le pide. El
+         gancho para conectar una CNN real que decida la expresión queda
+         preparado (setFaceExpression es la única función que necesitaría
+         llamar ese futuro modelo) pero no implementado — no se fabrica
+         esa capacidad todavía (Principio 4.5).
+
+      3. El comando de voz usa la Web Speech API nativa del navegador
+         (SpeechRecognition), no un modelo propio: el reconocimiento de
+         "Lumina, inicia" / "Lumina, detente" lo hace el navegador, este
+         archivo solo interpreta el texto que devuelve. La palabra clave es
+         "Lumina", no "Aether" — ver el comentario grande en robot.js sobre
+         por qué se cambió (confusión fonética real con "Twitter").
+
+      4. El diagnóstico de voz (permiso de micrófono, si el reconocimiento
+         está corriendo, qué se escuchó, errores) vive en la consola del
+         navegador, no en pantalla — la vista de reposo debe sentirse como
+         una presencia real, no una interfaz con controles e indicadores.
+         El único rastro visible es el puntito de estado (ver
+         #voice-status-dot) y el botón de respaldo, ambos discretos a
+         propósito.
+
+      5. DOS MODOS MUTUAMENTE EXCLUYENTES, por diseño de recursos — no por
+         preferencia de interfaz. Modo Conversación (por defecto): un LLM
+         local (Ollama, backend/main.py POST /robot/ask) conversa por voz;
+         cámara y YOLO permanecen apagados todo ese tiempo. Modo Cámara (al
+         oír "Lumina, inicia"): se muestra /perception/stream; mientras
+         esté activo, NUNCA se manda nada al LLM — solo se escuchan
+         comandos de control simples ("Lumina, detente" para regresar). En
+         el Jetson Orin Nano Super real (Decisión 4), correr un LLM y el
+         pipeline de Percepción a la vez degradaría a ambos: un solo
+         cómputo de borde con presupuesto fijo. Ver el comentario grande al
+         inicio de robot.js para el detalle completo de esta exclusión.
+
+      6. Lumina conversa con un modelo real (Ollama, llama3.2:1b) — sus
+         respuestas NO están escritas a mano ni son deterministas. Su
+         system prompt (ver backend/main.py, LUMINA_SYSTEM_PROMPT) le pide
+         explícitamente decir "no sé" en vez de inventar datos del
+         proyecto que no tiene — esto es honestidad real pedida al modelo,
+         no una garantía de que nunca se equivoque.
+    -->
+
+    <canvas id="field" data-density="low" aria-hidden="true"></canvas>
+    <div class="veil veil--dense" aria-hidden="true"></div>
+
+    <!-- ============ Pantalla de la cara (estado por defecto) ============
+         Sin contorno de "cabeza": los ojos y la boca flotan directo sobre
+         el fondo (campo de nodos + degradado ambiental), a propósito —
+         ver robot.css sobre por qué se quitó face-bg (el círculo hacía que
+         esto se sintiera como un ícono de app, no como presencia real). -->
+    <main class="face-screen" id="face-screen">
+      <div class="face-ambient" id="face-ambient" aria-hidden="true"></div>
+
+      <svg
+        class="face-svg"
+        id="face-svg"
+        viewBox="0 0 1000 600"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Estado de Aether"
+      >
+        <ellipse class="face-glow" id="listening-ring" cx="500" cy="300" rx="430" ry="270"></ellipse>
+        <path class="face-brow" id="brow-left"></path>
+        <path class="face-brow" id="brow-right"></path>
+        <path class="face-eye" id="eye-left"></path>
+        <path class="face-eye" id="eye-right"></path>
+        <circle class="face-pupil" id="pupil-left" r="22"></circle>
+        <circle class="face-pupil" id="pupil-right" r="22"></circle>
+        <path class="face-mouth" id="face-mouth"></path>
+        <g class="face-dots" id="thinking-dots">
+          <circle cx="440" cy="120" r="15"></circle>
+          <circle cx="500" cy="92" r="15"></circle>
+          <circle cx="560" cy="120" r="15"></circle>
+        </g>
+      </svg>
+
+      <!-- Punto de estado mínimo — el único rastro visible del
+           reconocimiento de voz por default. Gris = inactivo, verde
+           parpadeante = escuchando de verdad ahora mismo, ámbar = algo
+           necesita atención (permiso denegado, sin soporte, error). El
+           texto completo (permiso, transcripción, errores) va a
+           console.log/warn — ver robot.js. title da un tooltip nativo al
+           pasar el mouse, sin agregar texto permanente en pantalla. -->
+      <span
+        class="voice-status-dot"
+        id="voice-status-dot"
+        title="Reconocimiento de voz: inactivo"
+        aria-hidden="true"
+      ></span>
+
+      <!-- Botón de respaldo — discreto a propósito (esquina, opacidad baja
+           hasta hover/focus): sigue siendo necesario si la voz falla o el
+           navegador no la soporta, pero no debe leerse como un control de
+           interfaz en la vista de reposo. -->
+      <button type="button" class="btn robot-fallback-btn" id="activate-btn" title="Iniciar Aether">
+        Iniciar
+      </button>
+    </main>
+
+    <!-- ============ Vista de cámara (activada por voz o botón) ============ -->
+    <section class="camera-screen" id="camera-screen" hidden>
+      <img
+        class="camera-screen-stream"
+        id="robot-camera-stream"
+        alt="Transmisión en vivo de la cámara de Percepción del robot móvil"
+        hidden
+      />
+      <div class="camera-screen-connecting" id="camera-screen-connecting">
+        <span class="camera-spinner" aria-hidden="true"></span>
+        <p id="camera-screen-connecting-text">Estableciendo conexión…</p>
+      </div>
+
+      <span class="camera-screen-label">AETHER · PERCEPCIÓN · ROBOT MÓVIL</span>
+
+      <div class="detections-log" id="detections-log" aria-live="polite">
+        <p class="detections-log-empty" id="detections-log-empty">Sin detecciones todavía…</p>
+        <div id="detections-log-lines"></div>
+      </div>
+
+      <button type="button" class="btn robot-btn robot-btn--stop" id="deactivate-btn">
+        Detener
+      </button>
+    </section>
+
+    <script src="/node-field.js"></script>
+    <script src="/robot.js"></script>
+  </body>
+</html>

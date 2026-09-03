@@ -10,3 +10,7 @@ ruff
 
 # pytest: framework para pruebas automáticas.
 pytest
+
+# httpx: requerido por fastapi.testclient.TestClient para las pruebas de
+# backend/main.py (tests/backend/test_main.py) — no se usa en producción.
+httpx

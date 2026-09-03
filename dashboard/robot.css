@@ -1,0 +1,377 @@
+/*
+  dashboard/robot.css — estilos exclusivos de robot.html (la interfaz del
+  robot móvil). Reutiliza los tokens de style.css (colores, tipografía,
+  --space-*) pero vive aparte: esta pantalla es deliberadamente mucho más
+  simple que index.html/inventory.html — pocos elementos, tipografía
+  grande, alto contraste, pensada para verse desde lejos (presentación /
+  montada en el robot), no para leerse de cerca como una tabla de datos.
+
+  La cara NO tiene un contorno de "cabeza" (sin círculo delimitador) a
+  propósito: con uno se sentía como un ícono de app flotando en espacio
+  vacío. Sin él, y con los ojos/boca ocupando la mayoría del viewport más
+  un resplandor ambiental detrás, se lee más como una presencia real con
+  la que se interactúa que como un avatar contenido en una burbuja.
+*/
+
+html,
+body.robot-body {
+  height: 100%;
+  overflow: hidden; /* nada de scroll aquí — todo cabe en una sola pantalla a propósito */
+}
+
+/* ============================================================
+   PANTALLA DE LA CARA
+   ============================================================ */
+
+.face-screen {
+  position: relative;
+  z-index: 2;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  text-align: center;
+  padding: var(--space-6);
+  overflow: hidden;
+}
+
+/* Resplandor ambiental detrás de todo — sutil en reposo, es lo que le da
+   sensación de presencia incluso en 'inactivo'/'neutral' en vez de dejar
+   la pantalla mayormente vacía alrededor de la cara. --face-accent lo
+   pone setFaceExpression() en JS por expresión, en #face-screen (por
+   herencia de custom property llega tanto aquí como al SVG). */
+.face-ambient {
+  position: absolute;
+  inset: -15%;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 42%, var(--face-accent) 0%, transparent 60%);
+  opacity: 0.16;
+  filter: blur(60px);
+  transition:
+    opacity 400ms ease,
+    background 300ms ease;
+}
+
+.face-svg {
+  /* Domina el viewport de forma dinámica — sin tope en px como antes: en
+     una pantalla ancha (presentación/monitor del robot) esto debe sentirse
+     grande de verdad, no un ícono centrado en medio de espacio vacío. */
+  width: min(92vw, 86vh);
+  height: auto;
+  --face-accent: var(--accent);
+  overflow: visible;
+  transition: transform 200ms ease;
+}
+
+/* Resplandor amplio detrás de ojos/boca (antes era un anillo delgado
+   alrededor de una "cabeza" — ahora es una mancha de luz difusa, sin
+   implicar ningún borde/contorno). Solo se enciende para 'escuchando'. */
+.face-glow {
+  fill: var(--face-accent);
+  opacity: 0;
+  filter: blur(50px);
+  transition: opacity 300ms ease;
+}
+
+.face-glow.face-glow--active {
+  opacity: 0.32;
+  animation: glow-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.06);
+  }
+}
+
+.face-eye,
+.face-mouth {
+  fill: none;
+  stroke: var(--face-accent);
+  stroke-width: 22;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 26px var(--face-accent));
+  transition: stroke 200ms ease;
+}
+
+.face-brow {
+  fill: none;
+  stroke: var(--face-accent);
+  stroke-width: 16;
+  stroke-linecap: round;
+  opacity: 0;
+  transition:
+    opacity 150ms ease,
+    stroke 200ms ease;
+}
+
+.face-brow.face-brow--visible {
+  opacity: 0.85;
+}
+
+.face-pupil {
+  fill: var(--face-accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 14px var(--face-accent));
+  transition:
+    opacity 150ms ease,
+    cx 200ms ease,
+    cy 200ms ease;
+}
+
+.face-pupil.face-pupil--visible {
+  opacity: 1;
+}
+
+.face-dots {
+  fill: var(--face-accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 16px var(--face-accent));
+  transition: opacity 150ms ease;
+}
+
+.face-dots.face-dots--visible {
+  opacity: 0.9;
+  animation: dots-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes dots-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* "activando" / "error": todo el rostro pulsa de escala — reemplaza el
+   pulso de grosor de borde que antes tenía face-bg (ya no existe ese
+   círculo); pulsar el conjunto entero se lee igual de urgente sin
+   necesitar un contorno. */
+.face-svg.face--pulse {
+  animation: face-scale-pulse 500ms ease-in-out infinite;
+}
+
+@keyframes face-scale-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+/* "confundido": ladeo sutil, nunca al punto de verse roto */
+.face-svg.face--tilt {
+  transform: rotate(-5deg);
+}
+
+.robot-btn {
+  font-size: 18px;
+  padding: 18px 40px;
+}
+
+/* ---------- botón de respaldo — discreto a propósito ----------
+   Sigue siendo necesario (voz sin soporte, permiso denegado, ruido de
+   fondo), pero la vista de reposo debe leerse como presencia, no como
+   interfaz: casi invisible hasta que el mouse se acerca o recibe foco de
+   teclado (accesible sin depender de encontrarlo por hover). */
+.robot-fallback-btn {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 8px 16px;
+  opacity: 0.16;
+  transition:
+    opacity 200ms ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.robot-fallback-btn:hover,
+.robot-fallback-btn:focus-visible {
+  opacity: 1;
+}
+
+/* ---------- punto de estado de voz — único rastro visible por default ----------
+   El texto completo (permiso, transcripción, errores) va a
+   console.log/warn (ver robot.js) — esto es solo un color con un tooltip
+   nativo (title) para quien lo busque, nunca texto permanente en pantalla. */
+.voice-status-dot {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 5;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+  transition:
+    background 200ms ease,
+    opacity 200ms ease;
+}
+
+/* Parpadeo real solo mientras SpeechRecognition está corriendo de verdad
+   (onstart/onend en robot.js) — no es un estado lógico asumido. */
+.voice-status-dot--listening {
+  background: var(--positive);
+  opacity: 0.85;
+  box-shadow: 0 0 8px 1px rgba(95, 167, 121, 0.7);
+  animation: voice-blink 1.4s ease-in-out infinite;
+}
+
+.voice-status-dot--attention {
+  background: var(--warn);
+  opacity: 0.9;
+  box-shadow: 0 0 8px 1px rgba(224, 166, 74, 0.6);
+}
+
+@keyframes voice-blink {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ============================================================
+   VISTA DE CÁMARA — pantalla casi completa, mínima distracción
+   ============================================================ */
+
+.camera-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-screen-stream {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-screen-connecting {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+}
+
+.camera-screen-connecting p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.camera-screen-label {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(5, 7, 10, 0.65);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--positive);
+}
+
+.detections-log {
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: 96px;
+  z-index: 2;
+  max-height: 26vh;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: rgba(5, 7, 10, 0.6);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+#detections-log-lines {
+  display: flex;
+  flex-direction: column-reverse; /* lo más reciente pegado abajo, cerca del botón */
+  gap: 4px;
+}
+
+.detections-log-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.detections-log-line {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detections-log-line .detections-log-class {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.detections-log-line .detections-log-code {
+  color: var(--accent);
+}
+
+.robot-btn--stop {
+  position: absolute;
+  bottom: var(--space-5);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+@media (max-width: 640px) {
+  .face-svg {
+    width: 94vw;
+  }
+  .detections-log {
+    max-height: 22vh;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face-glow.face-glow--active,
+  .face-dots.face-dots--visible,
+  .face-svg.face--pulse,
+  .voice-status-dot--listening {
+    animation: none;
+    opacity: 0.8;
+  }
+}
