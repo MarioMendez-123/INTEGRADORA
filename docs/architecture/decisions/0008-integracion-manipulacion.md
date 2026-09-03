@@ -75,6 +75,15 @@ distintas. Reutilizar el stack ya conocido reduce curva de aprendizaje y
 riesgo, y mantiene la promesa de "confirmación simple", no clasificación
 compleja.
 
+> **Aclaración de hardware de cómputo.** La visión de línea NO corre en un
+> dispositivo embebido tipo Jetson — corre en una PC/laptop de escritorio
+> normal, colocada en un punto fijo cerca de la celda física, separada del
+> Jetson que va montado en el robot móvil (ese sí lleva la cámara de
+> Percepción con YOLO + código + ArUco, Decisión 4). Razón: un
+> microcontrolador (ESP32/STM32) no tiene GPU y no puede correr YOLO; una PC
+> de escritorio normal sí, y es más barata que un segundo Jetson dedicado
+> solo para una estación fija que no se mueve.
+
 ## Implicaciones técnicas
 
 `edge/manipulation/arm_control/` se subdivide por robot, ya que cada uno usa

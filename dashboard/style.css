@@ -81,6 +81,18 @@
   box-sizing: border-box;
 }
 
+/* Sin esto, cualquier regla de autor con `display` explícito (ej.
+   `.panel { display: flex }`) le gana en cascada al [hidden] del
+   navegador — un elemento con el atributo hidden y una clase con
+   display:flex/grid/etc. se queda visible aunque JS ponga el.hidden =
+   true. Ya pasó dos veces en este proyecto (dashboard/style.css y
+   dashboard/robot.css) antes de esta regla; con !important, [hidden]
+   siempre gana, sin importar qué display ponga después cualquier clase
+   nueva. Alternar visibilidad siempre vía el.hidden, nunca el.style.display. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   color-scheme: dark;
   scroll-behavior: smooth;
@@ -546,6 +558,7 @@ code {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface);
@@ -556,14 +569,51 @@ code {
   height: 16px;
 }
 
+/* El stream real vive detrás de las esquinas de mira — el encuadre de
+   cámara se mantiene visible aunque ya haya imagen real adentro. */
+.camera-stream {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-controls {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Pantalla completa vía Fullscreen API sobre el propio .camera-placeholder
+   (no solo el <img>): así el marco de mira y el label siguen visibles
+   encima del video, en vez de perderse al fullscreenear solo la imagen. */
+.camera-placeholder:fullscreen {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: #000;
+}
+
 .camera-label {
   position: absolute;
   top: var(--space-3);
   left: var(--space-4);
+  z-index: 1;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(5, 7, 10, 0.6);
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--warn);
+}
+
+/* Transmitiendo de verdad: mismo verde que "Funcionando" en el resto del
+   sistema — nunca ámbar mientras hay señal real. */
+.camera-label--live {
+  color: var(--positive);
 }
 
 .camera-placeholder-text {
@@ -573,6 +623,40 @@ code {
   font-size: 13px;
   line-height: 1.55;
   text-align: center;
+}
+
+/* Estado "conectando" — entre SIN SEÑAL y EN VIVO/error. Abrir la cámara
+   del lado del backend (cv2.VideoCapture) puede tardar varios segundos,
+   sobre todo justo después de conectar el dispositivo físico; sin este
+   estado intermedio, esa espera se leía como un error instantáneo. */
+.camera-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.camera-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  animation: spin 800ms linear infinite;
+}
+
+.camera-loading-text {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================================
@@ -688,6 +772,16 @@ code {
   cursor: not-allowed;
 }
 
+/* "Real, pero no es un link" — mismo encuadre de mira que module-card--active
+   (esto SÍ existe/corre), pero sin cursor de clic ni hover de navegación:
+   usado en tarjetas de estado (ej. la estación de Visión del flujo de línea)
+   que no llevan a ningún lado. module-card--active sigue siendo el único
+   modificador que implica "esto es un link". */
+.module-card--live {
+  --reticle-color: var(--accent);
+  border-color: var(--accent-border);
+}
+
 .module-head {
   display: flex;
   align-items: baseline;
@@ -762,6 +856,21 @@ code {
   border-radius: 1px;
 }
 
+/* Inactiva-pero-capaz: distinto de "pendiente de hardware" (--warn, algo
+   imposible hoy). Usado por estaciones con demo real que hoy simplemente no
+   está corriendo — ej. la estación de Visión en la sección Línea de
+   manufactura antes de presionar "Iniciar". Nunca implica que el hardware
+   falte, solo que el stream no está activo en este momento. */
+.module-status--idle {
+  color: var(--text-tertiary);
+}
+
+.module-status--idle .status-dot {
+  background: var(--text-muted);
+  box-shadow: none;
+  border-radius: 1px;
+}
+
 .module-nav-arrow {
   margin-left: auto;
   color: var(--text-muted);
@@ -793,6 +902,46 @@ code {
   }
   .module-card.span-2 {
     grid-column: span 1;
+  }
+}
+
+/* ---------- flujo de estaciones (línea de manufactura) ----------
+   Misma tarjeta (.module-card) que el bento de arriba, en secuencia
+   horizontal con flechas en vez de grid — reutiliza el vocabulario visual
+   en vez de inventar un componente nuevo. */
+
+.line-flow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  overflow-x: auto;
+}
+
+.line-station {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.line-arrow {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 18px;
+}
+
+@media (max-width: 900px) {
+  .line-flow {
+    flex-direction: column;
+  }
+  .line-station {
+    min-width: 0;
+  }
+  .line-arrow {
+    transform: rotate(90deg);
+    padding: var(--space-1) 0;
   }
 }
 
@@ -892,6 +1041,22 @@ code {
   color: var(--text-secondary);
   font-size: 12.5px;
   text-wrap: pretty;
+}
+
+/* ---------- captura continua (auto-refresh, Decisión 9 / ADR 0009) ---------- */
+
+.auto-refresh-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.auto-refresh-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 /* ---------- franja de instrumentos (resumen) ---------- */
@@ -1447,5 +1612,9 @@ summary:focus-visible {
   .scroll-line {
     animation: none;
     opacity: 0.5;
+  }
+  .camera-spinner {
+    animation: none;
+    border-top-color: var(--border-strong);
   }
 }

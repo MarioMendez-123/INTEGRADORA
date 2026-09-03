@@ -7,3 +7,11 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
+
+# Dependencias del modo demo de escritorio (streaming de cámara en
+# GET /perception/stream), no de la arquitectura de producción real — en el
+# Jetson real la percepción vive en edge/, no en backend/. Ver el comentario
+# junto a ese endpoint en main.py para el detalle completo.
+opencv-contrib-python
+ultralytics
+pyzbar

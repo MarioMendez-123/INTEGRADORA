@@ -20,6 +20,7 @@
       <a class="wordmark" href="/"><b>AETHER</b> · industrial systems</a>
       <div class="navlinks">
         <a href="#sistema">Sistema</a>
+        <a href="#linea-manufactura">Línea</a>
         <a href="#arquitectura">Arquitectura</a>
         <a href="#equipo">Equipo</a>
       </div>
@@ -33,9 +34,9 @@
       <div class="kicker">proyecto integrador · manufactura + inventario robótico</div>
       <h1>AETHER</h1>
       <p class="tagline">
-        Una unidad móvil que <b>inspecciona inventario</b> y una línea de manufactura
-        con <b>brazos robóticos</b>, verificación por visión, unidas en un solo
-        sistema — no dos proyectos por separado.
+        Percepción robótica que <b>inspecciona y cuenta inventario</b>, integrada a
+        una línea de manufactura real donde <b>KUKA y UR5</b> ensamblan y verifican
+        cada pieza por visión — de principio a fin, un solo sistema.
       </p>
       <div class="cta-row">
         <a class="btn btn--primary" href="#percepcion">INICIALIZAR SISTEMA</a>
@@ -53,20 +54,36 @@
         <span class="section-kicker">M.01 — Percepción</span>
         <h2 class="section-title">Vista en vivo</h2>
         <p class="section-note">
-          Esto es lo que verá esta interfaz cuando la cámara del robot esté
-          conectada — todavía no lo está. El módulo de percepción en sí ya
-          funciona (<code>edge/perception/</code>, Decisión 1); lo que falta es
-          transmitir ese flujo hasta aquí.
+          Pipeline de percepción en vivo: YOLO detecta y cuenta, lectura de
+          código de barras/QR identifica el producto, ArUco verifica la
+          ubicación (Decisiones 1 y 2).
         </p>
-        <div class="camera-placeholder reticle">
+        <div class="camera-placeholder reticle" id="camera-placeholder">
+          <img
+            class="camera-stream"
+            id="camera-stream"
+            alt="Transmisión en vivo del pipeline de percepción — YOLO + código de barras/QR + ArUco"
+            hidden
+          />
           <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
           <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
           <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
           <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
-          <span class="camera-label">CAM_01 · SIN SEÑAL</span>
-          <p class="camera-placeholder-text">
-            Vista en vivo de la cámara — próximamente en esta interfaz.
+          <span class="camera-label" id="camera-label">CAM_01 · SIN SEÑAL</span>
+          <p class="camera-placeholder-text" id="camera-placeholder-text">
+            Presiona "Iniciar cámara" para activar la transmisión en vivo.
           </p>
+          <div class="camera-loading" id="camera-loading" hidden>
+            <span class="camera-spinner" aria-hidden="true"></span>
+            <p class="camera-loading-text" id="camera-loading-text">Estableciendo conexión…</p>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button type="button" class="btn btn--primary" id="camera-start">
+            Iniciar cámara
+          </button>
+          <button type="button" class="btn" id="camera-stop" hidden>Detener</button>
+          <button type="button" class="btn" id="camera-fullscreen" hidden>Pantalla completa</button>
         </div>
       </div>
     </section>
@@ -158,23 +175,133 @@
             </div>
           </div>
 
-          <div class="module-card module-card--pending span-2" aria-disabled="true">
+          <a class="module-card module-card--active reticle span-2" href="#linea-manufactura">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
             <div class="module-head">
               <span class="module-tag">M.05</span>
               <h3 class="module-title">Línea de manufactura</h3>
             </div>
             <p class="module-desc">
               KUKA KR6 → UR5 → visión de verificación → Aether Inventory.
-              Arquitectura ya cerrada en ADR 0008 (handshake punto a punto entre
-              estaciones + registro pasivo de cada evento vía MQTT); pendiente de
-              los tres robots físicos para operar end-to-end.
+              Arquitectura ya cerrada en ADR 0008; visión de línea disponible
+              como demo, KUKA/UR5 y el handshake real siguen pendientes de
+              hardware.
+            </p>
+            <div class="module-status module-status--pending">
+              <span class="status-dot" aria-hidden="true"></span>Parcial — visión en demo
+              <span class="module-nav-arrow" aria-hidden="true">→ Línea de manufactura</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" id="linea-manufactura" aria-labelledby="line-heading">
+      <div class="section-shell">
+        <span class="section-kicker">M.05 — Línea de manufactura</span>
+        <h2 class="section-title" id="line-heading">Línea de manufactura</h2>
+        <p class="section-note">
+          Arquitectura cerrada en ADR 0008: KUKA coloca la pieza, UR5 la
+          ensambla, visión confirma, Aether Inventory la recoge. De las
+          cuatro estaciones, hoy solo Visión tiene una demo real —
+          reutilizando el mismo stack de percepción ya establecido (YOLO),
+          consistente con la propia decisión 8c.
+        </p>
+
+        <div class="line-flow">
+          <div class="module-card module-card--pending line-station" aria-disabled="true">
+            <div class="module-head">
+              <span class="module-tag">01</span>
+              <h3 class="module-title">KUKA KR6</h3>
+            </div>
+            <p class="module-desc">Coloca la pieza en la banda transportadora.</p>
+            <div class="module-status module-status--pending">
+              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+            </div>
+          </div>
+
+          <span class="line-arrow" aria-hidden="true">→</span>
+
+          <div class="module-card module-card--pending line-station" aria-disabled="true">
+            <div class="module-head">
+              <span class="module-tag">02</span>
+              <h3 class="module-title">UR5</h3>
+            </div>
+            <p class="module-desc">
+              Ensambla por trayectorias pre-programadas, sin Learning from
+              Demonstration.
             </p>
             <div class="module-status module-status--pending">
               <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
-              <span class="module-no-route" aria-hidden="true">sin interfaz</span>
+            </div>
+          </div>
+
+          <span class="line-arrow" aria-hidden="true">→</span>
+
+          <div class="module-card module-card--live reticle line-station" id="line-station-vision">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+            <div class="module-head">
+              <span class="module-tag">03</span>
+              <h3 class="module-title">Visión</h3>
+            </div>
+            <p class="module-desc">Confirmación binaria — pieza ensamblada sí/no.</p>
+            <div class="module-status module-status--idle" id="line-vision-station-status">
+              <span class="status-dot" id="line-vision-dot" aria-hidden="true"></span>
+              <span id="line-vision-status-text">Inactiva</span>
+            </div>
+          </div>
+
+          <span class="line-arrow" aria-hidden="true">→</span>
+
+          <div class="module-card module-card--pending line-station" aria-disabled="true">
+            <div class="module-head">
+              <span class="module-tag">04</span>
+              <h3 class="module-title">Aether Inventory</h3>
+            </div>
+            <p class="module-desc">Recoge y transporta la pieza terminada.</p>
+            <div class="module-status module-status--pending">
+              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
             </div>
           </div>
         </div>
+
+        <div class="camera-placeholder reticle" id="line-vision-placeholder">
+          <img
+            class="camera-stream"
+            id="line-vision-stream"
+            alt="Transmisión de visión de línea — confirmación binaria de pieza ensamblada"
+            hidden
+          />
+          <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+          <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+          <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+          <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+          <span class="camera-label" id="line-vision-label">VISIÓN · SIN SEÑAL</span>
+          <p class="camera-placeholder-text" id="line-vision-placeholder-text">
+            Presiona "Iniciar visión de línea" para activar la transmisión.
+          </p>
+          <div class="camera-loading" id="line-vision-loading" hidden>
+            <span class="camera-spinner" aria-hidden="true"></span>
+            <p class="camera-loading-text" id="line-vision-loading-text">Estableciendo conexión…</p>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button type="button" class="btn btn--primary" id="line-vision-start">
+            Iniciar visión de línea
+          </button>
+          <button type="button" class="btn" id="line-vision-stop" hidden>Detener</button>
+          <button type="button" class="btn" id="line-vision-fullscreen" hidden>Pantalla completa</button>
+        </div>
+        <p class="section-note">
+          Comparte la cámara de esta máquina con la sección Percepción — no
+          actives los dos streams a la vez.
+        </p>
       </div>
     </section>
 
@@ -297,5 +424,7 @@
 
     <script src="/node-field.js"></script>
     <script src="/portada.js"></script>
+    <script src="/camera-stream.js"></script>
+    <script src="/line-vision.js"></script>
   </body>
 </html>

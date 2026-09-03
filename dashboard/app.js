@@ -180,6 +180,26 @@ function renderDelta(current, previousRun) {
   return `<span class="delta delta--changed">${sign}${diff}</span>`;
 }
 
+// Qué corridas quedaron expandidas — se necesita para no colapsar todo cada
+// vez que el auto-refresh (Decisión 9) vuelve a pedir el historial: sin
+// esto, cada poll regresaría siempre a "solo la primera corrida abierta",
+// deshaciendo lo que la persona haya expandido a mano. Se llena la primera
+// vez que hay datos (la corrida más reciente abierta por default) y luego
+// solo la actualiza el propio evento "toggle" de abajo, nunca un re-render.
+const expandedHistoryGroups = new Set();
+let historyRenderedOnce = false;
+
+document.getElementById("history-list").addEventListener("toggle", (event) => {
+  const details = event.target.closest(".history-group");
+  if (!details) return;
+  const recordedAt = details.dataset.recordedAt;
+  if (details.open) {
+    expandedHistoryGroups.add(recordedAt);
+  } else {
+    expandedHistoryGroups.delete(recordedAt);
+  }
+});
+
 function renderHistory(rows) {
   const container = document.getElementById("history-list");
   const groups = groupByRecordedAt(rows);
@@ -193,7 +213,14 @@ function renderHistory(rows) {
   }
 
   const previousRunLookup = buildPreviousRunLookup(groups);
-  let isFirst = true;
+
+  if (!historyRenderedOnce) {
+    // Solo en el primer render real (con datos) se abre la corrida más
+    // reciente por default — los renders posteriores respetan lo que la
+    // persona haya expandido o cerrado a mano (expandedHistoryGroups).
+    expandedHistoryGroups.add([...groups.keys()][0]);
+    historyRenderedOnce = true;
+  }
 
   container.innerHTML = [...groups.entries()]
     .map(([recordedAt, groupRows]) => {
@@ -214,11 +241,10 @@ function renderHistory(rows) {
         })
         .join("");
 
-      const openAttr = isFirst ? "open" : "";
-      isFirst = false;
+      const openAttr = expandedHistoryGroups.has(recordedAt) ? "open" : "";
 
       const html = `
-        <details class="history-group" ${openAttr}>
+        <details class="history-group" ${openAttr} data-recorded-at="${recordedAt}">
           <summary>
             <span class="history-caret" aria-hidden="true"></span>
             <span class="history-summary-time">${formatTimestamp(recordedAt)}</span>
@@ -359,3 +385,94 @@ async function loadAll() {
 }
 
 loadAll();
+
+// Polling simple, sin WebSockets (Decisión 9 / ADR 0009 — auto-refresh es
+// una versión reducida de la Opción C de la Decisión 7, WebSockets sigue
+// fuera de alcance): el propio navegador vuelve a pedir /inventory e
+// /inventory/history cada DATA_POLL_MS, reusando loadAll() tal cual. Sigue
+// corriendo aunque la captura continua esté apagada — así también se ve un
+// refresco manual (backend/scripts/load_from_edge.py corrido a mano) sin
+// que la persona tenga que recargar la página.
+const DATA_POLL_MS = 8000;
+setInterval(loadAll, DATA_POLL_MS);
+
+// ---------- captura continua (auto-refresh de Declared Inventory) ----------
+
+const autoRefreshStartBtn = document.getElementById("auto-refresh-start");
+const autoRefreshStopBtn = document.getElementById("auto-refresh-stop");
+const autoRefreshStatusEl = document.getElementById("auto-refresh-status");
+const autoRefreshStatusText = document.getElementById("auto-refresh-status-text");
+const autoRefreshMeta = document.getElementById("auto-refresh-meta");
+const STATUS_POLL_MS = 5000;
+
+/** Texto honesto del estado — nunca "tiempo real del piso completo" (ADR
+ * 0009): solo dice si esta cámara fija se está recapturando sola o no, y
+ * cuándo fue la última corrida real. */
+function renderAutoRefreshStatus(status) {
+  autoRefreshStatusEl.classList.toggle("module-status--active", status.active);
+  autoRefreshStatusEl.classList.toggle("module-status--idle", !status.active);
+  autoRefreshStatusText.textContent = status.active
+    ? `Activa — cada ${status.interval_seconds}s`
+    : "Inactiva";
+  autoRefreshStartBtn.hidden = status.active;
+  autoRefreshStopBtn.hidden = !status.active;
+
+  const parts = [];
+  if (status.last_run_at) {
+    const count = status.last_run_observation_count ?? 0;
+    parts.push(
+      `Última corrida: ${formatTimestamp(status.last_run_at)} · ${count} observaciones`,
+    );
+  }
+  if (status.last_error) {
+    parts.push(`Último error: ${status.last_error}`);
+  }
+  autoRefreshMeta.textContent = parts.join(" — ");
+}
+
+async function refreshAutoRefreshStatus() {
+  try {
+    const status = await fetchJSON("/inventory/auto-refresh/status");
+    renderAutoRefreshStatus(status);
+  } catch (error) {
+    autoRefreshStatusText.textContent = "No disponible";
+    autoRefreshMeta.textContent = error.message;
+  }
+}
+
+autoRefreshStartBtn.addEventListener("click", async () => {
+  autoRefreshStartBtn.disabled = true;
+  try {
+    const response = await fetch("/inventory/auto-refresh/start", { method: "POST" });
+    if (response.ok) {
+      renderAutoRefreshStatus(await response.json());
+      loadAll(); // no espera al próximo poll para reflejar el cambio de estado
+    } else {
+      const detail = await response.json().catch(() => null);
+      autoRefreshMeta.textContent = detail?.detail || `No se pudo iniciar (error ${response.status}).`;
+    }
+  } catch (error) {
+    autoRefreshMeta.textContent = `No se pudo contactar al backend: ${error.message}`;
+  } finally {
+    autoRefreshStartBtn.disabled = false;
+  }
+});
+
+autoRefreshStopBtn.addEventListener("click", async () => {
+  autoRefreshStopBtn.disabled = true;
+  try {
+    const response = await fetch("/inventory/auto-refresh/stop", { method: "POST" });
+    if (response.ok) {
+      renderAutoRefreshStatus(await response.json());
+    } else {
+      autoRefreshMeta.textContent = `No se pudo detener (error ${response.status}).`;
+    }
+  } catch (error) {
+    autoRefreshMeta.textContent = `No se pudo contactar al backend: ${error.message}`;
+  } finally {
+    autoRefreshStopBtn.disabled = false;
+  }
+});
+
+refreshAutoRefreshStatus();
+setInterval(refreshAutoRefreshStatus, STATUS_POLL_MS);

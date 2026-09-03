@@ -105,6 +105,40 @@ cuando llegue su fase de implementación.
 > cambio futuro a estas decisiones debe seguir el proceso de cambio de la
 > sección 9 antes de modificarse aquí.
 
+### Decisiones posteriores a Fase 0
+
+| # | Decisión | Resolución |
+|---|----------|------------|
+| 9 | Auto-refresh de Declared Inventory | **Adoptada el 2026-09-02.** Loop automático en el backend: captura + agregación + carga cada N segundos (configurable, default 15-30s), que refresca `declared_entries` y `declared_entry_history` sin intervención manual. El dashboard refleja los cambios por polling simple sobre `GET /inventory` / `GET /inventory/history` ya existentes — sin WebSockets todavía. Iniciable/detenible desde el propio dashboard. |
+
+> **Decisión 9 es una versión reducida y parcial de la Opción C de la
+> Decisión 7** (monitoreo en vivo), que quedó explícitamente diferida como
+> "evolución obligatoria posterior al MVP" — no una implementación completa
+> de esa opción. La diferencia es de alcance, no solo de grado: esto
+> automatiza únicamente el refresco del **inventario ya calculado**
+> (Declared Inventory), reusando la misma tubería manual de siempre
+> (percepción → agregación → carga) con un temporizador en vez de una
+> persona. La Opción C completa — telemetría en vivo del robot (batería,
+> posición, tarea en curso) — sigue diferida sin cambios; la Decisión 9 no
+> la resuelve ni la reemplaza.
+>
+> Esta decisión se vuelve viable ahora porque `CameraPublisher`
+> (`backend/camera_publisher.py`) ya resuelve la contención de cámara entre
+> clientes: antes, un loop de captura continua en segundo plano habría
+> competido por el mismo dispositivo físico con el botón de demo
+> interactiva de Percepción (`GET /perception/stream`). Con el publicador
+> compartido, ambos pueden suscribirse a la misma cámara al mismo tiempo
+> sin abrir dos veces el dispositivo.
+>
+> **Lo que NO cambia:** la interfaz sigue dejando explícito que esto es la
+> vista de ESTA cámara fija en modo demo, no cobertura real del piso
+> completo. La nota de honestidad sobre cobertura y el módulo de
+> Navegación (`inventory.html`, y la terminología precisa de la sección
+> 4.2) se mantiene sin modificarse: el estado de cobertura (`PARTIAL` /
+> `COMPLETE` / `INVALID`) sigue sin implementarse, y "capturar
+> automáticamente" no implica "ver todo el inventario real" — solo implica
+> que la persona ya no tiene que correr el comando a mano.
+
 ---
 
 ## 4. PRINCIPIOS NO NEGOCIABLES (aplican a TODO el proyecto)
@@ -158,7 +192,8 @@ nota o comentario, nunca se implementa por adelantado.
 ## 5. STACK TECNOLÓGICO CONSOLIDADO
 
 ### Hardware
-- Cómputo de borde: NVIDIA Jetson Orin Nano Super 8GB (principal) / Raspberry Pi 5 + AI HAT+ (contingencia)
+- Cómputo de borde: NVIDIA Jetson Orin Nano Super 8GB (principal) / Raspberry Pi 5 + AI HAT+ (contingencia) — va montado en el robot móvil, corre Percepción (YOLO + código + ArUco)
+- Cómputo de visión de línea (Decisión 8c): PC/laptop de escritorio normal, en un punto fijo cerca de la celda de manufactura — **no** un dispositivo embebido, y separada del Jetson del robot móvil. Un microcontrolador (ESP32/STM32) no tiene GPU para correr YOLO; una PC de escritorio sí, y es más barata que un segundo Jetson dedicado a una estación que no se mueve.
 - Control de bajo nivel: ESP32 o STM32
 - Línea de manufactura (Decisión 8): **KUKA KR6** (colocación) + **UR5**
   (ensamble, trayectorias pre-programadas) — hardware real, sin simulación.

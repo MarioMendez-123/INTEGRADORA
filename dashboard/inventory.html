@@ -40,6 +40,33 @@
         garantía de cobertura total.
       </p>
 
+      <section class="panel" aria-labelledby="auto-refresh-heading">
+        <div class="panel-head">
+          <h2 id="auto-refresh-heading">Captura continua de esta cámara</h2>
+          <div class="module-status module-status--idle" id="auto-refresh-status">
+            <span class="status-dot" id="auto-refresh-dot" aria-hidden="true"></span>
+            <span id="auto-refresh-status-text">Consultando…</span>
+          </div>
+        </div>
+        <div class="auto-refresh-body">
+          <p class="section-note">
+            Decisión 9 (ADR 0009) — versión reducida de la Opción C de la Decisión 7:
+            refresca Declared Inventory solo, recapturando esta cámara fija cada
+            cierto tiempo. <strong>No es inventario en tiempo real de todo el
+            piso</strong> — esta sección ve solo lo que hay frente a esta cámara
+            en modo demo, no la cobertura real del piso completo (eso sigue
+            dependiendo del módulo de Navegación, ver nota arriba).
+          </p>
+          <div class="auto-refresh-controls">
+            <button type="button" class="btn btn--primary" id="auto-refresh-start">
+              Iniciar captura continua
+            </button>
+            <button type="button" class="btn" id="auto-refresh-stop" hidden>Detener</button>
+            <span class="panel-meta" id="auto-refresh-meta"></span>
+          </div>
+        </div>
+      </section>
+
       <section class="gauge-strip" aria-label="Resumen de inventario">
         <div class="gauge-cell">
           <span class="gauge-label">Identificados por código</span>
