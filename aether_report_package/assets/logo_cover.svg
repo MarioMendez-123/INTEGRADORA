@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" width="1000" height="420">
+  <defs>
+    <linearGradient id="violetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B7FFF"/>
+      <stop offset="100%" stop-color="#5B4FE8"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="420" fill="#05070A"/>
+
+  <!-- Mark: hexagonal node lattice, evokes sensor/inspection nodes -->
+  <g transform="translate(60,60)">
+    <polygon points="150,0 280,75 280,225 150,300 20,225 20,75" fill="none" stroke="url(#violetGrad)" stroke-width="6"/>
+    <line x1="150" y1="0" x2="150" y2="150" stroke="#5B4FE8" stroke-width="3" opacity="0.55"/>
+    <line x1="280" y1="75" x2="150" y2="150" stroke="#5B4FE8" stroke-width="3" opacity="0.55"/>
+    <line x1="280" y1="225" x2="150" y2="150" stroke="#5B4FE8" stroke-width="3" opacity="0.55"/>
+    <line x1="150" y1="300" x2="150" y2="150" stroke="#5B4FE8" stroke-width="3" opacity="0.55"/>
+    <line x1="20" y1="225" x2="150" y2="150" stroke="#5B4FE8" stroke-width="3" opacity="0.55"/>
+    <line x1="20" y1="75" x2="150" y2="150" stroke="#5B4FE8" stroke-width="3" opacity="0.55"/>
+    <circle cx="150" cy="0" r="9" fill="#8B7FFF"/>
+    <circle cx="280" cy="75" r="9" fill="#8B7FFF"/>
+    <circle cx="280" cy="225" r="9" fill="#8B7FFF"/>
+    <circle cx="150" cy="300" r="9" fill="#8B7FFF"/>
+    <circle cx="20" cy="225" r="9" fill="#8B7FFF"/>
+    <circle cx="20" cy="75" r="9" fill="#8B7FFF"/>
+    <circle cx="150" cy="150" r="13" fill="#F2F3F7"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="400" y="205" font-family="Bebas Neue" font-size="150" fill="#F2F3F7" letter-spacing="4">AETHER</text>
+  <text x="404" y="255" font-family="IBM Plex Mono" font-size="30" fill="#8A93A6" letter-spacing="10">INDUSTRIAL SYSTEMS</text>
+</svg>

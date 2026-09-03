@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 1100" width="850" height="1100">
+  <defs>
+    <linearGradient id="violetGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B7FFF"/>
+      <stop offset="100%" stop-color="#5B4FE8"/>
+    </linearGradient>
+    <radialGradient id="veil" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#0A0F16" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#05070A" stop-opacity="0.9"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="850" height="1100" fill="#05070A"/>
+
+  <!-- faint node field texture -->
+  <g opacity="0.35" stroke="#5B4FE8" stroke-width="1">
+    <line x1="60" y1="120" x2="180" y2="80"/>
+    <line x1="180" y1="80" x2="260" y2="160"/>
+    <line x1="700" y1="140" x2="780" y2="90"/>
+    <line x1="620" y1="200" x2="700" y2="140"/>
+    <line x1="90" y1="900" x2="180" y2="960"/>
+    <line x1="180" y1="960" x2="120" y2="1020"/>
+    <line x1="740" y1="920" x2="800" y2="980"/>
+    <line x1="680" y1="980" x2="740" y2="920"/>
+  </g>
+  <g fill="#8B7FFF" opacity="0.5">
+    <circle cx="60" cy="120" r="3"/>
+    <circle cx="180" cy="80" r="3"/>
+    <circle cx="260" cy="160" r="3"/>
+    <circle cx="700" cy="140" r="3"/>
+    <circle cx="780" cy="90" r="3"/>
+    <circle cx="620" cy="200" r="3"/>
+    <circle cx="90" cy="900" r="3"/>
+    <circle cx="180" cy="960" r="3"/>
+    <circle cx="120" cy="1020" r="3"/>
+    <circle cx="740" cy="920" r="3"/>
+    <circle cx="800" cy="980" r="3"/>
+    <circle cx="680" cy="980" r="3"/>
+  </g>
+  <rect width="850" height="1100" fill="url(#veil)"/>
+
+  <!-- kicker -->
+  <text x="425" y="108" font-family="IBM Plex Mono" font-size="15" fill="#8A93A6" letter-spacing="6" text-anchor="middle">PROYECTO INTEGRADOR · ÁREA MECATRÓNICA</text>
+
+  <!-- hexagon mark -->
+  <g transform="translate(345,150)">
+    <polygon points="80,0 149,40 149,120 80,160 11,120 11,40" fill="none" stroke="url(#violetGrad2)" stroke-width="4"/>
+    <line x1="80" y1="0" x2="80" y2="80" stroke="#5B4FE8" stroke-width="2" opacity="0.55"/>
+    <line x1="149" y1="40" x2="80" y2="80" stroke="#5B4FE8" stroke-width="2" opacity="0.55"/>
+    <line x1="149" y1="120" x2="80" y2="80" stroke="#5B4FE8" stroke-width="2" opacity="0.55"/>
+    <line x1="80" y1="160" x2="80" y2="80" stroke="#5B4FE8" stroke-width="2" opacity="0.55"/>
+    <line x1="11" y1="120" x2="80" y2="80" stroke="#5B4FE8" stroke-width="2" opacity="0.55"/>
+    <line x1="11" y1="40" x2="80" y2="80" stroke="#5B4FE8" stroke-width="2" opacity="0.55"/>
+    <circle cx="80" cy="0" r="5" fill="#8B7FFF"/>
+    <circle cx="149" cy="40" r="5" fill="#8B7FFF"/>
+    <circle cx="149" cy="120" r="5" fill="#8B7FFF"/>
+    <circle cx="80" cy="160" r="5" fill="#8B7FFF"/>
+    <circle cx="11" cy="120" r="5" fill="#8B7FFF"/>
+    <circle cx="11" cy="40" r="5" fill="#8B7FFF"/>
+    <circle cx="80" cy="80" r="7" fill="#F2F3F7"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="425" y="382" font-family="Bebas Neue" font-size="92" fill="#F2F3F7" letter-spacing="6" text-anchor="middle">AETHER</text>
+  <text x="425" y="415" font-family="IBM Plex Mono" font-size="17" fill="#8A93A6" letter-spacing="9" text-anchor="middle">INDUSTRIAL SYSTEMS</text>
+
+  <line x1="245" y1="450" x2="605" y2="450" stroke="#5B4FE8" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- report title -->
+  <text x="425" y="500" font-family="IBM Plex Sans" font-size="22" font-weight="600" fill="#F2F3F7" text-anchor="middle">INFORME DE IMPLEMENTACIÓN INDUSTRIAL DEL</text>
+  <text x="425" y="530" font-family="IBM Plex Sans" font-size="22" font-weight="600" fill="#F2F3F7" text-anchor="middle">PROYECTO INTEGRADOR EN EL ÁREA MECATRÓNICA</text>
+
+  <!-- team -->
+  <text x="425" y="610" font-family="IBM Plex Mono" font-size="14" fill="#8A93A6" letter-spacing="4" text-anchor="middle">INTEGRANTES</text>
+
+  <g font-family="IBM Plex Sans" font-size="17" fill="#E7E9EE" text-anchor="middle">
+    <text x="425" y="645">Mario Iván Méndez Álvarez</text>
+    <text x="425" y="672">Sadher Isaac Torres Galindo</text>
+    <text x="425" y="699">Pedro José Pallares Muñoz</text>
+    <text x="425" y="726">David Gerardo Garnica Chaparro</text>
+    <text x="425" y="753">Juan Emmanuel Martínez Aguirre</text>
+    <text x="425" y="780">Uriel Armando Rivero Rivero</text>
+  </g>
+
+  <line x1="245" y1="825" x2="605" y2="825" stroke="#5B4FE8" stroke-width="1.5" opacity="0.6"/>
+
+  <g font-family="IBM Plex Sans" font-size="16" fill="#C7CCD6" text-anchor="middle">
+    <text x="425" y="865">Grupo: 9IME1M</text>
+    <text x="425" y="892">Universidad Tecnológica de Chihuahua Sur</text>
+    <text x="425" y="919">Profesor encargado: Jesús Fernando Rivera Soto</text>
+  </g>
+
+  <text x="425" y="1000" font-family="IBM Plex Mono" font-size="13" fill="#5A5F6E" letter-spacing="3" text-anchor="middle">CHIHUAHUA, MÉXICO · 2026</text>
+</svg>

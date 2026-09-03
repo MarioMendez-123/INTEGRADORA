@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 130" width="560" height="130">
+  <g transform="translate(6,6)">
+    <polygon points="59,0 110,29 110,88 59,117 8,88 8,29" fill="none" stroke="#5B4FE8" stroke-width="4"/>
+    <circle cx="59" cy="0" r="4.5" fill="#5B4FE8"/>
+    <circle cx="110" cy="29" r="4.5" fill="#5B4FE8"/>
+    <circle cx="110" cy="88" r="4.5" fill="#5B4FE8"/>
+    <circle cx="59" cy="117" r="4.5" fill="#5B4FE8"/>
+    <circle cx="8" cy="88" r="4.5" fill="#5B4FE8"/>
+    <circle cx="8" cy="29" r="4.5" fill="#5B4FE8"/>
+  </g>
+  <text x="140" y="72" font-family="Bebas Neue" font-size="58" fill="#14171F" letter-spacing="2">AETHER</text>
+  <text x="142" y="98" font-family="IBM Plex Mono" font-size="14" fill="#6B7280" letter-spacing="5">INDUSTRIAL SYSTEMS</text>
+</svg>

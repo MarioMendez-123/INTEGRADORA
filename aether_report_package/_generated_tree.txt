@@ -1,0 +1,168 @@
+INTEGRADORAAHORASI/
+├── backend/
+│   ├── api/
+│   │   └── .gitkeep
+│   ├── db/
+│   │   ├── migrations/
+│   │   │   └── .gitkeep
+│   │   ├── models/
+│   │   │   ├── .gitkeep
+│   │   │   ├── declared_entry_history.py
+│   │   │   └── declared_entry.py
+│   │   └── database.py
+│   ├── logs/
+│   │   └── backend.log
+│   ├── scripts/
+│   │   └── load_from_edge.py
+│   ├── services/
+│   │   └── .gitkeep
+│   ├── aether.db
+│   ├── logging_config.py
+│   ├── main.py
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── requirements-dev.txt
+│   ├── requirements.txt
+│   └── yolov8n.pt
+├── contracts/
+│   ├── inventory_to_manipulation.schema.json
+│   ├── line_handshake_protocol.md
+│   ├── mqtt_topics.md
+│   └── rest_api.md
+├── dashboard/
+│   ├── .gitkeep
+│   ├── app.js
+│   ├── camera-stream.js
+│   ├── index.html
+│   ├── inventory.html
+│   ├── line-vision.js
+│   ├── node-field.js
+│   ├── portada.js
+│   └── style.css
+├── docs/
+│   ├── academic/
+│   │   ├── AI_CONTEXT.md
+│   │   └── arquitectura_ideal.md
+│   ├── architecture/
+│   │   ├── decisions/
+│   │   │   ├── 0001-percepcion.md
+│   │   │   ├── 0002-localizacion.md
+│   │   │   ├── 0003-navegacion.md
+│   │   │   ├── 0004-hardware-computo.md
+│   │   │   ├── 0005-esquema-datos.md
+│   │   │   ├── 0006-comunicaciones.md
+│   │   │   ├── 0007-alcance-dashboard.md
+│   │   │   ├── 0008-integracion-manipulacion.md
+│   │   │   └── criterios_aceptacion.md
+│   │   └── diagrams/
+│   │       └── .gitkeep
+│   └── quotations/
+│       └── .gitkeep
+├── edge/
+│   ├── comms/
+│   │   ├── mqtt_client/
+│   │   │   └── .gitkeep
+│   │   └── safety_independent_stop/
+│   │       └── .gitkeep
+│   ├── inventory_engine/
+│   │   ├── declared_inventory/
+│   │   │   ├── .gitkeep
+│   │   │   └── declared_entry.py
+│   │   ├── observations/
+│   │   │   ├── .gitkeep
+│   │   │   └── observation.py
+│   │   ├── aggregate_observations.py
+│   │   ├── coverage_states.py
+│   │   └── declared_inventory_output.json
+│   ├── logs/
+│   │   └── edge.log
+│   ├── manipulation/
+│   │   ├── arm_control/
+│   │   │   ├── kuka_kr6/
+│   │   │   │   ├── .gitkeep
+│   │   │   │   └── README.md
+│   │   │   └── ur5/
+│   │   │       ├── .gitkeep
+│   │   │       └── README.md
+│   │   ├── lfd/
+│   │   │   ├── demonstration_capture/
+│   │   │   │   └── .gitkeep
+│   │   │   ├── pose_estimation/
+│   │   │   │   └── .gitkeep
+│   │   │   ├── segmentation/
+│   │   │   │   └── .gitkeep
+│   │   │   └── README.md
+│   │   ├── line_events_listener/
+│   │   │   └── .gitkeep
+│   │   ├── line_vision/
+│   │   │   └── .gitkeep
+│   │   └── task_planning/
+│   │       └── README.md
+│   ├── navigation/
+│   │   ├── obstacle_detection/
+│   │   │   └── .gitkeep
+│   │   ├── odometry/
+│   │   │   └── .gitkeep
+│   │   └── waypoints/
+│   │       └── .gitkeep
+│   ├── perception/
+│   │   ├── aruco_localization/
+│   │   │   └── .gitkeep
+│   │   ├── aruco_markers/
+│   │   │   ├── aruco_0.png
+│   │   │   ├── aruco_1.png
+│   │   │   ├── aruco_2.png
+│   │   │   └── aruco_3.png
+│   │   ├── barcode_qr/
+│   │   │   └── .gitkeep
+│   │   ├── yolo_detection/
+│   │   │   └── .gitkeep
+│   │   ├── _capture_report_frame.py
+│   │   ├── _report_frame.png
+│   │   ├── generate_aruco_markers.py
+│   │   ├── observations_output.json
+│   │   ├── test_aruco.py
+│   │   ├── test_barcode.py
+│   │   ├── test_camera.py
+│   │   ├── test_combined.py
+│   │   ├── test_detection_rate.py
+│   │   ├── test_yolo.py
+│   │   └── yolov8n.pt
+│   ├── logging_config.py
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── requirements-dev.txt
+│   └── requirements.txt
+├── firmware/
+│   ├── motor_control/
+│   │   └── .gitkeep
+│   ├── pwm_drivers/
+│   │   └── .gitkeep
+│   └── safety_watchdog/
+│       └── .gitkeep
+├── hardware/
+│   ├── bom/
+│   │   └── .gitkeep
+│   └── wiring/
+│       └── .gitkeep
+├── scripts/
+│   └── .gitkeep
+├── tests/
+│   ├── backend/
+│   │   ├── .gitkeep
+│   │   ├── test_main.py
+│   │   └── test_setup.py
+│   ├── edge/
+│   │   ├── .gitkeep
+│   │   ├── test_aggregate_observations.py
+│   │   └── test_setup.py
+│   └── manipulation/
+│       └── .gitkeep
+├── .gitignore
+├── aether_context_docs.md
+├── CLAUDE.md
+├── package-lock.json
+├── package.json
+├── PyWhatKit_DB.txt
+├── skills-lock.json
+└── yolov8n.pt

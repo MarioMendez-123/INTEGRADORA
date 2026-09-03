@@ -1,0 +1,7 @@
+{
+  "name": "aether-informe",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "build": "node assemble.js" },
+  "dependencies": { "docx": "^9.0.0" }
+}
