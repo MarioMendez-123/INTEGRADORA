@@ -14,6 +14,10 @@ logs/
 edge/perception/observations_output.json
 edge/inventory_engine/declared_inventory_output.json
 
+# Output de prueba local de edge/perception/test_detection_rate.py — registro
+# crudo por objeto de una corrida manual de medición, no es código fuente
+edge/perception/detection_rate_output.json
+
 # Imágenes de marcadores ArUco generadas por
 # edge/perception/generate_aruco_markers.py — archivos generados, no código
 # fuente
