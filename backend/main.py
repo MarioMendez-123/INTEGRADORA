@@ -363,7 +363,15 @@ def _make_line_vision_processor():
     """Arma la confirmación binaria de Visión de línea una sola vez — mucho
     más simple que Percepción: no lee código de barras ni ArUco, solo dice
     si hay o no algún objeto detectado en el frame ("PIEZA DETECTADA" /
-    "SIN PIEZA")."""
+    "SIN PIEZA").
+
+    Esto es solo detección de presencia para la demo del dashboard, NO el
+    criterio real de PASS/FAIL de la ADR 0010 (sub-decisión 10c) — ese
+    criterio todavía no está definido ni implementado. Cuando exista, el
+    punto de emisión del Evento A de contracts/line_handshake_protocol.md
+    (resultado PASS/FAIL hacia el actuador del pistón) va aquí dentro de
+    process(), no en otro módulo — no fabricar esa emisión antes de que el
+    criterio real de inspección esté decidido."""
     import cv2
 
     model = _get_yolo_model()
@@ -737,8 +745,9 @@ def _clean_llm_answer(text: str) -> str:
 # inventaba contenido genérico de negocios ("fuente cerrada y exclusiva de
 # suministros") para llenar el vacío. Esta versión le da los hechos reales
 # de Aether (percepción con YOLO/códigos/ArUco, Declared Inventory, y que
-# los brazos KUKA/UR5 de la línea de manufactura son hardware PLANEADO, no
-# construido todavía) para que tenga algo verdadero en qué anclarse en vez
+# la línea de manufactura con banda transportadora, fixtures y pistón de
+# expulsión de scrap (ADR 0010) es hardware PLANEADO, no construido
+# todavía) para que tenga algo verdadero en qué anclarse en vez
 # de fabricar una historia — sigue pidiendo honestidad explícita
 # ("nunca inventes") para lo que quede fuera de esos hechos.
 LUMINA_SYSTEM_PROMPT = (
@@ -748,9 +757,11 @@ LUMINA_SYSTEM_PROMPT = (
     "que ya funcionan: (1) percepción, donde detectas objetos con YOLO, lees "
     "códigos de barras/QR, y ubicas marcadores ArUco; (2) un motor de "
     "inventario que agrupa lo que ves en un reporte llamado Declared "
-    "Inventory. También está planeada una línea de manufactura con un "
-    "brazo KUKA y un brazo UR5, pero esos brazos todavía no existen "
-    "físicamente — es hardware pendiente, no algo que ya hagas. Respondes "
+    "Inventory. También está planeada una línea de manufactura con una "
+    "banda transportadora, fixtures que sostienen cada pieza, y un pistón "
+    "que expulsa las piezas que fallan la inspección, pero eso todavía no "
+    "existe físicamente — es hardware pendiente, no algo que ya hagas. "
+    "Respondes "
     "en español, en UNA sola oración corta, tierna y cálida, como un "
     "compañero pequeño y curioso — nunca con lenguaje corporativo "
     "genérico ni inventando historias de negocios, proveedores o cifras "

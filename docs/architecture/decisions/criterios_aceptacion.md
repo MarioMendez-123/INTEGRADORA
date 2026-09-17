@@ -86,31 +86,46 @@ colado por la puerta de atrás.
       asociado — verificación de que no existe una vista que rompa el
       principio de honestidad de producto.
 
-## 8. Línea de manufactura (KUKA + UR5 + Aether Inventory)
+## 8. Línea de manufactura (banda + fixtures + pistón + Aether Inventory)
 
-- [ ] El KUKA KR6 coloca una pieza en la banda transportadora mediante su
-      trayectoria pre-programada, disparado por la señal externa definida
-      en `contracts/line_handshake_protocol.md`.
-- [ ] El UR5 ejecuta su trayectoria de ensamble al recibir el handshake del
-      KUKA.
-- [ ] El sistema de visión de línea emite una confirmación binaria (pieza
-      ensamblada correctamente sí/no) tras el ensamble del UR5.
-- [ ] Aether Inventory recoge y transporta la pieza terminada tras recibir
-      la confirmación positiva de visión.
-- [ ] Cada evento de la secuencia (KUKA→UR5→visión→Aether Inventory) queda
-      registrado como `Observation` vía el listener MQTT — verificable
-      revisando el historial tras una corrida completa.
+> Reemplaza la versión anterior de esta sección (KUKA + UR5), ver ADR 0010 —
+> supersede a ADR 0008.
+
+- [ ] La banda transportadora, con los fixtures que sostienen/posicionan
+      cada pieza, la lleva frente a la cámara de la estación de Visión de
+      línea.
+- [ ] El sistema de Visión de línea emite una decisión `PASS`/`FAIL` por
+      pieza, según el protocolo definido en
+      `contracts/line_handshake_protocol.md` (Evento A).
+- [ ] Cuando el resultado es `FAIL`, el pistón se dispara y expulsa la
+      pieza (scrap) de la banda. Cuando es `PASS`, no se dispara ninguna
+      señal de actuación.
+- [ ] Aether Inventory recoge y transporta la pieza aceptada (`PASS`) tras
+      pasar la estación de Visión.
+- [ ] Cada resultado de la línea (`PASS`/`FAIL`, y si el pistón disparó de
+      verdad) queda registrado como `Observation` vía el listener MQTT
+      (Evento B del protocolo) — verificable revisando el historial tras
+      una corrida completa.
 - [ ] Existe al menos una corrida completa **end-to-end** grabada en video o
-      log, desde que el KUKA coloca la primera pieza hasta que Aether
-      Inventory la transporta a destino.
+      log, incluyendo al menos un caso `PASS` y un caso `FAIL` con el
+      pistón disparando de verdad.
+
+> **Pendiente de implementación, no solo de hardware** (ver ADR 0010,
+> sub-decisión 10c): a la fecha de esta revisión, `backend/main.py` solo
+> implementa detección de presencia binaria en la Visión de línea, no un
+> criterio real de `PASS`/`FAIL` de ensamble. Ningún checkbox de esta
+> sección se marca hasta que ese criterio exista y se verifique contra
+> hardware real — no basta con la interfaz/protocolo definidos.
 
 ## 9. Fuera de alcance del MVP (criterio negativo)
 
 Igual de importante que lo anterior — define qué **no** se requiere, para que
 el alcance no se difumine durante la implementación:
 
-- [ ] No se requiere Learning from Demonstration funcional — las
-      trayectorias del UR5 son pre-programadas (ver ADR 0008).
+- [ ] No se requiere Learning from Demonstration funcional — no aplica ya
+      al no haber brazo robótico en el alcance; el control del actuador de
+      la línea (PLC o ESP32/STM32) es lógica programada de punto fijo, no
+      aprendida (ver ADR 0010).
 - [ ] No se requiere monitoreo en vivo del robot en el dashboard (Opción C —
       registrada como futuro necesario, no como parte del MVP; ver ADR
       0007).

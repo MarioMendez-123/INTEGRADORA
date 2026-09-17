@@ -15,8 +15,9 @@
  * Además de prender/apagar el <img>, refleja el estado real del stream en
  * la tarjeta de la estación "Visión" del flujo (id="line-vision-dot" /
  * "line-vision-status-text") — nunca toca las otras tres estaciones
- * (KUKA/UR5/Aether Inventory): esas siguen fijas en "Pendiente de
- * hardware" en el HTML, porque no hay nada real que animar ahí todavía.
+ * (Banda+fixtures/Pistón/Aether Inventory, ver ADR 0010): esas siguen fijas
+ * en "Pendiente de hardware" en el HTML, porque no hay nada real que animar
+ * ahí todavía.
  */
 
 const START_URL = "/line/vision/stream";

@@ -16,19 +16,22 @@
 1. **Aether Inventory**: unidad móvil autónoma de inspección de inventario
    (navegación, percepción, conteo, identificación de producto).
 2. **Aether Manipulation (línea de manufactura)**: línea de manufactura completa
-   y funcional end-to-end con hardware real — **KUKA KR6** (coloca piezas en la
-   banda transportadora) → **UR5** (ensambla mediante trayectorias
-   pre-programadas, sin Learning from Demonstration) → sistema de visión de
-   confirmación binaria → **Aether Inventory** (recoge la pieza terminada, la
-   transporta y registra todo el proceso). Producto de la línea: piezas
-   automovilísticas. Ver Decisión 8 en la sección 3 para el detalle completo.
+   y funcional end-to-end con hardware real — **banda transportadora** con
+   **fixtures** que sostienen/posicionan cada pieza → sistema de visión de
+   línea que decide **PASS/FAIL** → **pistón** que expulsa la pieza (scrap)
+   solo si falla la inspección → **Aether Inventory** (recoge la pieza
+   aceptada, la transporta y registra todo el proceso). Producto de la
+   línea: piezas automovilísticas. Ver Decisión 8/ADR 0010 en la sección 3
+   para el detalle completo.
 
 > ⚠️ **Corrección importante de alcance (ver sección 2):** el proyecto académico de
-> Mario **exige** integrar un brazo robótico. Esto no es una evolución futura ni un
-> "nice to have" — es alcance obligatorio del entregable académico. Cualquier
-> arquitectura, cronograma o estructura de carpetas debe reflejar esto desde el
-> día uno, aunque la implementación del brazo llegue en una fase posterior del
-> desarrollo.
+> Mario **exige** integrar manipulación/actuación física real en la línea de
+> manufactura, con hardware real, no una simulación. Esto no es una evolución
+> futura ni un "nice to have" — es alcance obligatorio del entregable
+> académico. La forma concreta de esa actuación cambió el 2026-09-16 (ver
+> Decisión 8/ADR 0010, sección 3): de un brazo robótico (KUKA+UR5) a banda
+> transportadora + fixtures + pistón de expulsión — el requisito de hardware
+> real end-to-end no cambió, solo el mecanismo que lo cumple.
 
 **Equipo:** 6 integrantes, con sede en Chihuahua, México.
 
@@ -84,6 +87,15 @@ cuando llegue su fase de implementación.
 > MQTT. El módulo de manipulación **sí** se implementa como parte del
 > entregable, no queda solo como andamiaje reservado.
 
+> **Actualización 2026-09-16:** Mario eliminó el brazo KUKA KR6 y el brazo UR5
+> del alcance (ver ADR 0010, que supersede a la ADR 0008 anterior). La lectura
+> de fondo de esta sección 2 — que la manipulación/actuación física es alcance
+> obligatorio, de primera clase, no un andamiaje reservado — sigue vigente sin
+> cambios; lo que cambió es el mecanismo concreto: ya no es un brazo con
+> trayectorias, es banda transportadora + fixtures + pistón de expulsión de
+> scrap, disparado por la decisión PASS/FAIL de Visión de línea. El stack de
+> LfD sigue descartado sin cambios (nunca aplicó tampoco al UR5, ver sección 5).
+
 ---
 
 ## 3. DECISIONES ARQUITECTÓNICAS DE FASE 0 (ESTADO ACTUAL)
@@ -99,7 +111,7 @@ cuando llegue su fase de implementación.
 | 5 | Esquema de datos | Separación en dos niveles: **Observations** (crudo) vs. **Declared Inventory** (declarado). Tres estados formales de cobertura: `PARTIAL`, `COMPLETE`, `INVALID`. Las inspecciones parciales **nunca** sobrescriben silenciosamente el inventario declarado previo. |
 | 6 | Comunicaciones | MQTT para telemetría; REST para consumo del dashboard. Los comandos de parada de seguridad son **independientes de la conectividad de red**, vía watchdog de hardware. |
 | 7 | Alcance mínimo del dashboard | **Opción B — Inventario Declarado + Historial y Trazabilidad.** Solo lectura vía REST: producto, cantidad, estado de cobertura, fecha de última inspección, más historial por ubicación (bitácora de inspecciones). El estado de cobertura debe mostrarse siempre con su explicación visible en la UI. Monitoreo en vivo (MQTT→WebSocket) queda **fuera del MVP pero registrado como evolución obligatoria**, no descartable — ver ADR 0007. |
-| 8 | Integración de manipulación — línea de manufactura completa | **KUKA KR6 + UR5 + Aether Inventory**, hardware real, producto: piezas automovilísticas. Trayectorias del UR5 **pre-programadas por waypoints, sin Learning from Demonstration** — nunca describir como "aprendizaje"/"learning". Orquestación: handshake punto a punto entre estaciones + listener MQTT que registra cada evento como Observation (sin orquestador central). Control de cada brazo: programación nativa del fabricante (KRL / URScript-PolyScope) + disparo externo simple por I/O. Visión de línea: confirmación binaria con el mismo stack ya establecido (OpenCV/YOLO ligero). Ver ADR 0008 (con sub-decisiones 8a, 8b, 8c) para el detalle completo. |
+| 8 | Integración de manipulación — línea de manufactura completa | **Revisada 2026-09-16, ver ADR 0010 (supersede ADR 0008).** Banda transportadora + fixtures (posicionan cada pieza) + **Aether Inventory**, hardware real, producto: piezas automovilísticas. Ya no hay brazos robóticos ni trayectorias programadas en el alcance. Visión de línea decide **PASS/FAIL**; si `FAIL`, se dispara un **pistón** que expulsa la pieza (scrap) — si `PASS`, no hay actuación. Orquestación: un solo punto de decisión (Visión) + listener MQTT que registra cada resultado como Observation (sin orquestador central, igual que antes). Control del actuador: programación nativa del controlador final (PLC o ESP32/STM32, **pendiente de definir con hardware en mano**) + disparo externo simple. Visión de línea: mismo stack ya establecido (OpenCV/YOLO ligero); a la fecha solo implementa detección de presencia, el criterio real de PASS/FAIL sigue pendiente de implementación. Ver ADR 0010 (con sub-decisiones 10a, 10b, 10c) para el detalle completo. |
 
 > **Estado del documento:** las 8 decisiones de Fase 0 están cerradas. Cualquier
 > cambio futuro a estas decisiones debe seguir el proceso de cambio de la
@@ -160,11 +172,12 @@ variables/endpoints, y UI)
 - "Cobertura completa" = finalización procedimental de la inspección, **no**
   garantía de visibilidad física de todo el inventario. El estado `COMPLETE`
   no implica "vimos todo el producto real".
-- El movimiento del UR5 es **programación de trayectorias fijas por
-  waypoints** en el controlador nativo del fabricante — nunca describirlo como
-  "el robot aprendió la tarea" ni como "learning" en código, comentarios,
-  documentación o frente al evaluador. No hay Learning from Demonstration en
-  el alcance decidido (ver Decisión 8 / ADR 0008).
+- El control del actuador de la línea (pistón de expulsión, vía PLC o
+  ESP32/STM32) es **lógica de control programada de punto fijo** — nunca
+  describirlo como "el sistema aprendió la tarea" ni como "learning" en
+  código, comentarios, documentación o frente al evaluador. No hay Learning
+  from Demonstration en el alcance decidido (ver Decisión 8 / ADR 0010; ya no
+  aplica al UR5, que se eliminó del alcance — ver ADR 0008, superada).
 
 ### 4.3 Verificación aritmética y de cifras
 Cuando el equipo provea cifras (cotizaciones, mediciones, tiempos), verificar y
@@ -195,11 +208,14 @@ nota o comentario, nunca se implementa por adelantado.
 - Cómputo de borde: NVIDIA Jetson Orin Nano Super 8GB (principal) / Raspberry Pi 5 + AI HAT+ (contingencia) — va montado en el robot móvil, corre Percepción (YOLO + código + ArUco)
 - Cómputo de visión de línea (Decisión 8c): PC/laptop de escritorio normal, en un punto fijo cerca de la celda de manufactura — **no** un dispositivo embebido, y separada del Jetson del robot móvil. Un microcontrolador (ESP32/STM32) no tiene GPU para correr YOLO; una PC de escritorio sí, y es más barata que un segundo Jetson dedicado a una estación que no se mueve.
 - Control de bajo nivel: ESP32 o STM32
-- Línea de manufactura (Decisión 8): **KUKA KR6** (colocación) + **UR5**
-  (ensamble, trayectorias pre-programadas) — hardware real, sin simulación.
-  Puente MQTT→I/O para disparo entre estaciones: **pendiente de investigación
-  técnica** (confirmar interfaz de E/S expuesta por cada controlador y si
-  requiere hardware adicional no cotizado).
+- Línea de manufactura (Decisión 8, revisada — ver ADR 0010): **banda
+  transportadora** + **fixtures** (posicionan cada pieza) + **pistón** de
+  expulsión de scrap — hardware real, sin simulación. Ya no hay brazos
+  robóticos en el alcance (KUKA KR6 y UR5 eliminados, 2026-09-16). Actuador
+  final del pistón: **PLC o ESP32/STM32, pendiente de definir con hardware en
+  mano**. Interfaz de disparo desde Visión de línea hacia ese actuador:
+  **pendiente de investigación técnica** (confirmar interfaz de E/S real
+  disponible y si requiere hardware adicional no cotizado).
 - Cámaras RGB (+ profundidad si aplica) para percepción de Aether Inventory y
   para el sistema de visión de confirmación de la línea (Decisión 8c)
 - Marcadores ArUco, lectores de código de barras/QR
@@ -212,9 +228,12 @@ nota o comentario, nunca se implementa por adelantado.
   solo para esa estación.
 
 ### Software — Manipulación / LfD: **descartado (Decisión 8)**
-No forma parte del alcance. El UR5 se controla por programación nativa del
-fabricante (URScript/PolyScope), no por planeación de trayectorias aprendida.
-Se deja constancia de que este stack fue evaluado y descartado, no olvidado:
+No forma parte del alcance. El actuador de la línea (pistón, vía PLC o
+ESP32/STM32 — ver ADR 0010) se controla por programación nativa de punto
+fijo, no por planeación de trayectorias aprendida — esto ya no aplica al UR5
+específicamente (eliminado del alcance, 2026-09-16), pero el principio de
+"sin LfD" se mantiene sin cambios para cualquier actuador de la línea. Se
+deja constancia de que este stack fue evaluado y descartado, no olvidado:
 - ~~MediaPipe (captura de esqueleto/manos)~~
 - ~~SAM2 (segmentación)~~
 - ~~Behavior Cloning, DMPs (Dynamic Movement Primitives)~~
@@ -267,17 +286,12 @@ aether/
 │   │   ├── observations/            # capa cruda
 │   │   ├── declared_inventory/      # capa declarada
 │   │   └── coverage_states.py       # PARTIAL / COMPLETE / INVALID
-│   ├── manipulation/                # Línea de manufactura (Decisión 8)
-│   │   ├── arm_control/
-│   │   │   ├── kuka_kr6/            # disparo I/O — trayectorias viven en el controlador KRL
-│   │   │   └── ur5/                 # disparo I/O — trayectorias viven en el controlador URScript/PolyScope
-│   │   ├── line_vision/             # confirmación binaria (8c) — separado de edge/perception
-│   │   ├── line_events_listener/    # listener MQTT → Observation (8a, handshake descentralizado)
-│   │   ├── task_planning/           # FUERA DE ALCANCE del MVP — ver README.md en la carpeta
-│   │   └── lfd/                     # FUERA DE ALCANCE del MVP — ver README.md en la carpeta
-│   │       ├── pose_estimation/
-│   │       ├── segmentation/
-│   │       └── demonstration_capture/
+│   ├── manipulation/                # Línea de manufactura (Decisión 8, revisada — ADR 0010)
+│   │   ├── line_actuation/          # reemplaza a arm_control/ (KUKA/UR5 eliminados, 2026-09-16)
+│   │   │   ├── plc_backend/         # si el actuador final es el PLC — pendiente de hardware
+│   │   │   └── mcu_backend/         # si el actuador final es ESP32/STM32 — pendiente de hardware
+│   │   ├── line_vision/             # confirmación binaria (10c) — separado de edge/perception
+│   │   └── line_events_listener/    # listener MQTT → Observation (10a, un solo punto de decisión)
 │   └── comms/
 │       ├── mqtt_client/
 │       └── safety_independent_stop/  # independiente de red, vía watchdog
@@ -291,7 +305,7 @@ aether/
 │
 ├── contracts/                       # Contratos de datos entre módulos (crítico)
 │   ├── inventory_to_manipulation.schema.json  # no requerido para el MVP de la línea (Decisión 8); se conserva por si una evolución futura lo requiere
-│   ├── line_handshake_protocol.md   # NUEVO (8a/8b) — señal de disparo entre estaciones y formato del evento registrado como Observation
+│   ├── line_handshake_protocol.md   # (10a/10b) — Visión decide PASS/FAIL, dispara el pistón solo si FAIL, formato del evento registrado como Observation
 │   ├── mqtt_topics.md
 │   └── rest_api.md                  # debe distinguir endpoints Opción B (implementar ya) vs Opción C (documentar, no implementar)
 │
@@ -311,20 +325,26 @@ aether/
 
 **Notas de diseño de esta estructura:**
 
-- `edge/manipulation/` existe desde el día uno; con la Decisión 8 cerrada, ya
-  tiene subestructura real (arm_control por robot, line_vision,
-  line_events_listener) en vez de placeholders genéricos.
-- `task_planning/` y `lfd/` se mantienen como carpetas (no se borran) pero
-  **fuera de alcance del MVP** por decisión explícita — cada una lleva un
-  `README.md` que lo explica, para que no se lean como "olvidadas".
+- `edge/manipulation/` existe desde el día uno; con la Decisión 8 revisada
+  (ADR 0010), tiene subestructura real (`line_actuation/` por tipo de
+  backend, `line_vision`, `line_events_listener`) en vez de placeholders
+  genéricos.
+- `arm_control/` (con `kuka_kr6/` y `ur5/`), `task_planning/` y `lfd/` se
+  **eliminaron** el 2026-09-16 (no se mantienen como placeholders): con el
+  brazo robótico fuera del alcance, no queda ni un brazo del cual disparar
+  trayectorias, planificar tareas, ni aprender por demostración. Mismo
+  criterio que ya se usó con `simulation/` (ver más abajo).
 - `contracts/` sigue materializando la disciplina de no filtrar suposiciones no
-  verificadas hacia una acción física: con la Decisión 8, el contrato activo es
-  `line_handshake_protocol.md` (registro de eventos de la línea como
-  Observation); `inventory_to_manipulation.schema.json` queda sin uso porque
-  Aether Inventory no dirige a los brazos, solo registra — se conserva por si
-  una evolución futura lo requiere.
+  verificadas hacia una acción física: con la Decisión 8/ADR 0010, el
+  contrato activo es `line_handshake_protocol.md` (Visión decide PASS/FAIL,
+  dispara el pistón solo si FAIL, registro de eventos como Observation);
+  `inventory_to_manipulation.schema.json` queda sin uso porque Aether
+  Inventory no dirige al actuador, solo registra — se conserva por si una
+  evolución futura lo requiere.
 - `docs/architecture/decisions/` lleva una ADR por cada decisión de Fase 0 (1 a
-  8, con 8a/8b/8c como sub-decisiones dentro de la ADR 0008). Fase 0 ya está
+  8, con 8a/8b/8c como sub-decisiones dentro de la ADR 0008), más la ADR 0010
+  que supersede a la 0008 (10a/10b/10c) sin borrarla — mismo patrón de
+  "superar sin borrar" que `docs/academic/AI_CONTEXT.md`. Fase 0 ya está
   cerrada — ver sección 3.
 - `simulation/` (PyBullet/Gazebo) se eliminó de esta estructura: estaba
   reservada para el stack de LfD, que ADR 0008 evaluó y descartó
@@ -345,9 +365,10 @@ Claude **no debe**:
 - Introducir tecnologías solo porque son populares.
 - Ocultar errores o afirmar que algo funciona sin haberlo comprobado.
 - Implementar el módulo de manipulación como si ya estuviera decidido en
-  detalle — la decisión 8 sigue abierta; construir el andamiaje (carpetas,
-  contratos) está bien, implementar lógica de negocio específica del brazo
-  antes de cerrar la decisión no lo está.
+  detalle — la elección de actuador final (PLC vs. ESP32/STM32, ver ADR
+  0010) sigue pendiente de hardware en mano; construir el andamiaje
+  (carpetas, contratos) está bien, implementar lógica de negocio específica
+  de uno u otro backend antes de confirmar esa elección no lo está.
 - Diluir la terminología de la sección 4.2 en nombres de variables, endpoints,
   mensajes de UI o documentación generada.
 
@@ -362,26 +383,33 @@ Claude **no debe**:
 
 ## 8. PRÓXIMOS PASOS
 
-Las decisiones 7 y 8 (con sus sub-decisiones 8a/8b/8c) ya están cerradas — ver
-sección 3 y las ADRs 0007/0008. Pasos pendientes actuales:
+Las decisiones 7 y 8 (con sus sub-decisiones, 8a/8b/8c originalmente, ahora
+10a/10b/10c) ya están cerradas — ver sección 3 y las ADRs 0007/0010 (0010
+supersede a 0008). Pasos pendientes actuales:
 
-1. Investigación técnica (no arquitectónica) del puente MQTT→I/O: confirmar la
-   interfaz de E/S real que exponen el KUKA KR6 y el UR5 disponibles, y si
-   requiere hardware adicional no cotizado (ver ADR 0008).
+1. Investigación técnica (no arquitectónica) del actuador final: confirmar si
+   es un PLC o un ESP32/STM32, qué interfaz de E/S/comunicación expone
+   realmente el disponible, y si requiere hardware adicional no cotizado (ver
+   ADR 0010).
 2. Documentar `contracts/line_handshake_protocol.md` con el detalle real una
-   vez resuelto el punto 1 (hoy solo tiene el principio decidido, sin la
-   interfaz concreta).
-3. Definir y documentar en `contracts/rest_api.md` los endpoints concretos de
+   vez resuelto el punto 1 (hoy solo tiene el principio decidido y el formato
+   de los dos eventos, sin la interfaz de transporte concreta).
+3. Implementar el criterio real de PASS/FAIL en Visión de línea
+   (`backend/main.py::_make_line_vision_processor` hoy solo hace detección de
+   presencia) y, si se decide, el clasificador de tipo de objeto (1/2/3) —
+   ver ADR 0010, sub-decisión 10c.
+4. Definir y documentar en `contracts/rest_api.md` los endpoints concretos de
    la Opción B del dashboard (inventario declarado + historial), distinguiendo
    los que se anticipan para la Opción C (monitoreo en vivo) sin implementarlos
    todavía.
-4. Repositorio ya inicializado con la estructura de carpetas de la sección 6
+5. Repositorio ya inicializado con la estructura de carpetas de la sección 6
    (andamiaje + `.gitkeep`/`README.md` donde aplica).
-5. Primer módulo a implementar: definir junto con el equipo cuál de
+6. Primer módulo a implementar: definir junto con el equipo cuál de
    `edge/perception`, `edge/navigation` o `backend/inventory_engine` arranca
    primero, respetando el principio de módulos independientes y probables. La
-   línea de manufactura (Decisión 8) tiene el riesgo de integración física más
-   alto del proyecto (ver ADR 0008) — monitorear activamente durante la
+   línea de manufactura (Decisión 8/ADR 0010) tiene el riesgo de integración
+   física más alto del proyecto, aunque menor que en la ADR 0008 original (ya
+   no hay tres robots coordinados) — monitorear activamente durante la
    implementación; no es algo que esta decisión de arquitectura resuelva por sí
    sola.
 
@@ -396,3 +424,20 @@ debe:
 2. Reflejarse en la ADR correspondiente dentro de `docs/architecture/decisions/`.
 3. Propagarse a la estructura de carpetas si aplica, siguiendo el proceso de la
    sección 7.
+
+### Registro de cambios
+
+- **2026-09-16 — Eliminación del brazo robótico (KUKA KR6 + UR5).** Motivo:
+  decisión de Mario de reemplazar la manipulación por actuación con banda
+  transportadora + fixtures + pistón de expulsión de scrap, disparado por la
+  decisión PASS/FAIL de Visión de línea. Reflejado en la ADR 0010
+  (`docs/architecture/decisions/0010-linea-banda-piston.md`), que supersede a
+  la ADR 0008 sin borrarla (mismo patrón que `docs/academic/AI_CONTEXT.md`).
+  Propagado a: secciones 1, 2, 3, 4.2, 5, 6, 7 y 8 de este documento;
+  `contracts/line_handshake_protocol.md`; `contracts/inventory_to_manipulation.schema.json`;
+  `docs/architecture/decisions/criterios_aceptacion.md` sección 8;
+  `backend/main.py` (`LUMINA_SYSTEM_PROMPT`); `dashboard/index.html` (sección
+  "Línea de manufactura"); eliminación de
+  `edge/manipulation/arm_control/{kuka_kr6,ur5}/`, `edge/manipulation/lfd/` y
+  `edge/manipulation/task_planning/`; creación de
+  `edge/manipulation/line_actuation/{plc_backend,mcu_backend}/`.

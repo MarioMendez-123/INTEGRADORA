@@ -1,5 +1,5 @@
 {
-  "$comment": "NO REQUERIDO para el MVP. La Decisión 8 (ver aether_context_docs.md sección 3 y ADR 0008) resolvió la línea de manufactura como handshake descentralizado + registro pasivo: Aether Inventory registra el proceso via edge/manipulation/line_events_listener/, no dirige a los brazos. Este esquema (inventory -> manipulation task) no aplica a esa arquitectura. Se conserva vacío por si una evolución futura requiere que el Inventory Engine dispare tareas de manipulación activamente; no fabricar campos hasta que esa evolución se decida y registre en aether_context_docs.md seccion 9.",
+  "$comment": "NO REQUERIDO para el MVP. La Decisión 8/ADR 0010 (ver aether_context_docs.md seccion 3) resolvio la linea de manufactura como un solo punto de decision (Vision de linea) + registro pasivo: Aether Inventory registra el proceso via edge/manipulation/line_events_listener/, no dirige al actuador (piston/banda). Este esquema (inventory -> manipulation task) no aplica a esa arquitectura. Se conserva vacio por si una evolucion futura requiere que el Inventory Engine dispare tareas de manipulacion activamente; no fabricar campos hasta que esa evolucion se decida y registre en aether_context_docs.md seccion 9.",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "inventory_to_manipulation (pendiente)",
   "type": "object",

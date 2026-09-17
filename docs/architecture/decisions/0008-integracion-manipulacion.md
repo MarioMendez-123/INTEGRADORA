@@ -1,6 +1,15 @@
 # ADR 0008 — Línea de manufactura completa (KUKA + UR5 + Aether Inventory)
 
-**Estado:** Aceptada
+> **SUPERADA por ADR 0010 (2026-09-16) — registro histórico, no arquitectura
+> vigente.** Mario decidió eliminar el brazo KUKA KR6 y el brazo UR5 del
+> alcance del proyecto. La línea física pasa a ser banda transportadora +
+> fixtures + pistón de expulsión de scrap — ver
+> `docs/architecture/decisions/0010-linea-banda-piston.md` para la decisión
+> vigente. Este documento se conserva sin modificar como registro de cómo se
+> decidió originalmente la integración de manipulación, siguiendo el mismo
+> patrón usado con `docs/academic/AI_CONTEXT.md`.
+
+**Estado:** Aceptada (histórica — ver banner de superación arriba)
 
 ## Contexto
 

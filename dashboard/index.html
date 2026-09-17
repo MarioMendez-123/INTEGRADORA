@@ -35,8 +35,9 @@
       <h1>AETHER</h1>
       <p class="tagline">
         Percepción robótica que <b>inspecciona y cuenta inventario</b>, integrada a
-        una línea de manufactura real donde <b>KUKA y UR5</b> ensamblan y verifican
-        cada pieza por visión — de principio a fin, un solo sistema.
+        una línea de manufactura real con <b>banda transportadora y pistón de
+        expulsión</b> que verifica cada pieza por visión — de principio a fin, un
+        solo sistema.
       </p>
       <div class="cta-row">
         <a class="btn btn--primary" href="#percepcion">INICIALIZAR SISTEMA</a>
@@ -185,10 +186,10 @@
               <h3 class="module-title">Línea de manufactura</h3>
             </div>
             <p class="module-desc">
-              KUKA KR6 → UR5 → visión de verificación → Aether Inventory.
-              Arquitectura ya cerrada en ADR 0008; visión de línea disponible
-              como demo, KUKA/UR5 y el handshake real siguen pendientes de
-              hardware.
+              Banda + fixtures → visión de verificación → pistón (scrap) →
+              Aether Inventory. Arquitectura cerrada en ADR 0010; visión de
+              línea disponible como demo, banda/pistón y el handshake real
+              siguen pendientes de hardware.
             </p>
             <div class="module-status module-status--pending">
               <span class="status-dot" aria-hidden="true"></span>Parcial — visión en demo
@@ -204,36 +205,21 @@
         <span class="section-kicker">M.05 — Línea de manufactura</span>
         <h2 class="section-title" id="line-heading">Línea de manufactura</h2>
         <p class="section-note">
-          Arquitectura cerrada en ADR 0008: KUKA coloca la pieza, UR5 la
-          ensambla, visión confirma, Aether Inventory la recoge. De las
-          cuatro estaciones, hoy solo Visión tiene una demo real —
-          reutilizando el mismo stack de percepción ya establecido (YOLO),
-          consistente con la propia decisión 8c.
+          Arquitectura cerrada en ADR 0010 (supersede a ADR 0008): la banda
+          con fixtures posiciona la pieza, visión decide pasa/no pasa, el
+          pistón expulsa el scrap solo si falla, Aether Inventory recoge la
+          pieza aceptada. De las cuatro estaciones, hoy solo Visión tiene una
+          demo real — reutilizando el mismo stack de percepción ya
+          establecido (YOLO), consistente con la propia decisión 8c/10c.
         </p>
 
         <div class="line-flow">
           <div class="module-card module-card--pending line-station" aria-disabled="true">
             <div class="module-head">
               <span class="module-tag">01</span>
-              <h3 class="module-title">KUKA KR6</h3>
+              <h3 class="module-title">Banda + fixtures</h3>
             </div>
-            <p class="module-desc">Coloca la pieza en la banda transportadora.</p>
-            <div class="module-status module-status--pending">
-              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
-            </div>
-          </div>
-
-          <span class="line-arrow" aria-hidden="true">→</span>
-
-          <div class="module-card module-card--pending line-station" aria-disabled="true">
-            <div class="module-head">
-              <span class="module-tag">02</span>
-              <h3 class="module-title">UR5</h3>
-            </div>
-            <p class="module-desc">
-              Ensambla por trayectorias pre-programadas, sin Learning from
-              Demonstration.
-            </p>
+            <p class="module-desc">Posiciona la pieza frente a la cámara de visión.</p>
             <div class="module-status module-status--pending">
               <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
             </div>
@@ -247,10 +233,10 @@
             <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
             <div class="module-head">
-              <span class="module-tag">03</span>
+              <span class="module-tag">02</span>
               <h3 class="module-title">Visión</h3>
             </div>
-            <p class="module-desc">Confirmación binaria — pieza ensamblada sí/no.</p>
+            <p class="module-desc">Confirmación binaria — pieza pasa/no pasa la inspección.</p>
             <div class="module-status module-status--idle" id="line-vision-station-status">
               <span class="status-dot" id="line-vision-dot" aria-hidden="true"></span>
               <span id="line-vision-status-text">Inactiva</span>
@@ -261,10 +247,26 @@
 
           <div class="module-card module-card--pending line-station" aria-disabled="true">
             <div class="module-head">
+              <span class="module-tag">03</span>
+              <h3 class="module-title">Pistón</h3>
+            </div>
+            <p class="module-desc">
+              Expulsa la pieza (scrap) de la banda solo si Visión decide
+              "no pasa" — no actúa si la pieza pasa la inspección.
+            </p>
+            <div class="module-status module-status--pending">
+              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+            </div>
+          </div>
+
+          <span class="line-arrow" aria-hidden="true">→</span>
+
+          <div class="module-card module-card--pending line-station" aria-disabled="true">
+            <div class="module-head">
               <span class="module-tag">04</span>
               <h3 class="module-title">Aether Inventory</h3>
             </div>
-            <p class="module-desc">Recoge y transporta la pieza terminada.</p>
+            <p class="module-desc">Recoge y transporta la pieza aceptada.</p>
             <div class="module-status module-status--pending">
               <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
             </div>
@@ -394,12 +396,13 @@
                 <td class="decision-num">8</td>
                 <td class="decision-name">Línea de manufactura</td>
                 <td>
-                  KUKA → UR5 → visión → Aether Inventory, con handshake punto a
-                  punto entre estaciones y registro pasivo vía MQTT. Trayectorias
-                  pre-programadas por el fabricante, sin Learning from
-                  Demonstration.
+                  Banda + fixtures → visión → pistón (scrap, solo si falla) →
+                  Aether Inventory, con un solo punto de decisión y registro
+                  pasivo vía MQTT. Sin brazos robóticos ni Learning from
+                  Demonstration. Supersede a la resolución original (KUKA +
+                  UR5).
                 </td>
-                <td class="decision-ref">ADR 0008</td>
+                <td class="decision-ref">ADR 0010 (supersede ADR 0008)</td>
               </tr>
             </tbody>
           </table>
