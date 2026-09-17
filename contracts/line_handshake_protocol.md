@@ -35,7 +35,7 @@ concreta pendiente de investigación técnica.**
 
 | Campo | Tipo | Notas |
 |---|---|---|
-| `accion` | `"scrap_expulsado"` \| `"pieza_aceptada"` | Lo que realmente ocurrió físicamente, no solo lo que Visión decidió — si el pistón no llega a dispararse, esto debe reflejarlo, no asumir que el evento A siempre se cumple físicamente. |
+| `accion` | `"scrap_expulsado"` \| `"pieza_aceptada"` \| `"fallo_actuacion"` | Lo que realmente ocurrió físicamente, no solo lo que Visión decidió. `fallo_actuacion`: Visión decidió `FAIL` pero el pistón no llegó a dispararse (o no se pudo confirmar que disparó) — nunca reportar `pieza_aceptada` en este caso, sería falso: Visión sí decidió `FAIL`, solo que la actuación física no se cumplió. No asumir que el Evento A siempre se cumple físicamente. |
 | `timestamp` | ISO 8601 | |
 | `resultado_origen` | referencia al Evento A correspondiente | Da trazabilidad end-to-end (Visión decidió X → Actuador hizo Y). |
 
