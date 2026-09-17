@@ -104,30 +104,61 @@
          ver robot.css sobre por qué se quitó face-bg (el círculo hacía que
          esto se sintiera como un ícono de app, no como presencia real). -->
     <main class="face-screen" id="face-screen">
+      <!-- face-ambient se queda FUERA de face-stage a propósito: su
+           inset:-15% se calcula relativo al elemento que lo contiene, y
+           necesita seguir siendo #face-screen (pantalla completa) para
+           verse como un resplandor amplio de fondo — dentro de face-stage
+           (del tamaño del propio SVG) se vería como una mancha chica
+           pegada a la cara, no como ambiente. -->
       <div class="face-ambient" id="face-ambient" aria-hidden="true"></div>
 
-      <svg
-        class="face-svg"
-        id="face-svg"
-        viewBox="0 0 1000 600"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="Estado de Aether"
-      >
-        <ellipse class="face-glow" id="listening-ring" cx="500" cy="300" rx="430" ry="270"></ellipse>
-        <path class="face-brow" id="brow-left"></path>
-        <path class="face-brow" id="brow-right"></path>
-        <path class="face-eye" id="eye-left"></path>
-        <path class="face-eye" id="eye-right"></path>
-        <circle class="face-pupil" id="pupil-left" r="22"></circle>
-        <circle class="face-pupil" id="pupil-right" r="22"></circle>
-        <path class="face-mouth" id="face-mouth"></path>
-        <g class="face-dots" id="thinking-dots">
-          <circle cx="440" cy="120" r="15"></circle>
-          <circle cx="500" cy="92" r="15"></circle>
-          <circle cx="560" cy="120" r="15"></circle>
-        </g>
-      </svg>
+      <!-- face-stage / face-breathe: dos wrappers separados a propósito, no
+           uno solo. #face-stage recibe el parallax del mouse como transform
+           ESTÁTICO leído de --parallax-x/--parallax-y (robot.js solo pone
+           las custom properties, nunca toca su transform inline).
+           #face-breathe tiene su propio @keyframes de "respiración" en
+           robot.css. Una animación CSS gana siempre sobre cualquier
+           transform de un ancestro/descendiente en OTRO elemento, pero dos
+           transforms (parallax estático + respiración animada) en el MISMO
+           elemento sí competirían y una se comería a la otra — por eso
+           viven en dos elementos distintos, no por accidente. #face-svg
+           conserva sus propias clases (face--pulse/face--tilt) sin tocar,
+           un tercer nivel más adentro, también sin colisión. -->
+      <div class="face-stage" id="face-stage">
+        <div class="face-breathe" id="face-breathe">
+          <svg
+            class="face-svg"
+            id="face-svg"
+            viewBox="0 0 1000 600"
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label="Estado de Aether"
+          >
+            <ellipse class="face-glow" id="listening-ring" cx="500" cy="300" rx="430" ry="270"></ellipse>
+            <ellipse class="face-glow face-glow--ripple" id="listening-ring-2" cx="500" cy="300" rx="430" ry="270"></ellipse>
+            <ellipse class="face-glow face-glow--ripple" id="listening-ring-3" cx="500" cy="300" rx="430" ry="270"></ellipse>
+            <path class="face-brow" id="brow-left"></path>
+            <path class="face-brow" id="brow-right"></path>
+            <path class="face-eye" id="eye-left"></path>
+            <path class="face-eye" id="eye-right"></path>
+            <circle class="face-pupil" id="pupil-left" r="16"></circle>
+            <circle class="face-pupil" id="pupil-right" r="16"></circle>
+            <path class="face-mouth" id="face-mouth"></path>
+            <g class="face-dots" id="thinking-dots">
+              <circle cx="440" cy="120" r="15"></circle>
+              <circle cx="500" cy="92" r="15"></circle>
+              <circle cx="560" cy="120" r="15"></circle>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Indicador de estado — texto discreto, monospaced, SOLO visible
+           durante escuchando/pensando/hablando (nunca en reposo/cámara):
+           robot.js lo decide leyendo el mismo estado ya honesto que gobierna
+           la cara (conversationSubState / talking / currentExpression), no
+           un estado nuevo inventado aparte — ver updateStatusIndicator(). -->
+      <p class="status-indicator" id="status-indicator" aria-live="polite"></p>
 
       <!-- Punto de estado mínimo — el único rastro visible del
            reconocimiento de voz por default. Gris = inactivo, verde

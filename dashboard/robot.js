@@ -162,18 +162,59 @@ function eyePath(shape, cx, cy) {
       return `M ${cx - 64} ${cy - 26} Q ${cx} ${cy + 46} ${cx + 64} ${cy - 26}`;
     case "wide": // círculo grande — sorpresa
       return circlePath(cx, cy, 94);
-    case "squint": // óvalo achatado — entrecerrado (pensando / confundido)
+    case "squint": // óvalo achatado — entrecerrado (confundido)
       return `M ${cx - 64} ${cy} Q ${cx} ${cy - 28} ${cx + 64} ${cy} Q ${cx} ${cy + 28} ${cx - 64} ${cy} Z`;
+    case "arc": // "pensando" — arco tipo indicador de carga, gira vía
+      // .face-eye--spin (robot.css). 270° con un hueco de 90° para que el
+      // giro se lea como spinner, no como un círculo cerrado que no
+      // aparenta girar.
+      return arcPath(cx, cy, 68, 270);
     case "x": // error
       return `M ${cx - 48} ${cy - 48} L ${cx + 48} ${cy + 48} M ${cx - 48} ${cy + 48} L ${cx + 48} ${cy - 48}`;
     case "open":
     default:
-      return circlePath(cx, cy, 74);
+      // Cápsula/visor (antes un círculo perfecto) — reemplaza la mirada
+      // fija tipo "ojo de muñeca": un óvalo alargado con extremos
+      // redondeados se lee como visor sci-fi, no como un ojo estático.
+      // Pedido explícito: eliminar los ojos circulares del reposo.
+      return capsulePath(cx, cy, 104, 46);
   }
 }
 
 function circlePath(cx, cy, r) {
   return `M ${cx - r} ${cy} a ${r} ${r} 0 1 0 ${r * 2} 0 a ${r} ${r} 0 1 0 ${-r * 2} 0`;
+}
+
+/** Cápsula/estadio horizontal: rectángulo con extremos totalmente
+ * redondeados (radio = mitad de la altura). hw/hh son medio-ancho y
+ * medio-alto totales. */
+function capsulePath(cx, cy, hw, hh) {
+  const left = cx - hw + hh;
+  const right = cx + hw - hh;
+  const top = cy - hh;
+  const bottom = cy + hh;
+  return (
+    `M ${left} ${top} L ${right} ${top} ` +
+    `A ${hh} ${hh} 0 0 1 ${right} ${bottom} ` +
+    `L ${left} ${bottom} ` +
+    `A ${hh} ${hh} 0 0 1 ${left} ${top} Z`
+  );
+}
+
+/** Arco parcial (spinner) centrado en (cx,cy), radio r, que barre
+ * sweepDeg grados desde arriba (-90°) en sentido horario — el hueco
+ * restante es lo que hace que .face-eye--spin (rotate infinito en CSS) se
+ * lea como "cargando/procesando" en vez de un círculo cerrado inmóvil. */
+function arcPath(cx, cy, r, sweepDeg) {
+  const startDeg = -90;
+  const endDeg = startDeg + sweepDeg;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const sx = (cx + r * Math.cos(toRad(startDeg))).toFixed(1);
+  const sy = (cy + r * Math.sin(toRad(startDeg))).toFixed(1);
+  const ex = (cx + r * Math.cos(toRad(endDeg))).toFixed(1);
+  const ey = (cy + r * Math.sin(toRad(endDeg))).toFixed(1);
+  const largeArc = sweepDeg > 180 ? 1 : 0;
+  return `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${ex} ${ey}`;
 }
 
 /** Ceja: solo dos formas necesarias — "raised" (una o ambas arriba, para
@@ -254,10 +295,10 @@ const EXPRESSIONS = {
     accent: "accent",
   },
   pensando: {
-    eye: "squint",
+    eye: "arc",
+    eyeSpin: true,
     mouth: "flat",
-    pupil: true,
-    pupilOffset: { dx: 26, dy: -14 },
+    pupil: false,
     accent: "accent",
     dots: true,
   },
@@ -296,7 +337,16 @@ const pupilLeftEl = document.getElementById("pupil-left");
 const pupilRightEl = document.getElementById("pupil-right");
 const mouthEl = document.getElementById("face-mouth");
 const thinkingDotsEl = document.getElementById("thinking-dots");
-const listeningGlowEl = document.getElementById("listening-ring");
+// Los 3 anillos de "escuchando" (el original + 2 ondas, ver robot.css
+// .face-glow--ripple) se prenden/apagan juntos — un solo array, no tres
+// variables sueltas repitiendo la misma línea.
+const listeningGlowEls = [
+  document.getElementById("listening-ring"),
+  document.getElementById("listening-ring-2"),
+  document.getElementById("listening-ring-3"),
+];
+const faceStageEl = document.getElementById("face-stage");
+const statusIndicatorEl = document.getElementById("status-indicator");
 
 let currentExpression = null;
 let idleBlinkTimer = null;
@@ -304,6 +354,18 @@ let idleBlinkTimer = null;
 function applyExpression(cfg) {
   eyeLeftEl.setAttribute("d", eyePath(cfg.eyeL || cfg.eye, EYE_L.x, EYE_L.y));
   eyeRightEl.setAttribute("d", eyePath(cfg.eyeR || cfg.eye, EYE_R.x, EYE_R.y));
+
+  // "pensando": el arco gira por CSS (.face-eye--spin, ver robot.css) —
+  // limpiamos el transform inline del parpadeo aquí mismo para que la
+  // animación de giro no tenga que competir con él por la misma propiedad
+  // (en la práctica 'pensando' nunca parpadea, pero así queda explícito
+  // en vez de depender de esa coincidencia).
+  eyeLeftEl.classList.toggle("face-eye--spin", !!cfg.eyeSpin);
+  eyeRightEl.classList.toggle("face-eye--spin", !!cfg.eyeSpin);
+  if (cfg.eyeSpin) {
+    eyeLeftEl.style.transform = "";
+    eyeRightEl.style.transform = "";
+  }
 
   browLeftEl.classList.toggle("face-brow--visible", !!cfg.browL);
   browRightEl.classList.toggle("face-brow--visible", !!cfg.browR);
@@ -325,7 +387,7 @@ function applyExpression(cfg) {
   gazeDriftOffset = { dx: 0, dy: 0 };
 
   thinkingDotsEl.classList.toggle("face-dots--visible", !!cfg.dots);
-  listeningGlowEl.classList.toggle("face-glow--active", !!cfg.ring);
+  listeningGlowEls.forEach((el) => el.classList.toggle("face-glow--active", !!cfg.ring));
   faceSvg.classList.toggle("face--pulse", !!cfg.pulse);
   faceSvg.classList.toggle("face--tilt", !!cfg.tilt);
 
@@ -554,13 +616,26 @@ function livelinessFrame() {
     mouthNeedsReset = false;
   }
 
+  // Se calcula aquí (antes de usarse en ojos y glow) porque ambos lo
+  // necesitan y las bandas de la boca ya están actualizadas en este frame.
+  const avgBand = (mouthBandCurrent[0] + mouthBandCurrent[1] + mouthBandCurrent[2]) / 3;
+
   // --- Parpadeo (easing asimétrico) + pupilas (easing "pensativo") ---
   const cfg = EXPRESSIONS[currentExpression];
   const blinkFactor = eyeOpennessTarget < eyeOpenness ? EYE_CLOSE_EASE : EYE_OPEN_EASE;
   eyeOpenness += (eyeOpennessTarget - eyeOpenness) * blinkFactor;
   const scaleY = Math.max(0.05, eyeOpenness).toFixed(3);
-  eyeLeftEl.style.transform = `scaleY(${scaleY})`;
-  eyeRightEl.style.transform = `scaleY(${scaleY})`;
+  // 'pensando' gira el ojo por CSS (.face-eye--spin) — no le tocamos el
+  // transform inline aquí, se lo dejamos por completo a esa animación (ver
+  // applyExpression, que ya lo limpió al entrar a este estado).
+  if (!cfg?.eyeSpin) {
+    // Mientras se habla, un leve scaleX atado a avgBand ("los ojos se
+    // entornan/escalan levemente al ritmo de la voz", pedido explícito) —
+    // en reposo talkScaleX queda en 1 (sin efecto).
+    const talkScaleX = talking ? (1 - avgBand * 0.05).toFixed(3) : 1;
+    eyeLeftEl.style.transform = `scaleY(${scaleY}) scaleX(${talkScaleX})`;
+    eyeRightEl.style.transform = `scaleY(${scaleY}) scaleX(${talkScaleX})`;
+  }
   const pupilShouldShow = !!cfg?.pupil && eyeOpenness > 0.35;
   pupilLeftEl.classList.toggle("face-pupil--visible", pupilShouldShow);
   pupilRightEl.classList.toggle("face-pupil--visible", pupilShouldShow);
@@ -575,14 +650,43 @@ function livelinessFrame() {
   pupilRightEl.setAttribute("cy", EYE_R.y + pupilCurrent.dy);
 
   // --- Glow dinámico (ver .face-eye/.face-mouth en robot.css) ---
-  const avgBand = (mouthBandCurrent[0] + mouthBandCurrent[1] + mouthBandCurrent[2]) / 3;
   glowTarget = talking ? Math.min(1, avgBand * 1.3) : GLOW_IDLE_TARGET;
   glowIntensity += (glowTarget - glowIntensity) * GLOW_EASE;
   faceScreenEl.style.setProperty("--talk-glow", glowIntensity.toFixed(3));
 
+  updateStatusIndicator();
+
   requestAnimationFrame(livelinessFrame);
 }
 requestAnimationFrame(livelinessFrame);
+
+// Se lee cada frame en vez de engancharse a cada sitio que cambia
+// conversationSubState/talking (son varios, ver enterConversationMode,
+// startTalkingAnimation, etc.) — más simple y no se puede "olvidar" un
+// call site nuevo más adelante. Solo toca el DOM cuando el texto
+// realmente cambia, para no generar reflow en cada uno de los 60fps.
+let lastStatusLabel = null;
+function updateStatusIndicator() {
+  let label = "";
+  if (mode === "conversation") {
+    if (talking) {
+      label = "HABLANDO...";
+    } else if (conversationSubState === "thinking") {
+      label = "PENSANDO...";
+    } else if (conversationSubState === "listening" && currentExpression === "escuchando") {
+      // Solo si currentExpression es realmente 'escuchando' (no
+      // 'inactivo') — restingExpression() ya decide eso según si el
+      // reconocimiento de voz existe de verdad (ver honestidad explícita
+      // ahí); mostrar "ESCUCHANDO..." sin esa comprobación mentiría en los
+      // casos sin soporte de voz o con permiso denegado.
+      label = "ESCUCHANDO...";
+    }
+  }
+  if (label === lastStatusLabel) return;
+  lastStatusLabel = label;
+  statusIndicatorEl.textContent = label;
+  statusIndicatorEl.classList.toggle("status-indicator--visible", label !== "");
+}
 
 /**
  * Cambia la expresión de la cara — la única función que necesitaría
@@ -1852,3 +1956,21 @@ if (SpeechRecognitionImpl) {
 
 setFaceExpression(restingExpression());
 scheduleNextGazeDrift();
+
+// ============================================================================
+// Parallax de mouse sobre #face-stage (ver robot.css: transform estático vía
+// calc() de --parallax-x/--parallax-y, no una animación) — se omite del
+// todo si el usuario pidió menos movimiento, o si el dispositivo no tiene
+// un puntero fino (pantallas táctiles no generan mousemove real, no tiene
+// sentido escuchar el evento ahí).
+// ============================================================================
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+if (!prefersReducedMotion && hasFinePointer) {
+  window.addEventListener("mousemove", (event) => {
+    const relX = (event.clientX / window.innerWidth - 0.5) * 2; // -1..1
+    const relY = (event.clientY / window.innerHeight - 0.5) * 2;
+    faceStageEl.style.setProperty("--parallax-x", relX.toFixed(3));
+    faceStageEl.style.setProperty("--parallax-y", relY.toFixed(3));
+  });
+}

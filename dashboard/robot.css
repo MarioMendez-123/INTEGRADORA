@@ -20,6 +20,27 @@ body.robot-body {
 }
 
 /* ============================================================
+   PALETA "OLED SCI-FI" — sobreescribe --accent SOLO dentro de esta
+   página (cascada de custom properties: :root en style.css sigue
+   intacto para index.html/inventory.html, que no llevan .robot-body).
+   Todo el motor de expresiones ya está construido sobre var(--accent)/
+   var(--positive)/var(--warn) (ver ACCENT_VAR en robot.js) — retinta
+   solo cambiando estos tres tokens, sin tocar una sola línea de JS.
+   El fondo negro con gradiente sutil (body { background: radial-gradient
+   ... } en style.css) ya cumple el look OLED pedido, no se toca aparte.
+   ============================================================ */
+body.robot-body {
+  --accent: #00f3ff;
+  --accent-soft: rgba(0, 243, 255, 0.14);
+  --accent-border: rgba(0, 243, 255, 0.45);
+  /* azul profundo — segundo tono del glow, no reemplaza a --accent, se usa
+     junto a él en .face-eye/.face-mouth para un resplandor de dos capas
+     (cian por dentro, azul eléctrico más difuso por fuera) en vez de un
+     solo color plano repetido. */
+  --accent-2: #0066ff;
+}
+
+/* ============================================================
    PANTALLA DE LA CARA
    ============================================================ */
 
@@ -35,6 +56,45 @@ body.robot-body {
   text-align: center;
   padding: var(--space-6);
   overflow: hidden;
+}
+
+/* Wrapper externo — recibe el parallax del mouse (ver robot.js) como
+   transform ESTÁTICO derivado de --parallax-x/--parallax-y con calc(): no
+   es una animación CSS ni un transform que JS reescriba cada frame, es una
+   sola declaración que el navegador re-evalúa solo cuando cambian esas
+   custom properties. Vive en su PROPIO elemento (no en .face-breathe ni en
+   .face-svg) porque una animación CSS de transform en un elemento siempre
+   gana sobre cualquier otro valor de transform en ESE MISMO elemento —
+   mezclar parallax + respiración + pulse/tilt en un solo nodo haría que
+   solo una ganara. Ahora los tres componen entre sí en cascada por vivir
+   en tres niveles distintos del árbol. */
+.face-stage {
+  position: relative;
+  width: min(92vw, 86vh);
+  transform:
+    perspective(900px) rotateY(calc(var(--parallax-x, 0) * 5deg))
+    rotateX(calc(var(--parallax-y, 0) * -4deg))
+    translate(calc(var(--parallax-x, 0) * 8px), calc(var(--parallax-y, 0) * 6px));
+  transition: transform 150ms ease-out;
+}
+
+/* Respiración de reposo — escala 1.0→1.02 + brillo sutil, siempre activa
+   (no depende de ninguna expresión). Vive un nivel adentro de .face-stage
+   por la misma razón del comentario de arriba. */
+.face-breathe {
+  animation: face-idle-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes face-idle-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.08);
+  }
 }
 
 /* Resplandor ambiental detrás de todo — sutil en reposo, es lo que le da
@@ -55,10 +115,10 @@ body.robot-body {
 }
 
 .face-svg {
-  /* Domina el viewport de forma dinámica — sin tope en px como antes: en
-     una pantalla ancha (presentación/monitor del robot) esto debe sentirse
-     grande de verdad, no un ícono centrado en medio de espacio vacío. */
-  width: min(92vw, 86vh);
+  /* Ya no fija su propio tamaño (--face-stage lo hace, ver arriba): así
+     .face-stage y .face-breathe pueden envolverlo sin tener que duplicar
+     el min(92vw, 86vh) en cada nivel. */
+  width: 100%;
   height: auto;
   --face-accent: var(--accent);
   overflow: visible;
@@ -72,6 +132,8 @@ body.robot-body {
   fill: var(--face-accent);
   opacity: 0;
   filter: blur(50px);
+  transform-box: fill-box;
+  transform-origin: center;
   transition: opacity 300ms ease;
 }
 
@@ -92,11 +154,47 @@ body.robot-body {
   }
 }
 
-/* Glow apilado (dos drop-shadow, no uno solo) cuya intensidad sube con
-   --talk-glow — variable CSS que robot.js actualiza cada frame según la
-   energía de la boca mientras Lumina habla (ver "Animación continua" en
-   robot.js) y relaja a un nivel bajo constante en reposo (nunca en 0
-   plano: el rostro sigue teniendo una presencia sutil incluso callada). */
+/* Ondas concéntricas de "escuchando" (audio ripples) — dos anillos extra
+   (#listening-ring-2/-3 en robot.html) que se expanden y se desvanecen en
+   bucle, cada uno arrancando con un retraso distinto (ver más abajo) para
+   que se vean como pulsos saliendo hacia afuera, no un solo glow
+   respirando. #listening-ring (el original) NO lleva esta clase — sigue
+   con glow-breathe tal cual, las ondas son un efecto adicional, no un
+   reemplazo. */
+.face-glow--ripple {
+  animation: none;
+}
+
+.face-glow--ripple.face-glow--active {
+  animation: glow-ripple 2.4s ease-out infinite;
+}
+
+#listening-ring-2.face-glow--active {
+  animation-delay: 0.8s;
+}
+
+#listening-ring-3.face-glow--active {
+  animation-delay: 1.6s;
+}
+
+@keyframes glow-ripple {
+  0% {
+    opacity: 0.32;
+    transform: scale(0.85);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* Glow apilado en DOS tonos (cian + azul profundo, no el mismo color dos
+   veces) cuya intensidad sube con --talk-glow — variable CSS que robot.js
+   actualiza cada frame según la energía de la boca mientras Lumina habla
+   (ver "Animación continua" en robot.js) y relaja a un nivel bajo constante
+   en reposo (nunca en 0 plano: el rostro sigue teniendo una presencia sutil
+   incluso callada). */
 .face-eye,
 .face-mouth {
   fill: none;
@@ -105,9 +203,41 @@ body.robot-body {
   stroke-linecap: round;
   stroke-linejoin: round;
   filter:
-    drop-shadow(0 0 calc(16px + var(--talk-glow, 0) * 22px) var(--face-accent))
-    drop-shadow(0 0 calc(4px + var(--talk-glow, 0) * 12px) var(--face-accent));
+    drop-shadow(0 0 calc(14px + var(--talk-glow, 0) * 20px) var(--face-accent))
+    drop-shadow(0 0 calc(30px + var(--talk-glow, 0) * 34px) var(--accent-2, var(--face-accent)));
   transition: stroke 200ms ease;
+}
+
+/* "pensando" — los ojos cambian a un arco (ver eyePath('arc') en robot.js)
+   que gira en bucle + un pulso rápido de intensidad, en vez del blink
+   normal (que de todos modos no corre en 'pensando': ver idleBlink en
+   EXPRESSIONS). robot.js limpia el transform inline del parpadeo mientras
+   esta clase está puesta, para no competir por la misma propiedad con la
+   animación. */
+.face-eye--spin {
+  animation:
+    eye-spin 1.3s linear infinite,
+    eye-pulse-fast 0.55s ease-in-out infinite;
+}
+
+@keyframes eye-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes eye-pulse-fast {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 14px var(--face-accent))
+      drop-shadow(0 0 30px var(--accent-2, var(--face-accent)));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 26px var(--face-accent))
+      drop-shadow(0 0 46px var(--accent-2, var(--face-accent)));
+  }
 }
 
 /* El parpadeo ya no intercambia el `d` del path por una forma "cerrada":
@@ -223,6 +353,33 @@ body.robot-body {
 .robot-fallback-btn:hover,
 .robot-fallback-btn:focus-visible {
   opacity: 1;
+}
+
+/* ---------- indicador de estado en texto — discreto a propósito ----------
+   Solo aparece durante escuchando/pensando/hablando (robot.js decide el
+   texto y la visibilidad — ver updateStatusIndicator()); en reposo y en
+   Modo Cámara se queda vacío/oculto, para no romper la sensación de
+   presencia real que pide el comentario grande de robot.html. */
+.status-indicator {
+  position: absolute;
+  bottom: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--face-accent);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 300ms ease,
+    color 200ms ease;
+}
+
+.status-indicator.status-indicator--visible {
+  opacity: 0.6;
 }
 
 /* ---------- punto de estado de voz — único rastro visible por default ----------
@@ -442,7 +599,7 @@ body.robot-body {
 }
 
 @media (max-width: 640px) {
-  .face-svg {
+  .face-stage {
     width: 94vw;
   }
   .detections-log {
@@ -453,11 +610,19 @@ body.robot-body {
 
 @media (prefers-reduced-motion: reduce) {
   .face-glow.face-glow--active,
+  .face-glow--ripple.face-glow--active,
   .face-dots.face-dots--visible,
   .face-svg.face--pulse,
+  .face-breathe,
+  .face-eye--spin,
   .voice-status-dot--listening {
     animation: none;
     opacity: 0.8;
+  }
+  /* El parallax es transform ESTÁTICO (calc de custom properties), no una
+     @keyframes — "animation: none" de arriba no lo toca. Se anula aparte. */
+  .face-stage {
+    transform: none;
   }
   .boot-flash.boot-flash--active {
     animation: none;
