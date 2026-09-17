@@ -92,6 +92,11 @@ body.robot-body {
   }
 }
 
+/* Glow apilado (dos drop-shadow, no uno solo) cuya intensidad sube con
+   --talk-glow — variable CSS que robot.js actualiza cada frame según la
+   energía de la boca mientras Lumina habla (ver "Animación continua" en
+   robot.js) y relaja a un nivel bajo constante en reposo (nunca en 0
+   plano: el rostro sigue teniendo una presencia sutil incluso callada). */
 .face-eye,
 .face-mouth {
   fill: none;
@@ -99,8 +104,20 @@ body.robot-body {
   stroke-width: 22;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 26px var(--face-accent));
+  filter:
+    drop-shadow(0 0 calc(16px + var(--talk-glow, 0) * 22px) var(--face-accent))
+    drop-shadow(0 0 calc(4px + var(--talk-glow, 0) * 12px) var(--face-accent));
   transition: stroke 200ms ease;
+}
+
+/* El parpadeo ya no intercambia el `d` del path por una forma "cerrada":
+   robot.js anima scaleY(0→1) sobre el propio ojo (transform-box: fill-box
+   para que el origen de escala sea el centro de CADA ojo, no el origen
+   del <svg>) — así el cierre puede ser más rápido que la apertura sin
+   necesitar dos paths distintos por forma de ojo. */
+.face-eye {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .face-brow {
@@ -118,14 +135,15 @@ body.robot-body {
   opacity: 0.85;
 }
 
+/* cx/cy YA NO llevan transición CSS: robot.js las anima con su propio
+   easing (current += (target-current)*factor, ~0.08 — "pensativo", ver
+   "Animación continua") cada frame, más fino que un ease de 200ms fijo y
+   sin doble suavizado compitiendo. */
 .face-pupil {
   fill: var(--face-accent);
   opacity: 0;
   filter: drop-shadow(0 0 14px var(--face-accent));
-  transition:
-    opacity 150ms ease,
-    cx 200ms ease,
-    cy 200ms ease;
+  transition: opacity 150ms ease;
 }
 
 .face-pupil.face-pupil--visible {
@@ -356,6 +374,73 @@ body.robot-body {
   z-index: 2;
 }
 
+/* ============================================================
+   PANTALLA DE ESPERA (arranque) — negra hasta la activación por voz
+   ("Lumina" → "Dígame, señor." → "Iniciar presentación") o el botón
+   oculto. Ver robot.js, sección "PANTALLA DE ESPERA": activación por
+   voz/botón + playPowerOnAnimation(), que reutiliza setFaceExpression
+   ('activando') y su sonido de encendido ya existentes.
+   ============================================================ */
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20; /* por encima de .camera-screen (10) y .face-screen (2) */
+  background: #000;
+  transition: opacity 700ms ease;
+}
+
+.boot-screen.boot-screen--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Botón de respaldo oculto — a diferencia de .robot-fallback-btn, este
+   NUNCA se revela (ni en hover/focus): es un método manual de respaldo
+   deliberadamente invisible, no un control de interfaz descubrible. */
+.boot-hidden-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 96px;
+  height: 96px;
+  border: none;
+  background: transparent;
+  opacity: 0;
+  cursor: default;
+  outline: none;
+}
+
+/* Destello breve al encender — un solo pulso de luz, no una animación
+   larga ni futurista. Ver playPowerOnAnimation() en robot.js. */
+.boot-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 21;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9) 0%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-flash.boot-flash--active {
+  animation: boot-flash-pulse 550ms ease-out forwards;
+}
+
+@keyframes boot-flash-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  35% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
 @media (max-width: 640px) {
   .face-svg {
     width: 94vw;
@@ -373,5 +458,9 @@ body.robot-body {
   .voice-status-dot--listening {
     animation: none;
     opacity: 0.8;
+  }
+  .boot-flash.boot-flash--active {
+    animation: none;
+    opacity: 0;
   }
 }

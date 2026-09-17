@@ -8,6 +8,16 @@ __pycache__/
 # Logs locales (edge/logs/, backend/logs/) — no se suben a GitHub
 logs/
 
+# Logs de runtime del servidor de desarrollo (uvicorn) — se regeneran cada
+# vez que se corre backend/main.py, no aportan nada útil en el historial
+backend/server_stdout.log
+backend/server_stderr.log
+
+# Log local de pywhatkit (backend/frontend de terceros no relacionado con
+# el proyecto) — puede contener números de teléfono y mensajes personales
+# reales, nunca debe subirse a GitHub
+PyWhatKit_DB.txt
+
 # Output de prueba local del pipeline combinado de percepción (Observations
 # en JSON) y de su agregación a Declared Inventory — no es código fuente, no
 # se sube a GitHub

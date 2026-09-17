@@ -310,15 +310,19 @@ function applyExpression(cfg) {
   if (cfg.browL) browLeftEl.setAttribute("d", browPath(cfg.browL, EYE_L.x, EYE_L.y));
   if (cfg.browR) browRightEl.setAttribute("d", browPath(cfg.browR, EYE_R.x, EYE_R.y));
 
+  // Ya no se fuerza aquí: mientras no se esté hablando, "Animación
+  // continua" (más abajo) mantiene la boca en esta misma forma cuadro a
+  // cuadro; esto solo la deja correcta para el primer frame antes de que
+  // el loop arranque.
   mouthEl.setAttribute("d", mouthPath(cfg.mouth));
 
-  const offset = cfg.pupilOffset || { dx: 0, dy: 0 };
-  pupilLeftEl.classList.toggle("face-pupil--visible", !!cfg.pupil);
-  pupilRightEl.classList.toggle("face-pupil--visible", !!cfg.pupil);
-  pupilLeftEl.setAttribute("cx", EYE_L.x + offset.dx);
-  pupilLeftEl.setAttribute("cy", EYE_L.y + offset.dy);
-  pupilRightEl.setAttribute("cx", EYE_R.x + offset.dx);
-  pupilRightEl.setAttribute("cy", EYE_R.y + offset.dy);
+  // cx/cy de las pupilas y su visibilidad (ligada ahora también al
+  // parpadeo, no solo a cfg.pupil) las gobierna por completo el loop de
+  // "Animación continua" — aquí solo se fija el OBJETIVO hacia el que
+  // deben acercarse con easing (gazeBaseOffset), y se limpia cualquier
+  // deriva de mirada que venía de la expresión anterior.
+  gazeBaseOffset = cfg.pupilOffset || { dx: 0, dy: 0 };
+  gazeDriftOffset = { dx: 0, dy: 0 };
 
   thinkingDotsEl.classList.toggle("face-dots--visible", !!cfg.dots);
   listeningGlowEl.classList.toggle("face-glow--active", !!cfg.ring);
@@ -331,71 +335,80 @@ function applyExpression(cfg) {
   faceScreenEl.style.setProperty("--face-accent", `var(${varName})`);
 }
 
+/** Ya no intercambia el `d` del ojo por una forma "cerrada": solo mueve
+ * eyeOpennessTarget entre 0 y 1 — "Animación continua" (más abajo) es
+ * quien de verdad anima scaleY() hacia ese objetivo cada frame, con un
+ * factor de cierre más alto que el de apertura (cierre rápido, apertura
+ * más lenta, pedido explícito). Genérico: funciona para CUALQUIER
+ * expresión con idleBlink (hoy 'inactivo' y 'escuchando'). */
 function triggerBlink() {
-  // Genérico: funciona para CUALQUIER expresión con idleBlink (hoy
-  // 'inactivo' y 'escuchando'), no solo 'inactivo' — usa la forma de ojo
-  // propia de la expresión activa en vez de asumir cuál es.
   const name = currentExpression;
   const cfg = EXPRESSIONS[name];
   if (!cfg || !cfg.idleBlink) return;
-  const baseEyeL = cfg.eyeL || cfg.eye;
-  const baseEyeR = cfg.eyeR || cfg.eye;
-
-  const closeEyes = () => {
-    eyeLeftEl.setAttribute("d", eyePath("closed", EYE_L.x, EYE_L.y));
-    eyeRightEl.setAttribute("d", eyePath("closed", EYE_R.x, EYE_R.y));
-    // El ojo cerrado es una línea recta — una pupila (círculo relleno)
-    // flotando encima se veía como un punto suelto sobre la línea, no como
-    // un ojo cerrado de verdad. Se oculta durante el parpadeo y se
-    // restaura al abrir.
-    if (cfg.pupil) {
-      pupilLeftEl.classList.remove("face-pupil--visible");
-      pupilRightEl.classList.remove("face-pupil--visible");
-    }
-  };
-  const openEyes = () => {
-    if (currentExpression !== name) return; // la expresión cambió mientras tanto
-    eyeLeftEl.setAttribute("d", eyePath(baseEyeL, EYE_L.x, EYE_L.y));
-    eyeRightEl.setAttribute("d", eyePath(baseEyeR, EYE_R.x, EYE_R.y));
-    if (cfg.pupil) {
-      pupilLeftEl.classList.add("face-pupil--visible");
-      pupilRightEl.classList.add("face-pupil--visible");
-    }
-  };
 
   // Variado a propósito (pedido explícito: "no siempre el mismo patrón
-  // exacto") — duración distinta cada vez, y de vez en cuando (15%) un
-  // parpadeo doble rápido, como hace una persona real de forma ocasional.
-  const blinkDuration = 110 + Math.random() * 70; // 110–180ms
+  // exacto") — cuánto se queda cerrado antes de reabrir cambia cada vez,
+  // y de vez en cuando (15%) un parpadeo doble rápido, como hace una
+  // persona real de forma ocasional.
+  const holdClosedMs = 90 + Math.random() * 70; // 90–160ms
   const isDoubleBlink = Math.random() < 0.15;
 
-  closeEyes();
+  eyeOpennessTarget = 0;
   setTimeout(() => {
-    openEyes();
+    if (currentExpression !== name) return; // la expresión cambió mientras tanto
+    eyeOpennessTarget = 1;
     if (isDoubleBlink) {
       setTimeout(() => {
         if (currentExpression !== name) return;
-        closeEyes();
-        setTimeout(openEyes, blinkDuration);
-      }, 90);
+        eyeOpennessTarget = 0;
+        setTimeout(() => {
+          if (currentExpression === name) eyeOpennessTarget = 1;
+        }, holdClosedMs);
+      }, 100);
     }
-  }, blinkDuration);
+  }, holdClosedMs);
+}
+
+/** Reprograma el siguiente parpadeo con un intervalo aleatorio distinto
+ * cada vez (recursivo, NO setInterval de paso fijo — pedido explícito:
+ * "intervalo aleatorio entre parpadeos, no un loop fijo"). Se detiene
+ * solo cuando la expresión activa ya no tiene idleBlink; setFaceExpression
+ * la vuelve a llamar cada vez que cambia a una que sí lo tiene. */
+function scheduleNextBlink() {
+  clearTimeout(idleBlinkTimer);
+  const cfg = EXPRESSIONS[currentExpression];
+  if (!cfg || !cfg.idleBlink) return;
+  const delay = 2500 + Math.random() * 3500; // ~2.5–6s, pedido explícito
+  idleBlinkTimer = setTimeout(() => {
+    triggerBlink();
+    scheduleNextBlink();
+  }, delay);
 }
 
 // ============================================================================
 // Deriva de mirada — pupilas que se mueven solas de vez en cuando en los
 // estados de reposo prolongado (gazeDrift: true, ver EXPRESSIONS), para
 // que se sienta como que Lumina está observando, no clavada en un punto
-// fijo. Aprovecha la transición CSS que ya existe en .face-pupil (cx/cy
-// 200ms ease) — no hace falta animar nada a mano aquí, solo cambiar el
-// atributo y dejar que CSS lo suavice.
+// fijo. Este temporizador solo decide el OBJETIVO (gazeDriftOffset); quien
+// de verdad mueve las pupilas hacia ahí con easing es "Animación continua"
+// más abajo (antes se apoyaba en la transición CSS de cx/cy; ahora es
+// JS con el factor pedido explícitamente para pupilas, ~0.08).
 //
-// Ritmo deliberadamente LENTO (2.5–5s entre movimientos) y de amplitud
-// pequeña: un vistazo ocasional se siente vivo, uno constante o brusco
-// marea si alguien lo ve fijo varios minutos en una presentación.
+// Ritmo deliberadamente LENTO (1.5–3.5s entre movimientos, pedido
+// explícito) y de amplitud pequeña: un vistazo ocasional se siente vivo,
+// uno constante o brusco marea si alguien lo ve fijo varios minutos en
+// una presentación.
 // ============================================================================
 
 let gazeDriftTimer = null;
+// Ambos se combinan cada frame (ver livelinessFrame) para formar el
+// objetivo real de las pupilas: gazeBaseOffset lo fija applyExpression()
+// (ej. la mirada fija hacia arriba-derecha de 'pensando'); gazeDriftOffset
+// es el vistazo ocasional de este temporizador, solo en expresiones con
+// gazeDrift: true.
+let gazeBaseOffset = { dx: 0, dy: 0 };
+let gazeDriftOffset = { dx: 0, dy: 0 };
+let pupilCurrent = { dx: 0, dy: 0 };
 
 function randomGazeOffset() {
   const dx = Math.round((Math.random() - 0.5) * 40); // ±20
@@ -403,24 +416,173 @@ function randomGazeOffset() {
   return { dx, dy };
 }
 
-function applyGazeOffset({ dx, dy }) {
-  pupilLeftEl.setAttribute("cx", EYE_L.x + dx);
-  pupilLeftEl.setAttribute("cy", EYE_L.y + dy);
-  pupilRightEl.setAttribute("cx", EYE_R.x + dx);
-  pupilRightEl.setAttribute("cy", EYE_R.y + dy);
-}
-
 function scheduleNextGazeDrift() {
   clearTimeout(gazeDriftTimer);
-  const delay = 2500 + Math.random() * 2500; // 2.5–5s
+  const delay = 1500 + Math.random() * 2000; // ~1.5–3.5s, pedido explícito
   gazeDriftTimer = setTimeout(() => {
     const cfg = EXPRESSIONS[currentExpression];
     if (cfg && cfg.gazeDrift) {
-      applyGazeOffset(randomGazeOffset());
+      gazeDriftOffset = randomGazeOffset();
     }
     scheduleNextGazeDrift();
   }, delay);
 }
+
+// ============================================================================
+// ANIMACIÓN CONTINUA (requestAnimationFrame) — boca reactiva a la voz,
+// parpadeo asimétrico y glow dinámico, todo con easing en vez de saltos
+// directos a un valor objetivo (current += (target-current)*factor,
+// pedido explícito). Es UN solo loop para los tres, no tres timers
+// separados — más simple de mantener en sincronía.
+//
+// HONESTIDAD EXPLÍCITA sobre la boca (léase antes de tocar esto): la voz
+// de Lumina sale de speechSynthesis (Web Speech API), no de un <audio> ni
+// de un archivo — y el navegador NO expone esa señal a la Web Audio API
+// (no existe forma estándar de conectar un AnalyserNode a la salida de
+// SpeechSynthesisUtterance; a diferencia de <audio>/<video>, no hay
+// createMediaElementSource posible para ella). Por eso esto NO es un
+// analizador de espectro real: es una aproximación procedural con 3
+// "bandas" que se re-sortean solas mientras se habla (ritmo variable,
+// ~70–140ms) más un empujón extra genuino en cada evento onboundary real
+// del motor de síntesis (el único timing real de habla que el navegador sí
+// entrega). Se ve viva y reacciona al ritmo real de la voz, pero no debe
+// describirse como "análisis de audio" en documentación ni frente al
+// evaluador (Principio 4.1/4.5, aether_context_docs.md). Si en el futuro
+// Lumina hablara a través de un <audio> real (ej. TTS del lado del
+// servidor), ahí sí sería posible un AnalyserNode genuino — queda como
+// nota, no se fabrica esa capacidad ahora.
+// ============================================================================
+
+const MOUTH_EASE = 0.35; // responsivo, pedido explícito
+const PUPIL_EASE = 0.08; // "pensativo", pedido explícito
+const EYE_CLOSE_EASE = 0.55; // cierre rápido
+const EYE_OPEN_EASE = 0.16; // apertura más lenta — asimetría pedida
+const GLOW_EASE = 0.12;
+const GLOW_IDLE_TARGET = 0.12; // nunca en 0 plano — presencia sutil incluso callada
+
+let mouthBandTargets = [0, 0, 0]; // grave / media / aguda (aproximadas, ver nota arriba)
+let mouthBandCurrent = [0, 0, 0];
+let mouthNeedsReset = false; // true tras hablar, hasta que las bandas se asienten en ~0
+let talking = false;
+let mouthBandTimer = null;
+
+let eyeOpenness = 1; // 0 = cerrado, 1 = abierto — animado por transform: scaleY()
+let eyeOpennessTarget = 1;
+
+let glowIntensity = GLOW_IDLE_TARGET;
+let glowTarget = GLOW_IDLE_TARGET;
+
+/** Boca reactiva: una forma CERRADA (labio superior + labio inferior, como
+ * el mismo trazo que ya usa la forma "o" para 'sorprendido') en vez de una
+ * sola curva abierta de lado a lado — una curva abierta con fill:none no
+ * se lee como una boca abriendo/cerrando, solo como una línea ondulando
+ * (bug real reportado: "nunca cierra y solo parecen líneas moviéndose").
+ * Con apertura 0 los dos labios coinciden y colapsan en una línea recta —
+ * ESO sí se lee como boca cerrada de verdad. La banda grave controla la
+ * apertura (el parámetro con más peso visual); media/aguda inclinan cada
+ * esquina por separado — "cada segmento reacciona a una porción
+ * distinta" (pedido explícito), aquí como esquina izquierda/derecha en
+ * vez de un espectro de frecuencias real (ver honestidad explícita
+ * arriba). */
+function mouthTalkPath(bands) {
+  const cx = 500;
+  const midY = 430;
+  const w = 190;
+  const [low, mid, high] = bands;
+  const openAmount = low * 95; // 0 = cerrada de verdad, alto = bien abierta
+  const leftY = midY - mid * 18;
+  const rightY = midY - high * 18;
+  const topY = midY - openAmount * 0.55;
+  const bottomY = midY + openAmount * 0.85;
+  return (
+    `M ${cx - w} ${leftY} ` +
+    `Q ${cx} ${topY} ${cx + w} ${rightY} ` +
+    `Q ${cx} ${bottomY} ${cx - w} ${leftY} Z`
+  );
+}
+
+/** Re-sortea las 3 bandas mientras `talking` sea true, a un ritmo variable
+ * (no fijo) — simula la apertura/cierre de mandíbula entre sílabas sin
+ * depender de audio real (ver honestidad explícita). Rango completo
+ * 0–1 en la banda grave (antes tenía un piso de 0.35 que nunca dejaba
+ * llegar a "cerrada" — esa era la causa real de que nunca se viera
+ * cerrar la boca). */
+function randomizeMouthBandTargets() {
+  mouthBandTargets = [
+    Math.random(), // grave — apertura de mandíbula, incluye cierres reales
+    Math.random() * 0.6, // media — esquina izquierda
+    Math.random() * 0.6, // aguda — esquina derecha
+  ];
+  if (!talking) return;
+  const delay = 70 + Math.random() * 70; // 70–140ms
+  mouthBandTimer = setTimeout(randomizeMouthBandTargets, delay);
+}
+
+function startTalkingAnimation() {
+  talking = true;
+  mouthNeedsReset = true;
+  clearTimeout(mouthBandTimer);
+  randomizeMouthBandTargets();
+}
+
+function stopTalkingAnimation() {
+  talking = false;
+  clearTimeout(mouthBandTimer);
+  mouthBandTargets = [0, 0, 0]; // el loop las relaja solas hacia 0 con easing
+}
+
+/** onboundary real de SpeechSynthesisUtterance (palabra/sílaba real según
+ * el motor de voz) — el único empujón que SÍ está atado a timing de habla
+ * genuino, en vez de puramente aleatorio. */
+function mouthBoundaryBurst() {
+  mouthBandTargets[0] = Math.min(1, mouthBandTargets[0] + 0.25);
+}
+
+function livelinessFrame() {
+  // --- Boca ---
+  let bandsMoving = false;
+  for (let i = 0; i < 3; i++) {
+    const delta = mouthBandTargets[i] - mouthBandCurrent[i];
+    mouthBandCurrent[i] += delta * MOUTH_EASE;
+    if (Math.abs(delta) > 0.004) bandsMoving = true;
+  }
+  if (talking || bandsMoving) {
+    mouthEl.setAttribute("d", mouthTalkPath(mouthBandCurrent));
+    mouthNeedsReset = true;
+  } else if (mouthNeedsReset) {
+    mouthEl.setAttribute("d", mouthPath(currentBaseMouthShape()));
+    mouthNeedsReset = false;
+  }
+
+  // --- Parpadeo (easing asimétrico) + pupilas (easing "pensativo") ---
+  const cfg = EXPRESSIONS[currentExpression];
+  const blinkFactor = eyeOpennessTarget < eyeOpenness ? EYE_CLOSE_EASE : EYE_OPEN_EASE;
+  eyeOpenness += (eyeOpennessTarget - eyeOpenness) * blinkFactor;
+  const scaleY = Math.max(0.05, eyeOpenness).toFixed(3);
+  eyeLeftEl.style.transform = `scaleY(${scaleY})`;
+  eyeRightEl.style.transform = `scaleY(${scaleY})`;
+  const pupilShouldShow = !!cfg?.pupil && eyeOpenness > 0.35;
+  pupilLeftEl.classList.toggle("face-pupil--visible", pupilShouldShow);
+  pupilRightEl.classList.toggle("face-pupil--visible", pupilShouldShow);
+
+  const pupilTargetDx = gazeBaseOffset.dx + gazeDriftOffset.dx;
+  const pupilTargetDy = gazeBaseOffset.dy + gazeDriftOffset.dy;
+  pupilCurrent.dx += (pupilTargetDx - pupilCurrent.dx) * PUPIL_EASE;
+  pupilCurrent.dy += (pupilTargetDy - pupilCurrent.dy) * PUPIL_EASE;
+  pupilLeftEl.setAttribute("cx", EYE_L.x + pupilCurrent.dx);
+  pupilLeftEl.setAttribute("cy", EYE_L.y + pupilCurrent.dy);
+  pupilRightEl.setAttribute("cx", EYE_R.x + pupilCurrent.dx);
+  pupilRightEl.setAttribute("cy", EYE_R.y + pupilCurrent.dy);
+
+  // --- Glow dinámico (ver .face-eye/.face-mouth en robot.css) ---
+  const avgBand = (mouthBandCurrent[0] + mouthBandCurrent[1] + mouthBandCurrent[2]) / 3;
+  glowTarget = talking ? Math.min(1, avgBand * 1.3) : GLOW_IDLE_TARGET;
+  glowIntensity += (glowTarget - glowIntensity) * GLOW_EASE;
+  faceScreenEl.style.setProperty("--talk-glow", glowIntensity.toFixed(3));
+
+  requestAnimationFrame(livelinessFrame);
+}
+requestAnimationFrame(livelinessFrame);
 
 /**
  * Cambia la expresión de la cara — la única función que necesitaría
@@ -439,10 +601,11 @@ function setFaceExpression(name) {
   }
   const isChange = name !== currentExpression;
   currentExpression = name;
-  clearInterval(idleBlinkTimer);
   applyExpression(cfg);
   if (cfg.idleBlink) {
-    idleBlinkTimer = setInterval(triggerBlink, 3000 + Math.random() * 3000);
+    scheduleNextBlink();
+  } else {
+    clearTimeout(idleBlinkTimer);
   }
   if (isChange) {
     playExpressionSound(name);
@@ -543,10 +706,14 @@ function playExpressionSound(name) {
 // Ver el comentario grande de arriba sobre por qué (recursos del Jetson).
 // ============================================================================
 
-// 'conversation' | 'camera'. Vive aquí (no en cameraActive, que ya existía
-// para el ciclo de vida del <img>) porque también gobierna qué hace el
-// reconocimiento de voz con cada frase — ver más abajo.
-let mode = "conversation";
+// 'boot' | 'boot-awaiting-command' | 'script' | 'conversation' | 'camera'.
+// Vive aquí (no en cameraActive, que ya existía para el ciclo de vida del
+// <img>) porque también gobierna qué hace el reconocimiento de voz con
+// cada frase — ver más abajo. Arranca en 'boot' (pantalla de espera negra,
+// ver la sección "PANTALLA DE ESPERA" más abajo) — 'conversation' ya no es
+// el modo inicial, solo al que se regresa después de salir de Modo Cámara
+// (deactivateRobot, sin cambios) una vez terminado el guion.
+let mode = "boot";
 let presentationModeActive = false;
 
 // false si Web Speech API no existe en este navegador, o si el permiso de
@@ -657,6 +824,337 @@ cameraStreamImg.addEventListener("error", () => {
 
 activateBtn.addEventListener("click", activateRobot);
 deactivateBtn.addEventListener("click", deactivateRobot);
+
+// ============================================================================
+// PANTALLA DE ESPERA (arranque) + GUION DE PRESENTACIÓN
+// ============================================================================
+// Pedido explícito: la interfaz debe permanecer completamente negra al
+// iniciar el programa, y solo debe mostrarse (con una animación breve de
+// encendido) cuando ocurre UNA de dos cosas: (A) alguien dice "Lumina" a
+// secas y luego "Iniciar presentación", o (B) alguien usa el botón oculto
+// de la esquina superior izquierda y espera 10 segundos. No es un sistema
+// nuevo de voz ni de interfaz: reutiliza SpeechRecognition/speak() (ver
+// abajo), setFaceExpression('activando') (ya usada para la transición a
+// Modo Cámara, con su propio sonido de encendido — ver
+// EXPRESSION_SOUND_CATEGORY) y activateRobot() (para el momento del guion
+// en el que Aether muestra la cámara en vivo).
+//
+// mode pasa a tener dos valores nuevos, ADEMÁS de 'conversation'/'camera':
+// 'boot' (pantalla negra, esperando "Lumina") y 'boot-awaiting-command'
+// (ya saludó con "Dígame, señor.", esperando "Iniciar presentación").
+// Mientras el guion corre, mode vale 'script' — deliberadamente DISTINTO
+// de presentationModeActive/"Modo Presentación" (comando de voz ya
+// existente "Lumina, presentación", que solo sostiene la cara en 'feliz';
+// no tiene relación con este guion y sigue funcionando igual que antes).
+// ============================================================================
+
+const bootScreenEl = document.getElementById("boot-screen");
+const bootFlashEl = document.getElementById("boot-flash");
+const bootHiddenBtn = document.getElementById("boot-hidden-btn");
+
+let awakened = false; // ya se encendió la interfaz (voz o botón) — evita reencender dos veces
+let presentationStarted = false; // evita doble activación del guion
+
+/** Destello + encendido progresivo hasta revelar la interfaz normal — ver
+ * robot.css (.boot-screen, .boot-flash). Reutiliza setFaceExpression
+ * ('activando'), que ya reproduce el sonido de encendido de dos notas —
+ * no se agrega ningún sonido ni animación nueva por separado. */
+function playPowerOnAnimation(onComplete) {
+  bootFlashEl.classList.add("boot-flash--active");
+  setTimeout(() => {
+    setFaceExpression("activando");
+    bootScreenEl.classList.add("boot-screen--hidden");
+  }, 150);
+  setTimeout(() => {
+    bootFlashEl.classList.remove("boot-flash--active");
+    if (onComplete) onComplete();
+  }, 950);
+}
+
+/** "Lumina" a secas, dicho mientras la pantalla sigue negra — ENCIENDE la
+ * interfaz de inmediato (animación de encendido) y la deja en su
+ * expresión predeterminada, en silencio — SIN decir "Dígame, señor." aquí.
+ * Esto aplica solo a este primer comando (el que arranca todo el
+ * programa desde la pantalla negra); el "Dígame, señor." que sí se
+ * pronuncia más adelante es el del propio guion (ver PRESENTATION_SCRIPT
+ * — línea "Aether." → "Dígame, señor.", texto exacto sin tocar). Queda
+ * esperando "Iniciar presentación" — si no se dice, el guion NUNCA
+ * arranca solo. */
+function greetBootWake() {
+  if (mode !== "boot" || awakened) return;
+  awakened = true;
+  mode = "boot-awaiting-command";
+  playPowerOnAnimation(() => setFaceExpression(restingExpression()));
+}
+
+/** "Iniciar presentación", dicho después del saludo — la interfaz ya está
+ * encendida (ver greetBootWake), así que esto solo arranca el guion, sin
+ * otra animación de encendido encima. */
+function startPresentationFromVoice(transcript) {
+  if (mode !== "boot-awaiting-command" || presentationStarted) return;
+  if (!/\biniciar\b/i.test(transcript) || !/\bpresentaci[oó]n\b/i.test(transcript)) return;
+  presentationStarted = true;
+  runPresentationScript();
+}
+
+// Botón oculto — Opción B. Sin revelar nada en pantalla durante los 10
+// segundos de espera (pedido explícito), y sin afectar ningún otro
+// control (no toca activateBtn/deactivateBtn ni el reconocimiento de voz).
+// A diferencia de la Opción A (voz), aquí el encendido y el guion van
+// juntos — así lo pide el flujo del botón, que no tiene paso intermedio
+// de "Dígame, señor.".
+bootHiddenBtn.addEventListener("click", () => {
+  if (presentationStarted) return;
+  awakened = true;
+  presentationStarted = true;
+  setTimeout(() => {
+    playPowerOnAnimation(runPresentationScript);
+  }, 10000);
+});
+
+// ---------------------------------------------------------------------
+// Guion de Aether — texto EXACTO provisto, sin modificar palabras. Las
+// etiquetas [pausa:X] se convierten en segundos de espera real; ni las
+// pausas ni las indicaciones de emoción se pronuncian nunca. Las líneas
+// de EXPOSITOR no se sintetizan por voz (las dice la persona en vivo,
+// nunca el sistema) — solo se respeta la misma pausa antes de continuar,
+// para no inventar una voz que no existe (Principio 4.5, ver
+// aether_context_docs.md). "mood" en cada línea de Aether reutiliza una
+// de las 10 expresiones YA EXISTENTES (ver EXPRESSIONS arriba) según la
+// correspondencia pedida — no se crea ninguna expresión nueva.
+// ---------------------------------------------------------------------
+const PRESENTATION_SCRIPT = [
+  { speaker: "aether", text: "Buenas tardes.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Mi nombre es Aether.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Soy un sistema autónomo de inventario.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Yo observo.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Eso es lo primero que hago.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Una imagen aparece.", pause: 0.8, mood: "pensando" },
+  { speaker: "aether", text: "Encuentro algo.", pause: 0.8, mood: "pensando" },
+  { speaker: "aether", text: "Intento identificarlo.", pause: 1.3, mood: "pensando" },
+  { speaker: "aether", text: "Pero encontrar algo no significa entenderlo.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Una cámara puede detectar un objeto.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Pero detectar no significa saber qué es.", pause: 1.2, mood: "neutral" },
+  {
+    speaker: "aether",
+    text: "Y saber qué es no significa necesariamente saber dónde está.",
+    pause: 1.3,
+    mood: "neutral",
+  },
+  {
+    speaker: "aether",
+    text: "Mucho menos significa saber si esa información es confiable.",
+    pause: 2,
+    mood: "neutral",
+  },
+  { speaker: "cue", text: "[INICIA LA MÚSICA]" },
+  {
+    speaker: "aether",
+    text: "Por eso, mi proceso no termina cuando encuentro algo.",
+    pause: 0,
+    mood: "neutral",
+  },
+  { speaker: "aether", text: "Percibir.", pause: 0.5, mood: "pensando" },
+  { speaker: "aether", text: "Identificar.", pause: 0.5, mood: "pensando" },
+  { speaker: "aether", text: "Verificar.", pause: 0.5, mood: "pensando" },
+  { speaker: "aether", text: "Localizar.", pause: 0.5, mood: "pensando" },
+  { speaker: "aether", text: "Registrar.", pause: 1, mood: "pensando" },
+  {
+    speaker: "aether",
+    text: "Ese es el proceso que permite transformar una imagen en información.",
+    pause: 1.5,
+    mood: "neutral",
+  },
+  {
+    speaker: "aether",
+    text: "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+    pause: 1.2,
+    mood: "neutral",
+  },
+  { speaker: "aether", text: "Un sistema de percepción, para observar mi entorno.", pause: 1, mood: "neutral" },
+  {
+    speaker: "aether",
+    text: "Un sistema de computación, para procesar e interpretar lo que observo.",
+    pause: 1,
+    mood: "neutral",
+  },
+  {
+    speaker: "aether",
+    text: "Un sistema de comunicación, para convertir esa información en datos útiles.",
+    pause: 1,
+    mood: "neutral",
+  },
+  {
+    speaker: "aether",
+    text: "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+    pause: 1.5,
+    mood: "neutral",
+  },
+  { speaker: "aether", text: "No soy solamente una cámara.", pause: 0.9, mood: "neutral" },
+  { speaker: "aether", text: "No soy solamente un robot.", pause: 1.2, mood: "neutral" },
+  {
+    speaker: "aether",
+    text: "Soy la integración de estos sistemas para resolver un problema.",
+    pause: 1.5,
+    mood: "neutral",
+  },
+  { speaker: "aether", text: "¿Quieren ver cómo funciono?", pause: 58, mood: "sorprendido" },
+
+  { speaker: "expositor", text: "Ahora sí.", pause: 0 },
+  { speaker: "expositor", text: "Vamos a abrirlo.", pause: 0.8 },
+  {
+    speaker: "expositor",
+    text: "Cuando Aether dice que percibe, se refiere a algo concreto: un modelo de detección de objetos llamado YOLO.",
+    pause: 1.3,
+  },
+  { speaker: "expositor", text: "Cuando dice que identifica, no está adivinando.", pause: 0.6 },
+  {
+    speaker: "expositor",
+    text: "Lee códigos de barras y códigos QR directamente sobre cada objeto que detecta, para saber exactamente qué producto es.",
+    pause: 1.3,
+  },
+  {
+    speaker: "expositor",
+    text: "Y cuando dice que verifica su ubicación, lo hace con unos marcadores especiales llamados ArUco.",
+    pause: 0.7,
+  },
+  {
+    speaker: "expositor",
+    text: "Es importante ser precisos: esto no es navegación autónoma todavía.",
+    pause: 0.6,
+  },
+  { speaker: "expositor", text: "Es una capa de verificación de posición.", pause: 0.6 },
+  {
+    speaker: "expositor",
+    text: "Aether confirma dónde está, pero todavía no decide por sí solo cómo recorrer un almacén completo.",
+    pause: 1.4,
+  },
+  {
+    speaker: "expositor",
+    text: "Toda esa información está diseñada para procesarse sobre un Jetson Orin Nano Super: un sistema de cómputo en el borde, pensado para ejecutar modelos de inteligencia artificial directamente en el robot.",
+    pause: 1.3,
+  },
+  {
+    speaker: "expositor",
+    text: "Y una vez que Aether decide qué vio, esa información no se queda suelta.",
+    pause: 0.7,
+  },
+  {
+    speaker: "expositor",
+    text: "Se organiza en un motor de inventario propio, que separa cuidadosamente lo que se observó de lo que se declara como inventario real.",
+    pause: 1.5,
+  },
+  {
+    speaker: "expositor",
+    text: "Así evitamos confundir una observación parcial con una certeza de inventario.",
+    pause: 1.5,
+  },
+  { speaker: "expositor", text: "Pero no queremos quedarnos en una explicación.", pause: 0 },
+  { speaker: "expositor", text: "Queremos que lo vean funcionando.", pause: 0 },
+  { speaker: "expositor", text: "Aether.", pause: 0 },
+
+  { speaker: "aether", text: "Dígame, señor.", pause: 4, mood: "neutral" },
+
+  { speaker: "expositor", text: "Muéstrales qué puedes ver.", pause: 0 },
+
+  { speaker: "aether", text: "En un momento.", pause: 0.8, mood: "neutral" },
+  {
+    speaker: "aether",
+    text: "Esto es lo que soy capaz de ver ahora mismo.",
+    pause: 30,
+    mood: "neutral",
+    cueAfter: "activateCamera",
+  },
+
+  { speaker: "expositor", text: "Lo que están viendo no es una animación.", pause: 0.6 },
+  {
+    speaker: "expositor",
+    text: "Es la percepción real del sistema, corriendo en este momento frente a ustedes.",
+    pause: 1.2,
+  },
+  {
+    speaker: "expositor",
+    text: "Cada caja que aparece sobre la imagen corresponde a una detección real.",
+    pause: 0.7,
+  },
+  { speaker: "expositor", text: "Y cada una de esas detecciones se guarda como un registro individual.", pause: 0 },
+  { speaker: "expositor", text: "Nosotros le llamamos una Observation.", pause: 1.4 },
+  { speaker: "expositor", text: "Después, esa información puede convertirse en inventario declarado.", pause: 1.2 },
+  { speaker: "expositor", text: "Esa distinción importa.", pause: 0.6 },
+  { speaker: "expositor", text: "Aether no solamente cuenta lo que ve.", pause: 0.6 },
+  {
+    speaker: "expositor",
+    text: "Distingue entre lo que observó y lo que puede declarar con certeza.",
+    pause: 1.5,
+  },
+  {
+    speaker: "expositor",
+    text: "Y Aether Inventory, lo que están viendo funcionar en este momento, es solamente una pieza del proyecto completo.",
+    pause: 1.2,
+  },
+  {
+    speaker: "expositor",
+    text: "Nuestra visión es llevar esta arquitectura hasta una línea de manufactura completa.",
+    pause: 0.8,
+  },
+  {
+    speaker: "expositor",
+    text: "A partir de ahí, la arquitectura puede crecer hacia una línea de manufactura donde la información obtenida por Aether pueda utilizarse para coordinar procesos automatizados.",
+    pause: 1.5,
+  },
+  { speaker: "expositor", text: "Esa es la dirección que sigue nuestro desarrollo.", pause: 1 },
+  { speaker: "expositor", text: "No estamos construyendo solamente una máquina que vea.", pause: 1 },
+  {
+    speaker: "expositor",
+    text: "Estamos construyendo una plataforma que pueda convertir lo que ve en información útil para actuar sobre el mundo físico.",
+    pause: 1.5,
+  },
+  { speaker: "expositor", text: "Aether comienza observando.", pause: 1.2 },
+  { speaker: "expositor", text: "Pero no queremos que termine ahí.", pause: 1.5 },
+  { speaker: "expositor", text: "Queremos que vea, comprenda y decida.", pause: 1.5 },
+  { speaker: "expositor", text: "Porque el futuro de la automatización no es hacer más.", pause: 1.5 },
+  { speaker: "expositor", text: "Es aprender a hacerlo mejor.", pause: 2 },
+  { speaker: "expositor", text: "Esto es Aether.", pause: 0 },
+];
+
+function speakScripted(text) {
+  return new Promise((resolve) => speak(text, { onend: resolve }));
+}
+
+function waitSeconds(seconds) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
+
+/** Corre el guion completo, en orden, de principio a fin. Mientras corre,
+ * mode = 'script' (ver handleVoiceCommand más abajo: el reconocimiento de
+ * voz no interfiere con el guion, para que no se corte a media frase por
+ * ruido de fondo). Al llegar a la línea marcada cueAfter:'activateCamera'
+ * reutiliza activateRobot() — el mismo Modo Cámara que ya existía — para
+ * mostrar la percepción en vivo; de ahí en adelante el sistema vuelve a
+ * comportarse exactamente como ya funcionaba (Modo Cámara con "Lumina,
+ * detente" para salir, gobernado por el propio activateRobot()/mode). */
+async function runPresentationScript() {
+  mode = "script";
+  for (const segment of PRESENTATION_SCRIPT) {
+    if (segment.speaker === "cue") {
+      // Sin archivo de música disponible en el proyecto — no se fabrica
+      // ese asset (Principio 4.5); queda como nota para quien opere la
+      // presentación en vivo.
+      console.log(`Aether · guion: ${segment.text}`);
+      continue;
+    }
+    if (segment.speaker === "aether") {
+      setFaceExpression(segment.mood || "neutral");
+      await speakScripted(segment.text);
+      if (segment.cueAfter === "activateCamera") activateRobot();
+      if (segment.pause) await waitSeconds(segment.pause);
+      continue;
+    }
+    // 'expositor': nunca se sintetiza — lo dice la persona en vivo. Solo
+    // se honra la misma pausa del guion antes de seguir.
+    if (segment.pause) await waitSeconds(segment.pause);
+  }
+}
 
 // ============================================================================
 // Modo Conversación — LLM (Ollama vía backend/main.py) + síntesis de voz.
@@ -890,41 +1388,17 @@ if ("speechSynthesis" in window) {
 }
 
 // ============================================================================
-// Animación de boca mientras Lumina habla — sincronización APROXIMADA, no
-// sincronización labial real (eso requeriría analizar el audio en vivo,
-// fuera de alcance). Se intenta primero con el evento "boundary" de
-// SpeechSynthesisUtterance (dispara por palabra o sílaba según el
-// motor/voz del navegador) alternando abierta/cerrada en cada uno; si ese
-// evento no dispara ni una sola vez durante la utterance (algunos
-// navegadores/voces no lo soportan), un intervalo de respaldo alterna la
-// boca solo mientras tanto. Al terminar de hablar, la boca vuelve a la
-// forma base de la expresión actual — nunca se queda "abierta" a medias.
+// Animación de boca mientras Lumina habla — el motor real vive en
+// "ANIMACIÓN CONTINUA" más arriba (mouthTalkPath/randomizeMouthBandTargets/
+// startTalkingAnimation/stopTalkingAnimation/mouthBoundaryBurst; ver ahí la
+// honestidad explícita sobre por qué esto es una aproximación procedural y
+// no un analizador de audio real). Esta sección solo conecta esos ganchos
+// a los eventos reales de SpeechSynthesisUtterance.
 // ============================================================================
-
-let mouthTalkInterval = null;
-let mouthTalkOpen = false;
 
 function currentBaseMouthShape() {
   const cfg = EXPRESSIONS[currentExpression];
   return cfg ? cfg.mouth : "flat";
-}
-
-function setMouthTalkFrame(open) {
-  mouthTalkOpen = open;
-  mouthEl.setAttribute("d", open ? mouthPath("o") : mouthPath(currentBaseMouthShape()));
-}
-
-function startMouthTalkFallbackInterval() {
-  clearInterval(mouthTalkInterval);
-  // 150ms: dentro del rango pedido (120–180ms), un ritmo que se siente
-  // natural sin ser tan rápido que parezca un parpadeo.
-  mouthTalkInterval = setInterval(() => setMouthTalkFrame(!mouthTalkOpen), 150);
-}
-
-function stopMouthTalkAnimation() {
-  clearInterval(mouthTalkInterval);
-  mouthTalkInterval = null;
-  mouthEl.setAttribute("d", mouthPath(currentBaseMouthShape()));
 }
 
 /** Dice `text` en voz alta con la mejor voz en español disponible (ver
@@ -947,30 +1421,22 @@ function speak(text, { onend } = {}) {
 
   if (selectedVoice) utterance.voice = selectedVoice;
 
-  // Ver la animación de boca arriba: arranca el intervalo de respaldo
-  // desde ya, y boundary lo apaga apenas dispare una vez de verdad (así no
-  // compiten los dos al mismo tiempo si el navegador sí lo soporta).
-  let boundaryFired = false;
-  utterance.onstart = () => {
-    boundaryFired = false;
-    startMouthTalkFallbackInterval();
-  };
-  utterance.onboundary = () => {
-    if (!boundaryFired) {
-      boundaryFired = true;
-      clearInterval(mouthTalkInterval);
-    }
-    setMouthTalkFrame(!mouthTalkOpen);
-  };
+  utterance.onstart = () => startTalkingAnimation();
+  // onboundary: único timing real de habla que el navegador entrega para
+  // speechSynthesis — ver "ANIMACIÓN CONTINUA" arriba sobre por qué no hay
+  // forma de ir más allá de esto (no existe AnalyserNode posible sobre
+  // SpeechSynthesisUtterance). Algunos navegadores/voces nunca lo disparan
+  // — la boca sigue viéndose viva igual, solo sin el empujón extra.
+  utterance.onboundary = () => mouthBoundaryBurst();
 
   utterance.onend = () => {
-    stopMouthTalkAnimation();
+    stopTalkingAnimation();
     resumeRecognitionAfterSpeech();
     if (onend) onend();
   };
   utterance.onerror = (event) => {
     console.warn("Aether: error de síntesis de voz.", event);
-    stopMouthTalkAnimation();
+    stopTalkingAnimation();
     resumeRecognitionAfterSpeech();
     if (onend) onend();
   };
@@ -1199,6 +1665,20 @@ function queueVoiceFragment(transcript) {
  * es ningún comando de control conocido, se trata como una pregunta real
  * para Lumina. */
 function handleVoiceCommand(transcript) {
+  // Pantalla de espera (ver sección "PANTALLA DE ESPERA" arriba) — se
+  // revisa primero y siempre con "return": mientras no se haya activado
+  // el guion, ningún otro comando de voz (ni preguntas a Ollama) debe
+  // procesarse.
+  if (mode === "boot") {
+    if (LUMINA_PATTERN.test(transcript)) greetBootWake();
+    return;
+  }
+  if (mode === "boot-awaiting-command") {
+    startPresentationFromVoice(transcript);
+    return;
+  }
+  if (mode === "script") return; // guion en curso — el micrófono no debe interrumpirlo
+
   if (heardStartCommand(transcript)) {
     activateRobot();
     return;
@@ -1363,9 +1843,12 @@ if (SpeechRecognitionImpl) {
 }
 
 // ============================================================================
-// Estado inicial — arranca en Modo Conversación (ver el comentario grande
-// al inicio del archivo sobre por qué es el modo por defecto).
+// Estado inicial — pantalla de espera (negra) hasta que se diga "Lumina" o
+// se use el botón oculto (ver sección "PANTALLA DE ESPERA" arriba). Ya no
+// arranca directo en Modo Conversación: ese modo normal solo se activa
+// después de terminar el guion y salir de Modo Cámara (deactivateRobot,
+// sin cambios), igual que ya funcionaba antes de este pedido.
 // ============================================================================
 
-enterConversationMode();
+setFaceExpression(restingExpression());
 scheduleNextGazeDrift();

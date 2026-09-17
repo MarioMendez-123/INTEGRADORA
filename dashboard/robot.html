@@ -78,6 +78,26 @@
     <canvas id="field" data-density="low" aria-hidden="true"></canvas>
     <div class="veil veil--dense" aria-hidden="true"></div>
 
+    <!-- ============ Pantalla de espera (arranque) ============
+         Pantalla completamente negra hasta la activación por voz
+         ("Lumina" → "Dígame, señor." → "Iniciar presentación") o el
+         botón oculto de la esquina superior izquierda — ver la sección
+         "PANTALLA DE ESPERA" en robot.js. Cubre toda la interfaz normal
+         a propósito: nada de Aether debe verse ni oírse antes de la
+         activación. El botón interno nunca es visible (ver robot.css,
+         .boot-hidden-btn) — es un método manual de respaldo, no un
+         control de interfaz descubrible. -->
+    <div class="boot-screen" id="boot-screen" aria-hidden="true">
+      <button
+        type="button"
+        class="boot-hidden-btn"
+        id="boot-hidden-btn"
+        aria-hidden="true"
+        tabindex="-1"
+      ></button>
+    </div>
+    <div class="boot-flash" id="boot-flash" aria-hidden="true"></div>
+
     <!-- ============ Pantalla de la cara (estado por defecto) ============
          Sin contorno de "cabeza": los ojos y la boca flotan directo sobre
          el fondo (campo de nodos + degradado ambiental), a propósito —
