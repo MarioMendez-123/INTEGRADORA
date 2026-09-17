@@ -1962,9 +1962,14 @@ scheduleNextGazeDrift();
 // calc() de --parallax-x/--parallax-y, no una animación) — se omite del
 // todo si el usuario pidió menos movimiento, o si el dispositivo no tiene
 // un puntero fino (pantallas táctiles no generan mousemove real, no tiene
-// sentido escuchar el evento ahí).
+// sentido escuchar el evento ahí). Reutiliza `prefersReducedMotion`, ya
+// declarada como const global por node-field.js (se carga antes que este
+// archivo en robot.html, mismo scope global al ser ambos scripts clásicos)
+// — NO volver a declararla aquí: un segundo `const prefersReducedMotion`
+// es un SyntaxError de redeclaración que revienta la carga de TODO este
+// archivo (incluida la inicialización del micrófono más arriba), no solo
+// un warning. Bug real ya cometido una vez, ver commit de este comentario.
 // ============================================================================
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
 if (!prefersReducedMotion && hasFinePointer) {
   window.addEventListener("mousemove", (event) => {
