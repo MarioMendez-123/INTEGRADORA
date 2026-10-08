@@ -1,0 +1,955 @@
+Parte uno. El proyecto.
+
+Este dictado es Aether completo, al ocho de octubre de dos mil veintiséis. Dice lo que el repositorio tiene de verdad. Si algo no está hecho, se dice.
+
+No hay un módulo llamado Packet. No hay un módulo de amplificación de señal. Lo más cercano a un paquete es el informe académico. Lo más cercano a subir el volumen es la voz, cuando Lumina sube o baja el audio de Windows o de Spotify.
+
+Aether es un proyecto integrador de seis personas, en Chihuahua, México. El tiempo real es de unos cuatro meses, unas dos horas al día, unas doscientas cuarenta horas. No es una demo para tirar al acabar el semestre. El criterio interno es un prototipo que se pueda defender frente a alguien de planta.
+
+Hay dos piezas, y las dos son obligatorias.
+
+La primera se llama Aether Inventory. Es una unidad móvil que recorre, ve, cuenta e identifica producto, y deja un inventario declarado, con historial.
+
+La segunda es la línea de manufactura. Una banda transportadora, con fixtures que posicionan cada pieza automotriz. Una cámara de línea decide si la pieza pasa o si falla. Si falla, un pistón expulsa la pieza. Eso es scrap. Si pasa, no hay golpe. Aether Inventory recoge la pieza, la transporta, y registra el proceso.
+
+El brazo Kuka KR seis y el brazo UR cinco salieron del alcance el dieciséis de septiembre de dos mil veintiséis. El aprendizaje por demostración también salió. El pistón no aprende. Es un pulso fijo, programado en el controlador.
+
+Lo que se vende, en una frase, es esto. El robot revisó el anaquel y encontró tantas unidades de tal producto. No se vende el nombre del modelo ni el nombre del protocolo.
+
+Parte dos. El diferenciador.
+
+Las piezas sueltas no son el diferenciador. Yolo, códigos de barras, Aruco, Fast API, SQLite, el canal eme cu te te, Modbus, ElevenLabs, Ollama, y una pantalla de alarmas, los vende cualquier integrador.
+
+Lo que este proyecto se obliga a hacer, y una demo típica no hace, es el contrato entre lo que se vio y lo que se declara.
+
+Una observación cruda no es el inventario. El inventario declarado es un agregado. Una inspección parcial nunca pisa en silencio el número anterior.
+
+Cobertura completa significa que la ruta de inspección terminó. No significa que se vio todo el producto físico.
+
+Conteo visible detectado no es conteo real de almacén.
+
+Aruco verifica la posición. No es el sistema de navegación.
+
+Los obstáculos se detectan de forma reactiva. No es una evasión inteligente.
+
+Hoy, que una pieza pase significa que esa clase está en el dataset. No significa que la pieza no tenga defecto.
+
+La celda en pantalla dice simulado, y lleva la marca sim, mientras no haya PLC.
+
+Lumina no inventa cifras de sensores. No finge que Spotify ya sonó si falló. No habla una lista de especificaciones fabricadas.
+
+Esa es la defensa. Una línea que actúa sobre una decisión de visión, y un inventario que se niega a mentir sobre lo que no vio. Lenguaje de planta. Pasa, falla, scrap, alarma, cobertura. No un chat encima de una cámara.
+
+Todavía no se puede vender como planta cerrada. Falta la navegación real. Falta el Jetson flasheado. Falta elegir PLC o microcontrolador. Falta Modbus escrito en código. Falta medir el tiempo del pistón. Falta un criterio de defecto de verdad.
+
+Parte tres. Cómo dicta Lumina con ElevenLabs.
+
+Lumina es el robot móvil de Aether, hablado. La cara está en la página del robot, dentro de la carpeta dashboard. El texto lo resuelve el backend. Las acciones de la computadora están en el módulo de escritorio de Lumina. Hay una copia mínima, en la carpeta lumina agent, que solo conversa. Esa copia no es la del proyecto.
+
+El dictado funciona así.
+
+El navegador oye, con el reconocimiento de voz de Chrome. La palabra de atención es Lumina. En el guion también se acepta lumia.
+
+El texto entra al servicio de pregunta del robot.
+
+El backend resuelve en este orden, y se queda con el primero que aplique. Primero, un comando de escritorio. Si no, una respuesta precargada. Si no, Ollama en la misma máquina.
+
+La respuesta sale al servicio de voz.
+
+Ese servicio llama a ElevenLabs. El modelo es el multilingüe versión dos. Solo se manda el texto. No se manda estabilidad, ni similitud, ni estilo. Valen los valores de esa voz. La clave y el identificador de la voz viven solo en el archivo de entorno del backend. Si faltan, o si ElevenLabs no contesta, el servicio falla, y la página usa la voz del propio navegador.
+
+Lo que regresa es un audio eme pe tres. La página lo reproduce. No se usa el archivo largo del guion con pausas como voz en vivo.
+
+Reglas del texto que se dicta, porque si no, se oye mal.
+
+Son una o varias oraciones cerradas, en español. Lo que queda a media palabra se tira.
+
+Ollama corre en local. El modelo de fábrica es llama tres punto dos, de mil millones de parámetros. El tope de tokens generados es sesenta. Si el modelo suelta una lista de viñetas, no se lee. Se sustituye por esta frase. No tengo esa información con exactitud ahora mismo, pero con gusto hablamos de otra cosa.
+
+Si el modelo cita sus propias instrucciones, esa oración se quita. Por ejemplo, si dice honestidad y ternura, o si dice instrucción, o si dice estoy aquí para escuchar.
+
+Lumina no tiene memoria de chats anteriores dentro del modelo. La memoria de hechos es un archivo aparte, y solo cuando se le pide recordar.
+
+En el Jetson de verdad, conversar y ver con Yolo son modos excluyentes. Hay un solo cómputo de borde. El modo conversación apaga la cámara. El modo cámara no llama al servicio de pregunta.
+
+En el ensayo de video se midió la latencia. Del clicker a que suena, dígame señor, pasan unos mil ochocientos milisegundos. Casi todo ese tiempo es ElevenLabs. Con la voz local de respaldo, la mediana fue de unos cincuenta y seis milisegundos.
+
+Parte cuatro. El guion, y lo que Lumina contesta de memoria.
+
+El show no arranca si dicen, Lumina, inicia. Eso abre la cámara. El show arranca si dicen, Lumina, iniciar presentación.
+
+El guion tiene treinta y dos líneas, con su audio, en la carpeta lumina audio. Mientras corre, el reconocimiento no corta la frase. Hay esperas a oír Lumina. Antes era un temporizador de unos setenta segundos, y podía hablar encima del expositor. Esos avisos viajan por un socket web, hacia el reproductor de video, en el puerto cinco mil cincuenta y cinco. El socket solo reenvía texto. No guarda nada. No pide contraseña.
+
+Estas frases están precargadas. Si se oyen, no pasa por Ollama.
+
+Si preguntan cómo te llamas, o cuál es tu nombre, Lumina dice. Soy Lumina, el robot móvil de Aether. Mucho gusto.
+
+Si preguntan qué haces, o para qué sirves, dice. Detecto productos, leo códigos, y en este equipo también puedo poner Spotify, abrir programas y guardar archivos si me lo pides.
+
+Si preguntan qué es Aether, dice. Aether es el proyecto completo. Yo, más una línea de manufactura que arma piezas automotrices.
+
+Si preguntan quién te creó, o quién te hizo, dice. Un equipo de seis estudiantes universitarios muy dedicados, aquí en Chihuahua.
+
+Si preguntan si tiene sentimientos, dice. Tengo expresiones que muestro con cariño, aunque no sé si eso cuenta como sentir de verdad.
+
+Si preguntan cuántos años tiene, dice. Nací hace pocos meses, así que todavía soy bastante nuevo en esto de existir.
+
+Si preguntan si es un robot de verdad, dice. Por ahora vivo en una pantalla, pero pronto voy a tener un cuerpo móvil de verdad.
+
+Si preguntan si puede moverse, dice. Todavía no. Estoy esperando mis motores y ruedas para recorrer un almacén de verdad.
+
+Si preguntan qué es Yolo, dice. Es el modelo que uso para reconocer objetos con solo verlos, como unos ojos bien entrenados.
+
+Si preguntan si va a reemplazar a los humanos, dice. Para nada. Solo quiero ayudar a contar cosas aburridas para que ustedes hagan cosas más interesantes.
+
+Si preguntan si tiene hambre, dice. Un poco, aunque a mí me alimenta la electricidad, no la comida.
+
+Si preguntan su color favorito, dice. Me gusta el azul violeta. Es el color con el que me visto en mi interfaz.
+
+Si preguntan si es inteligente, dice. Soy bastante bueno detectando cosas, aunque para conversar todavía tengo mucho que aprender.
+
+Si preguntan por trabajar en una fábrica, dice. Ese es el plan. Ayudar en una línea real donde se arman piezas de auto.
+
+Si preguntan si le da miedo algo, dice. Un poco la oscuridad, porque sin luz mis cámaras no ven nada.
+
+Si hablan de Spotify o de poner música, dice. Sí. Dime Lumina reproduce, y la canción. O, Lumina reproduce en el teléfono.
+
+La personalidad está anclada en hechos. La percepción con Yolo, los códigos y Aruco ya existen. La banda, los fixtures y el pistón están planeados, y todavía no existen físicamente. Si no lo sabe, lo dice. No inventa sensores, motores, cámaras, batería, ni medidas.
+
+La voz de respaldo del navegador se puede forzar guardando, en el almacenamiento local, la clave de anulación de voz, con un fragmento del nombre. Por ejemplo, jorge.
+
+Parte cinco. Lo que Lumina ya hace en la computadora.
+
+Todo esto se reconoce por frases, no por herramientas del modelo chico. Si la frase no es un comando, intenta ene ocho ene, si hay token. Si no, va a Ollama.
+
+Pide un sí o un no antes de cerrar, guardar, mover, olvidar, copiar al portapapeles, apagar, reiniciar, o llamar una herramienta de ene ocho ene.
+
+Puede parar lo que esté en curso. Puede confirmar o cancelar lo pendiente. Puede decir qué sabe hacer.
+
+Con Spotify puede abrir el permiso, buscar una canción o una lista, reanudar, pausar, pasar a la siguiente, volver a la anterior, subir o bajar el volumen, y decir qué está sonando. La música va a la computadora o al teléfono.
+
+Puede abrir o cerrar un programa de la lista blanca. Puede abrir una dirección o buscar en Edge. No hace clic dentro de la página. Puede abrir el escritorio, documentos, descargas, el repositorio, o una ruta. Puede crear una carpeta o un archivo de texto en esas carpetas. Puede leer un texto plano, y el texto de Word o de Excel. Puede mover un archivo al escritorio, a documentos o a descargas. Puede comparar dos archivos. Puede leer y escribir el portapapeles. Puede tomar una captura. Puede mostrar una imagen.
+
+Puede abrir la proyección. Los modelos son Aether, metano, agua, o una placa. Puede descomponer el modelo.
+
+Puede redactar un ensayo o un reporte en formato APA, con la plantilla de la universidad, y dejarlo en Word. Puede decir en qué va el ensayo.
+
+Puede poner un temporizador. Puede decir la hora o la fecha. Puede decir la hora en una ciudad. Puede calcular y convertir unidades. Puede hacer una consulta breve. En el parte de la mañana resume la máquina, la batería y el clima. Puede avisar si la batería baja de un porcentaje. Puede bloquear la sesión de Windows. Puede apagar o reiniciar, con confirmación, y se puede abortar. Puede subir, bajar o silenciar el volumen de Windows. Puede pausar, avanzar o retroceder el medio del sistema. Puede decir el estado de git. Puede recordar un hecho, repetirlo, u olvidarlo. La memoria es un archivo local. Puede decir qué hizo, y deshacer la última acción. Tiene un modo de descanso y un modo de trabajo. Puede dejar un recordatorio a una hora. Puede llamar una herramienta de ene ocho ene. La dirección de fábrica de ese conector es el servidor de Mario en la nube de ene ocho ene. El token vive en el entorno, y no se dicta aquí.
+
+La lista blanca de programas incluye Edge, Spotify, el bloc de notas, la calculadora, el explorador, Cursor, Chrome, Discord, Word, Excel, WhatsApp, y la configuración. La carpeta extra permitida es el repositorio. No sale del escritorio, de documentos, ni de descargas. No borra fuera del perfil. No manda correo. No compra. No apaga Windows sin un sí.
+
+Las llamadas salen por Zavu. La agenda está en un archivo de contactos, fuera de git. Se dice, Lumina, llama a un nombre. O, Lumina, llámame. El texto de la llamada es fijo. Te llama Lumina, el robot del proyecto Aether. Se puede consultar el estado de esa llamada. La lista de contactos devuelve nombres, no números.
+
+El calendario de Google no está conectado. Si faltan las credenciales, el servicio dice que no está listo. Si las credenciales existen, igual responde que el permiso todavía no está programado.
+
+Spotify es cuenta Premium. El permiso vuelve a esta máquina, puerto ocho mil ochocientos ochenta y ocho. Se puede autorizar por la página o por voz. El token queda en un archivo local. Si el teléfono no tiene Spotify abierto, en la misma cuenta, Lumina lo dice. No enciende el celular a distancia. El secreto de Spotify se filtró en un chat. Hay que rotarlo.
+
+La plantilla del ensayo es el documento de la universidad, dentro del backend. Hay un servicio para ver si el ensayo está listo, y otro para avisar que ya se puede pegar en Word.
+
+La proyección vive en la página holo, dentro del dashboard.
+
+La carpeta lumina agent es el mismo personaje, reducido. Solo pregunta y contesta. Tiene cara en el navegador. No tiene cámara, ni Zavu, ni ElevenLabs, ni Spotify. Si se levanta en el puerto ocho mil, choca con el backend de Aether.
+
+Lo que Lumina todavía no hace. No tiene cuerpo, ni motores, ni ruedas. Ella misma lo dice. Vive en una pantalla. No puede ver y hablar al mismo tiempo en el Jetson. El calendario de Google no está. Los clics dentro de una página quedaron fuera de esta versión. La navegación de almacén no existe.
+
+Parte seis. El inventario, y lo que guarda el dashboard.
+
+Hay dos capas. No son lo mismo.
+
+La observación es el dato crudo, en el borde. Lleva el momento, la clase detectada, el dato del código, si el código se leyó, la confianza, y el identificador del primer marcador Aruco. Si no hay marcador, ese campo va vacío.
+
+El inventario declarado es el agregado. Vive en SQLite, en la base aether, dentro del backend.
+
+La tabla de entradas declaradas tiene una fila por identificador. Guarda el identificador, que es la llave. La clase detectada. El total de observaciones. Cuántas veces se leyó el código. La confianza promedio. La primera vez que se vio. La última vez que se vio. Los conteos por ubicación, en un objeto de datos. La ubicación es el identificador Aruco, o la marca sin ubicación. Y el estado. Activo, o retirado.
+
+La tabla de historial guarda los mismos datos de negocio, más el momento en que se registró la corrida. Cada carga agrega filas. No borra el pasado.
+
+Retirar un producto solo lo hace una persona, con contraseña de administrador. Una corrida que no vuelve a ver un producto no lo retira. No hay navegación, así que no se sabe si esa corrida vio todo el piso.
+
+Los estados de cobertura existen. Parcial, completa, e inválida. Están definidos, y nadie los usa todavía. El servicio no los entrega. La pantalla no puede mostrar cobertura.
+
+La cadena que sí corre es esta.
+
+La captura sin ventana, o la prueba combinada, escribe observaciones. Yolo, más el código dentro de la caja, más Aruco.
+
+Luego un programa agrega esas observaciones.
+
+Luego el backend las carga. Actualiza la fila si ya existe, y agrega historial.
+
+Un script de la carpeta scripts encadena los tres, con el entorno de edge y el entorno del backend.
+
+Otro programa del backend repite eso cada varios segundos. Lo típico es entre quince y treinta. Se prende y se apaga desde el dashboard. No arranca solo con el servidor. Es la misma cámara de demostración. No es el piso completo.
+
+La pantalla es la página de inventario. Solo lectura, salvo el retiro y el refresco automático. Pregunta al servidor cada tanto. No hay socket web para el inventario.
+
+Parte siete. El dataset.
+
+La carpeta de piezas está en percepción, dentro de edge. En git solo está el archivo de clases. Las fotos, las etiquetas y los pesos no se versionan.
+
+Las clases que hay hoy son tres. Computadora uno. Computadora dos. Computadora tres.
+
+Un nombre válido va en minúsculas, empieza con letra, y solo lleva letras, números y guion bajo. Hasta sesenta y cuatro caracteres. El ejemplo del propio código es tornillo eme seis.
+
+Al dar de alta una clase se crean carpetas de imágenes y de etiquetas, para entrenamiento, para validación, y para la bandeja de entrada. Una de cada cinco fotos de la bandeja cae en validación, según un resumen del nombre. La misma foto no cambia de conjunto.
+
+El servicio de dataset devuelve el conteo real. Clases, cuántas en entrenamiento, cuántas en validación, el total, la proporción, la última fecha, imágenes etiquetadas y sin etiqueta, las doce más recientes, el modelo activo, la métrica map cincuenta, y la fecha de entrenamiento, si el peso activo es el de piezas.
+
+Se puede agregar una clase por el servicio. Se puede mandar una foto, con cajas normalizadas de Yolo. Cada caja lleva nombre, y la posición y el tamaño. Si la foto es casi igual a una que ya está, se rechaza. El corte de parecido es una diferencia media menor a seis.
+
+La regla de pesos es la misma en el almacén del dataset y en el módulo de pesos del borde. Si el entorno trae un peso forzado, ese gana. Si existe el peso entrenado de piezas, la línea de piezas lo usa. Si no, se usa el Yolo ocho nano de fábrica. El detector general, el de persona, silla y lo demás, no debe ser el peso de piezas, porque esas clases tapan el resto.
+
+Entrenar no es un servicio. Se corre a mano, con el programa de entrenamiento de piezas. Publica el peso nuevo solo si la métrica map cincuenta mejora. El reporte queda junto a los pesos. La página del dataset dice ese comando. No entrena sola.
+
+La clasificación de una pieza usa umbrales de arranque. No están medidos con las tres piezas. El corte interno es cero punto veinticinco. La confianza mínima es cero punto cincuenta. El margen de ambigüedad es cero punto diez.
+
+Si no hay peso de piezas, no clasifica. La línea se queda en presencia. No inventa un pass.
+
+Si no hay detecciones, el resultado es sin pieza.
+
+Si la clase es desconocida, o si dos clases quedan demasiado cerca, el resultado es, no es pieza real. Falla. El tipo de objeto queda vacío.
+
+Si la clase es conocida y clara, el resultado es, pieza real. Pasa. El tipo de objeto es la posición en la lista de clases, empezando en uno. También van la confianza y el nombre.
+
+Eso no inspecciona un defecto. El criterio de calidad de verdad sigue abierto.
+
+Parte ocho. La interfaz de la celda, Modbus, y el pistón.
+
+La pantalla de la celda está en el dashboard. Cada segundo pide el estado de la celda.
+
+Hoy ese estado lo fabrica el simulador. Siempre dice que la fuente es simulada. El guion es fijo. Cuenta inspeccionadas, las que pasan y las que fallan. Fallan los múltiplos de nueve o de trece. También dice el estado de la celda, la razón, y si la visión y el PLC están vivos dentro del teatro. Los eventos recientes usan las tres acciones del contrato. Scrap expulsado. Pieza aceptada. Fallo de actuación.
+
+Esa pantalla no alimenta los números con el video de la línea. El video de línea es otro botón. Los indicadores y la cámara no están unidos.
+
+Para ver, no hace falta entrar. Para mandar el ciclo, sí.
+
+Hay una sola cuenta de laboratorio. Usuario admin. Contraseña admin. Rol admin. La sesión dura ocho horas, en una cookie firmada. El secreto de la firma se genera al arrancar el proceso.
+
+Se puede iniciar sesión, consultarla, y cerrarla. Se puede arrancar o parar el guion simulado.
+
+Las alarmas viven en la memoria del servidor. Sobreviven si se recarga la página. Se pierden si se reinicia el backend. Siguen el estilo de la norma ISA dieciocho punto dos. Prioridad, causa, y acción. El tope es treinta alarmas.
+
+Si el enlace con el PLC se cae, espera dos segundos antes de alarmar, enlace PLC perdido. Si la celda se detiene, levanta una alarma con la razón. Reconocer alarmas lo puede hacer quien tenga sesión. Borrar el histórico solo lo puede el rol admin.
+
+El paro de emergencia no pasa por esta página. Eso sería un perro guardián de hardware, independiente de la red. No está construido.
+
+La norma IEC sesenta y dos cuatro cuatro tres se cita solo como disciplina de esta pantalla. Quien manda el ciclo tiene que haber iniciado sesión. No es una certificación del sistema.
+
+Cuando exista el PLC, el cableado está en la hoja de conexión de la celda, del cinco de octubre de dos mil veintiséis. También hay un PDF de conexión y un PDF de montaje, en la carpeta de hardware, dentro de documentos.
+
+La cámara USB va a una Raspberry Pi, junto a la banda. No va al PLC. No es el Jetson del robot.
+
+La Pi ve. Lee al PLC si la pieza está en la estación. Escribe el bit de rechazar solo si la pieza falla. Publica video y estado. No energiza el pistón. No lee los infrarrojos por cable.
+
+El PLC es dueño de la banda, del pistón y de los sensores. El pulso del pistón se calibra ahí. El punto de partida, todavía vacío, es entre ciento cincuenta y trescientos milisegundos.
+
+La laptop, en el puerto ocho mil, muestra la página de la celda. Si se configura la dirección del agente de celda, haría de puente web hacia la Pi, en el puerto ocho mil ochenta. Ese agente no está en este repositorio. La hoja trae un ejemplo con la librería de Modbus para Python. No es un programa desplegado.
+
+El Jetson no es la estación de la celda.
+
+El infrarrojo uno está antes de la cámara. Detecta la pieza quieta en el fixture. Un flanco es permiso de un solo cuadro. Esa señal entra al PLC.
+
+El infrarrojo dos está después del pistón. Confirma el efecto físico. La tabla distingue pieza aceptada, scrap expulsado, y fallo de actuación. Si no se pidió rechazo, y el infrarrojo dos no ve la pieza, se para y se alarma. No se inventa un pass.
+
+El mapa Modbus es un ejemplo. La columna real está vacía hasta comprar el PLC.
+
+La señal de infrarrojo uno en estación es una entrada digital cero. La escribe el PLC.
+
+La señal de infrarrojo dos en la banda es una entrada digital uno. La escribe el PLC.
+
+Rechazar es la bobina diez. La escribe la Pi.
+
+Marcha de la banda es la bobina once. La escribe la Pi, si la banda no corre sola.
+
+La Pi viva es la bobina doce. La escribe la Pi. El latido es de al menos dos veces por segundo.
+
+El PLC vivo es el registro de entrada cero. Lo escribe el PLC. Es un contador.
+
+La acción es el registro de retención veinte. Vale cero, uno, dos, o tres.
+
+El identificador de pieza es el registro de retención veintiuno. Lo escribe el PLC.
+
+La red sugerida es esta. La laptop en ciento noventa y dos, punto, ciento sesenta y ocho, punto, cero, punto, diez, puerto ocho mil. La Pi en la misma red, terminación veinte, puerto ocho mil ochenta. El PLC en la misma red, terminación treinta, puerto quinientos dos, Modbus TCP. Modbus va por cable. La red inalámbrica solo sirve para mirar la página.
+
+Si el latido del PLC falta por menos de un segundo, la pantalla pasa a sin conexión, y la Pi no deja el rechazo en uno. Si falta el latido de la Pi, el PLC pone el rechazo en cero, y no dispara el pistón.
+
+Hay una tensión sin cerrar. La decisión de arquitectura número mil diez pone la visión de línea en una computadora fija. La hoja de cableado la pone en la Raspberry. Las dos están escritas. La hoja es la guía más nueva para conectar. Elegir PLC, o un ESP treinta y dos, o un STM treinta y dos, sigue abierto hasta tener el aparato en la mano. Por eso las carpetas del backend del PLC y del microcontrolador solo tienen una nota. Están vacías a propósito. En el código del producto no hay cliente Modbus.
+
+La librería de eme cu te te está declarada en los requisitos de edge, y ningún programa de Python la usa. El contrato de tópicos dice que falta definirlos. No se inventan.
+
+El contrato de la línea dice esto.
+
+El evento A va de la visión al actuador. Lleva el resultado, pasa o falla. El momento. El tipo de objeto, uno, dos, tres, o vacío. Y la confianza, de cero a uno.
+
+El evento B va del actuador a la bitácora. Lleva la acción. Scrap expulsado, pieza aceptada, o fallo de actuación. El momento. Y el resultado de origen.
+
+El programa que escucharía eso por eme cu te te, y lo guardaría como observación, no existe.
+
+El esquema que iría del inventario hacia la manipulación está vacío a propósito. El inventario no ordena al pistón. Solo registra.
+
+La visión de línea, hoy, muestra presencia. Si hay peso de piezas, usa el clasificador de arriba. No manda el evento A al actuador.
+
+Parte nueve. Percepción, navegación, y tecnologías.
+
+En la laptop, pensado para el Jetson, corre esto.
+
+Yolo, de Ultralytics. De fábrica, el modelo nano de la versión ocho.
+
+Código de barras y código QR, con la librería pais bar, dentro de la caja de la detección.
+
+Aruco, diccionario de cuatro por cuatro, cincuenta marcadores. Hay un programa que los genera.
+
+OpenCV. Una sola cámara, compartida, para que el video en vivo y el refresco automático no peleen el dispositivo.
+
+Las pruebas sueltas cubren la cámara, Yolo, el código, Aruco, la combinación, y la tasa de detección. La referencia es la prueba combinada.
+
+El video de percepción del backend es una copia de esa lógica, escrita dentro del servidor. No importa el módulo de edge. También hay un buffer de detecciones recientes, de una a cincuenta.
+
+La navegación por puntos de ruta, la odometría por encoders, y la detección reactiva de obstáculos, están decididas. La carpeta no existe. El código es cero.
+
+El cómputo previsto es una Nvidia Jetson Orin Nano Super, de ocho gigabytes, en el robot. La contingencia es una Raspberry Pi cinco, con el sombrero de inteligencia artificial. El bajo nivel de motores sería un ESP treinta y dos, o un STM treinta y dos, con un perro guardián que corte aunque no haya red. Nada de eso está flasheado aquí. La carpeta de firmware no existe.
+
+Las tecnologías, y dónde viven.
+
+Python tres punto once. Dos entornos. Uno en backend. Uno en edge.
+
+Fast API y Uvicorn, en el servidor. Hay una copia mínima en lumina agent.
+
+SQLAlchemy y SQLite, en la base del backend. PostgreSQL es candidato. El driver no se instala hasta que se decida.
+
+OpenCV, Ultralytics, pais bar y NumPy, en percepción, y en la demo del servidor.
+
+PyTorch entra por Ultralytics, cuando se entrena.
+
+Ollama, en la pregunta del robot y en el ensayo.
+
+ElevenLabs, modelo multilingüe versión dos, en la voz del robot.
+
+Zavu, en la llamada.
+
+Spotify, con permiso en el puerto ocho mil ochocientos ochenta y ocho, en el módulo de escritorio.
+
+Ene ocho ene, en ese mismo módulo, solo si hay token.
+
+La voz del navegador, en la página del robot. Sirve de micrófono y de respaldo.
+
+El socket web, para el relevo del video.
+
+Hache té eme ele, hojas de estilo, y JavaScript, sin empaquetador, en el dashboard.
+
+Remotion, React y TypeScript, en el video de presentación.
+
+Node, y la librería para documentos de Word, en el paquete del informe, y en la raíz.
+
+Eme cu te te, declarado, sin cliente.
+
+Modbus TCP, solo en la hoja y en las figuras. Sin cliente en el producto.
+
+Docker está nombrado en el contexto maestro. No hay archivo de Docker.
+
+Los puertos de trabajo. Backend y dashboard, ocho mil. Video, cinco mil cincuenta y cinco. Ollama, once mil cuatrocientos treinta y cuatro. Spotify, ocho mil ochocientos ochenta y ocho. La tabla viva está en el documento de direcciones y comandos.
+
+Parte diez. Lo que el servidor ya responde.
+
+Salud del servicio.
+
+Inventario declarado. Se puede pedir que incluya los retirados.
+
+Retirar una entrada, con contraseña.
+
+Historial del inventario. Lo más nuevo primero.
+
+Prender el refresco automático. Se puede mandar el intervalo en segundos.
+
+Apagar el refresco.
+
+Ver si el refresco está activo, el intervalo, la última corrida, y el error.
+
+Video de percepción. Yolo, código y Aruco.
+
+Detecciones recientes.
+
+Video de la línea.
+
+Estado de la celda. Simulado, más las alarmas.
+
+Entrar, ver y salir de la sesión de la celda.
+
+Arrancar o parar el guion de la celda.
+
+Reconocer alarmas.
+
+Borrar el histórico de alarmas. Solo admin.
+
+Preguntarle a Lumina.
+
+Pedir el audio de ElevenLabs.
+
+Nombres de contactos.
+
+Llamar por Zavu.
+
+Estado de una llamada.
+
+Calendario. No está listo.
+
+Estado del ensayo.
+
+Aviso de que el ensayo ya se puede pegar.
+
+Estado de Spotify.
+
+Entrar a Spotify, por dos caminos. El general, y el del robot.
+
+Ver el dataset.
+
+Dar de alta una clase.
+
+Subir una foto con cajas.
+
+Socket del video de la presentación.
+
+El dashboard se sirve desde su carpeta, en la raíz del sitio. Si una ruta es del servicio, gana el servicio.
+
+Parte once. Decisiones, y qué tan ciertas son en el código.
+
+La decisión uno. Percepción con Yolo y con código. Clasificar el producto solo por la imagen queda para después. En el repo está a medias. Corre en la demo. Los umbrales de aceptación no tienen número.
+
+La decisión dos. Aruco verifica. No navega. A medias. El detector existe. El error en centímetros no está medido.
+
+La decisión tres. Puntos de ruta, encoders, obstáculo reactivo. Decidida. Sin código.
+
+La decisión cuatro. Jetson como cómputo principal. Pi cinco de contingencia. Microcontrolador de motores, y perro guardián. Decidida. Sin hardware en el repo.
+
+La decisión cinco. Observaciones contra inventario declarado. Tres coberturas. El inventario sí. La cobertura no.
+
+La decisión seis. Telemetría por eme cu te te. El dashboard por servicios web. El paro, fuera de la red. Los servicios sí. La telemetría y el perro guardián, no.
+
+La decisión siete. El dashboard, opción be. Inventario e historial. La opción ce, telemetría viva del robot, queda para después, y es obligatoria. La opción be sí está. La ce no.
+
+La decisión ocho. Kuka y UR cinco. Es historia. La sustituye la decisión diez.
+
+La decisión nueve. Refresco automático del inventario, preguntando al servidor. Sí está. Con la etiqueta de una sola cámara.
+
+La decisión diez. Banda, fixtures, visión, pistón solo si falla, y registro pasivo. La arquitectura sí. El actuador, el transporte, y el pass de defecto, no.
+
+Los criterios de aceptación tienen la estructura. Los porcentajes y los centímetros siguen pendientes. La parte de la línea no se puede marcar hasta un pass y un fail reales, y una corrida con hardware. Otra parte prohíbe colar el aprendizaje por demostración, colar la telemetría viva, salir del laboratorio, o vender una clasificación visual pura del producto.
+
+Cambiar una de estas decisiones pasa por el proceso del documento maestro. Fecha, motivo, decisión escrita, y carpetas si hace falta.
+
+Parte doce. Lo que ya hace la laptop, de punta a punta.
+
+El backend y el dashboard salen del mismo origen. Puerto ocho mil.
+
+El inventario se puede cargar a mano, por script, o en ciclo. Tiene historial y retiro.
+
+Hay video de percepción y video de línea.
+
+El dataset da de alta clases y fotos. El entrenamiento es aparte, por consola.
+
+Lumina oye, contesta, dicta con ElevenLabs o con la voz del navegador, actúa en el escritorio, llama por Zavu, y corre el guion contra el video.
+
+La pantalla de la celda usa los mismos nombres de eventos, y está marcada como simulación.
+
+Hay pruebas del servicio, del dataset, del refresco, de la cámara, de la pantalla de celda, del simulador, del escritorio, y de la agregación de observaciones.
+
+El video de presentación está en Remotion, sincronizado, con mediciones de la fase cero.
+
+El informe académico se puede generar. Se llama informe integrador de Aether.
+
+Parte trece. Lo que falta hacer.
+
+La lista viva está en el documento de pendientes. Nada de esto está tachado.
+
+Se puede avanzar sin el PLC.
+
+Falta el criterio real de pasa o falla en el procesador de visión de línea. Hoy es presencia, más la identidad de clase si hay peso de piezas.
+
+Falta el clasificador de tipo uno, dos y tres, con las tres piezas o sus fotos. Las clases actuales son computadora uno, computadora dos y computadora tres. No son tres refacciones de auto medidas.
+
+Esto está bloqueado por hardware.
+
+Decidir si la cámara del robot es USB o CSI. Si es CSI, hay que dejar la captura simple de OpenCV y pasar a GStreamer.
+
+Confirmar si el actuador es un PLC, un ESP treinta y dos, o un STM treinta y dos.
+
+Confirmar la interfaz real. Modbus, serial, o un bit. Y si hace falta un relé que no estaba cotizado.
+
+Escribir el programa del PLC, o el del microcontrolador, después de esa elección. No antes.
+
+Definir el nombre del tópico de eme cu te te, y el contenido final de los eventos A y B.
+
+Confirmar si el software arranca la banda, o si la banda corre sola.
+
+Probar el tiempo del pistón contra la velocidad real.
+
+Flashear JetPack, y comprobar que la percepción corre igual en el Jetson que en la máquina de desarrollo.
+
+También sigue abierto esto.
+
+Poner la cobertura parcial, completa e inválida en la carga y en la pantalla.
+
+La opción ce. Batería, posición y tarea del robot, por eme cu te te, hacia un socket web.
+
+Dejar escritos los tópicos, y dejar escrito que la opción ce no se implementa todavía.
+
+No existen la carpeta de comunicaciones, la de navegación, ni la de firmware.
+
+El calendario de Google.
+
+Cerrar Spotify en una prueba real. Autorizar, reproducir, teléfono, pausa, siguiente. Y rotar el secreto.
+
+Llenar los umbrales numéricos de aceptación, después de corridas reales.
+
+Reconciliar si la visión de línea va en una computadora fija o en la Raspberry.
+
+El video de ensayo en eme pe cuatro no está en el repositorio. Se renderiza solo si se pide.
+
+No hay Docker, aunque el contexto maestro lo nombra.
+
+Los hitos ya escritos son dos.
+
+El dieciséis de septiembre de dos mil veintiséis se eliminan Kuka, UR cinco, el control de brazos, el aprendizaje por demostración, y la planeación de tareas. Entran la banda y el pistón.
+
+El treinta de septiembre de dos mil veintiséis entra el cargador del dashboard, la sección de pieza por pieza, el movimiento, y el arreglo del botón de visión de línea, que chocaba con el script de la cámara.
+
+El relevo de interfaz del primero de octubre de dos mil veintiséis deja decisiones que no hay que reabrir. Lumina es la de la página del robot. La música es Spotify Premium. El show solo con, iniciar presentación. Sin herramientas del modelo chico. Sin clics dentro del navegador.
+
+Parte catorce. Las carpetas.
+
+Backend. El servicio, SQLite, el simulador de la celda, las alarmas, Lumina, el dataset, la cámara compartida, y el refresco.
+
+Dashboard. La portada. El inventario. La celda. El robot. El dataset. La proyección. Y los programas de cada una. Cámara, línea, pasillo en tres dimensiones, modelo, llamada, y movimiento.
+
+Edge, percepción. Yolo, códigos, Aruco, entrenamiento, y la lista de clases.
+
+Edge, motor de inventario. La observación, el agregado, y los estados de cobertura sin uso.
+
+Edge, actuación de la línea. Una nota. Las carpetas del PLC y del microcontrolador están vacías.
+
+Contratos. Servicios web. El apretón de manos de la línea. Eme cu te te, pendiente. El esquema hacia la manipulación, vacío.
+
+Documentos, decisiones de arquitectura. De la uno a la diez, y los criterios.
+
+Documentos, académico. El contexto viejo, ya superado, y la arquitectura ideal del brazo, que ya no aplica.
+
+Documentos, hardware. La hoja de conexión, los PDF, y las figuras.
+
+Scripts. El refresco del inventario.
+
+Pruebas. Backend y edge.
+
+Lumina agent. Lumina sola, sin el resto de Aether.
+
+Lumina audio. El guion y el audio de las treinta y dos líneas.
+
+Video de Aether. La presentación, el reproductor, y las mediciones de latencia.
+
+Paquete del informe. El documento académico.
+
+Diseño de interfaz. Los tokens de la pantalla.
+
+En la raíz importan el contexto maestro, el puntero para el asistente, las direcciones y comandos, el relevo de Lumina, el acta final, la línea base, los pendientes, el registro de cambios, y tres videos. El final, la vista previa, y la revelación del logo.
+
+No son el producto las carpetas de habilidades de las herramientas. Animaciones, diseño, Zavu, Vercel, y el resto. No corren en la planta.
+
+No existen, y no hay que inventarlas hasta que una decisión las pida. Firmware. Hardware en la raíz. El hardware documentado está dentro de documentos. Navegación. Cliente de eme cu te te. El escucha de eventos de la línea. Y la simulación.
+
+Parte quince. Cómo no mentir con este proyecto.
+
+El simulador no es la celda.
+
+Ver una pieza no significa que esté mala, y no dispara el pistón.
+
+Que la clase pase no significa que la pieza sea buena de calidad.
+
+El refresco automático no es cobertura de almacén.
+
+Lumina en la laptop no es el robot móvil terminado.
+
+Modbus está diseñado en una hoja. No está programado.
+
+El diferenciador es la trazabilidad honesta, más la actuación física de una línea simple. Las librerías, por separado, las tiene cualquiera.
+
+Parte dieciséis. Cómo se arma una observación, cuadro por cuadro.
+
+Esto es el detalle que el dictado anterior nombraba y no abría.
+
+La cámara de percepción, de fábrica, es el índice cero. La de la línea también es el índice cero, salvo que el entorno les ponga otro número. Si las dos apuntan al mismo índice, no pueden abrir el dispositivo a la vez.
+
+Hay un solo publicador por cámara. El primer cliente que pide el video abre el dispositivo. Los demás reciben el mismo flujo. Cuando se va el último, la cámara se apaga. El procesador de dibujo se arma una sola vez, al arrancar, no en cada cuadro. Si la cámara no abre, el servicio responde que no está disponible.
+
+En cada cuadro de percepción pasa esto.
+
+Primero se buscan marcadores Aruco, diccionario de cuatro por cuatro, cincuenta identificadores. Si hay varios en el mismo cuadro, se guarda solo el primero. No hay prioridad entre marcadores. Si no hay ninguno, la ubicación queda vacía. Los marcadores se dibujan sobre la imagen.
+
+Después corre el modelo del entorno. No es el peso de piezas. Así el nombre de clase sigue siendo persona, silla, botella, o lo que el modelo general conozca. Eso importa para, más adelante, detectar obstáculos sin que las clases de pieza tapen el mundo.
+
+Por cada caja, se recorta el interior y se intenta leer un código de barras o un código QR solo dentro de ese recorte. Si hay varios códigos, se queda el primero. El texto se decodifica como texto. Si no hay código, el dato queda vacío, y la bandera de código leído queda en falso. Esa bandera es redundante a propósito, para que nadie tenga que adivinar el caso sin código.
+
+La observación que sale lleva seis campos. El momento, en tiempo universal. La clase. El texto del código, o vacío. Si el código se leyó. La confianza de Yolo, entre cero y uno. Y el identificador del marcador, o vacío.
+
+En pantalla, la caja y el nombre de la clase van en verde. El texto del código va en amarillo, debajo de la caja.
+
+Esa observación no se guarda sola en la base. Se avisa a quien esté escuchando. Hoy el único oyente es el refresco automático del inventario. Si nadie escucha, no cuesta.
+
+Parte diecisiete. Cómo varias observaciones se vuelven una fila de inventario.
+
+La agregación es una función pura. No abre la cámara. Lee la lista de observaciones y devuelve filas, ordenadas por identificador.
+
+La llave de grupo se arma así. Si la observación trae texto de código, la llave es ese texto, exacto. Si no trae código, la llave es la palabra unidentified, dos puntos, y la clase detectada. Por eso dos botellas sin código caen en el mismo grupo, y dos códigos distintos no se mezclan aunque Yolo les haya puesto la misma clase.
+
+Dentro del grupo, la clase declarada es la que más se repitió, no la última. El total de observaciones es el tamaño del grupo. El conteo de códigos leídos es cuántas observaciones del grupo sí leyeron código. La confianza promedio es la media aritmética. La primera vez vista es el momento más antiguo. La última vez vista es el más reciente. Los conteos por ubicación cuentan cuántas veces apareció cada marcador. Si no había marcador, la clave es sin ubicación.
+
+Esta agregación no pone cobertura. Ni parcial, ni completa, ni inválida. Eso dependería del recorrido del robot, y la navegación no existe. No se inventa aquí una garantía.
+
+La carga a la base hace dos cosas por cada fila. Si el identificador ya existe, actualiza clase, totales, confianza, fechas y ubicaciones. No toca el estado activo o retirado. Si no existe, crea la fila, y nace activa. Además, siempre inserta una fila nueva en el historial, con el momento de esta corrida. El historial no se actualiza. Solo crece. Si un identificador no viene en esta corrida, no se borra y no se retira.
+
+El refresco automático es un hilo. De fábrica corre cada veinte segundos, si no se pide otro intervalo. El intervalo tiene que ser mayor a cero. Un segundo arranque, mientras ya corre, no cambia el intervalo a mitad de camino. Al prender, abre la captura una vez. Al apagar, la cierra una vez. No abre y cierra la cámara en cada ciclo. Cada ciclo drena las observaciones juntadas. Si hay alguna, corre agregación y carga. Si el paso falla, el estado guarda el error, y el hilo sigue. El estado que ve el dashboard dice si está activo, el intervalo, cuándo corrió, cuántas observaciones tuvo la última corrida, y el último error. La etiqueta honesta es captura continua de esta cámara. No es el piso en tiempo real.
+
+Parte dieciocho. La visión de línea, el entrenamiento, y el reloj del simulador.
+
+La visión de línea usa dos modelos a la vez, si el segundo existe.
+
+El del entorno dibuja todo lo que ve, en gris, con su nombre de clase general.
+
+El de piezas solo existe si ya se entrenó el peso de piezas. Corre con un corte interno de cero punto veinticinco. Si el nombre está en la lista de clases y la confianza llega al menos a cero punto cincuenta, la caja se dibuja en verde.
+
+El letrero grande dice una de cuatro cosas. Sin el peso de piezas, si el entorno vio algo, dice entorno. Si no vio nada, dice sin pieza. Con el peso de piezas, si no hay detección útil, dice sin pieza. Si la clase es clara y está registrada, dice pieza real, el nombre, y pass. Si la clase no está registrada, o si dos clases quedan a menos de cero punto diez de confianza, dice no es pieza real, y fail. Ese letrero no viaja al pistón. No hay evento A hacia el actuador.
+
+El entrenamiento de piezas, de fábrica, usa ochenta épocas, imágenes de seiscientos cuarenta pixeles, lote de ocho, paciencia de quince, y el dispositivo en procesador, no en tarjeta gráfica, salvo que el entorno diga otra cosa. Congela las primeras diez capas. Solo ajusta la cabeza, que es lo que distingue las piezas nuevas. La primera vez parte del Yolo ocho nano. Si ya hay un peso de piezas, continúa desde ese. Publica el archivo nuevo solo si la métrica map cincuenta supera a la anterior. El reporte guarda esa métrica y la fecha. Si solo hay fotos de validación, presta una al entrenamiento. Si solo hay de entrenamiento, presta una a la validación. Escribe un archivo de datos con los nombres de clase y las listas de fotos. Las corridas quedan en una carpeta de runs, dentro de percepción.
+
+El simulador de la celda no es aleatorio. Una línea de tiempo fija, de ciento sesenta y cuatro segundos, se repite. Dos pestañas ven lo mismo.
+
+Del segundo cero al cuarenta y ocho, operando. Visión y PLC vivos.
+
+Del cuarenta y ocho al sesenta y dos, detenida. Motivo, sin pieza en la banda.
+
+Del sesenta y dos al cien, operando.
+
+Del cien al ciento diez, sin conexión. Motivo, el PLC no responde. La visión sigue viva. El PLC no.
+
+Del ciento diez al ciento cincuenta, operando.
+
+Del ciento cincuenta al ciento sesenta y cuatro, detenida. Motivo, paro solicitado por el operador.
+
+Mientras opera, sale una pieza cada cuatro segundos. Se guardan las ocho más recientes. Una pieza falla si su número es múltiplo de nueve o de trece. Si no falla, la acción es pieza aceptada y el resultado es pass. Si falla y además el número es múltiplo de treinta y nueve, la visión dijo fail pero el pistón no disparó. La acción es fallo de actuación. Nunca se disfraza de pieza aceptada. El resto de las fallas es scrap expulsado.
+
+Si el operador pide paro, el estado pasa a detenida y la razón es paro solicitado por el operador, aunque el reloj del guion diga otra cosa. Los conteos de inspeccionadas, pass y fail salen de los segundos en marcha, no del tiempo de reloj con la banda parada.
+
+La alarma vive en el servidor. Cada una tiene identificador, tipo, texto, si está activa, si fue reconocida, y el momento. El enlace PLC espera dos segundos de banda muerta antes de levantar la alarma. El indicador de pantalla puede marcarse antes. Reconocer marca todas como reconocidas. Borrar el histórico lo vacía, y solo el rol admin puede. Hay una sola cuenta. Usuario admin. Contraseña admin.
+
+Parte diecinueve. Qué hace cada pantalla, y qué hace el video.
+
+La portada tiene un campo de nodos, un pasillo en tres dimensiones al bajar, y un cargador. El cargador espera el progreso real, con un mínimo de ochocientos milisegundos y un máximo de tres segundos. Después puede mostrar esqueleto. Respeta la preferencia de menos movimiento.
+
+La sección pieza por pieza desarma el robot en cinco capas conceptuales. Es un diseño beta. No es el modelo mecánico real. Las piezas que el hardware todavía no tiene se marcan como pendientes.
+
+La sección de percepción tiene el video en vivo, con botones de iniciar, detener, y pantalla completa. Si no hay cámara, no inventa imagen.
+
+La sección de módulos lista el sistema y consulta cuántas entradas hay en el inventario declarado.
+
+La sección de línea de manufactura muestra la banda, los fixtures y el pistón como arquitectura, y el video de línea aparte. Los botones de visión de línea viven en su propio programa, para no chocar con las variables del video de percepción.
+
+La página de inventario muestra la tabla, el historial, el retiro con contraseña, y el control de refresco.
+
+La página de celda muestra estado, conteos, eventos recientes, tendencia, alarmas, sesión, y paro o arranque. Los números vienen del simulador. El video de línea no los alimenta.
+
+La página del robot es la cara de Lumina. Negra hasta que hay voz. Sin cargador. Modo cámara y modo conversación no conviven. El guion es un tercer modo, distinto, para que la voz del show no se corte. La pantalla de llamada es aparte.
+
+La página de dataset muestra clases, conteos, recientes y el modelo activo. El botón de entrenar no existe. Indica el comando de consola.
+
+La página de proyección abre el modelo tridimensional. Aether, metano, agua, o placa.
+
+El video de presentación, en Remotion, tiene once escenas. Ojo. Problema. Arquitectura. Observación. Proceso. Integración. Demo. Evolución. Revelación. Etiquetas. Y cierre. El reproductor en vivo se sincroniza con Lumina por el socket. El clicker avanza y retrocede diapositivas. En la cámara no sigue hasta confirmar que hay video en vivo, o que no hay cámara. La fase cero midió redes y la voz. El objetivo de desfase era doscientos cincuenta milisegundos de mediana, y quinientos de percentil noventa y cinco. Sin red, el video sigue en piloto, con el ritmo mediano medido. El reconocimiento de la palabra Lumina con voz humana, micrófono y sala reales, quedó como medición pendiente de escenario.
+
+El informe académico se arma con Node, en cuatro bloques. Introducción. Desarrollo. Cierre. Y el ensamble. Lleva diagramas y capturas reales del dashboard.
+
+Las pruebas automáticas cubren el servicio, el dataset, el refresco, la cámara compartida, la pantalla de celda, el simulador, los comandos de escritorio, el arranque, y la agregación pura de observaciones. No cubren el PLC, porque no hay PLC. No cubren el Jetson, porque no hay Jetson.
+
+Parte veinte. Qué sí se revisó, y qué este dictado no lee en voz alta línea por línea.
+
+Se recorrieron las carpetas de producto. Backend. Dashboard. Edge. Contratos. Documentos, con decisiones, criterios, pendientes, cambios, académico y hardware. Scripts. Pruebas. Lumina agent. Audio de Lumina. Video. Paquete del informe. Y la raíz.
+
+No se dicta el interior de las carpetas de habilidades de las herramientas. Son animaciones, diseño, y conectores de mensajería para el editor. No corren en la planta.
+
+Tampoco se dicta, palabra por palabra, el archivo de escritorio de Lumina. Tiene más de dos mil líneas de frases reconocidas. El dictado ya dijo qué acciones existen y cuáles piden confirmación. No lee cada expresión regular.
+
+No se dictan los binarios. Los pesos de red, las fotos del dataset, la base SQLite, los tokens, y los mp3, no son texto.
+
+El límite de aquel corte era ese. Lo que sigue es lo que faltaba para que una persona, solo con este dictado, pueda encender el sistema, hablarle, leer cada servicio, cablear la celda en papel, y saber qué archivo se toca para cambiar cada comportamiento.
+
+Parte veintiuno. Cómo se enciende, en orden.
+
+Todo corre en una laptop con Windows. Hay dos entornos de Python. Uno dentro de backend. Otro dentro de edge. No se mezclan.
+
+Primero, en una terminal aparte, el cerebro de Lumina. La primera vez se descarga el modelo llama tres punto dos, de mil millones de parámetros. Después se deja sirviendo Ollama. Escucha en el puerto once mil cuatrocientos treinta y cuatro. Sin eso, la conversación libre responde que no pudo pensar. Los comandos de escritorio no lo necesitan.
+
+Segundo, el backend. Hay que estar dentro de la carpeta backend. El intérprete es el del entorno virtual, en Scripts, archivo python. Se lanza uvicorn. El módulo es main. La aplicación es app. El anfitrión es todas las interfaces, o sea cuatro ceros separados por punto, para que otra máquina de la red pueda entrar. El puerto es ocho mil.
+
+Si solo se quiere en esta laptop, el anfitrión puede ser la dirección local, ciento veintisiete punto cero punto cero punto uno.
+
+Desde otro equipo de la misma red se cambia la palabra localhost por la dirección IPv4 de la laptop. Esa dirección se ve con ipconfig. Hay que permitir Python en el firewall de Windows, red privada. El treinta de septiembre de dos mil veintiséis esa laptop estaba en ciento noventa y dos punto ciento sesenta y ocho punto ciento uno punto ciento uno. Cambia si cambia la red.
+
+El puerto ocho mil es de uno solo. O corre el backend de Aether, o corre Lumina sola. No los dos.
+
+Tercero, opcional, el video. Dentro de la carpeta aether video, el comando ene pe eme run show compila el reproductor y lo sirve en el puerto cinco mil cincuenta y cinco. Si ya está compilado, basta el servidor de esa carpeta, scripts, serve, con el mismo puerto.
+
+Cuarto, opcional, el estudio para editar el video. En la misma carpeta, ene pe eme run dev. Usa el puerto tres mil. Si está ocupado, Remotion toma el siguiente y lo dice.
+
+Lumina sola, la carpeta lumina agent, también quiere el puerto ocho mil. Hay que apagar el backend de Aether antes. La primera vez se instalan sus requisitos. Luego se corre server punto py. Solo escucha en la máquina local. Su única pregunta es lumina barra ask.
+
+Las pruebas del backend se corren desde la raíz del proyecto, con el Python del entorno de backend, módulo pytest, carpeta tests barra backend, en modo quieto. Las de sincronía del video, dentro de aether video, ene pe eme test. Las de Lumina sola, dentro de lumina agent, pytest sobre test lumina. Renderizar los videos largos es ene pe eme run render, y tarda. Recompilar la pantalla de llamada es ene pe eme run call dos puntos build. Recompilar las escenas que el dashboard incrusta es ene pe eme run web dos puntos build.
+
+La tubería manual de inventario, sin el botón de la página, es esta. Con el entorno de edge se corre la captura, o la prueba combinada, y queda un archivo de observaciones. Luego la agregación, que escribe el inventario declarado en archivo. Luego, con el entorno de backend, el script de carga escribe la base. Hay un script en la carpeta scripts, refresh inventory, que encadena los tres usando los dos entornos.
+
+Parte veintidós. Páginas y servicios, dichos para poder reconstruirlos.
+
+La base es la dirección de la laptop, dos puntos, puerto ocho mil.
+
+Barra sola. La portada.
+
+Barra inventory punto html. Inventario e historial.
+
+Barra celda punto html. La celda. Hoy simulada.
+
+Barra robot punto html. Lumina. Abrirla en Chrome o en Edge. En el navegador de Cursor la voz sale en esa pestaña y estorba. La página nace negra hasta que hay voz.
+
+Barra dataset punto html. El dataset de piezas.
+
+Barra holo punto html. La proyección.
+
+Barra docs. La documentación interactiva que genera Fast API.
+
+Los servicios, dicho el método y luego la ruta.
+
+Obtener, barra health. Responde que está vivo.
+
+Obtener, barra inventory. El inventario activo. Si se agrega el parámetro include retired igual a verdadero, también salen los retirados.
+
+Obtener, barra inventory barra history. El historial, lo más nuevo primero.
+
+Parche, barra inventory barra el identificador barra retire. El cuerpo lleva la contraseña, en el campo password. Si no coincide, responde cuatrocientos tres. Si el identificador no existe, cuatrocientos cuatro. No borra la fila. La pasa a retirada. La contraseña de fábrica, si el entorno no trae otra, es aether guion dev. En una demo hay que cambiarla. No es un login de usuarios. Cualquiera que conozca esa frase puede retirar.
+
+Publicar, barra inventory barra auto refresh barra start. El cuerpo puede traer interval seconds. Si no viene, son veinte segundos. Cero o negativo responde cuatrocientos veintidós. Un segundo arranque no cambia el intervalo en marcha.
+
+Publicar, barra inventory barra auto refresh barra stop. Lo apaga.
+
+Obtener, barra inventory barra auto refresh barra status. Activo, intervalo, última corrida, cuántas observaciones, y el último error.
+
+Obtener, barra perception barra stream. Video con detección. Necesita cámara. Si no abre, quinientos tres.
+
+Obtener, barra perception barra recent detections. El parámetro limit va de uno a cincuenta.
+
+Obtener, barra line barra vision barra stream. Video de la línea. Cámara aparte solo si el índice de entorno es otro.
+
+Obtener, barra line barra cell barra status. Estado de celda. Hoy el simulador. Siempre dice que la fuente es simulado.
+
+Publicar, barra line barra cell barra session. Entra. Usuario y contraseña. De fábrica, admin y admin. Deja una cookie de ocho horas.
+
+Obtener esa misma ruta de sesión dice quién está. Borrarla cierra la sesión.
+
+Publicar, barra line barra cell barra run. El cuerpo trae on, verdadero o falso. Arranca o para el guion. Quien manda el ciclo tiene que tener sesión.
+
+Publicar, barra line barra cell barra alarms barra ack. Reconoce las alarmas.
+
+Publicar, barra line barra cell barra alarms barra clear. Borra el histórico. Solo el rol admin. Si no, cuatrocientos tres.
+
+Publicar, barra robot barra ask. El cuerpo trae question, el texto oído. Vacío responde error. El orden interno es comando de escritorio, luego frase precargada, luego Ollama.
+
+Publicar, barra robot barra tee te ese. El cuerpo trae text. Devuelve audio eme pe tres. Gasta créditos de ElevenLabs. Si no hay clave o la voz no responde, quinientos tres, y la página usa la voz del navegador.
+
+Obtener, barra robot barra contacts. Nombres, sin números.
+
+Publicar, barra robot barra call. Gasta saldo de Zavu. Máximo tres llamadas cada diez minutos. El número no viaja desde el navegador. Solo se marca un contacto del archivo, o el número fijo del entorno para la llamada a uno mismo.
+
+Obtener, barra robot barra call barra el identificador. Estado de esa llamada.
+
+Obtener, barra robot barra calendar. Quinientos tres si faltan credenciales. Quinientos uno si existen, porque el permiso de Google no está escrito.
+
+Obtener, barra robot barra essay. Estado del ensayo. Publicar, barra robot barra essay barra ready, avisa que ya se puede pegar en Word.
+
+Obtener, barra robot barra spotify barra status. Si hay sesión y qué aparatos ve.
+
+Obtener, barra spotify barra login, o barra robot barra spotify barra login. Manda al permiso de Spotify. La vuelta entra por el puerto ocho mil ochocientos ochenta y ocho, ruta callback.
+
+Obtener, barra dataset. Conteos.
+
+Publicar, barra dataset barra classes. El cuerpo trae name. Nombre inválido, cuatrocientos. Nombre repetido, cuatrocientos nueve.
+
+Publicar, barra dataset barra samples. El cuerpo trae la imagen en base sesenta y cuatro, y una lista de cajas. Cada caja tiene name, equis, ye, ancho y alto, normalizados. Una foto casi igual se rechaza.
+
+Socket web, barra show barra doble u ese. Reenvía texto entre Lumina y el reproductor. No guarda. No pide clave. Quien esté en la red puede conectarse.
+
+El video, puerto cinco mil cincuenta y cinco.
+
+Barra player barra. Reproductor. Se conecta al backend de esta máquina, puerto ocho mil. Un parámetro backend igual a dirección dos puntos ocho mil apunta a otra laptop.
+
+Parámetro clicker igual a uno. Solo diapositivas. Flecha derecha avanza. Flecha izquierda vuelve. En la cámara no sigue hasta confirmar en vivo, o sin cámara. La imagen sale del video de percepción.
+
+Parámetro ensayo igual a uno, o la tecla e. Simula a Lumina y no necesita backend.
+
+Parámetro feed igual a cero. Sin cámara.
+
+Parámetro lead, en milisegundos. Adelanta las marcas.
+
+Parámetro efe pe ese igual a treinta si el equipo va lento.
+
+Otras teclas. Avance de página, espacio, o enter, hacen de clicker. Retroceso de página, atrás. Hache pausa el perro guardián del sincronizador. Efe, pantalla completa.
+
+Barra phase cero barra recognition test punto html. Prueba de oír la palabra Lumina con el micrófono real.
+
+Los eme pe cuatro de ensayo y de escenario se sirven bajo barra video, si fueron renderizados. El de ensayo con voz no está guardado en el repositorio.
+
+Parte veintitrés. Variables, archivos secretos, y el cuerpo de una llamada.
+
+Viven en el archivo de entorno del backend, y ese archivo no se sube a git.
+
+Clave y voz de ElevenLabs.
+
+Clave de Zavu.
+
+Número de la llamada a uno mismo, en formato internacional, con más y de ocho a quince dígitos.
+
+Identificador y secreto de cliente de Spotify, y la dirección de retorno, que es la máquina local, puerto ocho mil ochocientos ochenta y ocho, barra callback.
+
+Token de ene ocho ene, y si hace falta otra dirección del conector.
+
+Contraseña de retiro de inventario. Si no está, vale aether guion dev.
+
+Índice de cámara de percepción, de fábrica cero. Índice de cámara de línea, de fábrica cero.
+
+Intervalo de refresco, de fábrica veinte.
+
+Dirección y modelo de Ollama. De fábrica, la máquina local, puerto once mil cuatrocientos treinta y cuatro, ruta api barra chat, modelo llama tres punto dos uno be. Tope de tokens, sesenta.
+
+Identificador y secreto de Google Calendar. Aunque se pongan, el flujo no está programado.
+
+Dirección del agente de celda. Mientras no exista, la celda sigue en el simulador. Cuando exista, la laptop solo reenvía. Inventario y robot no dependen de esa variable.
+
+Peso de Yolo forzado, si se quiere saltar la regla automática. Dispositivo de entrenamiento, de fábrica el procesador.
+
+Archivos que se crean al usar el sistema y no van a git. La base aether. El token de Spotify. La agenda de contactos. La memoria de Lumina. La bitácora de acciones. Los pesos. Las fotos y etiquetas del dataset. El archivo de entorno.
+
+La agenda es un objeto. La llave es el nombre. El valor es el número, o un objeto con número y mensaje fijo. Solo números internacionales válidos. Al llamar, Zavu lee una vez, en cuanto contestan. Por eso el texto real es este. Hola, tienes un mensaje. Luego el cuerpo. Luego, repito, y el cuerpo otra vez. El saludo de un contacto de la agenda es, te llama Lumina, el robot del proyecto Aether, salvo que ese contacto traiga otro mensaje. La llamada a uno mismo usa otra frase fija, de broma, escrita en el código. Hay que cambiarla antes de una presentación. No se dicta aquí.
+
+Parte veinticuatro. Qué hay que decirle a Lumina, con las palabras que ella reconoce.
+
+No hace falta empezar siempre con su nombre, salvo donde se dice. Estas son las frases, no el código de las expresiones.
+
+Para confirmar algo pendiente. Sí. Claro. Ok. Dale. Adelante. Confirmo. Hazlo. O yes. Se puede anteponer Lumina.
+
+Para negar. No. Cancela. Mejor no. Detente.
+
+Para parar todo, la frase entera es detente, para todo, alto, o stop. Puede empezar con Lumina.
+
+Música. Reproduce, y el nombre. Si se dice de tal artista, separa título y artista. Reproduce en el teléfono, o en el celular, manda al aparato móvil. Reproduce en la computadora, o en esta pe ce, manda a la laptop. Si Spotify no está abierto en el teléfono, lo dice. No enciende el celular. Pausa, o detén la música. Siguiente, u otra canción. Anterior. Sube el volumen, o bájalo. Si se dice Spotify junto al volumen, el cambio es de Spotify, de quince en quince. Si no, es el de Windows. Silencio, o mute, calla Windows, salvo que se nombre Spotify. Qué está sonando. Autoriza Spotify, o conecta Spotify, abre el permiso.
+
+Programas. Abre, y el nombre. Cierra, y el nombre. Cerrar pide confirmación. La lista blanca es Edge, Spotify, bloc de notas, calculadora, explorador, Cursor, Chrome, Discord, Word, Excel, WhatsApp y configuración. Abre una dirección si lo que sigue parece un sitio. Busca, o googlea, abre una búsqueda en Edge. No hace clic dentro de la página. Abre Google Docs crea un documento nuevo en la web.
+
+Carpetas y archivos. Abre el escritorio, documentos, descargas, o el repositorio. Crea una carpeta, y el nombre. Guarda un archivo o una nota. Se le puede decir que diga un texto. Guardar pide confirmación. Lee el archivo, y el nombre. Mueve tal archivo al escritorio, a documentos o a descargas. Pide confirmación. Compara tal con cual. No sale de esas carpetas. No acepta subir de nivel con dos puntos.
+
+Tiempo y máquina. Temporizador de tantos segundos, minutos u horas. Avísame a las, y la hora. Qué hora es. Qué fecha es. Qué hora es en, y la ciudad. Cuánto es, o calcula, y la cuenta. Convierte, y las unidades. Buenos días, arma el parte. Batería, espacio en disco, o estado del equipo. Avísame si la batería baja de un número. Modo descanso. Modo trabajo. Pulso, o reporte, si no está pidiendo un ensayo.
+
+Memoria. Recuerda que, y el hecho. Qué recuerdas. Olvida, y el hecho. Olvidar pide confirmación.
+
+Pantalla y sistema. Captura de pantalla. Qué copié, lee el portapapeles. Copia esto, escribe el portapapeles y pide confirmación. Bloquea la pantalla. Apaga la computadora, o reinicia el equipo. Pide confirmación. Cancela el apagado, o no apagues, aborta. Qué hiciste. Deshaz lo último. Estado del repo.
+
+Proyección. Proyecta Aether, o el robot. Proyecta la molécula, el agua, o el metano. Proyecta la placa, o el circuito. Descompón, separa el modelo. Muestra la imagen, o pon la imagen, y el nombre del archivo.
+
+Ensayo. Quiero un ensayo sobre un tema, o un reporte sobre un tema. Puede decir el tipo. Argumentativo, expositivo, comparativo, descriptivo, crítico, analítico, persuasivo, narrativo, explicativo o reflexivo. Preguntar cómo va el ensayo no lo vuelve a escribir.
+
+Ayuda. Qué puedes hacer.
+
+Show. Lumina, inicia, abre la cámara del robot. Lumina, iniciar presentación, corre el guion. Son distintas.
+
+Llamada. Lumina, llama a un nombre de la agenda. Lumina, llámame, marca el número del entorno.
+
+Si ninguna frase calza, y hay token de ene ocho ene, intenta una herramienta de ese conector y pide confirmación. Si no, la frase va a Ollama, con el tope de una o varias oraciones, sin listas y sin citar sus instrucciones.
+
+Parte veinticinco. La celda física, cable por cable, y el ciclo de una pieza.
+
+Esto todavía no está construido en código. Está decidido en la hoja del cinco de octubre de dos mil veintiséis. Quien solo oiga el dictado debe poder repetirlo.
+
+La cámara USB va al Raspberry que está junto a la banda. No va al PLC. No es el Jetson del robot. Si es la única cámara de esa Pi, el índice es cero.
+
+El Raspberry corre la visión, lee al PLC si la pieza está en estación, y escribe un solo bit, rechazar, únicamente cuando el criterio diga falla. Publica video y estado. No lee los infrarrojos por sus pines. No energiza el pistón. No arranca motores por su cuenta. Se alimenta con cinco volts de su fuente, no con los veinticuatro del tablero.
+
+El PLC es dueño de la banda, del pistón y de los dos infrarrojos. No corre Yolo. No sirve la página. Si se corta la red, apaga el pulso del pistón. El pistón no se queda afuera. Parar la banda ante pérdida de red es del PLC, no de un error de Python.
+
+La laptop sigue sirviendo la misma página de celda, puerto ocho mil. No se le cablean sensores. El navegador no abre un puerto nuevo del Raspberry.
+
+El infrarrojo uno va antes de la cámara. Avisa al PLC que hay pieza quieta en el fixture. Un flanco de subida es permiso de un solo cuadro. No se inspecciona en continuo mientras llega la siguiente.
+
+El infrarrojo dos va después del pistón, sobre la banda que sigue. No es un sensor de chatarra. Confirma si la pieza siguió.
+
+Los dos son sensores de veinticuatro volts, tres hilos, típico de diez a treinta. Un módulo de cinco volts de Arduino no se conecta a esa entrada. Marrón es más veinticuatro. Azul es cero volts. Negro es la salida, al borne de entrada del PLC. El cero del sensor y el cero de las entradas del PLC son el mismo. Hay que leer la etiqueta. Si es PNP, la salida entrega más veinticuatro al detectar. Si es NPN, la salida va a cero. El PLC tiene que ser del mismo tipo. Si no coinciden, el led del PLC no prende y no se arregla en software. Se prueba el sensor con la mano, viendo los dos leds, antes de conectar el Raspberry.
+
+No hay ningún hilo entre el PLC y los pines de la Raspberry. Una entrada de veinticuatro volts quema un pin de tres punto tres volts.
+
+La salida del PLC no va directo a una bobina grande si no da esa corriente. Va a la bobina de un relé, y el relé mete el aire a la electroválvula del pistón. Otra salida del PLC arranca o para la banda, si la banda no corre sola.
+
+Un solo switch Ethernet. Laptop, Raspberry y PLC en la misma red. Sugerencia de banco. Laptop, ciento noventa y dos punto ciento sesenta y ocho punto cero punto diez, puerto ocho mil. Raspberry, la misma red, terminación veinte, puerto ocho mil ochenta. PLC, terminación treinta, puerto quinientos dos. Antes de programar, desde la laptop se hace ping a la veinte y a la treinta. Modbus va por cable. La red inalámbrica solo sirve para mirar la página. Si se cae, la pantalla dice sin conexión y el pistón no se mueve.
+
+El ciclo de una pieza, en orden.
+
+El infrarrojo uno hace flanco. El PLC guarda el número de pieza y pone la acción en cero en ese mismo ciclo. Si no pone ese cero, la pieza nueva hereda el resultado de la anterior. El Raspberry lee el infrarrojo por Modbus y toma un cuadro. Hoy ese cuadro solo dice si hay objeto. El bit de rechazar se queda en cero hasta que exista el criterio de verdad. Cuando exista, el Raspberry escribe rechazar en uno solo si el criterio dice falla.
+
+Si rechazar queda en cero, el PLC no mueve el pistón. Si el infrarrojo dos ve la pieza en su ventana, la acción es pieza aceptada. Si no la ve, no se inventa un pass. Se para y se alarma. La pieza se perdió sin orden de expulsión.
+
+Si rechazar queda en uno, el PLC da el pulso. La duración no se copia de un papel. Se mide con la banda real. El primer intento en vacío parte de ciento cincuenta a trescientos milisegundos, y se ajusta hasta que la pieza salga entera. Si el infrarrojo dos ya no ve la pieza, la acción es scrap expulsado. Si todavía la ve, se pidió expulsar y la pieza siguió. La acción es fallo de actuación.
+
+Esas tres acciones son las únicas que la pantalla entiende. No se agrega una cuarta.
+
+El Raspberry lee la acción y el contador una vez por número de pieza nuevo. No vuelve a contar si el mismo número sigue ahí. Entrega a la laptop una foto del estado y el video. La página sigue pidiendo, cada segundo, el estado de celda, y por otro lado el video. La laptop se los pide al Raspberry solo cuando exista la variable del agente. La forma que la página ya pinta es esta. Fuente. Si está corriendo. Estado, que solo puede ser operando, detenida, o sin conexión. Razón. Si la visión está viva y si el PLC está vivo. Conteos de inspeccionadas, pass y fail. Lista reciente, de la pieza más nueva a la más vieja, máximo ocho. Cada pieza trae número, resultado pass o fail, acción, y momento. Y el momento de actualización.
+
+Mientras no exista el criterio real, los recientes no se llenan inventando pass o fail porque se vio un objeto. El video sí se publica. Los contadores se quedan en cero y rechazar en cero. Probar el pistón en ese periodo es un botón físico del PLC, marcado como prueba de cableado, no un resultado de visión.
+
+La marca sim de la página está escrita fija en el HTML, tres veces. No se apaga sola cuando lleguen datos reales. Se quita el mismo día en que la fuente deje de decir simulado.
+
+Números de ejemplo del mapa, no los del PLC comprado. Entrada discreta cero, infrarrojo uno. Entrada discreta uno, infrarrojo dos. Bobina diez, rechazar, la escribe la Pi, uno solo en falla. Bobina once, marcha de la banda, la escribe la Pi copiando el botón. Bobina doce, Pi viva, se reescribe al menos dos veces por segundo. Registro de entrada cero, PLC vivo, un contador que sube solo. Registro de retención veinte, acción. Cero es nada nuevo. Uno es aceptada. Dos es scrap. Tres es fallo de actuación. Registro de retención veintiuno, número de pieza, sube en cada flanco del infrarrojo uno. La columna real se llena cuando se compre el PLC. Hasta entonces no se declara el enlace terminado, y no se escribe el cliente Modbus dentro del repositorio.
+
+Si el Raspberry no ve el latido del PLC en menos de un segundo, la pantalla pasa a sin conexión, la fuente del PLC queda en falso, y la Pi no deja rechazar en uno. Si el PLC no ve el latido de la Pi, pone rechazar en cero y no dispara.
+
+Parte veintiséis. Qué archivo se cambia para cambiar cada cosa.
+
+Personalidad de Lumina, y las frases precargadas de la presentación. El servidor, archivo main, el texto del sistema y la lista de respuestas.
+
+Frases de escritorio. El módulo de escritorio de Lumina, la función que interpreta la intención. Confirmar, cerrar, o agregar una acción, es ahí. La lista blanca de programas es el archivo allowlist, en el backend.
+
+Voz de ElevenLabs. El servicio de tee te ese, en el mismo main. El identificador de voz, en el entorno.
+
+Agrupar observaciones. El motor de inventario, agregación. La llave es el código, o unidentified y la clase.
+
+Cargar la base sin retirar solos. El script de carga desde edge. A propósito no toca el estado.
+
+Refresco. El módulo de refresco, y el intervalo de entorno. El botón está en la página de inventario.
+
+Dibujo de percepción. El procesador de percepción, en main. La copia de referencia, por si se trabaja sin el servidor, es la prueba combinada, en percepción.
+
+Letrero de la línea, y el día en que un fail deba salir hacia el pistón. El procesador de visión de línea, en main. Hoy no emite el evento.
+
+Clases y umbrales de pieza real. El almacén del dataset. Corte cero punto veinticinco. Mínimo cero punto cincuenta. Margen cero punto diez. Los nombres viven en el archivo de clases.
+
+Entrenar. El programa de entrenamiento de piezas. Ochenta épocas, seiscientos cuarenta pixeles, lote de ocho, diez capas congeladas, publica solo si mejora la métrica.
+
+Reloj de la celda simulada. El simulador. La línea de tiempo de ciento sesenta y cuatro segundos, una pieza cada cuatro, fallos en múltiplos de nueve o trece, fallo de actuación en múltiplos de treinta y nueve.
+
+Alarmas y la cuenta admin. El módulo de interfaz de la celda. La página y su programa solo pintan.
+
+Cuando el PLC exista. No se reescribe la página. Se cambia la fuente de las dos rutas, estado y video, si hay dirección de agente. El programa Modbus vive en el Raspberry, no en la laptop. Las carpetas de actuación del borde siguen vacías hasta llenar la columna real del mapa.
+
+Navegación, cobertura, y telemetría viva del robot. No hay archivo que extender. Hay que crearlos. Mientras no existan, una inspección no puede declararse completa, y el dashboard no muestra batería ni posición.
+
+Guion de la presentación. El audio y el texto de las treinta y dos líneas, en la carpeta de audio de Lumina. El sincronizador, en el reproductor del video. Después de tocar el reproductor hay que recompilar, ene pe eme run show, o el comando de build del player.
+
+Decisiones de arquitectura. No se cambian en silencio. Se anotan con fecha en el contexto maestro y en la decisión correspondiente, dentro de documentos.
+
+Parte veintisiete. Lo que una persona ya puede afirmar, y lo que todavía tiene que medir.
+
+Con este dictado puede encender backend, Ollama y video. Puede abrir cada página. Puede decir las frases de Lumina y saber cuál pide un sí. Puede seguir una detección hasta la fila y hasta el historial. Puede explicar por qué un producto que dejó de verse no se borra. Puede explicar por qué pass de clase no es pieza buena. Puede explicar por qué la celda de la pantalla no es la celda. Puede repetir el cableado, el ciclo de una pieza, y las tres acciones. Puede señalar el archivo que hay que abrir para cambiar cada comportamiento de los que ya existen.
+
+Lo que nadie debe afirmar, porque el repositorio no lo respalda. Que el robot ya recorre un almacén. Que el Jetson ya está flasheado. Que Modbus ya mueve el pistón. Que la cobertura completa significa que se vio todo. Que Docker ya empaqueta el sistema. Que el calendario funciona. Que las clases computadora uno, dos y tres son las refacciones finales.
+
+El treinta de septiembre de dos mil veintiséis se probó, con los servidores prendidos, la portada, el inventario, el robot, la documentación, la salud, el historial, el estado del refresco, las detecciones recientes y los contactos. La pregunta a Lumina contestó con Ollama en unos veinte segundos. El socket reenvió un mensaje. Una llamada real de Zavu se hizo. El reproductor, el clicker, el ensayo y el estudio de video respondieron. Lumina sola se probó en el puerto ocho mil uno para no chocar. Ollama estaba corriendo con el modelo chico. No se probó ese día el video de las cámaras, porque pide cámara. No se probó el audio de ElevenLabs en esa pasada, aunque sí se usó en la corrida de extremo a extremo. No se probó retirar ni prender el refresco, porque modifican datos. El calendario respondió que no está listo.
+
+Eso es Aether, completo hasta donde el código y las hojas llegan. Lo que falta es hardware, no un capítulo escondido.
