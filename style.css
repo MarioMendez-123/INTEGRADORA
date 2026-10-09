@@ -1,0 +1,3614 @@
+/*
+  Aether — sistema de diseño único para dashboard/index.html (portada) y
+  dashboard/inventory.html (panel de Declared Inventory). No dos productos
+  distintos: mismos tokens, misma tipografía, mismo vocabulario de
+  componentes en ambas páginas.
+
+  Origen de dirección: referencia visual definitiva de Aether (campo de
+  nodos 3D en la portada, casi negro, acento azul-violeta, tipografía
+  Big Shoulders Display / IBM Plex Sans / IBM Plex Mono). Reemplaza la
+  paleta grafito/acero/ámbar sobre Inter usada antes.
+*/
+
+:root {
+  /* --- superficie: casi negro, con un segundo tono para el degradado
+     radial del hero --- */
+  --bg: #03060f;
+  --bg2: #07111f;
+  --surface: #071422; /* paneles, tarjetas, tablas */
+  --surface-raised: #0d1d33; /* hover / fila activa — un paso arriba de surface */
+
+  /* --- texto: base ink + ink-dim de la referencia, extendido a 4 niveles --- */
+  --ink: #edeff3;
+  --ink-dim: #8891a0;
+  --text-primary: var(--ink);
+  --text-secondary: rgba(237, 239, 243, 0.72);
+  --text-tertiary: var(--ink-dim);
+  --text-muted: rgba(136, 145, 160, 0.62);
+
+  /* --- bordes: profundidad solo por línea, nunca sombra --- */
+  --line: #1b222c;
+  --border: var(--line);
+  --border-strong: #2a3442;
+
+  /* --- acento único (interactivo/navegación): azul-violeta de la
+     referencia. Los nodos del campo usan node-a (cerca) -> node-b
+     (lejos) del mismo mismo par de tonos --- */
+  --accent: #2ee6ff;
+  --node-a: #2ee6ff;
+  --node-b: #c084fc;
+  --accent-soft: rgba(46, 230, 255, 0.16);
+  --accent-border: rgba(46, 230, 255, 0.55);
+
+  /* --- estado operativo (positivo): el mismo verde que ya usa el
+     status-dot de la referencia para "en línea" — se reutiliza en todo el
+     sistema para "Funcionando", nunca para decoración --- */
+  --positive: #3dffc2;
+  --positive-soft: rgba(61, 255, 194, 0.14);
+  --positive-border: rgba(61, 255, 194, 0.45);
+
+  /* --- atención (ámbar): única adición sobre la referencia — necesaria
+     para distinguir "esto necesita tu atención" (sin identificar,
+     pendiente de hardware, retirar) de "esto es interactivo" (accent) o
+     "esto funciona" (positive). Nunca decorativo. --- */
+  --warn: #ffc14d;
+  --warn-soft: rgba(255, 193, 77, 0.14);
+  --warn-border: rgba(255, 193, 77, 0.5);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* --- movimiento: una sola curva por intención, en todo el sistema ---
+     ease-out: entradas y respuesta a la persona. ease-in-out: algo que ya
+     está en pantalla y se mueve de A a B (bucle del robot del loader). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* --- tipografía: tres familias con roles fijos, no intercambiables ---
+     Big Shoulders Display: SOLO títulos grandes (hero, títulos de sección).
+     IBM Plex Sans: cuerpo de texto, en todas partes.
+     IBM Plex Mono: SOLO anotación técnica (kickers, tags, cifras, status). */
+  --font-display: "Big Shoulders Display", sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Sin esto, cualquier regla de autor con `display` explícito (ej.
+   `.panel { display: flex }`) le gana en cascada al [hidden] del
+   navegador — un elemento con el atributo hidden y una clase con
+   display:flex/grid/etc. se queda visible aunque JS ponga el.hidden =
+   true. Ya pasó dos veces en este proyecto (dashboard/style.css y
+   dashboard/robot.css) antes de esta regla; con !important, [hidden]
+   siempre gana, sin importar qué display ponga después cualquier clase
+   nueva. Alternar visibilidad siempre vía el.hidden, nunca el.style.display. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+/* El campo de nodos (#field) + veil son de fondo fijo en TODA la página —
+   ver node-field.js. El degradado radial vive aquí en vez de en una clase
+   modificadora porque ya no es exclusivo del hero: portada e
+   inventory.html comparten el mismo fondo. */
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 50% 30%, var(--bg2), var(--bg) 70%);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+}
+
+/* position+z-index para pintar por encima del canvas/veil fijos (z-index
+   0/1) — sin esto, el contenido no posicionado de inventory.html pintaría
+   detrás de ellos según el orden de apilamiento normal de CSS. */
+.shell {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-6) clamp(16px, 3vw, 40px) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ============================================================
+   NAV — componente compartido. Base sin posicionamiento; el modificador
+   --fixed es exclusivo de la portada (flota sobre el campo de nodos). En
+   inventory.html el mismo componente vive en flujo normal, con un borde
+   inferior para separarlo del contenido.
+   ============================================================ */
+
+.site-nav {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  padding: 26px 40px;
+  /* franja de luz al borde inferior — la barra se lee como un instrumento
+     encendido, no como texto flotando sobre el canvas */
+  box-shadow: 0 1px 0 var(--accent-border);
+}
+
+.site-nav--fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  /* scrim detrás del texto: se necesita porque el campo de nodos ahora
+     brilla más — sin esto, un nodo brillante justo detrás de una letra le
+     restaría legibilidad */
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 7, 10, 0.82) 0%,
+    rgba(5, 7, 10, 0.55) 65%,
+    transparent 100%
+  );
+}
+
+/* En cuanto hay scroll, la barra se vuelve material translúcido: el
+   contenido pasa por debajo, desenfocado, en vez de chocar con el texto.
+   Vive en ::before para poder desvanecerlo (un degradado no interpola). */
+.site-nav--fixed::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(5, 7, 10, 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.site-nav--fixed.is-scrolled::before {
+  opacity: 1;
+}
+
+.site-nav--fixed {
+  transition: transform 320ms var(--ease-out);
+}
+
+.site-nav--fixed.is-hidden {
+  transform: translateY(calc(-100% - 2px));
+}
+
+/* Ya con scroll la barra se compacta: menos alto que tapar. */
+.site-nav--fixed.is-scrolled {
+  padding-block: 14px;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-nav--fixed::before {
+    background: var(--bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Marca hexagonal del logo junto al wordmark (misma del loader). */
+.wordmark-mark {
+  align-self: center;
+  width: 15px;
+  height: 15px;
+  flex: none;
+  overflow: visible;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 9;
+  stroke-linejoin: round;
+}
+
+.wordmark-mark circle {
+  fill: var(--text-primary);
+  stroke: none;
+}
+
+.site-nav--framed {
+  padding: var(--space-5) clamp(16px, 3vw, 40px) var(--space-4);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.wordmark b {
+  color: var(--text-primary);
+  font-weight: 500;
+  /* glow permanente y sutil — se lee como una etiqueta encendida en un
+     panel, no como texto plano; hover/active (abajo) lo intensifican */
+  text-shadow: 0 0 8px rgba(46, 230, 255, 0.35);
+  transition: text-shadow 100ms ease;
+}
+
+.wordmark:hover {
+  color: var(--text-tertiary);
+}
+
+.wordmark:hover b {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(46, 230, 255, 0.5);
+}
+
+.wordmark:active b {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(46, 230, 255, 0.6);
+}
+
+.navlinks {
+  display: flex;
+  gap: 32px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.navlinks a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  position: relative;
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+}
+
+.navlinks a:hover {
+  color: var(--text-primary);
+}
+
+.navlinks a:active {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(46, 230, 255, 0.55);
+  transition-duration: 80ms;
+}
+
+/* Subrayado por transform (no width): no fuerza layout en cada cuadro. */
+.navlinks a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 250ms var(--ease-out);
+}
+
+.navlinks a:hover::after,
+.navlinks a[aria-current]::after {
+  transform: scaleX(1);
+}
+
+/* Sección visible ahora (motion.js, scrollspy): responde "¿dónde estoy?". */
+.navlinks a[aria-current] {
+  color: var(--text-primary);
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  border: 1px solid var(--accent-border);
+  background: rgba(46, 230, 255, 0.05);
+  padding: 6px 12px;
+  border-radius: 100px;
+  max-width: min(420px, 34vw);
+  overflow: hidden;
+  white-space: nowrap;
+  /* halo apenas perceptible — lee como un instrumento con corriente, sin
+     competir con el status-dot (que es el único acento con color fuerte) */
+  box-shadow: 0 0 14px -4px rgba(46, 230, 255, 0.4);
+}
+
+.status-pill .txt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--positive);
+  box-shadow: 0 0 10px 2px rgba(61, 255, 194, 0.75);
+}
+
+@media (max-width: 640px) {
+  .site-nav {
+    padding: 20px;
+  }
+  .navlinks {
+    gap: 16px;
+    flex-basis: 100%;
+  }
+  .status-pill span.txt {
+    display: none;
+  }
+}
+
+/* ============================================================
+   CAMPO DE NODOS — fondo fijo compartido por las tres pantallas
+   (dashboard/index.html e inventory.html, ver node-field.js). No se
+   detiene al final del hero: al hacer scroll sigue visible detrás de
+   Módulos, Arquitectura y de la propia tabla de inventario — por eso
+   ninguna sección de abajo lleva un fondo sólido que lo tape (ver
+   .page-section). La legibilidad se protege en dos niveles: cada
+   superficie con texto real (.panel, .module-card, .decision-table,
+   .camera-placeholder…) ya tiene su propio fondo opaco var(--surface);
+   y en inventory.html, la página con más texto suelto, el canvas se pide
+   con data-density="low" (menos nodos, líneas más tenues — ver
+   node-field.js) y el veil se refuerza con .veil--dense.
+   ============================================================ */
+
+#field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(ellipse at 50% 50%, transparent 30%, var(--bg) 92%);
+  pointer-events: none;
+}
+
+/* Vignette más cerrado — solo inventory.html, donde hay más texto suelto y
+   tablas de datos reales sobre el fondo. */
+.veil--dense {
+  background: radial-gradient(ellipse at 50% 40%, rgba(5, 7, 10, 0.55) 0%, var(--bg) 78%);
+}
+
+/* Rejilla de plano técnico, apagada hacia los bordes. */
+.veil::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(46, 230, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46, 230, 255, 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 35%, #000 0%, transparent 70%);
+}
+
+/* Grano de película: rompe el degradado digital liso. */
+.veil::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  animation: grain 0.9s steps(5) infinite;
+}
+
+@keyframes grain {
+  0% { translate: 0 0; }
+  20% { translate: -4% 3%; }
+  40% { translate: 3% -5%; }
+  60% { translate: -6% -2%; }
+  80% { translate: 5% 4%; }
+}
+
+/* Wordmark Remotion: el h1 queda para lectores de pantalla y como respaldo
+   si web-scenes.js no carga. */
+.hero-scene {
+  width: min(1180px, 96vw);
+  aspect-ratio: 1920 / 720;
+  margin: -2vw 0 -1vw;
+  display: none;
+}
+
+.has-hero-scene .hero-scene {
+  display: block;
+}
+
+.has-hero-scene .hero h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hero {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 140px 24px 80px;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(72px, 14vw, 168px);
+  line-height: 0.86;
+  letter-spacing: 0.5px;
+  /* máscara para que la palabra "suba" desde su propia línea base al
+     entrar (ver .hero-word más abajo) */
+  overflow: clip;
+  overflow-clip-margin: 0.08em;
+  padding-bottom: 0.04em;
+}
+
+/* El degradado vive en el span y no en el h1: el span es el que se mueve
+   al entrar, y background-clip:text solo es confiable sobre el propio
+   texto del elemento transformado. */
+.hero-word {
+  display: inline-block;
+  background: linear-gradient(185deg, #ffffff 0%, #bff8ff 38%, #2ee6ff 62%, #c084fc 100%);
+  filter: drop-shadow(0 0 18px rgba(46, 230, 255, 0.45));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- entrada orquestada del hero ----------
+   El único momento "de presentación" de la página: arranca cuando el
+   loader se desvanece (html.is-ready, loader.js), en cascada por --i. Sin
+   .has-motion (movimiento reducido o loader ausente) todo está visible
+   desde el inicio. */
+.has-motion [data-enter] {
+  opacity: 0;
+  translate: 0 16px;
+}
+
+/* La barra entra desde arriba (su propio borde), no desde abajo. */
+.has-motion .site-nav--fixed[data-enter] {
+  translate: 0 -12px;
+}
+
+.has-motion .hero-word {
+  translate: 0 104%;
+}
+
+.has-motion.is-ready [data-enter] {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 500ms var(--ease-out) calc(var(--i, 0) * 60ms + 40ms),
+    translate 650ms var(--ease-out) calc(var(--i, 0) * 60ms + 40ms);
+}
+
+.has-motion.is-ready .hero-word {
+  translate: 0 0;
+  transition: translate 800ms var(--ease-out) 80ms;
+}
+
+/* El h1 en sí no se desvanece: la palabra aparece por la máscara. */
+.has-motion .hero h1[data-enter] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* ---------- el hero se retira al hacer scroll (scroll-driven) ----------
+   Nativo del navegador y fuera del hilo principal donde hay soporte
+   (animation-timeline). Donde no lo hay, el hero simplemente se queda
+   quieto — es decorativo, no se emula con JS. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero {
+      animation: hero-recede linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 85vh;
+    }
+
+    .scroll-cue {
+      animation: cue-fade linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 18vh;
+    }
+  }
+}
+
+@keyframes hero-recede {
+  to {
+    opacity: 0;
+    transform: translateY(-5vh) scale(0.94);
+  }
+}
+
+@keyframes cue-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+.tagline {
+  margin: 22px 0 0;
+  max-width: 46ch;
+  font-size: 16px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+}
+
+.tagline b {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.cta-row {
+  margin-top: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.has-motion .scroll-cue {
+  opacity: 0;
+}
+
+.has-motion.is-ready .scroll-cue {
+  opacity: 1;
+  transition: opacity 800ms ease 700ms;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(var(--ink-dim), transparent);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* ============================================================
+   BOTONES — un solo componente para CTA de hero, acciones de tabla y
+   diálogo. Modificadores de color: primary (acento, la acción principal),
+   ghost (neutro, cancelar/secundario), warn (ámbar, cambia estado con
+   consecuencia visible — nunca decorativo).
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s var(--ease-out);
+}
+
+.btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
+}
+
+.btn:active {
+  transform: scale(0.97);
+  transition-duration: 100ms; /* presión rápida, suelta a la duración base (200ms) */
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.btn--primary:hover {
+  background: #85a0ff;
+  color: var(--bg);
+  border-color: #85a0ff;
+}
+
+.btn--primary:active {
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+
+.btn--warn {
+  border-color: var(--warn-border);
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.btn--warn:hover {
+  background: rgba(255, 193, 77, 0.22);
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.btn--warn:active {
+  box-shadow: 0 0 0 5px var(--warn-soft);
+}
+
+.btn--sm {
+  padding: 3px 12px;
+  font-size: 11px;
+}
+
+/* ============================================================
+   SECCIONES bajo el pliegue (page-section) — full-bleed, con un
+   .section-shell centrado adentro. Sin fondo propio a propósito: el campo
+   de nodos debe seguir visible al hacer scroll, no cortarse en el hero.
+   Cada componente con texto real adentro (tiles, tabla) trae su propio
+   fondo opaco — la sección en sí solo pinta la línea divisoria.
+   ============================================================ */
+
+.page-section {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--line);
+  padding: var(--space-7) 0;
+  scroll-margin-top: 90px;
+}
+
+.section-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Rótulo de sección como etiqueta de plano: marca hexagonal + código. */
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(46, 230, 255, 0.45);
+}
+
+.section-kicker::before {
+  content: "";
+  width: 10px;
+  height: 11px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 48px);
+  letter-spacing: 0.2px;
+  line-height: 1.02;
+}
+
+.section-note {
+  margin: 0;
+  max-width: 72ch;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  text-wrap: pretty;
+}
+
+/* ---------- placeholder de percepción (vista de cámara) ----------
+   Marco tipo visor con esquinas de mira — el uso más literal posible de la
+   firma visual del sistema: un encuadre de cámara real, honestamente
+   marcado como todavía no conectado. */
+
+.camera-placeholder {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.camera-placeholder .reticle-corner {
+  width: 16px;
+  height: 16px;
+}
+
+/* El stream real vive detrás de las esquinas de mira — el encuadre de
+   cámara se mantiene visible aunque ya haya imagen real adentro. */
+.camera-stream {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-controls {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Pantalla completa vía Fullscreen API sobre el propio .camera-placeholder
+   (no solo el <img>): así el marco de mira y el label siguen visibles
+   encima del video, en vez de perderse al fullscreenear solo la imagen. */
+.camera-placeholder:fullscreen {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: #000;
+}
+
+.camera-label {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-4);
+  z-index: 1;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(5, 7, 10, 0.6);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--warn);
+}
+
+/* Transmitiendo de verdad: mismo verde que "Funcionando" en el resto del
+   sistema — nunca ámbar mientras hay señal real. */
+.camera-label--live {
+  color: var(--positive);
+}
+
+.camera-placeholder-text {
+  max-width: 34ch;
+  padding: 0 var(--space-5);
+  color: var(--text-tertiary);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* Estado "conectando" — entre SIN SEÑAL y EN VIVO/error. Abrir la cámara
+   del lado del backend (cv2.VideoCapture) puede tardar varios segundos,
+   sobre todo justo después de conectar el dispositivo físico; sin este
+   estado intermedio, esa espera se leía como un error instantáneo. */
+.camera-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.camera-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  animation: spin 800ms linear infinite;
+}
+
+.camera-loading-text {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   FIRMA VISUAL — esquinas de mira. Las mismas cuatro esquinas que dibuja
+   YOLO alrededor de una detección, reutilizadas para marcar "activo/
+   detectado" en tiles, secciones e incluso el placeholder de cámara.
+   ============================================================ */
+
+.reticle {
+  position: relative;
+}
+
+.reticle-corner {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+}
+
+.reticle-corner--tl {
+  top: -1px;
+  left: -1px;
+  border-top: 1.5px solid var(--reticle-color, var(--accent));
+  border-left: 1.5px solid var(--reticle-color, var(--accent));
+}
+
+.reticle-corner--tr {
+  top: -1px;
+  right: -1px;
+  border-top: 1.5px solid var(--reticle-color, var(--accent));
+  border-right: 1.5px solid var(--reticle-color, var(--accent));
+}
+
+.reticle-corner--bl {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 1.5px solid var(--reticle-color, var(--accent));
+  border-left: 1.5px solid var(--reticle-color, var(--accent));
+}
+
+.reticle-corner--br {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1.5px solid var(--reticle-color, var(--accent));
+  border-right: 1.5px solid var(--reticle-color, var(--accent));
+}
+
+.reticle-corner--sm {
+  width: 6px;
+  height: 6px;
+}
+
+/* ---------- bento de módulos ---------- */
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.module-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+
+.module-card.span-2 {
+  grid-column: span 2;
+}
+
+.module-card--active {
+  --reticle-color: var(--accent);
+  border-color: var(--accent-border);
+  cursor: pointer;
+  transition:
+    background 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
+}
+
+.module-card--active:hover {
+  background: var(--surface-raised);
+  border-color: var(--accent);
+}
+
+/* Brillo que sigue al puntero (--mx/--my los pone motion.js en la propia
+   tarjeta). isolation crea el contexto de apilamiento para que ::before
+   quede entre el fondo de la tarjeta y su texto, nunca encima del texto. */
+.module-card--active {
+  isolation: isolate;
+}
+
+.module-card--active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(46, 230, 255, 0.11),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .module-card--active:hover::before {
+    opacity: 1;
+  }
+}
+
+.module-card--active:hover .reticle-corner {
+  border-color: var(--accent);
+}
+
+.module-card--active:active {
+  transform: scale(0.99);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  transition-duration: 100ms;
+}
+
+.module-card--active:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.module-card--pending {
+  border-style: dashed;
+  border-color: var(--warn-border);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* "Real, pero no es un link" — mismo encuadre de mira que module-card--active
+   (esto SÍ existe/corre), pero sin cursor de clic ni hover de navegación:
+   usado en tarjetas de estado (ej. la estación de Visión del flujo de línea)
+   que no llevan a ningún lado. module-card--active sigue siendo el único
+   modificador que implica "esto es un link". */
+.module-card--live {
+  --reticle-color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.module-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.module-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.module-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.module-desc {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.module-live {
+  display: block;
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+.module-live strong {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.module-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.module-status--active {
+  color: var(--positive);
+}
+
+.module-status--active .status-dot {
+  background: var(--positive);
+  box-shadow: 0 0 10px 2px rgba(61, 255, 194, 0.6);
+}
+
+.module-status--pending {
+  color: var(--warn);
+}
+
+.module-status--pending .status-dot {
+  background: var(--warn);
+  box-shadow: none;
+  border-radius: 1px;
+}
+
+/* Inactiva-pero-capaz: distinto de "pendiente de hardware" (--warn, algo
+   imposible hoy). Usado por estaciones con demo real que hoy simplemente no
+   está corriendo — ej. la estación de Visión en la sección Línea de
+   manufactura antes de presionar "Iniciar". Nunca implica que el hardware
+   falte, solo que el stream no está activo en este momento. */
+.module-status--idle {
+  color: var(--text-tertiary);
+}
+
+.module-status--idle .status-dot {
+  background: var(--text-muted);
+  box-shadow: none;
+  border-radius: 1px;
+}
+
+.module-nav-arrow {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: none;
+}
+
+.module-card--active:hover .module-nav-arrow {
+  color: var(--accent);
+}
+
+.module-no-route {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+@media (max-width: 900px) {
+  .module-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+  .module-card.span-2 {
+    grid-column: span 1;
+  }
+}
+
+/* ---------- flujo de estaciones (línea de manufactura) ----------
+   Misma tarjeta (.module-card) que el bento de arriba, en secuencia
+   horizontal con flechas en vez de grid — reutiliza el vocabulario visual
+   en vez de inventar un componente nuevo. */
+
+.line-flow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  overflow-x: auto;
+}
+
+.line-station {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.line-arrow {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 18px;
+}
+
+@media (max-width: 900px) {
+  .line-flow {
+    flex-direction: column;
+  }
+  .line-station {
+    min-width: 0;
+  }
+  .line-arrow {
+    transform: rotate(90deg);
+    padding: var(--space-1) 0;
+  }
+}
+
+/* ---------- recorrido 3D de la línea (corridor.js) ----------
+   Solo con .corridor--on; sin eso es la fila de tarjetas de arriba. */
+.corridor-steps {
+  display: none;
+}
+
+.corridor--on {
+  position: relative;
+  width: 100vw;
+  height: 340vh;
+  margin: var(--space-6) 0 var(--space-6) calc(50% - 50vw);
+}
+
+.corridor--on .corridor-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 1000px;
+  perspective-origin: 50% 42%;
+  background: radial-gradient(ellipse 40% 30% at 50% 42%, rgba(46, 230, 255, 0.14), transparent 70%);
+}
+
+.corridor--on .corridor-world {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(var(--cam, 0px));
+}
+
+.corridor--on .line-flow {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+  transform-style: preserve-3d;
+}
+
+.corridor--on .line-arrow {
+  display: none;
+}
+
+.corridor--on .line-station {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 460px;
+  min-width: 0;
+  margin: -120px 0 0 -230px;
+  padding: var(--space-5);
+  background: rgba(7, 20, 34, 0.9);
+  transform:
+    translateX(calc(var(--side, 1) * 380px))
+    translateZ(calc(var(--i, 0) * -900px - 200px))
+    rotateY(calc(var(--side, 1) * -20deg));
+  transition: box-shadow 300ms var(--ease-out), border-color 300ms var(--ease-out);
+}
+
+.corridor--on .line-station .module-title {
+  font-size: 30px;
+}
+
+.corridor--on .line-station .module-desc {
+  font-size: 16px;
+}
+
+.corridor--on .line-station.is-near {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-border), 0 0 60px rgba(46, 230, 255, 0.35);
+}
+
+.corridor-floor,
+.corridor-wall {
+  display: none;
+}
+
+.corridor--on .corridor-floor,
+.corridor--on .corridor-wall {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  pointer-events: none;
+}
+
+.corridor--on .corridor-floor {
+  width: 1900px;
+  height: 6000px;
+  margin-left: -950px;
+  transform-origin: 50% 0;
+  transform: translateY(260px) translateZ(700px) rotateX(-90deg);
+  background:
+    linear-gradient(90deg, rgba(46, 230, 255, 0.28) 1px, transparent 1px) 0 0 / 190px 100%,
+    linear-gradient(rgba(46, 230, 255, 0.2) 1px, transparent 1px) 0 0 / 100% 180px;
+  mask-image: linear-gradient(#000 0%, #000 30%, transparent 85%);
+}
+
+.corridor--on .corridor-wall {
+  width: 6000px;
+  height: 640px;
+  margin-top: -380px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(192, 132, 252, 0.22) 1px, transparent 1px) 0 0 / 240px 100%;
+  mask-image: linear-gradient(90deg, #000 0%, #000 25%, transparent 80%);
+}
+
+.corridor--on .corridor-wall--l {
+  transform: translateX(-950px) translateZ(700px) rotateY(90deg);
+}
+
+.corridor--on .corridor-wall--r {
+  transform: translateX(950px) translateZ(700px) rotateY(90deg);
+}
+
+.corridor--on .corridor-steps {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  translate: -50% 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  counter-reset: step;
+}
+
+.corridor-steps li {
+  counter-increment: step;
+  transition: color 200ms ease;
+}
+
+.corridor-steps li::before {
+  content: "0" counter(step) " ";
+  color: var(--text-muted);
+}
+
+.corridor-steps li.is-on {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(46, 230, 255, 0.6);
+}
+
+/* ---------- tabla de decisiones de arquitectura ---------- */
+
+.decision-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.decision-table th,
+.decision-table td {
+  padding: var(--space-2) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.decision-table th {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.decision-table td.decision-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.decision-table td.decision-name {
+  color: var(--text-primary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.decision-table td.decision-ref {
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.decision-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.decision-table td {
+  transition: background 120ms ease;
+}
+
+.decision-table tbody tr:hover td {
+  background: var(--surface-raised);
+}
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  padding: var(--space-6) 0 var(--space-7);
+}
+
+.footer-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.footer-note {
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   COMPONENTES DE inventory.html — Declared Inventory / Bitácora / retirar.
+   Mismos tokens que arriba.
+   ============================================================ */
+
+/* ---------- nota de honestidad ---------- */
+
+.coverage-note {
+  margin: 0;
+  max-width: 72ch;
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--accent-border);
+  background: var(--accent-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  text-wrap: pretty;
+}
+
+/* ---------- captura continua (auto-refresh, Decisión 9 / ADR 0009) ---------- */
+
+.auto-refresh-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.auto-refresh-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* ---------- franja de instrumentos (resumen) ---------- */
+
+.gauge-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.gauge-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border-left: 1px solid var(--line);
+}
+
+.gauge-cell:first-child {
+  border-left: none;
+}
+
+.gauge-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.gauge-value {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  text-shadow: 0 0 18px rgba(46, 230, 255, 0.35);
+}
+
+/* Lo que falta identificar es la cifra que pide acción: manda en la tira. */
+.gauge-value--warn {
+  font-size: 72px;
+  color: var(--warn);
+  text-shadow: 0 0 22px rgba(255, 193, 77, 0.45);
+}
+
+.gauge-value--small {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-shadow: none;
+}
+
+/* Título de página con relieve: la misma extrusión del wordmark de portada,
+   hecha con sombras escalonadas en vez de una escena. */
+.page-title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  color: #e9fdff;
+  text-shadow:
+    0 1px 0 #1b7f99,
+    0 2px 0 #176c84,
+    0 3px 0 #135a70,
+    0 4px 0 #10485c,
+    0 5px 0 #0d3748,
+    0 6px 0 #1d0d3a,
+    0 0 28px rgba(46, 230, 255, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 900px) {
+  .gauge-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gauge-cell:nth-child(2n + 1) {
+    border-left: none;
+  }
+  .gauge-cell:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 520px) {
+  .gauge-strip {
+    grid-template-columns: 1fr;
+  }
+  .gauge-cell {
+    border-left: none;
+  }
+  .gauge-cell:not(:first-child) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+/* ---------- paneles (tabla / bitácora) ---------- */
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.panel-head-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.panel-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.toggle-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-field input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  transition: box-shadow 100ms ease;
+}
+
+.toggle-field input[type="checkbox"]:active {
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+
+.toggle-field input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toggle-field:active {
+  color: var(--text-primary);
+}
+
+/* ---------- tabla de inventario ---------- */
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+
+.data-table th {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.data-table td {
+  color: var(--text-secondary);
+}
+
+.data-table td.identifier-cell,
+.history-table td.identifier-cell {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.data-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table td {
+  transition: background 120ms ease;
+}
+
+.data-table tbody tr:hover td {
+  background: var(--surface-raised);
+}
+
+/* El indicador ámbar va en la celda, no en <tr>: box-shadow sobre filas de
+   tabla no se pinta de forma confiable en todos los navegadores. Se aplica
+   igual en la tabla de inventario y en la de cada corrida del historial. */
+tr.is-unidentified td.identifier-cell {
+  box-shadow: inset 3px 0 0 var(--warn);
+  color: var(--warn);
+}
+
+.unidentified-tag {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 1px 6px;
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  vertical-align: 1px;
+}
+
+.state-row td {
+  color: var(--text-tertiary);
+  white-space: normal;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+/* Fila retirada: se atenúa (nunca desaparece del DOM cuando "Mostrar
+   retirados" está activo) — la etiqueta de abajo es la señal explícita,
+   la opacidad es refuerzo, no la única pista. */
+tr.is-retired {
+  opacity: 0.55;
+}
+
+.retired-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- ubicaciones (location_counts) ---------- */
+
+.data-table td.location-cell,
+.history-table td.location-cell {
+  white-space: normal;
+}
+
+.location-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.location-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Marcador ArUco real: mismo acento funcional que el resto del sistema —
+   nunca ámbar, reservado para "sin identificar" (código de barras). */
+.location-chip--marker {
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* "sin_ubicacion": tono neutro/apagado a propósito — nunca se oculta, pero
+   no debe competir visualmente con una ubicación confirmada. */
+.location-chip--none {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.location-empty {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ---------- bitácora / historial ---------- */
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-group {
+  border-bottom: 1px solid var(--line);
+}
+
+.history-group:last-child {
+  border-bottom: none;
+}
+
+.history-group summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  user-select: none;
+}
+
+.history-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-group summary {
+  transition: background 120ms ease;
+}
+
+.history-group summary:hover {
+  background: var(--surface-raised);
+}
+
+.history-group summary:active {
+  background: var(--bg);
+  transition-duration: 60ms;
+}
+
+.history-group summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.history-caret {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-right: 1.5px solid var(--text-tertiary);
+  border-bottom: 1.5px solid var(--text-tertiary);
+  transform: rotate(-45deg);
+  transition: transform 160ms var(--ease-out);
+}
+
+.history-group[open] .history-caret {
+  transform: rotate(45deg);
+}
+
+.history-summary-time {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-summary-count {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.history-group-body {
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.history-table th,
+.history-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.history-table th {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.history-table td {
+  color: var(--text-secondary);
+}
+
+.history-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table td {
+  transition: background 120ms ease;
+}
+
+.history-table tbody tr:hover td {
+  background: var(--bg2);
+}
+
+.delta {
+  margin-left: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta--changed {
+  color: var(--accent);
+}
+
+.delta--flat {
+  color: var(--text-muted);
+}
+
+.delta--new {
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  padding: 0 4px;
+}
+
+.state-text {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+/* ---------- diálogo de confirmación con contraseña ----------
+   <dialog> nativo en vez de prompt()/confirm() del navegador: mismo
+   lenguaje visual que el resto del panel, con teclado y foco correctos de
+   fábrica (Escape cierra, el navegador maneja el foco inicial). */
+
+.retire-dialog {
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-primary);
+  width: min(360px, calc(100vw - 32px));
+}
+
+.retire-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.retire-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.retire-dialog-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.retire-dialog-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.retire-dialog-subtitle code {
+  color: var(--text-primary);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* Input más oscuro que la superficie que lo rodea (recibe contenido), no
+   más claro — misma disciplina de profundidad por borde que el resto del
+   sistema, sin sombras. */
+.field-input {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.field-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.dialog-error {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 12.5px;
+}
+
+.retire-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* ============================================================
+   MOVIMIENTO — entradas al hacer scroll (motion.js). Solo el estado
+   inicial vive aquí; la animación en sí es WAAPI para no pisar el
+   `transition` propio de cada componente. Sin .has-motion (movimiento
+   reducido o sin loader.js), nada queda oculto.
+   ============================================================ */
+
+.has-motion [data-reveal]:not(.is-revealed) {
+  opacity: 0;
+}
+
+/* Filas de la tabla de inventario cuando llegan DESPUÉS del loader
+   (backend lento): entran escalonadas en vez de reemplazar al skeleton de
+   golpe. --r lo pone app.js por fila; solo en la primera carga, nunca en
+   el polling. */
+.has-motion .rows-enter tr {
+  animation: row-in 480ms var(--ease-out) backwards;
+  animation-delay: calc(min(var(--r, 0), 12) * 35ms);
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* ---------- skeletons: lo que sigue cargando tras el loader ---------- */
+
+.skeleton {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  overflow: hidden;
+  min-width: 4ch;
+  color: transparent !important;
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(46, 230, 255, 0.1), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.3s var(--ease-in-out) infinite;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-bar {
+  display: block;
+  height: 12px;
+}
+
+.gauge-value.skeleton {
+  align-self: flex-start;
+  min-width: 5ch;
+}
+
+.skeleton-bar--short {
+  width: 40%;
+}
+
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- diálogo: entra desde su centro, sale más rápido ----------
+   @starting-style + allow-discrete: sin JS extra. Donde no hay soporte,
+   el diálogo simplemente aparece/desaparece como antes. */
+.retire-dialog {
+  transition:
+    opacity 220ms var(--ease-out),
+    translate 220ms var(--ease-out),
+    scale 220ms var(--ease-out),
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+
+.retire-dialog:not([open]) {
+  opacity: 0;
+  translate: 0 8px;
+  scale: 0.97;
+  transition-duration: 150ms;
+}
+
+@starting-style {
+  .retire-dialog[open] {
+    opacity: 0;
+    translate: 0 8px;
+    scale: 0.97;
+  }
+}
+
+.retire-dialog::backdrop {
+  transition:
+    background-color 220ms ease,
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+
+@starting-style {
+  .retire-dialog[open]::backdrop {
+    background-color: transparent;
+  }
+}
+
+.retire-dialog:not([open])::backdrop {
+  background-color: transparent;
+  transition-duration: 150ms;
+}
+
+/* ---------- bitácora: el acordeón se despliega en vez de saltar ---------- */
+@supports selector(::details-content) {
+  .history-group {
+    interpolate-size: allow-keywords;
+  }
+
+  .history-group::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 260ms var(--ease-out),
+      content-visibility 260ms allow-discrete;
+  }
+
+  .history-group[open]::details-content {
+    height: auto;
+  }
+}
+
+/* ============================================================
+   VISTA EXPLOSIONADA (#robot, portada) — explode.js
+   Sin JS o con movimiento reducido: layout estático (dos columnas, etapas
+   como lista). .explode--scrub (lo pone explode.js) vuelve la sección
+   alta y fija su contenido mientras el scroll desarma el robot.
+   ============================================================ */
+
+.explode {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--line);
+}
+
+.explode-sticky {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-7) clamp(16px, 3vw, 40px);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.explode--scrub {
+  height: 520vh;
+}
+
+.explode--scrub .explode-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  padding-top: 96px;
+  padding-bottom: var(--space-6);
+}
+
+.explode-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.explode-stages {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.explode-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Todas las etapas en la misma celda; solo la activa se ve. La que sale
+   se va rápido, la que entra espera 90ms — el blur disimula el cruce. */
+.explode--scrub .explode-stages {
+  gap: 0;
+}
+
+.explode--scrub .explode-stage {
+  grid-area: 1 / 1;
+  opacity: 0;
+  translate: 0 12px;
+  filter: blur(6px);
+  pointer-events: none;
+  transition:
+    opacity 240ms ease,
+    translate 420ms var(--ease-out),
+    filter 240ms ease;
+}
+
+.explode--scrub .explode-stage.is-active {
+  opacity: 1;
+  translate: 0 0;
+  filter: none;
+  pointer-events: auto;
+  transition-delay: 90ms;
+}
+
+.explode-stage-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.explode-stage h3 {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.explode-stage p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.explode-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.explode-meta .module-status {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.explode-ref {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* Riel de etapas: la barra de cada una se llena con el scroll (explode.js
+   escribe el scaleX del relleno); también es navegación — clic = saltar. */
+.explode-rail {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.explode--static .explode-rail {
+  display: none;
+}
+
+.explode-rail-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) 0;
+  border: 0;
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-align: left;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.explode-rail-step:hover,
+.explode-rail-step[aria-current] {
+  color: var(--text-primary);
+}
+
+.explode-rail-step:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.explode-rail-bar {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.explode-rail-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.explode-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 0;
+}
+
+.explode-svg {
+  display: block;
+  width: 100%;
+  height: min(72vh, 680px);
+  overflow: visible;
+}
+
+.explode--scrub .explode-svg {
+  height: auto;
+  max-height: calc(100svh - 200px);
+}
+
+/* Movimiento reducido (o sin JS), escritorio: las etapas son una lista
+   larga — el robot acompaña fijo a la derecha en vez de quedar centrado a
+   media columna. Sticky no es movimiento animado: solo mantiene el dibujo
+   a la vista. */
+@media (min-width: 901px) {
+  .explode:not(.explode--scrub) .explode-sticky {
+    align-items: start;
+  }
+
+  .explode:not(.explode--scrub) .explode-figure {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+.explode-caption {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: center;
+  text-wrap: balance;
+}
+
+@media (max-width: 900px) {
+  .explode-sticky {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .explode-figure {
+    order: -1;
+  }
+
+  .explode-svg {
+    height: 52vh;
+  }
+
+  .explode--scrub .explode-sticky {
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: stretch;
+    padding-top: 76px;
+    padding-bottom: var(--space-4);
+  }
+
+  .explode--scrub .explode-svg {
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+  }
+
+  .explode--scrub .explode-copy > .section-title,
+  .explode-rail-label {
+    display: none;
+  }
+
+  .explode-stage p {
+    font-size: 14px;
+  }
+}
+
+/* ---------- el robot (robot-model.js), compartido con el loader ----------
+   Profundidad solo por línea, igual que el resto del sistema: caras en los
+   tonos de superficie, aristas en acento tenue. */
+.rb .rb-face {
+  stroke: var(--accent-border);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition:
+    stroke 300ms ease,
+    fill 300ms ease;
+}
+
+.rb .rb-top {
+  fill: #141c28;
+}
+
+.rb .rb-left {
+  fill: #0d131b;
+}
+
+.rb .rb-right {
+  fill: #090d13;
+}
+
+.rb .rb-wheel {
+  fill: #06080b;
+}
+
+.rb .rb-hub {
+  fill: #141c28;
+}
+
+.rb .rb-mark {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.rb .rb-mark-dot {
+  fill: var(--ink);
+}
+
+.rb .rb-strip {
+  fill: var(--accent-border);
+}
+
+.rb .rb-lens {
+  fill: var(--bg);
+  stroke: var(--accent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.rb .rb-lens-core {
+  fill: var(--accent);
+}
+
+/* Las capas no enfocadas se apagan por arista, no por opacidad: las caras
+   siguen opacas, así una capa sigue tapando a la de atrás (con opacidad
+   se transparentarían unas a través de otras). */
+.rb--staged .rb-part:not(.is-active) .rb-face {
+  stroke: rgba(46, 230, 255, 0.16);
+}
+
+.rb--staged .rb-part:not(.is-active) .rb-mark,
+.rb--staged .rb-part:not(.is-active) .rb-lens {
+  stroke: rgba(46, 230, 255, 0.35);
+}
+
+.rb--staged .rb-part.is-active .rb-face {
+  stroke: var(--accent);
+}
+
+.rb--staged .rb-part.is-active .rb-top {
+  fill: #1a2438;
+}
+
+/* Después de la regla de pieza activa a propósito: el LED y el borne
+   conservan su color aunque su capa esté enfocada. */
+/* LED neutro a propósito: --positive significa "funcionando" en todo el
+   sistema y esta placa todavía no existe — no se pinta de verde. */
+.rb .rb-part .rb-face.rb-led {
+  fill: var(--ink-dim);
+  stroke: none;
+}
+
+.rb .rb-part .rb-face.rb-term {
+  fill: var(--border-strong);
+}
+
+.rb-reticle-corners {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.rb-reticle-label {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+  fill: var(--accent);
+}
+
+.explode--static .rb-reticle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .rb-reticle-label {
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   LOADER GLOBAL (loader.js) — anillo con progreso real + robot que se
+   desarma y se vuelve a armar en bucle + logo que se dibuja.
+   ============================================================ */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  background: radial-gradient(ellipse at 50% 40%, var(--bg2), var(--bg) 70%);
+  transition:
+    opacity 500ms var(--ease-out),
+    visibility 0s linear 500ms;
+}
+
+.loader--out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(200px, 52vw);
+  aspect-ratio: 1;
+  transition: scale 500ms var(--ease-out);
+}
+
+.has-motion .loader--out .loader-ring {
+  scale: 0.96;
+}
+
+.loader-ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  rotate: -90deg;
+}
+
+.loader-track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.loader-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 4px rgba(46, 230, 255, 0.55));
+}
+
+.has-motion .loader-progress {
+  transition: stroke-dashoffset 450ms var(--ease-out);
+}
+
+.loader-robot {
+  width: 60%;
+  height: 60%;
+  overflow: visible;
+}
+
+/* El bucle es CSS (no JS) a propósito: corre fuera del hilo principal,
+   justo cuando la página está más ocupada cargando. Las capas de arriba
+   se separan primero (--k = índice de la pieza, de abajo hacia arriba). */
+.has-motion .loader-robot .rb-part {
+  animation: rb-loop 2.8s var(--ease-in-out) infinite;
+  animation-delay: calc((5 - var(--k)) * 70ms);
+}
+
+@keyframes rb-loop {
+  0%,
+  14% {
+    translate: 0 0;
+  }
+  46%,
+  64% {
+    translate: 0 calc(var(--dz) * -0.5px);
+  }
+  96%,
+  100% {
+    translate: 0 0;
+  }
+}
+
+.loader-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loader-mark {
+  width: 26px;
+  height: 26px;
+  overflow: visible;
+}
+
+.loader-mark-hex {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+}
+
+.loader-mark-spokes {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  opacity: 0.55;
+}
+
+.loader-mark-core {
+  fill: var(--ink);
+}
+
+/* Mismo wordmark que la nav (mono): Big Shoulders queda reservada al h1
+   del hero y a los títulos de sección. */
+.loader-word {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+.loader-pct {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.has-motion .loader-mark-hex {
+  animation: mark-draw 500ms var(--ease-out) both;
+}
+
+.has-motion .loader-mark-spokes,
+.has-motion .loader-mark-core {
+  animation: fade-in 200ms ease 300ms both;
+}
+
+.has-motion .loader-word {
+  animation: word-in 400ms var(--ease-out) 100ms both;
+}
+
+@keyframes mark-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes word-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+/* ---------- foco de teclado ---------- */
+
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- movimiento reducido ---------- */
+
+/* Luz que sigue al puntero y relieve 3D. --sx/--sy y --rx/--ry los pone motion.js. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    520px circle at var(--sx, 50vw) var(--sy, 30vh),
+    rgba(46, 230, 255, 0.16),
+    transparent 62%
+  );
+}
+
+body.tool::after {
+  display: none;
+}
+
+.section-title {
+  text-shadow: 0 0 24px rgba(46, 230, 255, 0.28);
+}
+
+.module-card,
+.panel,
+.camera-placeholder,
+.decision-table {
+  box-shadow:
+    0 0 0 1px rgba(46, 230, 255, 0.12),
+    0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.btn--primary {
+  box-shadow: 0 0 22px rgba(46, 230, 255, 0.35);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .can-tilt {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
+    transform-style: preserve-3d;
+    transition: transform 320ms var(--ease-out);
+    will-change: transform;
+  }
+
+  .can-tilt.is-tilting {
+    transition: none;
+  }
+}
+
+.scroll-rail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 4;
+  width: 2px;
+  height: 100vh;
+  pointer-events: none;
+  background: linear-gradient(var(--accent), var(--node-b));
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* ---------- celda 01 · HMI de visión ----------
+   Fondo negro. Arranque verde y paro rojo: colores de mando de máquina.
+   Rojo de falla y ámbar de aviso solo cuando hay condición anormal.
+   La portada y el robot no usan esto. */
+body.hmi::after {
+  display: none;
+}
+
+body.hmi {
+  --hmi-bg: #0a0e13;
+  --hmi-panel: #10161d;
+  --hmi-line: #1f2a36;
+  --hmi-text: #c9d3de;
+  --hmi-muted: #7c8896;
+  --hmi-run: #3ddc84;
+  --hmi-stop: #ffc14d;
+  --hmi-fault: #ff4d5e;
+  --reticle-color: var(--hmi-muted);
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--hmi-bg);
+  color: var(--hmi-text);
+  font-family: var(--font-sans);
+}
+
+.hmi-app {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.hmi-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+  padding: 8px 12px;
+  background: #0d1218;
+  border-bottom: 1px solid var(--hmi-line);
+}
+
+.hmi-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hmi-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.hmi-brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hmi-brand b {
+  color: var(--hmi-text);
+  letter-spacing: 0.08em;
+}
+
+.hmi-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 4px 14px 4px 10px;
+  border: 1px solid var(--hmi-line);
+  border-radius: 4px;
+  background: var(--hmi-panel);
+}
+
+.hmi-state b {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.hmi-state-reason {
+  font-size: 13px;
+  color: var(--hmi-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hmi-lamp {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--hmi-muted);
+}
+
+.hmi-state[data-state="OPERANDO"] { border-color: var(--hmi-run); }
+.hmi-state[data-state="OPERANDO"] b { color: var(--hmi-run); }
+.hmi-state[data-state="OPERANDO"] .hmi-lamp { background: var(--hmi-run); }
+.hmi-state[data-state="DETENIDA"] { border-color: var(--hmi-stop); }
+.hmi-state[data-state="DETENIDA"] b { color: var(--hmi-stop); }
+.hmi-state[data-state="DETENIDA"] .hmi-lamp { background: var(--hmi-stop); }
+.hmi-state[data-state="SIN_CONEXION"],
+.hmi-state[data-state="SIN_DATOS"] { border-color: var(--hmi-fault); }
+.hmi-state[data-state="SIN_CONEXION"] b,
+.hmi-state[data-state="SIN_DATOS"] b { color: var(--hmi-fault); }
+.hmi-state[data-state="SIN_CONEXION"] .hmi-lamp,
+.hmi-state[data-state="SIN_DATOS"] .hmi-lamp { background: var(--hmi-fault); animation: hmi-blink 1s steps(2) infinite; }
+
+.hmi-state-time {
+  padding-left: 10px;
+  border-left: 1px solid var(--hmi-line);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hmi-muted);
+}
+
+.hmi-proc {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--hmi-line);
+  border-radius: 4px;
+  background: var(--hmi-panel);
+}
+
+.hmi-proc-kicker {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 8px 0 6px;
+  border-right: 1px solid var(--hmi-line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hmi-muted);
+}
+
+.hmi-proc-kicker[data-on="true"] { color: var(--hmi-text); }
+.hmi-proc-kicker[data-on="false"] { color: var(--hmi-stop); }
+
+.hmi-proc-kicker small {
+  letter-spacing: 0.08em;
+  color: var(--hmi-muted);
+}
+
+.hmi-push {
+  display: grid;
+  grid-template-columns: 16px auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  min-width: 0;
+  padding: 6px 10px 6px 8px;
+  border: 1px solid var(--hmi-line);
+  border-radius: 3px;
+  background: #18212b;
+  color: var(--hmi-text);
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.hmi-push b {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.hmi-push small {
+  grid-column: 2;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hmi-push-lamp {
+  grid-row: 1 / span 2;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2a3544;
+}
+
+.hmi-push:hover { border-color: var(--hmi-muted); }
+.hmi-push:active { transform: translateY(1px); }
+.hmi-push:focus-visible { outline: 2px solid var(--hmi-text); outline-offset: 1px; }
+
+.hmi-push--run {
+  border-color: #1fa85a;
+  background: #143d28;
+  color: #b8f5d4;
+}
+
+.hmi-push--run .hmi-push-lamp { background: #1fa85a; }
+
+.hmi-push--stop {
+  border-color: #c41e30;
+  background: #3d1520;
+  color: #ffc1c7;
+}
+
+.hmi-push--stop .hmi-push-lamp { background: #c41e30; }
+
+.hmi-push--run.is-on {
+  border-color: #1fa85a;
+  background: linear-gradient(180deg, #5eeb9a, #1fa85a);
+  color: #06210f;
+}
+
+.hmi-push--run.is-on .hmi-push-lamp { background: #06210f; }
+
+.hmi-push--stop.is-on {
+  border-color: #c41e30;
+  background: linear-gradient(180deg, #ff6b78, #c41e30);
+  color: #fff;
+}
+
+.hmi-push--stop.is-on .hmi-push-lamp { background: #fff; }
+
+.hmi-links-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: auto;
+}
+
+.hmi-links {
+  display: flex;
+  gap: 14px;
+}
+
+.hmi-links a {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hmi-muted);
+  text-decoration: none;
+}
+
+.hmi-links a:hover,
+.hmi-links a:focus-visible {
+  color: var(--hmi-text);
+}
+
+.hmi-clock {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hmi-text);
+}
+
+.hmi-alarm-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+  font-size: 14px;
+  color: #1c2126;
+  background: #f3d48a;
+}
+
+.hmi-alarm-banner[data-sev="falla"] {
+  color: #fff;
+  background: var(--hmi-fault);
+}
+
+.hmi-alarm-banner[hidden] {
+  display: none;
+}
+
+.hmi-alarm-sev {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  animation: hmi-blink 1s steps(2) infinite;
+}
+
+.hmi-alarm-banner .hmi-btn {
+  margin-left: auto;
+  color: inherit;
+  border-color: currentColor;
+  background: transparent;
+}
+
+.hmi-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(88px, 16vh);
+  grid-template-areas:
+    "cam side"
+    "cam alarms";
+  gap: 8px;
+  padding: 8px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hmi-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--hmi-panel);
+  border: 1px solid var(--hmi-line);
+  border-radius: 4px;
+}
+
+.hmi-panel-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--hmi-line);
+}
+
+.hmi-panel-head h2 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--hmi-muted);
+}
+
+.hmi-tag {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--hmi-muted);
+}
+
+.hmi-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--hmi-line);
+  border-radius: 3px;
+  background: #18212b;
+  color: var(--hmi-text);
+  font: 500 12px var(--font-mono);
+  cursor: pointer;
+}
+
+.hmi-btn:hover { border-color: var(--hmi-muted); }
+.hmi-btn:active { transform: translateY(1px); }
+.hmi-btn:focus-visible { outline: 2px solid var(--hmi-text); outline-offset: 1px; }
+
+.hmi-btn--primary {
+  border-color: var(--hmi-text);
+  color: var(--hmi-text);
+}
+
+.hmi-cam { grid-area: cam; min-width: 0; min-height: 0; }
+.hmi-side { grid-area: side; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 8px; min-width: 0; min-height: 0; overflow: hidden; }
+.hmi-alarms { grid-area: alarms; min-width: 0; min-height: 0; }
+
+.hmi-caminfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  justify-content: start;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0 10px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.hmi-caminfo dt { color: var(--hmi-muted); }
+.hmi-caminfo dd { margin: 0; color: var(--hmi-text); font-variant-numeric: tabular-nums; }
+
+/* Retícula de alineación: tercios + cruz central, encima de la imagen. */
+.hmi-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(201, 211, 222, 0.45) calc(50% - 0.5px), rgba(201, 211, 222, 0.45) calc(50% + 0.5px), transparent calc(50% + 0.5px)) center / 60px 60px no-repeat,
+    linear-gradient(transparent calc(50% - 0.5px), rgba(201, 211, 222, 0.45) calc(50% - 0.5px), rgba(201, 211, 222, 0.45) calc(50% + 0.5px), transparent calc(50% + 0.5px)) center / 60px 60px no-repeat,
+    linear-gradient(90deg, transparent calc(33.33% - 0.5px), rgba(201, 211, 222, 0.22) 0, rgba(201, 211, 222, 0.22) calc(33.33% + 0.5px), transparent 0, transparent calc(66.66% - 0.5px), rgba(201, 211, 222, 0.22) 0, rgba(201, 211, 222, 0.22) calc(66.66% + 0.5px), transparent 0),
+    linear-gradient(transparent calc(33.33% - 0.5px), rgba(201, 211, 222, 0.22) 0, rgba(201, 211, 222, 0.22) calc(33.33% + 0.5px), transparent 0, transparent calc(66.66% - 0.5px), rgba(201, 211, 222, 0.22) 0, rgba(201, 211, 222, 0.22) calc(66.66% + 0.5px), transparent 0);
+}
+
+.hmi-grid-overlay[hidden] { display: none; }
+
+.hmi-btn[aria-pressed="true"] {
+  border-color: var(--hmi-text);
+  color: var(--hmi-text);
+  background: #18212b;
+}
+
+.hmi-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hmi-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.hmi-cam .camera-placeholder {
+  flex: 1;
+  max-width: none;
+  aspect-ratio: auto;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #05080b;
+  box-shadow: none;
+}
+
+.hmi-cam .camera-stream {
+  object-fit: contain;
+}
+
+.hmi-result-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px 6px;
+}
+
+.hmi-result-value {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.2vh, 44px);
+  line-height: 1;
+  color: var(--hmi-muted);
+}
+
+.hmi-result[data-result="FAIL"] .hmi-result-value { color: var(--hmi-fault); }
+.hmi-result[data-result="FAIL"] { border-color: var(--hmi-fault); }
+.hmi-result.is-stale .hmi-result-value,
+.hmi-kpis.is-stale dd { color: var(--hmi-fault); }
+
+.hmi-result-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hmi-muted);
+}
+
+.hmi-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+}
+
+.hmi-kpis div {
+  padding: 4px 8px;
+  border-top: 1px solid var(--hmi-line);
+  border-right: 1px solid var(--hmi-line);
+}
+
+.hmi-kpis div:nth-child(3n) { border-right: 0; }
+.hmi-kpis div:nth-child(-n + 3) { border-top: 0; }
+.hmi-kpis dd.is-fault { color: var(--hmi-fault); }
+
+.hmi-kpis dt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--hmi-muted);
+}
+
+.hmi-kpis dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2vw, 26px);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hmi-panel.is-stale { border-color: var(--hmi-fault); }
+
+.hmi-history { min-height: 0; }
+
+.hmi-log {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  overflow: auto;
+  align-content: start;
+}
+
+.hmi-log li {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 6px;
+  border-left: 3px solid var(--hmi-line);
+  background: #0b1016;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--hmi-muted);
+}
+
+.hmi-log li b { color: var(--hmi-text); font-weight: 600; }
+.hmi-log li.hmi-log-fail { border-left-color: var(--hmi-fault); }
+.hmi-log li.hmi-log-fail b { color: var(--hmi-fault); }
+
+.hmi-alarm-list {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+  font-size: 12px;
+}
+
+.hmi-alarm {
+  display: grid;
+  grid-template-columns: 64px 48px 1fr;
+  gap: 8px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--hmi-line);
+}
+
+.hmi-alarm time { font-family: var(--font-mono); color: var(--hmi-muted); font-variant-numeric: tabular-nums; }
+.hmi-alarm b { font-family: var(--font-mono); font-size: 11px; }
+.hmi-alarm--aviso b { color: var(--hmi-stop); }
+.hmi-alarm--falla b { color: var(--hmi-fault); }
+.hmi-alarm.is-unacked b { animation: hmi-blink 1s steps(2) infinite; }
+.hmi-alarm.is-cleared { opacity: 0.55; }
+
+.hmi-alarm-empty {
+  padding: 10px;
+  color: var(--hmi-muted);
+}
+
+.hmi-foot {
+  margin: 0;
+  padding: 5px 10px;
+  border-top: 1px solid var(--hmi-line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--hmi-muted);
+}
+
+#cell-error { color: var(--hmi-fault); }
+
+body.hmi .wordmark-mark { stroke: var(--hmi-muted); }
+body.hmi .wordmark-mark circle { fill: var(--hmi-text); }
+body.hmi .camera-label--live { color: #e6e8eb; }
+body.hmi .module-status--active,
+body.hmi .module-status--idle { color: var(--hmi-muted); }
+body.hmi .module-status--active .status-dot,
+body.hmi .module-status--idle .status-dot {
+  background: var(--hmi-muted);
+  box-shadow: none;
+}
+
+.hmi-who {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hmi-muted);
+  white-space: nowrap;
+}
+
+.hmi-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: var(--hmi-bg);
+}
+
+.hmi-lock[hidden] { display: none !important; }
+
+.hmi-lock form {
+  display: grid;
+  gap: 10px;
+  width: min(420px, calc(100% - 32px));
+  padding: 20px;
+  background: var(--hmi-panel);
+  border: 1px solid var(--hmi-line);
+}
+
+.hmi-lock h1 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.hmi-lock p { margin: 0; }
+
+.hmi-lock label {
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hmi-muted);
+}
+
+.hmi-lock input {
+  padding: 8px;
+  border: 1px solid var(--hmi-line);
+  background: #0a0e13;
+  color: var(--hmi-text);
+  font: 14px var(--font-sans);
+}
+
+.hmi-lock-hint {
+  font-size: 12px;
+  color: var(--hmi-muted);
+}
+
+.hmi-confirm {
+  border: 1px solid var(--hmi-line);
+  background: var(--hmi-panel);
+  color: var(--hmi-text);
+  padding: 16px;
+}
+
+.hmi-confirm::backdrop { background: rgba(0, 0, 0, 0.55); }
+
+.hmi-confirm p { margin: 0 0 12px; }
+
+.hmi-confirm div { display: flex; gap: 8px; }
+
+@keyframes hmi-blink {
+  50% { opacity: 0.25; }
+}
+
+@media (max-width: 1100px) {
+  body.hmi { height: auto; min-height: 100dvh; overflow: auto; }
+  .hmi-app { height: auto; }
+  .hmi-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(280px, 58vh) auto minmax(180px, 32vh);
+    grid-template-areas: "cam" "side" "alarms";
+    overflow: visible;
+  }
+  .hmi-side { overflow: visible; }
+}
+
+@media (max-width: 720px) {
+  .hmi-state b { font-size: 20px; }
+  .hmi-state-reason,
+  .hmi-push small,
+  .hmi-links { display: none; }
+  .hmi-push b { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .history-caret {
+    transition: none;
+  }
+  .scroll-line {
+    animation: none;
+    opacity: 0.5;
+  }
+  .camera-spinner {
+    animation: none;
+    border-top-color: var(--border-strong);
+  }
+  /* Menos y más suave, no cero: el loader y el diálogo conservan un
+     fundido corto de opacidad (ayuda a entender el cambio); se quita todo
+     desplazamiento, escala, shimmer y despliegue animado. */
+  .loader {
+    transition:
+      opacity 200ms ease,
+      visibility 0s linear 200ms;
+  }
+  .skeleton::after {
+    animation: none;
+  }
+  .retire-dialog,
+  .retire-dialog:not([open]) {
+    translate: none;
+    scale: none;
+  }
+  .history-group::details-content {
+    transition: none;
+  }
+  .navlinks a::after,
+  .rb-part,
+  .rb .rb-face {
+    transition: none;
+  }
+  .veil::after {
+    animation: none;
+  }
+  .site-nav--fixed {
+    transition: none;
+  }
+  .can-tilt {
+    animation: none;
+    transform: none;
+  }
+  .scroll-rail,
+  body::after {
+    display: none;
+  }
+}
+
+/* ---------- dataset de piezas ---------- */
+
+.dataset-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.dataset-form .field {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
+.share-cell {
+  min-width: 140px;
+}
+
+.share-bar {
+  height: 6px;
+  margin-bottom: 6px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.share-bar > span {
+  display: block;
+  height: 100%;
+  width: var(--share);
+  background: var(--accent);
+}
+
+.share-pct {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.annotate-zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.annotate-zoom .section-note {
+  margin: 0;
+}
+
+.annotate-stage {
+  max-width: 720px;
+  max-height: 70vh;
+  margin-top: var(--space-3);
+  overflow: auto;
+  background: #000;
+  border: 1px solid var(--line);
+}
+
+.annotate-stage canvas {
+  display: block;
+  width: auto;
+  max-width: none;
+  height: auto;
+  cursor: crosshair;
+  touch-action: none;
+}
