@@ -8,9 +8,8 @@
  * chasis con motores/encoders (Decisión 3) — pero su forma es solo
  * ilustrativa.
  *
- * Lo usan dos vistas con el mismo concepto de "vista explosionada":
- * loader.js (en bucle, dentro del anillo de carga) y explode.js (sección
- * #robot de la portada, guiada por scroll). Se genera desde cajas en
+ * Lo usa loader.js (en bucle, dentro del anillo de carga). La portada
+ * ya no: #robot muestra el carrito 3D de armado.html. Se genera desde cajas en
  * coordenadas de mundo (x, y, z) con proyección isométrica, en vez de SVG
  * dibujado a mano, para que las dos vistas compartan una sola geometría.
  *
