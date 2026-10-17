@@ -1213,7 +1213,14 @@ code {
 }
 
 /* ---------- recorrido 3D de la línea (corridor.js) ----------
-   Solo con .corridor--on; sin eso es la fila de tarjetas de arriba. */
+   Solo con .corridor--on; sin eso es la fila de tarjetas de arriba.
+   --corridor-gap es la misma distancia que usa corridor.js para la cámara. */
+.corridor {
+  --corridor-gap: 900px;
+  --corridor-side: 380px;
+  --corridor-z0: -200px;
+}
+
 .corridor-steps {
   display: none;
 }
@@ -1264,8 +1271,8 @@ code {
   padding: var(--space-5);
   background: rgba(7, 20, 34, 0.9);
   transform:
-    translateX(calc(var(--side, 1) * 380px))
-    translateZ(calc(var(--i, 0) * -900px - 200px))
+    translateX(calc(var(--side, 1) * var(--corridor-side)))
+    translateZ(calc(var(--i, 0) * -1 * var(--corridor-gap) + var(--corridor-z0)))
     rotateY(calc(var(--side, 1) * -20deg));
   transition: box-shadow 300ms var(--ease-out), border-color 300ms var(--ease-out);
 }
@@ -1355,6 +1362,62 @@ code {
 .corridor-steps li.is-on {
   color: var(--accent);
   text-shadow: 0 0 10px rgba(46, 230, 255, 0.6);
+}
+
+@media (max-width: 900px) {
+  .corridor {
+    --corridor-gap: 520px;
+    --corridor-side: 10vw;
+    --corridor-z0: -40px;
+  }
+
+  .corridor--on {
+    width: auto;
+    height: 280vh;
+    margin: var(--space-4) calc(clamp(16px, 3vw, 40px) * -1);
+  }
+
+  .corridor--on .corridor-stage {
+    height: 100svh;
+    height: 100dvh;
+    perspective: 680px;
+    perspective-origin: 50% 46%;
+  }
+
+  .corridor--on .line-station {
+    width: min(300px, 74vw);
+    margin: 0;
+    top: 46%;
+    padding: 14px 16px;
+    translate: -50% -46%;
+    transform:
+      translateX(calc(var(--side, 1) * var(--corridor-side)))
+      translateZ(calc(var(--i, 0) * -1 * var(--corridor-gap) + var(--corridor-z0)))
+      rotateY(calc(var(--side, 1) * -12deg));
+  }
+
+  .corridor--on .line-station .module-title {
+    font-size: 22px;
+  }
+
+  .corridor--on .line-station .module-desc {
+    font-size: 14px;
+  }
+
+  .corridor--on .corridor-steps {
+    bottom: max(12px, env(safe-area-inset-bottom));
+    gap: 18px;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+
+  .corridor--on .corridor-steps li {
+    font-size: 0;
+  }
+
+  .corridor--on .corridor-steps li::before {
+    font-size: 12px;
+  }
 }
 
 /* ---------- tabla de decisiones de arquitectura ---------- */
