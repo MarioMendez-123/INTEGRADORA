@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
     <title>Aether</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,17 +16,33 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
+    <script src="/public-mode.js"></script>
   </head>
   <body>
+    <!-- Loader global (Fase 3.5): síncrono y primero a propósito, para
+         verse desde el primer cuadro — ver loader.js. -->
+    <script src="/robot-model.js"></script>
+    <script src="/loader.js"></script>
+
     <canvas id="field" aria-hidden="true"></canvas>
     <div class="veil" aria-hidden="true"></div>
 
-    <nav class="site-nav site-nav--fixed">
-      <a class="wordmark" href="/"><b>AETHER</b> · industrial systems</a>
+    <nav class="site-nav site-nav--fixed" data-enter style="--i: 0">
+      <a class="wordmark" href="/">
+        <svg class="wordmark-mark" viewBox="0 0 120 120" aria-hidden="true">
+          <polygon points="60,0 112,30 112,90 60,120 8,90 8,30" />
+          <circle cx="60" cy="60" r="16" />
+        </svg>
+        <b>AETHER</b> · industrial systems
+      </a>
       <div class="navlinks">
+        <a href="#robot">Robot</a>
         <a href="#sistema">Sistema</a>
         <a href="#linea-manufactura">Línea</a>
+        <a href="/celda.html">Celda</a>
+        <a href="/dataset.html">Dataset</a>
         <a href="#arquitectura">Arquitectura</a>
+        <a href="#alianzas">Alianzas</a>
         <a href="#equipo">Equipo</a>
       </div>
       <div class="status-pill">
@@ -31,15 +52,16 @@
     </nav>
 
     <main class="hero">
-      <div class="kicker">proyecto integrador · manufactura + inventario robótico</div>
-      <h1>AETHER</h1>
-      <p class="tagline">
+      <div class="kicker" data-enter style="--i: 1">proyecto integrador · manufactura + inventario robótico</div>
+      <h1 data-enter style="--i: 2"><span class="hero-word">AETHER</span></h1>
+      <div class="hero-scene" id="hero-scene" data-enter style="--i: 2" aria-hidden="true"></div>
+      <p class="tagline" data-enter style="--i: 3">
         Percepción robótica que <b>inspecciona y cuenta inventario</b>, integrada a
         una línea de manufactura real donde <b>Visión de línea verifica cada
         pieza</b> y un pistón expulsa la que no pasa — de principio a fin, un
         solo sistema.
       </p>
-      <div class="cta-row">
+      <div class="cta-row" data-enter style="--i: 4">
         <a class="btn btn--primary" href="#percepcion">INICIALIZAR SISTEMA</a>
         <a class="btn" href="/inventory.html">INVENTARIO</a>
       </div>
@@ -50,16 +72,147 @@
       <div class="scroll-line"></div>
     </div>
 
+    <!-- Vista explosionada guiada por scroll (explode.js). El modelo es el
+         carrito 3D de armado.html, el de Lumina. El scroll sigue siendo el
+         nativo con la sección fija: explode.js solo le manda el progreso. -->
+    <section class="explode" id="robot" aria-labelledby="robot-heading">
+      <div class="explode-sticky">
+        <div class="explode-copy">
+          <span class="section-kicker" data-reveal>Aether Inventory · modelo del carrito</span>
+          <h2 class="section-title" data-reveal="title" id="robot-heading">Pieza por pieza</h2>
+
+          <div class="explode-stages">
+            <article class="explode-stage is-active">
+              <span class="explode-stage-kicker">Unidad móvil</span>
+              <h3>El carrito, grupo por grupo</h3>
+              <p>
+                Es el modelo del carrito, el mismo que Lumina abre con
+                «enséñanos quién eres». Al bajar, cada grupo se separa en el
+                orden del riel.
+              </p>
+            </article>
+
+            <article class="explode-stage">
+              <span class="explode-stage-kicker">01 · Panel y cámara</span>
+              <h3>Panel frontal y cámara</h3>
+              <p>
+                Panel de MDF de 3 mm, con la ventana por donde sale el fixture,
+                y la cámara Logitech 1080p montada arriba al frente.
+              </p>
+              <div class="explode-meta">
+                <span class="module-status module-status--active">
+                  <span class="status-dot" aria-hidden="true"></span>En el modelo
+                </span>
+              </div>
+            </article>
+
+            <article class="explode-stage">
+              <span class="explode-stage-kicker">02 · Electrónica</span>
+              <h3>Bandeja de electrónica</h3>
+              <p>
+                Jetson Orin Nano, ESP32 en la placa perforada, elevador de 18 V,
+                reductor, relé y el ramal de cables. La percepción de la demo
+                sigue corriendo en la computadora, no a bordo del carrito.
+              </p>
+              <div class="explode-meta">
+                <span class="module-status module-status--pending">
+                  <span class="status-dot" aria-hidden="true"></span>Piezas en el modelo · cómputo a bordo pendiente
+                </span>
+              </div>
+            </article>
+
+            <article class="explode-stage">
+              <span class="explode-stage-kicker">03 · Empujador y torre</span>
+              <h3>Empujador, uña y torre</h3>
+              <p>
+                NEMA del empujador, cremallera, uña con el servo MG90S, y la
+                torre con husillos, plataforma y finales de carrera.
+              </p>
+              <div class="explode-meta">
+                <span class="module-status module-status--active">
+                  <span class="status-dot" aria-hidden="true"></span>En el modelo
+                </span>
+              </div>
+            </article>
+
+            <article class="explode-stage">
+              <span class="explode-stage-kicker">04 · Energía</span>
+              <h3>Batería BR-1224</h3>
+              <p>
+                12 V y 24 Ah, en su cuna detrás del marco. De aquí salen el
+                elevador y la rama auxiliar.
+              </p>
+              <div class="explode-meta">
+                <span class="module-status module-status--active">
+                  <span class="status-dot" aria-hidden="true"></span>En el modelo
+                </span>
+              </div>
+            </article>
+
+            <article class="explode-stage">
+              <span class="explode-stage-kicker">05 · Estructura y tracción</span>
+              <h3>Perfil, rodajas y motores</h3>
+              <p>
+                Perfil 3030, postes y rodajas, y los dos motores M0601. La
+                estructura se queda en su sitio y la tracción se separa. La
+                navegación por waypoints no está integrada.
+              </p>
+              <div class="explode-meta">
+                <span class="module-status module-status--pending">
+                  <span class="status-dot" aria-hidden="true"></span>Chasis en el modelo · navegación pendiente
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <div class="explode-rail" role="group" aria-label="Etapas del robot">
+            <button type="button" class="explode-rail-step" aria-label="Ir a la etapa 1: Panel y cámara">
+              <span class="explode-rail-bar"><span class="explode-rail-fill"></span></span>
+              <span class="explode-rail-label">Panel</span>
+            </button>
+            <button type="button" class="explode-rail-step" aria-label="Ir a la etapa 2: Electrónica">
+              <span class="explode-rail-bar"><span class="explode-rail-fill"></span></span>
+              <span class="explode-rail-label">Electrónica</span>
+            </button>
+            <button type="button" class="explode-rail-step" aria-label="Ir a la etapa 3: Empujador y torre">
+              <span class="explode-rail-bar"><span class="explode-rail-fill"></span></span>
+              <span class="explode-rail-label">Mecanismo</span>
+            </button>
+            <button type="button" class="explode-rail-step" aria-label="Ir a la etapa 4: Batería">
+              <span class="explode-rail-bar"><span class="explode-rail-fill"></span></span>
+              <span class="explode-rail-label">Batería</span>
+            </button>
+            <button type="button" class="explode-rail-step" aria-label="Ir a la etapa 5: Estructura y tracción">
+              <span class="explode-rail-bar"><span class="explode-rail-fill"></span></span>
+              <span class="explode-rail-label">Tracción</span>
+            </button>
+          </div>
+        </div>
+
+        <figure class="explode-figure">
+          <iframe
+            class="explode-frame"
+            title="Modelo 3D del carrito Aether, el mismo de Lumina, separándose en panel, electrónica, mecanismo, batería y tracción"
+            src="/armado.html?embed=1&v=3"
+            loading="lazy"
+          ></iframe>
+          <figcaption class="explode-caption">
+            Modelo del carrito. El mismo que Lumina muestra con «enséñanos quién eres».
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section class="page-section" id="percepcion">
       <div class="section-shell">
-        <span class="section-kicker">M.01 — Percepción</span>
-        <h2 class="section-title">Vista en vivo</h2>
-        <p class="section-note">
+        <span class="section-kicker" data-reveal>M.01 — Percepción</span>
+        <h2 class="section-title" data-reveal="title">Vista en vivo</h2>
+        <p class="section-note" data-reveal>
           Pipeline de percepción en vivo: YOLO detecta y cuenta, lectura de
           código de barras/QR identifica el producto, ArUco verifica la
           ubicación (Decisiones 1 y 2).
         </p>
-        <div class="camera-placeholder reticle" id="camera-placeholder">
+        <div class="camera-placeholder reticle live-only" data-reveal id="camera-placeholder">
           <img
             class="camera-stream"
             id="camera-stream"
@@ -79,7 +232,11 @@
             <p class="camera-loading-text" id="camera-loading-text">Estableciendo conexión…</p>
           </div>
         </div>
-        <div class="camera-controls">
+        <figure class="demo-frame public-demo">
+          <img src="/assets/demo/percepcion.svg" alt="Espacio reservado para la demo grabada de percepción. Todavía no hay video." width="960" height="540" />
+          <figcaption>Demo grabada · el sistema en vivo corre en el laboratorio</figcaption>
+        </figure>
+        <div class="camera-controls live-only" data-reveal>
           <button type="button" class="btn btn--primary" id="camera-start">
             Iniciar cámara
           </button>
@@ -91,15 +248,15 @@
 
     <section class="page-section" id="sistema" aria-labelledby="modules-heading">
       <div class="section-shell">
-        <span class="section-kicker">01 · Módulos</span>
-        <h2 class="section-title" id="modules-heading">Módulos del sistema</h2>
-        <p class="section-note">
+        <span class="section-kicker" data-reveal>Módulos</span>
+        <h2 class="section-title" data-reveal="title" id="modules-heading">Módulos del sistema</h2>
+        <p class="section-note" data-reveal>
           Esquinas de mira + borde sólido = módulo activo, con interfaz propia.
           Borde punteado = pendiente de hardware, sin interfaz todavía.
         </p>
 
         <div class="module-grid">
-          <a class="module-card module-card--active reticle span-1" href="/inventory.html">
+          <a data-reveal class="module-card module-card--active reticle span-1" href="/inventory.html">
             <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
@@ -114,11 +271,11 @@
             </p>
             <div class="module-status module-status--active">
               <span class="status-dot" aria-hidden="true"></span>Funcionando
-              <span class="module-nav-arrow" aria-hidden="true">→ inventory.html</span>
+              <span class="module-nav-arrow" aria-hidden="true">Abrir inventario</span>
             </div>
           </a>
 
-          <a class="module-card module-card--active reticle span-1" href="/inventory.html">
+          <a data-reveal class="module-card module-card--active reticle span-1" href="/inventory.html">
             <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
@@ -133,11 +290,11 @@
             </p>
             <div class="module-status module-status--active">
               <span class="status-dot" aria-hidden="true"></span>Funcionando
-              <span class="module-nav-arrow" aria-hidden="true">→ inventory.html</span>
+              <span class="module-nav-arrow" aria-hidden="true">Abrir inventario</span>
             </div>
           </a>
 
-          <a class="module-card module-card--active reticle span-1" href="/inventory.html">
+          <a data-reveal class="module-card module-card--active reticle span-1" href="/inventory.html">
             <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
@@ -152,15 +309,15 @@
               <code>dashboard/</code>.
             </p>
             <p class="module-live">
-              Declared Inventory: <strong id="portada-stat-value">consultando…</strong>
+              Declared Inventory: <strong id="portada-stat-value" class="skeleton" data-inventory-stat>consultando…</strong>
             </p>
             <div class="module-status module-status--active">
               <span class="status-dot" aria-hidden="true"></span>Funcionando
-              <span class="module-nav-arrow" aria-hidden="true">→ inventory.html</span>
+              <span class="module-nav-arrow" aria-hidden="true">Abrir inventario</span>
             </div>
           </a>
 
-          <div class="module-card module-card--pending span-1" aria-disabled="true">
+          <div data-reveal class="module-card module-card--pending span-1" aria-disabled="true">
             <div class="module-head">
               <span class="module-tag">M.04</span>
               <h3 class="module-title">Navegación</h3>
@@ -176,7 +333,7 @@
             </div>
           </div>
 
-          <a class="module-card module-card--active reticle span-2" href="#linea-manufactura">
+          <a data-reveal class="module-card module-card--active reticle span-2" href="/celda.html">
             <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
             <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
@@ -186,14 +343,14 @@
               <h3 class="module-title">Línea de manufactura</h3>
             </div>
             <p class="module-desc">
-              Banda + fixtures → visión de verificación → pistón (scrap) →
-              Aether Inventory. Arquitectura cerrada en ADR 0010; visión de
-              línea disponible como demo, banda/pistón y el handshake real
-              siguen pendientes de hardware.
+              La cámara clasifica la pieza. PASS si el nombre está en la lista
+              (computadora1, 2 o 3); si no, FAIL. El pistón, en GPIO BCM 8,
+              solo pulsa en FAIL. El avance de la banda es un pulso a la
+              entrada I4 del LOGO, por GPIO BCM 9.
             </p>
-            <div class="module-status module-status--pending">
-              <span class="status-dot" aria-hidden="true"></span>Parcial — visión en demo
-              <span class="module-nav-arrow" aria-hidden="true">→ Línea de manufactura</span>
+            <div class="module-status module-status--active">
+              <span class="status-dot" aria-hidden="true"></span>Programa de la celda
+              <span class="module-nav-arrow" aria-hidden="true">Abrir celda</span>
             </div>
           </a>
         </div>
@@ -202,26 +359,37 @@
 
     <section class="page-section" id="linea-manufactura" aria-labelledby="line-heading">
       <div class="section-shell">
-        <span class="section-kicker">M.05 — Línea de manufactura</span>
-        <h2 class="section-title" id="line-heading">Línea de manufactura</h2>
-        <p class="section-note">
-          Arquitectura cerrada en ADR 0010 (supersede a ADR 0008): la banda
-          con fixtures posiciona la pieza, visión decide pasa/no pasa, el
-          pistón expulsa el scrap solo si falla, Aether Inventory recoge la
-          pieza aceptada. De las cuatro estaciones, hoy solo Visión tiene una
-          demo real — reutilizando el mismo stack de percepción ya
-          establecido (YOLO), consistente con la propia decisión 8c/10c.
+        <span class="section-kicker" data-reveal>M.05 — Línea de manufactura</span>
+        <h2 class="section-title" data-reveal="title" id="line-heading">Línea de manufactura</h2>
+        <p class="section-note" data-reveal>
+          La banda con fixtures posiciona la pieza. Visión de línea dice PASS
+          o FAIL. FAIL dispara el pistón y, cuando regresa, pide el avance.
+          PASS pide el avance sin pistón. El LOGO, no este programa, apaga el
+          sensor infrarrojo unos segundos cuando llega ese pulso.
+        </p>
+        <p data-reveal>
+          <a class="btn btn--primary" href="/celda.html">Abrir celda</a>
         </p>
 
+        <div class="corridor" id="corridor">
+          <div class="corridor-stage">
+            <div class="corridor-world">
+              <div class="corridor-floor" aria-hidden="true"></div>
+              <div class="corridor-wall corridor-wall--l" aria-hidden="true"></div>
+              <div class="corridor-wall corridor-wall--r" aria-hidden="true"></div>
         <div class="line-flow">
-          <div class="module-card module-card--pending line-station" aria-disabled="true">
+          <div class="module-card module-card--active reticle line-station">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
             <div class="module-head">
               <span class="module-tag">01</span>
               <h3 class="module-title">Banda + fixtures</h3>
             </div>
-            <p class="module-desc">Posiciona la pieza frente a la cámara de visión.</p>
-            <div class="module-status module-status--pending">
-              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+            <p class="module-desc">El LOGO mueve la banda. El programa le pide el avance con un pulso en I4.</p>
+            <div class="module-status module-status--active">
+              <span class="status-dot" aria-hidden="true"></span>Pulso en el programa
             </div>
           </div>
 
@@ -236,7 +404,7 @@
               <span class="module-tag">02</span>
               <h3 class="module-title">Visión</h3>
             </div>
-            <p class="module-desc">Confirmación binaria — pieza pasa/no pasa la inspección.</p>
+            <p class="module-desc">PASS si la clase está en la lista. Si el nombre no está, es FAIL.</p>
             <div class="module-status module-status--idle" id="line-vision-station-status">
               <span class="status-dot" id="line-vision-dot" aria-hidden="true"></span>
               <span id="line-vision-status-text">Inactiva</span>
@@ -245,17 +413,20 @@
 
           <span class="line-arrow" aria-hidden="true">→</span>
 
-          <div class="module-card module-card--pending line-station" aria-disabled="true">
+          <div class="module-card module-card--active reticle line-station">
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
             <div class="module-head">
               <span class="module-tag">03</span>
               <h3 class="module-title">Pistón</h3>
             </div>
             <p class="module-desc">
-              Expulsa la pieza (scrap) de la banda solo si Visión decide
-              "no pasa" — no actúa si la pieza pasa la inspección.
+              Solo en FAIL: espera, pulso y regreso, por GPIO BCM 8. En PASS no se mueve.
             </p>
-            <div class="module-status module-status--pending">
-              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+            <div class="module-status module-status--active">
+              <span class="status-dot" aria-hidden="true"></span>Pulso en el programa
             </div>
           </div>
 
@@ -266,14 +437,23 @@
               <span class="module-tag">04</span>
               <h3 class="module-title">Aether Inventory</h3>
             </div>
-            <p class="module-desc">Recoge y transporta la pieza aceptada.</p>
+            <p class="module-desc">El carrito ya está modelado. Todavía no recoge la pieza de la línea.</p>
             <div class="module-status module-status--pending">
-              <span class="status-dot" aria-hidden="true"></span>Pendiente de hardware
+              <span class="status-dot" aria-hidden="true"></span>Recolección pendiente
             </div>
           </div>
         </div>
+            </div>
+            <ol class="corridor-steps" aria-hidden="true">
+              <li>Banda + fixtures</li>
+              <li>Visión</li>
+              <li>Pistón</li>
+              <li>Aether Inventory</li>
+            </ol>
+          </div>
+        </div>
 
-        <div class="camera-placeholder reticle" id="line-vision-placeholder">
+        <div class="camera-placeholder reticle live-only" data-reveal id="line-vision-placeholder">
           <img
             class="camera-stream"
             id="line-vision-stream"
@@ -293,14 +473,18 @@
             <p class="camera-loading-text" id="line-vision-loading-text">Estableciendo conexión…</p>
           </div>
         </div>
-        <div class="camera-controls">
+        <figure class="demo-frame public-demo">
+          <img src="/assets/demo/linea.svg" alt="Espacio reservado para la demo grabada de visión de línea. Todavía no hay video." width="960" height="540" />
+          <figcaption>Demo grabada · el sistema en vivo corre en el laboratorio</figcaption>
+        </figure>
+        <div class="camera-controls live-only" data-reveal>
           <button type="button" class="btn btn--primary" id="line-vision-start">
             Iniciar visión de línea
           </button>
           <button type="button" class="btn" id="line-vision-stop" hidden>Detener</button>
           <button type="button" class="btn" id="line-vision-fullscreen" hidden>Pantalla completa</button>
         </div>
-        <p class="section-note">
+        <p class="section-note live-only" data-reveal>
           Comparte la cámara de esta máquina con la sección Percepción — no
           actives los dos streams a la vez.
         </p>
@@ -309,9 +493,9 @@
 
     <section class="page-section" id="arquitectura" aria-labelledby="arch-heading">
       <div class="section-shell">
-        <span class="section-kicker">02 · Fase 0</span>
-        <h2 class="section-title" id="arch-heading">Arquitectura</h2>
-        <p class="section-note">
+        <span class="section-kicker" data-reveal>Fase 0</span>
+        <h2 class="section-title" data-reveal="title" id="arch-heading">Arquitectura</h2>
+        <p class="section-note" data-reveal>
           8 decisiones cerradas, ADR completo en <code>docs/architecture/decisions/</code>.
         </p>
 
@@ -326,7 +510,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">1</td>
                 <td class="decision-name">Percepción</td>
                 <td>
@@ -336,7 +520,7 @@
                 </td>
                 <td class="decision-ref">ADR 0001</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">2</td>
                 <td class="decision-name">Localización</td>
                 <td>
@@ -345,7 +529,7 @@
                 </td>
                 <td class="decision-ref">ADR 0002</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">3</td>
                 <td class="decision-name">Navegación</td>
                 <td>
@@ -354,7 +538,7 @@
                 </td>
                 <td class="decision-ref">ADR 0003</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">4</td>
                 <td class="decision-name">Hardware de cómputo</td>
                 <td>
@@ -363,7 +547,7 @@
                 </td>
                 <td class="decision-ref">ADR 0004</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">5</td>
                 <td class="decision-name">Esquema de datos</td>
                 <td>
@@ -373,7 +557,7 @@
                 </td>
                 <td class="decision-ref">ADR 0005</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">6</td>
                 <td class="decision-name">Comunicaciones</td>
                 <td>
@@ -382,7 +566,7 @@
                 </td>
                 <td class="decision-ref">ADR 0006</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">7</td>
                 <td class="decision-name">Alcance del dashboard</td>
                 <td>
@@ -392,7 +576,7 @@
                 </td>
                 <td class="decision-ref">ADR 0007</td>
               </tr>
-              <tr>
+              <tr data-reveal>
                 <td class="decision-num">8</td>
                 <td class="decision-name">Línea de manufactura</td>
                 <td>
@@ -410,8 +594,175 @@
       </div>
     </section>
 
+    <section class="page-section" id="alianzas" aria-labelledby="alianzas-heading">
+      <div class="section-shell">
+        <span class="section-kicker" data-reveal>Patrocinio</span>
+        <h2 class="section-title" data-reveal="title" id="alianzas-heading">Alianzas</h2>
+        <p class="section-note" data-reveal>
+          Aether inspecciona inventario y verifica piezas en una línea de
+          manufactura, con visión y un carrito móvil. Está pensado para quien
+          opera un almacén o una línea y hoy cuenta o revisa a mano.
+        </p>
+
+        <div class="module-grid">
+          <article class="module-card" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">01</span>
+              <h3 class="module-title">El problema</h3>
+            </div>
+            <p class="module-desc">
+              El conteo y el descarte de piezas dependen de una persona frente
+              a la pieza. Un error ahí se arrastra al inventario declarado.
+            </p>
+          </article>
+          <article class="module-card" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">02</span>
+              <h3 class="module-title">La solución</h3>
+            </div>
+            <p class="module-desc">
+              La cámara cuenta e identifica. La visión de línea dice PASS o
+              FAIL. Solo FAIL pulsa el pistón. El inventario declarado no se
+              pisa con una inspección a medias.
+            </p>
+          </article>
+          <article class="module-card" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">03</span>
+              <h3 class="module-title">Por qué ahora</h3>
+            </div>
+            <p class="module-desc">
+              Percepción, el motor de inventario, la API de solo lectura y el
+              programa de la celda ya corren. Lo que falta es hardware, y está
+              dicho abajo.
+            </p>
+          </article>
+        </div>
+
+        <h3 class="alliance-sub" data-reveal>Qué ya funciona</h3>
+        <div class="module-grid">
+          <article class="module-card module-card--active" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">M.01</span>
+              <h3 class="module-title">Percepción</h3>
+            </div>
+            <p class="module-desc">YOLO cuenta. El código de barras o QR identifica. ArUco verifica la posición, no navega.</p>
+            <div class="module-status module-status--active"><span class="status-dot" aria-hidden="true"></span>Funcionando</div>
+          </article>
+          <article class="module-card module-card--active" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">M.02</span>
+              <h3 class="module-title">Inventory Engine</h3>
+            </div>
+            <p class="module-desc">Observations es el crudo. Declared Inventory es lo declarado. Una inspección parcial no lo reemplaza.</p>
+            <div class="module-status module-status--active"><span class="status-dot" aria-hidden="true"></span>Funcionando</div>
+          </article>
+          <article class="module-card module-card--active" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">M.03</span>
+              <h3 class="module-title">Backend</h3>
+            </div>
+            <p class="module-desc">
+              API de solo lectura. Declared Inventory:
+              <strong class="skeleton" data-inventory-stat>consultando…</strong>
+            </p>
+            <div class="module-status module-status--active"><span class="status-dot" aria-hidden="true"></span>Funcionando</div>
+          </article>
+          <article class="module-card module-card--active span-2" data-reveal>
+            <div class="module-head">
+              <span class="module-tag">M.05</span>
+              <h3 class="module-title">Línea de manufactura</h3>
+            </div>
+            <p class="module-desc">La visión decide. El pistón, en GPIO BCM 8, solo pulsa en FAIL. El avance de la banda es un pulso a I4 del LOGO, por GPIO BCM 9. El pistón no aprende: es lógica fija.</p>
+            <div class="module-status module-status--active"><span class="status-dot" aria-hidden="true"></span>Programa de la celda</div>
+          </article>
+        </div>
+
+        <h3 class="alliance-sub" data-reveal>Hoja de ruta</h3>
+        <ol class="alliance-road">
+          <li data-reveal>
+            <span class="module-status module-status--active"><span class="status-dot" aria-hidden="true"></span>Hecho</span>
+            Percepción, inventario declarado, API de solo lectura y el programa visión → pistón.
+          </li>
+          <li data-reveal>
+            <span class="module-status module-status--active"><span class="status-dot" aria-hidden="true"></span>Hecho</span>
+            Modelo del carrito y la celda de laboratorio en la computadora, no a bordo.
+          </li>
+          <li data-reveal>
+            <span class="module-status module-status--pending"><span class="status-dot" aria-hidden="true"></span>Pendiente</span>
+            Cómputo a bordo con Jetson. Hoy la percepción de la demo corre en la computadora.
+          </li>
+          <li data-reveal>
+            <span class="module-status module-status--pending"><span class="status-dot" aria-hidden="true"></span>Pendiente</span>
+            Navegación por waypoints con odometría de encoders y detección reactiva de obstáculos.
+          </li>
+          <li data-reveal>
+            <span class="module-status module-status--pending"><span class="status-dot" aria-hidden="true"></span>Pendiente</span>
+            Que el carrito recoja la pieza que pasó la línea. El modelo ya está. La recolección no.
+          </li>
+        </ol>
+
+        <!-- TODO: ajustar estos tres casos con el equipo. No hay clientes ni plantas piloto firmadas. -->
+        <h3 class="alliance-sub" data-reveal>Dónde encaja</h3>
+        <div class="module-grid">
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Almacén</h3>
+            <p class="module-desc">Recorrer anaquel, contar lo visible e identificar por código. El número visible no es el inventario real del piso completo.</p>
+          </article>
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Línea de manufactura</h3>
+            <p class="module-desc">Fixture, visión PASS/FAIL y pistón solo si falla. La banda la mueve el LOGO cuando llega el pulso.</p>
+          </article>
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Laboratorio o retail</h3>
+            <p class="module-desc">Misma cámara fija para demostrar conteo e identificación, sin venderlo como cobertura de una tienda entera.</p>
+          </article>
+        </div>
+
+        <!-- TODO: montos. No hay cifras cerradas. -->
+        <h3 class="alliance-sub" data-reveal>Cómo apoyar</h3>
+        <div class="module-grid">
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Hardware</h3>
+            <p class="module-desc">Jetson, motores o baterías. A cambio: logo en el sitio, mención en la demo y el nombre en el reporte técnico.</p>
+            <p class="alliance-amount">Monto por definir</p>
+          </article>
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Licencias</h3>
+            <p class="module-desc">Software o herramientas que el laboratorio no tiene. A cambio: reconocimiento en la demo y reporte técnico.</p>
+            <p class="alliance-amount">Monto por definir</p>
+          </article>
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Mentoría y planta</h3>
+            <p class="module-desc">Tiempo de alguien que ya opera una línea, o acceso a una planta para probar. A cambio: acceso a los resultados y reporte técnico.</p>
+            <p class="alliance-amount">Monto por definir</p>
+          </article>
+          <article class="module-card" data-reveal>
+            <h3 class="module-title">Aporte económico</h3>
+            <p class="module-desc">Cubre piezas que hoy no están. A cambio: logo, mención en la demo, reporte y acceso a resultados.</p>
+            <p class="alliance-amount">Monto por definir</p>
+          </article>
+        </div>
+
+        <h3 class="alliance-sub" data-reveal>Equipo</h3>
+        <p class="section-note" data-reveal>
+          6 integrantes, Chihuahua, México. Ventana de ~4 meses y ~240 horas.
+        </p>
+
+        <div class="cta-row" data-reveal>
+          <a class="btn btn--primary" data-contact href="mailto:contacto@aethermx.online">Agenda una demo</a>
+          <!-- TODO: colocar dashboard/assets/alianzas/resumen-ejecutivo.pdf -->
+          <a class="btn" href="/assets/alianzas/resumen-ejecutivo.pdf">Descarga el resumen ejecutivo (PDF)</a>
+        </div>
+        <p class="section-note" data-reveal>
+          El PDF todavía no está publicado. El conteo de arriba sale de
+          <code>GET /inventory</code>. Si el backend no responde, la página lo dice.
+        </p>
+      </div>
+    </section>
+
     <footer class="site-footer" id="equipo">
-      <div class="footer-shell">
+      <div class="footer-shell" data-reveal>
         <p>
           Proyecto integrador de ingeniería — equipo de 6 integrantes, Chihuahua,
           México. Ventana de desarrollo: ~4 meses, ~240 horas totales.
@@ -425,9 +776,13 @@
       </div>
     </footer>
 
+    <script src="/perf.js"></script>
+    <script src="/web-scenes.js"></script>
     <script src="/node-field.js"></script>
+    <script src="/motion.js"></script>
+    <script src="/explode.js"></script>
+    <script src="/corridor.js?v=3"></script>
     <script src="/portada.js"></script>
-    <script src="/camera-stream.js"></script>
-    <script src="/line-vision.js"></script>
+    <script src="/site-boot.js"></script>
   </body>
 </html>

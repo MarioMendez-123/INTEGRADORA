@@ -1,0 +1,6 @@
+Contact: mailto:contacto@aethermx.online
+Expires: 2027-10-16T18:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://aethermx.online/.well-known/security.txt
+Policy: https://aethermx.online/
+# TODO: confirmar que contacto@aethermx.online recibe correo antes de publicar este archivo.

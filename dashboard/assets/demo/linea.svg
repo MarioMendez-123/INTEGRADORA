@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="t d">
+  <title id="t">Espacio para la demo grabada de visión de línea</title>
+  <desc id="d">Todavía no hay video. El sistema en vivo corre en el laboratorio.</desc>
+  <rect width="960" height="540" fill="#071422"/>
+  <g fill="none" stroke="#2ee6ff" stroke-width="2">
+    <path d="M48 48h36M48 48v36M912 48h-36M912 48v36M48 492h36M48 492v-36M912 492h-36M912 492v-36"/>
+  </g>
+  <text x="480" y="250" text-anchor="middle" fill="#edeff3" font-family="IBM Plex Sans, sans-serif" font-size="28">Grabación pendiente</text>
+  <text x="480" y="292" text-anchor="middle" fill="#8891a0" font-family="IBM Plex Mono, monospace" font-size="16">linea.mp4</text>
+</svg>

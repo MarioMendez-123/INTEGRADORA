@@ -1,0 +1,16 @@
+Archivos que hay que grabar y dejar en esta carpeta.
+Hasta que existan, la portada pública muestra el SVG de reserva.
+No subas el stream en vivo.
+
+percepcion.mp4
+  Demo grabada de M.01: YOLO, código y ArUco. Sin audio de fondo con datos personales.
+percepcion-poster.jpg
+  Un cuadro anotado de esa toma, por si el video tarda en cargar.
+
+linea.mp4
+  Demo grabada de visión de línea: PASS/FAIL y el pulso del pistón.
+linea-poster.jpg
+  Un cuadro anotado de esa toma.
+
+El resumen para patrocinadores va aparte:
+dashboard/assets/alianzas/resumen-ejecutivo.pdf
