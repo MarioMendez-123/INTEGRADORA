@@ -7,6 +7,9 @@
  * Sin JS o con movimiento reducido no se activa: las estaciones quedan
  * como la fila de tarjetas normal. En pantalla angosta sí corre, con la
  * separación que marca --corridor-gap.
+ *
+ * El scroll solo pide un frame. La lectura de layout ocurre ahí, una vez;
+ * el frame siguiente solo escribe transform y opacidad.
  */
 (() => {
   const root = document.getElementById("corridor");
@@ -17,47 +20,98 @@
   const world = root.querySelector(".corridor-world");
   const stations = [...root.querySelectorAll(".line-station")];
   const steps = [...root.querySelectorAll(".corridor-steps li")];
-  const gap = () => {
-    const n = parseFloat(getComputedStyle(root).getPropertyValue("--corridor-gap"));
-    return n > 0 ? n : 900;
-  };
   stations.forEach((s, i) => {
     s.style.setProperty("--i", i);
     s.style.setProperty("--side", i % 2 ? 1 : -1);
   });
 
+  let gapPx = 900;
+  let target = 0;
   let shown = 0;
   let last = 0;
   let raf = 0;
+  let reading = false;
+  let visible = false;
+  let paused = document.hidden;
+  let at = -1;
+  const fade = stations.map(() => -1);
 
-  function frame(now) {
+  function readLayout() {
     const r = root.getBoundingClientRect();
     const total = r.height - innerHeight;
-    const target = Math.min(1, Math.max(0, -r.top / total));
+    const n = parseFloat(getComputedStyle(root).getPropertyValue("--corridor-gap"));
+    gapPx = n > 0 ? n : 900;
+    target = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+    reading = false;
+  }
+
+  function write(now) {
+    raf = 0;
+    if (reading) readLayout();
     const dt = last ? now - last : 16;
     last = now;
     shown += (target - shown) * (1 - Math.exp(-dt / 140));
+    if (Math.abs(target - shown) < 0.0008) shown = target;
 
-    const step = gap();
-    const cam = shown * (stations.length - 1) * step;
+    const span = Math.max(stations.length - 1, 1);
+    const cam = shown * span * gapPx;
     world.style.setProperty("--cam", `${cam.toFixed(1)}px`);
-    const at = Math.round(shown * (stations.length - 1));
-    stations.forEach((s, i) => {
-      const d = i * step - cam;
-      s.style.opacity = d < -step * 0.45 ? 0 : Math.max(0.08, 1 - Math.abs(d) / (step * 1.8)).toFixed(2);
-      s.classList.toggle("is-near", i === at);
-    });
-    steps.forEach((li, i) => li.classList.toggle("is-on", i === at));
-    raf = requestAnimationFrame(frame);
+
+    const nextAt = Math.round(shown * span);
+    const windowZ = gapPx * 1.8;
+    for (let i = 0; i < stations.length; i++) {
+      const d = i * gapPx - cam;
+      if (d > windowZ && fade[i] === 0.08) continue;
+      const next = d < -gapPx * 0.45 ? 0 : Math.max(0.08, 1 - Math.abs(d) / windowZ);
+      const q = Math.round(next * 100) / 100;
+      if (q === fade[i]) continue;
+      fade[i] = q;
+      stations[i].style.setProperty("--fade", q);
+    }
+    if (nextAt !== at) {
+      if (stations[at]) stations[at].classList.remove("is-near");
+      if (steps[at]) steps[at].classList.remove("is-on");
+      if (stations[nextAt]) stations[nextAt].classList.add("is-near");
+      if (steps[nextAt]) steps[nextAt].classList.add("is-on");
+      at = nextAt;
+    }
+
+    if (shown !== target && visible && !paused) raf = requestAnimationFrame(write);
   }
 
+  function kick() {
+    if (!visible || paused || raf) return;
+    last = 0;
+    raf = requestAnimationFrame(write);
+  }
+
+  function askRead() {
+    reading = true;
+    kick();
+  }
+
+  window.addEventListener("scroll", askRead, { passive: true });
+  window.addEventListener("resize", askRead);
+
   new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting && !raf) {
-      last = 0;
-      raf = requestAnimationFrame(frame);
-    } else if (!entry.isIntersecting && raf) {
-      cancelAnimationFrame(raf);
+    visible = entry.isIntersecting;
+    if (!visible) {
+      if (raf) cancelAnimationFrame(raf);
       raf = 0;
+      return;
     }
+    askRead();
   }).observe(root);
+
+  if (window.AetherPerf) {
+    window.AetherPerf.register("corridor", (state) => {
+      paused = state.hidden;
+      if (paused) {
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+        return;
+      }
+      askRead();
+    });
+  }
 })();
