@@ -748,6 +748,14 @@ html.aether-quality-low .veil::after {
    fondo opaco — la sección en sí solo pinta la línea divisoria.
    ============================================================ */
 
+.sim-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0e1318;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
 .page-section {
   position: relative;
   z-index: 2;

@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/style.css?v=4" />
+    <link rel="stylesheet" href="/style.css?v=5" />
     <script src="/public-mode.js"></script>
   </head>
   <body>
@@ -36,6 +36,7 @@
         <b>AETHER</b> · industrial systems
       </a>
       <div class="navlinks">
+        <a href="#simulacion">Simulación</a>
         <a href="#robot">Robot</a>
         <a href="#sistema">Sistema</a>
         <a href="#linea-manufactura">Línea</a>
@@ -71,6 +72,21 @@
       <span>DESPLAZAR</span>
       <div class="scroll-line"></div>
     </div>
+
+    <section class="page-section" id="simulacion" aria-labelledby="sim-heading">
+      <div class="section-shell">
+        <span class="section-kicker" data-reveal>Simulación · funcionamiento</span>
+        <h2 class="section-title" data-reveal="title" id="sim-heading">De la banda a la mesa</h2>
+        <p class="section-note" data-reveal>
+          El carrito se acopla a la banda, carga los seis fixtures, viaja a la
+          estación y los descarga. Es la simulación completa del funcionamiento,
+          a 2×. No es una toma del carrito real.
+        </p>
+        <video class="sim-video" data-reveal controls autoplay muted loop playsinline preload="metadata">
+          <source src="/assets/funcionamiento.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </section>
 
     <!-- Vista explosionada guiada por scroll (explode.js). El modelo es el
          carrito 3D de armado.html, el de Lumina. El scroll sigue siendo el
