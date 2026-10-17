@@ -12,10 +12,11 @@
  * Esa query no puede apagar el modo público en el dominio real.
  *
  * Correo de contacto (mailto de Alianzas). Cámbialo aquí.
- * TODO: confirmar que el buzón contacto@aethermx.online existe y reenvía.
+ * El botón abre el correo del visitante dirigido a esta dirección.
+ * No reserva un horario: Mario recibe el mensaje si el buzón reenvía.
  */
 (function () {
-  const CONTACT = "contacto@aethermx.online";
+  const CONTACT = "mario@aethermx.online";
   const PUBLIC_HOSTS = { "aethermx.online": 1, "www.aethermx.online": 1 };
   const host = (location.hostname || "").toLowerCase();
   let isPublic = !!PUBLIC_HOSTS[host];
@@ -36,6 +37,9 @@
   function stripLive() {
     if (!isPublic) return;
     document.querySelectorAll(".live-only").forEach((el) => el.remove());
+    document.querySelectorAll('a[href="#percepcion"]').forEach((el) => {
+      el.setAttribute("href", "#alianzas");
+    });
   }
 
   if (document.readyState === "loading") {
