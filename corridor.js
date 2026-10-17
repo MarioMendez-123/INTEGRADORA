@@ -15,6 +15,11 @@
   const root = document.getElementById("corridor");
   if (!root) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const ua = navigator.userAgent || "";
+  const ios =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (ios) return;
 
   root.classList.add("corridor--on");
   const world = root.querySelector(".corridor-world");

@@ -12,7 +12,10 @@
   var ios =
     /iPad|iPhone|iPod/.test(ua) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if (ios) return;
+  if (ios) {
+    document.documentElement.classList.add("is-ios");
+    return;
+  }
 
   var script = document.createElement("script");
   script.src = "/web-scenes.js";
