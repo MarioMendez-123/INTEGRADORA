@@ -2231,11 +2231,16 @@ function showStep(i) {
 }
 
 // ============================================================ BUCLE
+let drawnEmbedP = -1;
 function resize() {
   const w = viewEl.clientWidth, h = viewEl.clientHeight;
   if (!w || !h) return;
   renderer.setSize(w, h, false); labelRenderer.setSize(w, h);
   camera.aspect = w / h; camera.updateProjectionMatrix();
+  // El encuadre del embed depende del aspecto. Si el hueco cambia y no
+  // se vuelve a calcular, el carrito queda cortado en una esquina.
+  if (EMBED) drawnEmbedP = -1;
+  partsDirty = true;
   poke();
 }
 new ResizeObserver(resize).observe(viewEl);
@@ -2245,7 +2250,6 @@ let raf = 0;
 let viewPaused = false;
 let hiddenPause = document.hidden;
 let parentPause = false;
-let drawnEmbedP = -1;
 const camSnap = new THREE.Vector3();
 const tgtSnap = new THREE.Vector3();
 function poke() {
