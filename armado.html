@@ -423,6 +423,7 @@ function readTheme() {
   if (EMBED) { renderer.setClearColor(0x000000, 0); floor.visible = false; grid.visible = false; }
   for (const d of DIMS) d.mat.color.set(theme.dimLine);
   partsDirty = true;
+  poke();
 }
 
 // ============================================================ MATERIALES
@@ -660,7 +661,9 @@ function flyTo(c, instant = false, cartM = null) {
   camTween.p0.copy(camera.position); camTween.t0.copy(controls.target);
   camTween.p1.copy(g.pos); camTween.t1.copy(g.target);
 }
-controls.addEventListener('start', () => { camTween.active = false; ui.userCam = true; });
+controls.addEventListener('start', () => { camTween.active = false; ui.userCam = true; poke(); });
+let applyingControls = false;
+controls.addEventListener('change', () => { if (!applyingControls) poke(); });
 
 // ============================================================ ESTRUCTURA (perfil 3030)
 const PF = [];   // { id, L, axis, pos:[x,y,z], name }
@@ -2182,13 +2185,14 @@ function buildUI() {
   const tlEl = $('timeline');
   tlEl.addEventListener('input', () => { ui.playing = false; syncPlay(); seek(+tlEl.value, false); });
   document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { ui.speed = +b.dataset.speed; document.querySelectorAll('[data-speed]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
-  const tog = (id, key) => { const el = $(id); el.checked = ui[key]; el.onchange = () => { ui[key] = el.checked; partsDirty = true; }; };
+  const tog = (id, key) => { const el = $(id); el.checked = ui[key]; el.onchange = () => { ui[key] = el.checked; partsDirty = true; poke(); }; };
   tog('tLabels', 'labels'); tog('tDims', 'dims'); tog('tExplode', 'explode'); tog('tTransp', 'transp');
   $('tExplode').onchange = () => {
     ui.explode = $('tExplode').checked;
     revealPlan = null;
     for (const p of PARTS.values()) p.out = null;
     partsDirty = true;
+    poke();
   };
   $('sheetHead').onclick = () => { const open = document.body.classList.toggle('sheet-open'); $('sheetHead').setAttribute('aria-expanded', open); setTimeout(resize, 260); };
   addEventListener('keydown', e => {
@@ -2202,12 +2206,14 @@ function buildUI() {
 function syncPlay() {
   $('bPlay').setAttribute('aria-label', ui.playing ? 'Pausa' : 'Reproducir');
   $('bPlay').classList.toggle('playing', ui.playing);
+  poke();
 }
 function seek(T, fly) {
   ui.T = Math.max(0, Math.min(TOTAL, T));
   const i = stepAt(ui.T);
   if (i !== ui.step) { showStep(i); flyTo(STEPS[i].cam, false); ui.userCam = false; }
   $('endCard').hidden = ui.T < TOTAL - 0.005;
+  poke();
 }
 function showStep(i) {
   ui.step = i; const st = STEPS[i];
@@ -2230,41 +2236,91 @@ function resize() {
   if (!w || !h) return;
   renderer.setSize(w, h, false); labelRenderer.setSize(w, h);
   camera.aspect = w / h; camera.updateProjectionMatrix();
+  poke();
 }
 new ResizeObserver(resize).observe(viewEl);
 const clock = new THREE.Clock();
 let uiTick = 0;
+let raf = 0;
+let viewPaused = false;
+let hiddenPause = document.hidden;
+let parentPause = false;
+let drawnEmbedP = -1;
+const camSnap = new THREE.Vector3();
+const tgtSnap = new THREE.Vector3();
+function poke() {
+  if (viewPaused || raf) return;
+  raf = requestAnimationFrame(frame);
+}
+function applyPause() {
+  const next = hiddenPause || parentPause;
+  if (next === viewPaused) return;
+  viewPaused = next;
+  if (viewPaused) {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    clock.getDelta();
+    return;
+  }
+  clock.getDelta();
+  poke();
+}
 function frame() {
+  raf = 0;
+  if (viewPaused) return;
   const dt = Math.min(clock.getDelta(), 0.1);
+  let moving = false;
   if (ui.playing) {
     seek(ui.T + dt * ui.speed, false);
     if (ui.T >= TOTAL) { ui.playing = false; syncPlay(); }
+    moving = true;
   }
-  ui.explodeAmt += ((ui.explode ? 1 : 0) - ui.explodeAmt) * Math.min(1, dt * 6);
-  if (Math.abs(ui.explodeAmt - (ui.explode ? 1 : 0)) < 0.002) ui.explodeAmt = ui.explode ? 1 : 0;
-  if (revealPlan) stepReveal(dt);
-  if (EMBED) {
+  const explodeTarget = ui.explode ? 1 : 0;
+  if (Math.abs(ui.explodeAmt - explodeTarget) >= 0.002) {
+    ui.explodeAmt += (explodeTarget - ui.explodeAmt) * Math.min(1, dt * 6);
+    if (Math.abs(ui.explodeAmt - explodeTarget) < 0.002) ui.explodeAmt = explodeTarget;
+    moving = true;
+  }
+  if (revealPlan) { stepReveal(dt); moving = true; }
+  if (EMBED && Math.abs(embedP - drawnEmbedP) > 0.0004) {
     applyEmbed(embedP);
     // Armado llena el cuadro; al separarse la cámara se aleja lo justo para que las piezas no se salgan.
     flyTo({ t: [0.02, 0.5, 0], d: [0.85, 0.32, 1], r: 0.78 + 0.33 * embedP }, true);
+    drawnEmbedP = embedP;
+    moving = true;
   }
-  const { i, t } = applyAt(ui.T, dt);
-  placeRevealNames();
+  let step = { i: Math.max(ui.step, 0), t: 0 };
+  const poseChanged = moving || partsDirty;
+  if (poseChanged) step = applyAt(ui.T, dt);
+  if (revealPlan) placeRevealNames();
   if (camTween.active) {
     camTween.t += dt / camTween.dur; const k = ease(clamp01(camTween.t));
     camera.position.lerpVectors(camTween.p0, camTween.p1, k); controls.target.lerpVectors(camTween.t0, camTween.t1, k);
     if (camTween.t >= 1) camTween.active = false;
+    moving = true;
   }
-  controls.update();
-  if ((uiTick = (uiTick + 1) % 4) === 0) {
-    $('timeline').value = ui.T;
-    $('tcur').textContent = fmt(ui.T); $('ttot').textContent = fmt(TOTAL);
-    $('progbar').style.width = (ui.T / TOTAL * 100).toFixed(2) + '%';
-    $('vStepBar').style.width = (clamp01(t / STEPS[i].dur) * 100).toFixed(1) + '%';
+  let damping = false;
+  if (controls.enabled) {
+    camSnap.copy(camera.position);
+    tgtSnap.copy(controls.target);
+    applyingControls = true;
+    controls.update();
+    applyingControls = false;
+    damping = camera.position.distanceToSquared(camSnap) > 1e-10 || controls.target.distanceToSquared(tgtSnap) > 1e-10;
   }
-  renderer.render(scene, camera);
-  labelRenderer.render(scene, camera);
-  requestAnimationFrame(frame);
+  if (poseChanged || moving || damping) {
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+    partsDirty = false;
+    if (ui.playing && (uiTick = (uiTick + 1) % 4) === 0) {
+      const { i, t } = step;
+      $('timeline').value = ui.T;
+      $('tcur').textContent = fmt(ui.T); $('ttot').textContent = fmt(TOTAL);
+      $('progbar').style.width = (ui.T / TOTAL * 100).toFixed(2) + '%';
+      $('vStepBar').style.width = (clamp01(t / STEPS[i].dur) * 100).toFixed(1) + '%';
+    }
+  }
+  if (moving || damping || camTween.active || ui.playing) poke();
 }
 
 // ============================================================ REVISIÓN DE CHOQUES (consola: __aether.checkGeometry())
@@ -2536,8 +2592,18 @@ if (EMBED) {
   addEventListener("message", (ev) => {
     if (ev.origin !== location.origin) return;
     const d = ev.data;
-    if (!d || d.type !== "aether-explode" || typeof d.p !== "number") return;
-    embedP = d.p;
+    if (!d) return;
+    if (d.type === "aether-explode" && typeof d.p === "number") {
+      embedP = d.p;
+      poke();
+      return;
+    }
+    if (d.type === "aether-pause") {
+      parentPause = !!d.paused;
+      hiddenPause = document.hidden;
+      applyPause();
+      return;
+    }
   });
 } else if (quiereArmada) showAssembled();
 else {
@@ -2549,7 +2615,11 @@ document.body.classList.add('ready');
 if (!EMBED && !quiereArmada && !matchMedia('(prefers-reduced-motion: reduce)').matches) { ui.playing = true; syncPlay(); }
 if (!EMBED && OPEN.get("reveal") === "1") setTimeout(revealInterior, 900);
 if (!EMBED) listenLumina();
-requestAnimationFrame(frame);
+document.addEventListener("visibilitychange", () => {
+  hiddenPause = document.hidden;
+  applyPause();
+});
+poke();
 window.__aether = { STEPS, PARTS, D, applyAt, seek, ui, TOTAL: () => TOTAL, mechAt, homePose, camera, controls, renderer, scene, cartRoot, checkGeometry, M0, pileSet, START, finishCam: () => flyTo(STEPS[ui.step].cam, true), showAssembled, revealInterior };
 
 </script>
