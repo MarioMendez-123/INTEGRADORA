@@ -44,6 +44,7 @@ database.SessionLocal = sessionmaker(bind=TEST_ENGINE, autoflush=False, autocomm
 
 from fastapi.testclient import TestClient
 
+import dataset_store
 import main
 from db.models import DeclaredEntry, DeclaredEntryHistory
 
@@ -431,3 +432,174 @@ def test_robot_ask_un_guion_suelto_no_se_confunde_con_una_lista(client):
 
     assert response.status_code == 200
     assert response.json() == {"answer": con_guion_normal}
+
+
+# --- /robot/call: "Lumina, llámame" y "Lumina, llama a <contacto>" -------------
+
+
+def _fake_zavu_response() -> MagicMock:
+    response = MagicMock()
+    response.__enter__.return_value.read.return_value = json.dumps({"message": {"id": "msg_1"}}).encode("utf-8")
+    return response
+
+
+@pytest.fixture()
+def zavu(monkeypatch, tmp_path):
+    """Zavu configurado con una agenda de prueba; nunca sale a la red."""
+    contacts = tmp_path / "contactos.json"
+    contacts.write_text(
+        json.dumps(
+            {
+                "Mamá": "+525512345678",
+                "invalido": "123",
+                "Ivonne": {"numero": "+525511112222", "mensaje": "Mario te manda saludos."},
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(main, "CONTACTS_FILE", contacts)
+    monkeypatch.setattr(main, "ZAVUDEV_API_KEY", "zavu-test")
+    monkeypatch.setattr(main, "LUMINA_CALL_TO", "+525500000000")
+    main._recent_calls.clear()
+    with patch("main.urllib.request.urlopen", return_value=_fake_zavu_response()) as urlopen:
+        yield urlopen
+
+
+def _sent_payload(urlopen) -> dict:
+    return json.loads(urlopen.call_args.args[0].data.decode("utf-8"))
+
+
+def test_robot_call_contacto_llama_a_su_numero_con_texto_neutro_y_el_mensaje(client, zavu):
+    response = client.post("/robot/call", json={"contact": "mama", "message": "ya voy"})
+
+    assert response.status_code == 200
+    payload = _sent_payload(zavu)
+    assert payload["to"] == "+525512345678"
+    assert payload["channel"] == "voice"
+    body = f"{main.LUMINA_CONTACT_CALL_TEXT} Te dejo este mensaje: ya voy."
+    assert payload["text"] == f"{main.LUMINA_CALL_INTRO} {body} Repito: {body}"
+
+
+def test_robot_call_contacto_con_mensaje_fijo_lo_dice_en_vez_del_saludo(client, zavu):
+    response = client.post("/robot/call", json={"contact": "ivonne", "message": "ya llegué"})
+
+    assert response.status_code == 200
+    payload = _sent_payload(zavu)
+    assert payload["to"] == "+525511112222"
+    body = "Mario te manda saludos. Te dejo este mensaje: ya llegué."
+    assert payload["text"] == f"{main.LUMINA_CALL_INTRO} {body} Repito: {body}"
+
+
+def test_robot_call_contacto_desconocido_responde_404_y_no_llama(client, zavu):
+    response = client.post("/robot/call", json={"contact": "tío"})
+
+    assert response.status_code == 404
+    zavu.assert_not_called()
+
+
+def test_robot_call_ignora_numeros_invalidos_en_la_agenda(client, zavu):
+    response = client.post("/robot/call", json={"contact": "invalido"})
+
+    assert response.status_code == 404
+    zavu.assert_not_called()
+
+
+def test_robot_call_sin_contacto_llama_a_LUMINA_CALL_TO(client, zavu):
+    response = client.post("/robot/call")
+
+    assert response.status_code == 200
+    assert _sent_payload(zavu)["to"] == "+525500000000"
+
+
+def test_robot_call_limita_las_llamadas_seguidas(client, zavu):
+    for _ in range(main.CALL_LIMIT):
+        assert client.post("/robot/call", json={"contact": "Mamá"}).status_code == 200
+
+    response = client.post("/robot/call", json={"contact": "Mamá"})
+
+    assert response.status_code == 429
+    assert zavu.call_count == main.CALL_LIMIT
+
+
+def test_robot_call_status_devuelve_el_estado_de_zavu(client, zavu):
+    zavu.return_value.__enter__.return_value.read.return_value = json.dumps(
+        {"message": {"id": "msg_1", "status": "failed", "errorCode": "timeout"}}
+    ).encode("utf-8")
+
+    response = client.get("/robot/call/msg_1234567")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "failed", "errorCode": "timeout"}
+    assert zavu.call_args.args[0].full_url.endswith("/v1/messages/msg_1234567")
+
+
+def test_robot_call_status_rechaza_identificadores_raros(client, zavu):
+    response = client.get("/robot/call/..%2Fsenders")
+
+    assert response.status_code in (404, 422)
+    zavu.assert_not_called()
+
+
+def test_robot_contacts_devuelve_solo_nombres_validos_sin_numeros(client, zavu):
+    response = client.get("/robot/contacts")
+
+    assert response.status_code == 200
+    assert response.json() == {"names": ["Ivonne", "Mamá"]}
+    assert "+52" not in response.text
+
+
+def test_dataset_vacio_y_alta_de_pieza(client, tmp_path, monkeypatch):
+    monkeypatch.setattr(dataset_store, "parts_root", lambda: tmp_path)
+    monkeypatch.setattr(dataset_store, "default_weights_file", lambda: tmp_path / "missing.pt")
+    monkeypatch.delenv("YOLO_WEIGHTS", raising=False)
+
+    empty = client.get("/dataset")
+    assert empty.status_code == 200
+    assert empty.json()["totals"] == {"pieces": 0, "images": 0, "labeled": 0, "unlabeled": 0}
+    assert empty.json()["model"]["active"] == "yolov8n.pt"
+
+    created = client.post("/dataset/classes", json={"name": "bracket_a"})
+    assert created.status_code == 200
+    assert created.json()["classes"][0]["name"] == "bracket_a"
+    assert created.json()["classes"][0]["total"] == 0
+
+    duplicate = client.post("/dataset/classes", json={"name": "bracket_a"})
+    assert duplicate.status_code == 409
+
+    invalid = client.post("/dataset/classes", json={"name": "Bracket A"})
+    assert invalid.status_code == 400
+
+
+def test_laboratorio_sigue_pidiendo_la_celda(client, monkeypatch):
+    monkeypatch.setenv("AETHER_PUBLIC_MODE", "auto")
+    response = client.post("/line/cell/run", json={"on": False})
+    assert response.status_code == 401
+    assert "camera=(self)" in response.headers["permissions-policy"]
+
+
+def test_dominio_publico_cierra_camara_y_piston(client, monkeypatch):
+    monkeypatch.setenv("AETHER_PUBLIC_MODE", "auto")
+    response = client.get("/perception/stream", headers={"Host": "aethermx.online"})
+    assert response.status_code == 403
+    assert response.json()["detail"] == "No disponible"
+    piston = client.post(
+        "/line/cell/run",
+        json={"on": True},
+        headers={"Host": "www.aethermx.online"},
+    )
+    assert piston.status_code == 403
+    inventory = client.get("/inventory", headers={"Host": "aethermx.online"})
+    assert inventory.status_code == 200
+    assert inventory.json() == []
+
+
+def test_archivos_ocultos_responden_404(client):
+    assert client.get("/.env").status_code == 404
+    assert client.get("/.git/config").status_code == 404
+
+
+def test_forzar_publico_por_entorno(client, monkeypatch):
+    monkeypatch.setenv("AETHER_PUBLIC_MODE", "public")
+    assert client.get("/line/vision/stream").status_code == 403
+    monkeypatch.setenv("AETHER_PUBLIC_MODE", "local")
+    assert client.post("/line/cell/run", json={"on": False}).status_code == 401

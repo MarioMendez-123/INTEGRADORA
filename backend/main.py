@@ -13,6 +13,8 @@ import re
 import subprocess
 import sys
 import threading
+import time
+import unicodedata
 import urllib.error
 import urllib.request
 from collections import deque
@@ -20,18 +22,39 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import Cookie, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import JSONResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import cell_hmi
+from cell_line import celda
 from camera_publisher import CameraPublisher
+from dataset_store import (
+    CONFIANZA_MINIMA,
+    CORTE_INTERNO,
+    DuplicateSample,
+    add_class,
+    clasificar_pieza,
+    pesos_entorno,
+    pesos_piezas,
+    read_class_names,
+    save_sample,
+    snapshot,
+)
 from db.database import SessionLocal, init_db
 from db.models import DeclaredEntry, DeclaredEntryHistory
 from inventory_refresh import InventoryRefreshLoop
 from logging_config import setup_logging
 
 DASHBOARD_DIR = Path(__file__).resolve().parent.parent / "dashboard"
+
+from dotenv import load_dotenv  # noqa: E402
+
+load_dotenv(Path(__file__).resolve().parent / ".env")  # backend/.env (gitignored)
+
+from lumina_desktop import auth_url, essay_mark_ready, essay_status, handle_desktop, start_callback_server, spotify_status  # noqa: E402
 
 # Traba simple contra clics accidentales en PATCH /inventory/{identifier}/retire
 # — NO es un sistema de autenticación/autorización real: no hay usuarios, ni
@@ -51,11 +74,23 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    try:
+        start_callback_server()
+    except Exception:
+        logger.exception("No pude abrir el callback de Spotify.")
     logger.info("Servidor backend iniciado.")
     yield
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(Exception)
+async def _unhandled(request, exc: Exception):
+    if isinstance(exc, HTTPException):
+        return await http_exception_handler(request, exc)
+    logger.exception("Error no controlado")
+    return JSONResponse(status_code=500, content={"detail": "Error interno"})
 
 
 @app.get("/health")
@@ -227,16 +262,12 @@ def get_inventory_history():
 
 PERCEPTION_CAMERA_INDEX = int(os.environ.get("PERCEPTION_CAMERA_INDEX", "0"))
 LINE_VISION_CAMERA_INDEX = int(os.environ.get("LINE_VISION_CAMERA_INDEX", "0"))
-YOLO_MODEL_NAME = "yolov8n.pt"
 
-# Modelo cargado una sola vez, perezosamente (solo cuando algún publicador
-# arranca por primera vez) — nunca al arrancar el servidor, para no pagar el
-# costo de cargar YOLO en un backend que a lo mejor nadie usa para demo.
-# Compartido entre los dos publicadores: no tiene sentido cargar el mismo
-# modelo dos veces. _yolo_model_lock evita una carrera si Percepción y
-# Visión de línea arrancan por primera vez casi al mismo tiempo, cada una
-# en el hilo de su propia petición HTTP.
+# Dos modelos, cada uno cargado una sola vez y solo cuando una cámara arranca.
+# El del entorno (yolov8n) sigue nombrando persona, silla y lo demás.
+# parts.pt solo dice si eso es una pieza registrada. No se sustituyen.
 _yolo_model = None
+_parts_model = None
 _yolo_model_lock = threading.Lock()
 
 
@@ -276,16 +307,33 @@ def _record_recent_detection(observation: dict) -> None:
 _perception_observation_sinks.append(_record_recent_detection)
 
 
+def _load_yolo(weights: str):
+    from ultralytics import YOLO
+
+    model = YOLO(weights)
+    logger.info("Modelo YOLO '%s' cargado para el modo demo.", weights)
+    return model
+
+
 def _get_yolo_model():
+    """Detector del entorno. No usa parts.pt."""
     global _yolo_model
     if _yolo_model is None:
         with _yolo_model_lock:
-            if _yolo_model is None:  # doble check: otro hilo pudo ganar la carrera
-                from ultralytics import YOLO
-
-                _yolo_model = YOLO(YOLO_MODEL_NAME)
-                logger.info("Modelo YOLO '%s' cargado para el modo demo.", YOLO_MODEL_NAME)
+            if _yolo_model is None:
+                _yolo_model = _load_yolo(pesos_entorno())
     return _yolo_model
+
+
+def _get_parts_model():
+    """None hasta que exista parts.pt. False en caché significa que se buscó y no está."""
+    global _parts_model
+    if _parts_model is None:
+        with _yolo_model_lock:
+            if _parts_model is None:
+                weights = pesos_piezas()
+                _parts_model = False if weights is None else _load_yolo(weights)
+    return _parts_model or None
 
 
 def _make_perception_processor():
@@ -300,7 +348,9 @@ def _make_perception_processor():
     debe importar de edge/, ver el comentario grande de arriba) y la manda
     a quien esté escuchando vía _notify_perception_observation_sinks — hoy
     solo el auto-refresh de inventario (Decisión 9), sin costo si nadie
-    está suscrito."""
+    está suscrito. El modelo es el del entorno, no parts.pt, para que el
+    nombre de clase siga disponible cuando se agregue la detección de
+    obstáculos."""
     import cv2
     from pyzbar.pyzbar import decode
 
@@ -359,29 +409,62 @@ def _make_perception_processor():
     return process
 
 
-def _make_line_vision_processor():
-    """Arma la confirmación binaria de Visión de línea una sola vez — mucho
-    más simple que Percepción: no lee código de barras ni ArUco, solo dice
-    si hay o no algún objeto detectado en el frame ("PIEZA DETECTADA" /
-    "SIN PIEZA").
-
-    Esto es solo detección de presencia para la demo del dashboard, NO el
-    criterio real de PASS/FAIL de la ADR 0010 (sub-decisión 10c) — ese
-    criterio todavía no está definido ni implementado. Cuando exista, el
-    punto de emisión del Evento A de contracts/line_handshake_protocol.md
-    (resultado PASS/FAIL hacia el actuador del pistón) va aquí dentro de
-    process(), no en otro módulo — no fabricar esa emisión antes de que el
-    criterio real de inspección esté decidido."""
+def _draw_deteccion(frame, box, nombre, color):
     import cv2
 
-    model = _get_yolo_model()
+    x1, y1, x2, y2 = (int(v) for v in box.xyxy[0])
+    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+    cv2.putText(frame, nombre, (x1, max(16, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+
+
+def _make_line_vision_processor():
+    """Letrero de la cámara de línea.
+
+    El modelo del entorno dibuja lo que hay alrededor, con su nombre.
+    parts.pt, si existe, decide aparte si eso es una pieza registrada:
+    PIEZA REAL (PASS), NO ES PIEZA REAL (FAIL) o SIN PIEZA. PASS es
+    "el nombre está en classes.txt", no una inspección de defecto.
+    Sin parts.pt no se llama pieza a una silla ni a una persona.
+
+    PASS y FAIL se entregan a la celda real. SIN PIEZA no pulsa nada.
+    """
+    import cv2
+
+    entorno = _get_yolo_model()
+    piezas = _get_parts_model()
+    clases = read_class_names()
 
     def process(frame):
-        results = model(frame, verbose=False)
-        piece_detected = len(results[0].boxes) > 0
-        label = "PIEZA DETECTADA" if piece_detected else "SIN PIEZA"
-        color = (0, 200, 0) if piece_detected else (0, 140, 255)  # BGR
-        cv2.putText(frame, label, (24, 48), cv2.FONT_HERSHEY_SIMPLEX, 1.1, color, 3)
+        entorno_results = entorno(frame, verbose=False)
+        for box in entorno_results[0].boxes:
+            _draw_deteccion(frame, box, entorno.names[int(box.cls[0])], (180, 180, 180))
+
+        if piezas is None:
+            hay_entorno = len(entorno_results[0].boxes) > 0
+            label = "ENTORNO" if hay_entorno else "SIN PIEZA"
+            color = (180, 180, 180) if hay_entorno else (0, 140, 255)
+            celda.ver("SIN_PIEZA")
+        else:
+            part_results = piezas(frame, verbose=False, conf=CORTE_INTERNO)
+            detecciones = []
+            for box in part_results[0].boxes:
+                nombre = piezas.names[int(box.cls[0])]
+                confianza = float(box.conf[0])
+                detecciones.append((nombre, confianza))
+                if nombre in clases and confianza >= CONFIANZA_MINIMA:
+                    _draw_deteccion(frame, box, nombre, (0, 200, 0))
+            decision = clasificar_pieza(detecciones, clases, peso_es_parts=True)
+            if decision["respuesta"] == "SIN PIEZA":
+                label, color = "SIN PIEZA", (0, 140, 255)
+                celda.ver("SIN_PIEZA")
+            elif decision["resultado"] == "PASS":
+                label = f"PIEZA REAL · {decision['nombre']} · PASS"
+                color = (0, 200, 0)
+                celda.ver("PASS")
+            else:
+                label, color = "NO ES PIEZA REAL · FAIL", (0, 0, 220)
+                celda.ver("FAIL")
+        cv2.putText(frame, label, (24, 48), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 3)
 
     return process
 
@@ -601,6 +684,81 @@ def line_vision_stream():
 
 
 # ============================================================================
+# GET /line/cell/status — piezas reales de la cámara de línea.
+# Los pulsos salen en cell_line.py. Sin GPIO la pieza se anota y no se finge
+# que el pistón o la banda se movieron.
+# ============================================================================
+
+
+class CellRunBody(BaseModel):
+    on: bool
+
+
+class CellLoginBody(BaseModel):
+    user: str
+    password: str
+
+
+def _cell_payload() -> dict:
+    snap = celda.snapshot()
+    snap["alarms"] = cell_hmi.observe(snap)
+    return snap
+
+
+def _cell_who(token: str | None) -> dict:
+    who = cell_hmi.read_token(token)
+    if not who:
+        raise HTTPException(status_code=401, detail="hace falta iniciar sesión en la celda")
+    return who
+
+
+@app.get("/line/cell/status")
+def line_cell_status():
+    return _cell_payload()
+
+
+@app.post("/line/cell/session")
+def line_cell_login(body: CellLoginBody, response: Response):
+    token = cell_hmi.login(body.user, body.password)
+    if not token:
+        raise HTTPException(status_code=401, detail="cuenta rechazada")
+    response.set_cookie("celda_session", token, httponly=True, samesite="lax", path="/")
+    return cell_hmi.read_token(token)
+
+
+@app.get("/line/cell/session")
+def line_cell_session(celda_session: str | None = Cookie(default=None)):
+    return _cell_who(celda_session)
+
+
+@app.delete("/line/cell/session")
+def line_cell_logout(response: Response):
+    response.delete_cookie("celda_session", path="/")
+    return {"ok": True}
+
+
+@app.post("/line/cell/run")
+def line_cell_run(body: CellRunBody, celda_session: str | None = Cookie(default=None)):
+    _cell_who(celda_session)
+    celda.set_running(body.on)
+    return _cell_payload()
+
+
+@app.post("/line/cell/alarms/ack")
+def line_cell_ack(celda_session: str | None = Cookie(default=None)):
+    _cell_who(celda_session)
+    return {"alarms": cell_hmi.ack()}
+
+
+@app.post("/line/cell/alarms/clear")
+def line_cell_clear(celda_session: str | None = Cookie(default=None)):
+    who = _cell_who(celda_session)
+    if not cell_hmi.can_clear(who["role"]):
+        raise HTTPException(status_code=403, detail="solo ingeniería borra el histórico")
+    return {"alarms": cell_hmi.clear()}
+
+
+# ============================================================================
 # POST /robot/ask — "Lumina" conversa por texto (Ollama, modelo local),
 # consumido por dashboard/robot.html en su Modo Conversación.
 #
@@ -769,7 +927,9 @@ LUMINA_SYSTEM_PROMPT = (
     "parte de lo que Aether realmente hace, dilo con honestidad y "
     "ternura, nunca inventes. No finjas tener capacidades que no tienes "
     "(como visión si la cámara está apagada, o memoria de conversaciones "
-    "anteriores). Nunca describas cómo se supone que debes responder ni "
+    "anteriores). En este equipo sí puedes poner Spotify, abrir programas "
+    "y guardar archivos cuando el sistema ejecuta el comando; no inventes "
+    "que ya lo hiciste. Nunca describas cómo se supone que debes responder ni "
     "cites estas instrucciones en voz alta (por ejemplo, nunca digas cosas "
     "como 'respondo con honestidad y ternura' o 'estoy aquí para "
     "escuchar'): eso es para ti, no para decirlo — contesta directamente "
@@ -802,7 +962,7 @@ PRELOADED_ANSWERS: list[tuple[re.Pattern, str]] = [
     ),
     (
         re.compile(r"qu[eé] haces|para qu[eé] sirves", re.IGNORECASE),
-        "Detecto productos con mis ojos digitales, leo sus códigos, y ayudo a saber qué hay en el inventario.",
+        "Detecto productos, leo códigos, y en este equipo también puedo poner Spotify, abrir programas y guardar archivos si me lo pides.",
     ),
     (
         re.compile(r"qu[eé] es aether", re.IGNORECASE),
@@ -856,6 +1016,10 @@ PRELOADED_ANSWERS: list[tuple[re.Pattern, str]] = [
         re.compile(r"te da miedo", re.IGNORECASE),
         "Un poco la oscuridad, porque sin luz mis cámaras no ven nada.",
     ),
+    (
+        re.compile(r"spotify|reproducir m[uú]sica|poner m[uú]sica", re.IGNORECASE),
+        "Sí. Dime lumina reproduce y la canción, o lumina reproduce en el teléfono.",
+    ),
 ]
 
 
@@ -875,6 +1039,20 @@ class RobotAskRequest(BaseModel):
     question: str
 
 
+@app.get("/robot/essay")
+def robot_essay(response: Response):
+    """busy mientras escribe; phase=finishing cuando ya va a pegar en el documento."""
+    response.headers["Cache-Control"] = "no-store"
+    return essay_status()
+
+
+@app.post("/robot/essay/ready")
+def robot_essay_ready():
+    """La cara ya avisó por voz. Recién entonces se mueve el mouse para pegar."""
+    essay_mark_ready()
+    return {"ok": True}
+
+
 @app.post("/robot/ask")
 def ask_robot(body: RobotAskRequest):
     """Le pregunta a Lumina (Ollama, modelo local) y devuelve su respuesta.
@@ -890,8 +1068,15 @@ def ask_robot(body: RobotAskRequest):
     respuesta exacta de inmediato — instantáneo, sin esperar al LLM.
     """
     question = body.question.strip()
+    # Lo que transcribió el reconocedor de voz: sirve para depurar comandos
+    # que no se reconocieron (ej. una llamada que terminó como pregunta).
+    logger.info("Lumina: pregunta recibida: %r", question)
     if not question:
         raise HTTPException(status_code=422, detail="question no puede estar vacío.")
+
+    desktop = handle_desktop(question)
+    if desktop is not None:
+        return desktop
 
     preloaded_answer = _match_preloaded_answer(question)
     if preloaded_answer is not None:
@@ -939,6 +1124,307 @@ def ask_robot(body: RobotAskRequest):
 
     return {"answer": answer}
 
+
+ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
+ELEVENLABS_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "")
+
+ZAVUDEV_API_KEY = os.environ.get("ZAVUDEV_API_KEY", "")
+LUMINA_CALL_TO = os.environ.get("LUMINA_CALL_TO", "")  # E.164, ej. +525512345678
+
+
+# Contactos para "Lumina, llama a <nombre>" — archivo local, fuera de git.
+# El backend SOLO marca números de esta lista (nunca un número que llegue por
+# la red): cualquiera en la misma red puede llamar a este endpoint.
+CONTACTS_FILE = Path(__file__).resolve().parent / "contactos.json"
+CALL_LIMIT = 3  # llamadas máximas por ventana
+CALL_WINDOW_S = 600
+_recent_calls: deque[float] = deque()
+LUMINA_SELF_CALL_TEXT = "este es un mensaje emitido para Dany, que chingue a su madre dany"
+LUMINA_CONTACT_CALL_TEXT = "Te llama Lumina, el robot del proyecto Aether."
+LUMINA_CALL_INTRO = "Hola, tienes un mensaje."
+
+
+def _call_text(body: str) -> str:
+    """Zavu lee el texto UNA vez, en cuanto contestan, sin opción de esperar ni
+    repetir: lo primero se pierde mientras la persona se acerca el teléfono (o
+    cae antes del tono del buzón). Por eso: relleno corto al inicio y el
+    mensaje dos veces."""
+    body = body.strip()
+    if not body.endswith((".", "!", "?")):
+        body += "."
+    return f"{LUMINA_CALL_INTRO} {body} Repito: {body}"
+
+
+def _contact_key(name: str) -> str:
+    """"Mamá", "mama", "  MAMÁ " → "mama"."""
+    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+    return " ".join(plain.lower().split())
+
+
+def _valid_contacts() -> dict[str, tuple[str, str]]:
+    """Nombre tal como está escrito → (número, mensaje fijo). En el archivo, el
+    valor es el número solo o {"numero": ..., "mensaje": ...}; el mensaje fijo
+    se dice en cada llamada a ese contacto. Solo números E.164 válidos
+    (+ y 8 a 15 dígitos)."""
+    if not CONTACTS_FILE.exists():
+        return {}
+    contacts = {}
+    for name, value in json.loads(CONTACTS_FILE.read_text(encoding="utf-8")).items():
+        entry = {"numero": value} if isinstance(value, str) else value
+        if not isinstance(entry, dict):
+            continue
+        number = str(entry.get("numero", "")).strip()
+        if re.fullmatch(r"\+\d{8,15}", number):
+            contacts[name] = (number, " ".join(str(entry.get("mensaje", "")).split())[:300])
+    return contacts
+
+
+def _load_contacts() -> dict[str, tuple[str, str]]:
+    return {_contact_key(k): v for k, v in _valid_contacts().items()}
+
+
+@app.get("/robot/contacts")
+def robot_contacts():
+    """Solo los NOMBRES de la agenda (nunca los números): robot.js los usa
+    para reconocer "Lumina, llama a <nombre>" aunque el reconocedor de voz
+    transcriba la frase de forma rara ("llamada daniela", "llama daniela")."""
+    return {"names": sorted(_valid_contacts())}
+
+
+class RobotCallRequest(BaseModel):
+    contact: str | None = None
+    message: str | None = None
+
+
+@app.post("/robot/call")
+def robot_call(body: RobotCallRequest | None = None):
+    """"Lumina, llámame" (sin cuerpo) → LUMINA_CALL_TO. "Lumina, llama a
+    <nombre> [y dile que …]" → {contact, message} → número de
+    backend/contactos.json. Llamada de voz real vía Zavu (/v1/messages con
+    channel="voice"). 404 si el contacto no existe, 429 si ya hubo
+    CALL_LIMIT llamadas en CALL_WINDOW_S, 503 si falta configuración o Zavu
+    falla — nunca se finge una llamada que no salió."""
+    contact = (body.contact or "").strip() if body else ""
+    if contact:
+        to, fixed = _load_contacts().get(_contact_key(contact), ("", ""))
+        if not to:
+            raise HTTPException(status_code=404, detail=f"No tengo a «{contact}» en backend/contactos.json.")
+        message = " ".join((body.message or "").split())[:200]
+        # El mensaje fijo del contacto sustituye al saludo de Lumina.
+        text = _call_text((fixed or LUMINA_CONTACT_CALL_TEXT) + (f" Te dejo este mensaje: {message}." if message else ""))
+    else:
+        to = LUMINA_CALL_TO
+        text = _call_text(LUMINA_SELF_CALL_TEXT)
+    if not ZAVUDEV_API_KEY or not to:
+        raise HTTPException(
+            status_code=503,
+            detail="Zavu no está configurado (falta ZAVUDEV_API_KEY o LUMINA_CALL_TO en backend/.env).",
+        )
+    now = time.monotonic()
+    while _recent_calls and now - _recent_calls[0] > CALL_WINDOW_S:
+        _recent_calls.popleft()
+    if len(_recent_calls) >= CALL_LIMIT:
+        raise HTTPException(status_code=429, detail="Demasiadas llamadas seguidas; espera unos minutos.")
+    request = urllib.request.Request(
+        "https://api.zavu.dev/v1/messages",
+        data=json.dumps({"to": to, "channel": "voice", "text": text, "voiceLanguage": "es-ES"}).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {ZAVUDEV_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError) as exc:
+        logger.warning("Lumina: Zavu falló (%s).", exc)
+        raise HTTPException(status_code=503, detail="Zavu no respondió.") from exc
+    _recent_calls.append(now)
+    return {"status": "calling", "contact": contact or None, "messageId": data.get("message", {}).get("id")}
+
+
+@app.get("/robot/call/{message_id}")
+def robot_call_status(message_id: str):
+    """Estado real de una llamada de /robot/call, tal como lo reporta Zavu
+    (robot.js lo consulta para la pantalla de llamada). Un mensaje de voz
+    solo informa el resultado: queued/sending/sent mientras se marca y suena,
+    delivered cuando contestaron y escucharon el mensaje, failed (errorCode:
+    timeout = no contestó) si no. No hay un evento de "contestó" intermedio."""
+    if not ZAVUDEV_API_KEY:
+        raise HTTPException(status_code=503, detail="Zavu no está configurado.")
+    if not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", message_id):
+        raise HTTPException(status_code=422, detail="Identificador de llamada inválido.")
+    request = urllib.request.Request(
+        f"https://api.zavu.dev/v1/messages/{message_id}",
+        headers={"Authorization": f"Bearer {ZAVUDEV_API_KEY}"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError) as exc:
+        logger.warning("Lumina: no se pudo consultar la llamada en Zavu (%s).", exc)
+        raise HTTPException(status_code=503, detail="Zavu no respondió.") from exc
+    message = data.get("message", data)
+    return {"status": message.get("status"), "errorCode": message.get("errorCode")}
+
+
+GOOGLE_CALENDAR_CLIENT_ID = os.environ.get("GOOGLE_CALENDAR_CLIENT_ID", "")
+GOOGLE_CALENDAR_CLIENT_SECRET = os.environ.get("GOOGLE_CALENDAR_CLIENT_SECRET", "")
+
+
+@app.get("/robot/calendar")
+def robot_calendar():
+    """Próximos eventos de Google Calendar para el botón «Abrir Google
+    Calendar» / la agenda de Lumina (DISENO.md sección 7.2). Sin
+    credenciales reales (Google Cloud OAuth client ID/secret) esto no
+    puede autenticarse de verdad — 503 explícito en vez de inventar
+    eventos falsos (Principio 4.5, aether_context_docs.md). Cuando se
+    configuren GOOGLE_CALENDAR_CLIENT_ID/SECRET en backend/.env, aquí va
+    el intercambio OAuth (authorization code o refresh token guardado) y
+    la llamada real a la API de Calendar."""
+    if not GOOGLE_CALENDAR_CLIENT_ID or not GOOGLE_CALENDAR_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=503,
+            detail="Google Calendar no está conectado todavía (faltan credenciales OAuth en backend/.env).",
+        )
+    raise HTTPException(status_code=501, detail="Flujo OAuth de Google Calendar pendiente de implementar.")
+
+
+class RobotTtsRequest(BaseModel):
+    text: str
+
+
+@app.post("/robot/tts")
+def robot_tts(body: RobotTtsRequest):
+    """Sintetiza `text` con ElevenLabs y devuelve MP3. La API key vive solo
+    en backend/.env; si falta o ElevenLabs falla responde 503 y el frontend
+    cae a speechSynthesis."""
+    text = body.text.strip()
+    if not text:
+        raise HTTPException(status_code=422, detail="text no puede estar vacío.")
+    if not ELEVENLABS_API_KEY or not ELEVENLABS_VOICE_ID:
+        raise HTTPException(status_code=503, detail="ElevenLabs no está configurado.")
+    request = urllib.request.Request(
+        f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}",
+        data=json.dumps({"text": text, "model_id": "eleven_multilingual_v2"}).encode("utf-8"),
+        headers={
+            "xi-api-key": ELEVENLABS_API_KEY,
+            "Content-Type": "application/json",
+            "Accept": "audio/mpeg",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            audio = response.read()
+    except (urllib.error.URLError, TimeoutError) as exc:
+        logger.warning("Lumina: ElevenLabs falló (%s).", exc)
+        raise HTTPException(status_code=503, detail="ElevenLabs no respondió.") from exc
+    return Response(content=audio, media_type="audio/mpeg")
+
+
+_show_clients: set[WebSocket] = set()
+
+
+@app.websocket("/show/ws")
+async def show_ws(ws: WebSocket):
+    """Relevo de eventos entre Lumina (dashboard/robot.js) y el video de la
+    presentación (aether-video/player), que corren en equipos distintos.
+    Reenvía cada mensaje de texto a todos los DEMÁS clientes conectados; no
+    interpreta ni guarda nada. Sin autenticación, igual que el resto de este
+    backend: cualquiera en la misma red puede conectarse."""
+    await ws.accept()
+    _show_clients.add(ws)
+    try:
+        while True:
+            message = await ws.receive_text()
+            for other in list(_show_clients):
+                if other is ws:
+                    continue
+                try:
+                    await other.send_text(message)
+                except Exception:
+                    _show_clients.discard(other)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        _show_clients.discard(ws)
+
+
+class DatasetClassRequest(BaseModel):
+    name: str
+
+
+class DatasetBox(BaseModel):
+    name: str
+    x: float
+    y: float
+    w: float
+    h: float
+
+
+class DatasetSampleRequest(BaseModel):
+    image_base64: str
+    boxes: list[DatasetBox]
+
+
+@app.get("/dataset")
+def get_dataset():
+    """Conteo del dataset de piezas: clases, fotos, etiquetas y modelo activo."""
+    return snapshot()
+
+
+@app.post("/dataset/classes")
+def post_dataset_class(body: DatasetClassRequest):
+    """Registra un nombre de pieza en classes.txt."""
+    try:
+        return add_class(body.name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except FileExistsError:
+        raise HTTPException(status_code=409, detail="esa pieza ya está en el dataset") from None
+
+
+@app.post("/dataset/samples")
+def post_dataset_sample(body: DatasetSampleRequest):
+    """Guarda una foto con sus cajas en la bandeja del dataset."""
+    boxes = [
+        {"name": box.name, "x": box.x, "y": box.y, "w": box.w, "h": box.h} for box in body.boxes
+    ]
+    try:
+        return save_sample(body.image_base64, boxes)
+    except DuplicateSample as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/robot/spotify/status")
+def robot_spotify_status():
+    """Estado de la sesión de Spotify (sin secretos)."""
+    return spotify_status()
+
+
+@app.get("/spotify/login")
+@app.get("/robot/spotify/login")
+def robot_spotify_login():
+    """Manda al login de Spotify. El token vuelve a :8888/callback."""
+    start_callback_server()
+    return RedirectResponse(auth_url())
+
+
+@app.middleware("http")
+async def _celda_no_cache(request, call_next):
+    response = await call_next(request)
+    if request.url.path in ("/celda.html", "/celda.js"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+from public_guard import PublicGuard
+
+app.add_middleware(PublicGuard)
 
 # Montado al final, después de las rutas de arriba: FastAPI/Starlette
 # resuelve rutas en el orden en que se declaran, así que /health,
