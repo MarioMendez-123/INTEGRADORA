@@ -2286,16 +2286,18 @@ function frame() {
     moving = true;
   }
   if (revealPlan) { stepReveal(dt); moving = true; }
-  if (EMBED && Math.abs(embedP - drawnEmbedP) > 0.0004) {
+  const embedDirty = EMBED && Math.abs(embedP - drawnEmbedP) > 0.0004;
+  if (embedDirty) {
     applyEmbed(embedP);
-    // Armado llena el cuadro; al separarse la cámara se aleja lo justo para que las piezas no se salgan.
-    flyTo({ t: [0.02, 0.5, 0], d: [0.85, 0.32, 1], r: 0.78 + 0.33 * embedP }, true);
-    drawnEmbedP = embedP;
     moving = true;
   }
   let step = { i: Math.max(ui.step, 0), t: 0 };
   const poseChanged = moving || partsDirty;
   if (poseChanged) step = applyAt(ui.T, dt);
+  if (embedDirty) {
+    frameEmbed(embedP);
+    drawnEmbedP = embedP;
+  }
   if (revealPlan) placeRevealNames();
   if (camTween.active) {
     camTween.t += dt / camTween.dur; const k = ease(clamp01(camTween.t));
@@ -2304,12 +2306,12 @@ function frame() {
     moving = true;
   }
   let damping = false;
+  camSnap.copy(camera.position);
+  tgtSnap.copy(controls.target);
+  applyingControls = true;
+  controls.update();
+  applyingControls = false;
   if (controls.enabled) {
-    camSnap.copy(camera.position);
-    tgtSnap.copy(controls.target);
-    applyingControls = true;
-    controls.update();
-    applyingControls = false;
     damping = camera.position.distanceToSquared(camSnap) > 1e-10 || controls.target.distanceToSquared(tgtSnap) > 1e-10;
   }
   if (poseChanged || moving || damping) {
@@ -2360,6 +2362,23 @@ const OPEN = new URLSearchParams(location.search);
 let embedP = 0;
 // Mismas ventanas que explode.js (portada). No cambia el tipo de scroll: solo
 // cuánto se separa cada grupo del carrito según el progreso que manda la portada.
+const embedBox = new THREE.Box3();
+const embedSphere = new THREE.Sphere();
+const embedCenter = new THREE.Vector3();
+function frameEmbed(p) {
+  cartRoot.updateWorldMatrix(true, true);
+  embedBox.setFromObject(cartRoot);
+  if (embedBox.isEmpty()) return;
+  embedBox.getCenter(embedCenter);
+  embedBox.getBoundingSphere(embedSphere);
+  // El radio fijo 0.78 era menor que el carrito y lo cortaba a la mitad.
+  const pad = 0.78 + 0.1 * p;
+  flyTo({
+    t: [embedCenter.x, embedCenter.y, embedCenter.z],
+    d: [0.85, 0.32, 1],
+    r: Math.max(0.2, embedSphere.radius * pad),
+  }, true);
+}
 function applyEmbed(p) {
   const s = (a, b) => { const t = Math.min(Math.max((p - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
   const cam = Math.max(s(0.09, 0.21), s(0.25, 0.35));
@@ -2592,7 +2611,6 @@ if (EMBED) {
   floor.visible = false;
   grid.visible = false;
   controls.enabled = false;
-  flyTo({ t: [0.02, 0.5, 0], d: [0.85, 0.32, 1], r: 0.78 }, true);
   addEventListener("message", (ev) => {
     if (ev.origin !== location.origin) return;
     const d = ev.data;
