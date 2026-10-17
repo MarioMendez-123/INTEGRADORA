@@ -11,9 +11,10 @@
  * variable. Para previsualizar el modo público en local, abre ?public=1.
  * Esa query no puede apagar el modo público en el dominio real.
  *
- * Correo de contacto (mailto de Alianzas). Cámbialo aquí.
- * El botón abre el correo del visitante dirigido a esta dirección.
- * No reserva un horario: Mario recibe el mensaje si el buzón reenvía.
+ * Correo de contacto de Alianzas. Cámbialo aquí.
+ * El botón abre Gmail en el navegador, con el mensaje ya dirigido a Mario.
+ * No usa mailto: Windows muestra un cuadro para elegir app y no llega a Gmail.
+ * No reserva un horario: Mario recibe el mensaje cuando la persona lo envía.
  */
 (function () {
   const CONTACT = "mario@aethermx.online";
@@ -27,10 +28,20 @@
   window.AETHER_CONTACT = CONTACT;
   document.documentElement.classList.toggle("is-public", isPublic);
 
+  function gmailCompose() {
+    return (
+      "https://mail.google.com/mail/?view=cm&fs=1&to=" +
+      encodeURIComponent(CONTACT) +
+      "&su=" +
+      encodeURIComponent("Demo de Aether")
+    );
+  }
+
   function applyContact() {
-    const mailto = "mailto:" + CONTACT;
     document.querySelectorAll("[data-contact]").forEach((el) => {
-      el.href = mailto;
+      el.href = gmailCompose();
+      el.target = "_blank";
+      el.rel = "noopener noreferrer";
     });
   }
 
