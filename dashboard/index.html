@@ -68,20 +68,10 @@
       </div>
     </main>
 
-    <div class="scroll-cue" aria-hidden="true">
-      <span>DESPLAZAR</span>
-      <div class="scroll-line"></div>
-    </div>
-
     <section class="page-section" id="simulacion" aria-labelledby="sim-heading">
       <div class="section-shell">
         <span class="section-kicker" data-reveal>Simulación · funcionamiento</span>
         <h2 class="section-title" data-reveal="title" id="sim-heading">De la banda a la mesa</h2>
-        <p class="section-note" data-reveal>
-          El carrito se acopla a la banda, carga los seis fixtures, viaja a la
-          estación y los descarga. Es la simulación completa del funcionamiento,
-          a 2×. No es una toma del carrito real.
-        </p>
         <video class="sim-video" data-reveal controls autoplay muted loop playsinline preload="metadata">
           <source src="/assets/funcionamiento.mp4" type="video/mp4" />
         </video>
@@ -279,7 +269,7 @@
             </div>
             <p class="module-desc">
               Detección YOLO + lectura de código de barras/QR sobre el flujo de
-              cámara (Decisión 1). <code>edge/perception/</code>.
+              cámara (Decisión 1).
             </p>
             <div class="module-status module-status--active">
               <span class="status-dot" aria-hidden="true"></span>Funcionando
@@ -298,7 +288,7 @@
             </div>
             <p class="module-desc">
               Separación Observations (crudo) vs. Declared Inventory (declarado)
-              (Decisión 5). <code>edge/inventory_engine/</code>.
+              (Decisión 5).
             </p>
             <div class="module-status module-status--active">
               <span class="status-dot" aria-hidden="true"></span>Funcionando
@@ -317,8 +307,7 @@
             </div>
             <p class="module-desc">
               API REST de solo lectura sobre Declared Inventory, más bitácora de
-              inspecciones (Decisión 7, Opción B). <code>backend/</code> +
-              <code>dashboard/</code>.
+              inspecciones (Decisión 7, Opción B).
             </p>
             <p class="module-live">
               Declared Inventory: <strong id="portada-stat-value" class="skeleton" data-inventory-stat>consultando…</strong>
@@ -503,9 +492,6 @@
       <div class="section-shell">
         <span class="section-kicker" data-reveal>Fase 0</span>
         <h2 class="section-title" data-reveal="title" id="arch-heading">Arquitectura</h2>
-        <p class="section-note" data-reveal>
-          8 decisiones cerradas, ADR completo en <code>docs/architecture/decisions/</code>.
-        </p>
 
         <div class="table-scroll">
           <table class="decision-table">
@@ -755,10 +741,6 @@
         <div class="cta-row" data-reveal>
           <a class="btn btn--primary" data-contact href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=mario%40aethermx.online&amp;su=Demo%20de%20Aether" target="_blank" rel="noopener noreferrer">Agenda una demo</a>
         </div>
-        <p class="section-note" data-reveal>
-          El botón abre Gmail con un mensaje para Mario. No aparta un horario.
-          El conteo de arriba sale de <code>GET /inventory</code>. Si el backend no responde, la página lo dice.
-        </p>
       </div>
     </section>
 
@@ -767,12 +749,6 @@
         <p>
           Proyecto integrador de ingeniería — equipo de 6 integrantes, Chihuahua,
           México. Ventana de desarrollo: ~4 meses, ~240 horas totales.
-        </p>
-        <p class="footer-note">
-          El conteo de Declared Inventory de arriba (M.03) viene de una llamada
-          en vivo a <code>GET /inventory</code> — ver
-          <code>dashboard/portada.js</code>. Ningún número en esta página está
-          escrito a mano.
         </p>
       </div>
     </footer>
