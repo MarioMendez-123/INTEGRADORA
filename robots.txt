@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Pantallas de laboratorio. En el dominio público no están publicadas.
+Disallow: /celda.html
+Disallow: /dataset.html
+Disallow: /inventory.html
+Disallow: /robot.html
+Disallow: /holo.html

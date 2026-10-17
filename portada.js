@@ -10,7 +10,7 @@
  */
 
 async function loadInventoryStat() {
-  const valueEl = document.getElementById("portada-stat-value");
+  const nodes = [...document.querySelectorAll("[data-inventory-stat]")];
   const format = (n) => (n === 1 ? "1 entrada activa" : `${n} entradas activas`);
   try {
     const response = await fetch("/inventory");
@@ -18,14 +18,18 @@ async function loadInventoryStat() {
       throw new Error(`/inventory respondió ${response.status}`);
     }
     const entries = await response.json();
-    valueEl.classList.remove("skeleton", "live-stat-value--error");
-    // Escrito directo, sin contador: este tile está varias pantallas abajo
-    // y la animación terminaría antes de que alguien llegue a verla.
-    valueEl.textContent = format(entries.length);
+    for (const valueEl of nodes) {
+      valueEl.classList.remove("skeleton", "live-stat-value--error");
+      // Escrito directo, sin contador: este tile está varias pantallas abajo
+      // y la animación terminaría antes de que alguien llegue a verla.
+      valueEl.textContent = format(entries.length);
+    }
   } catch (error) {
-    valueEl.classList.remove("skeleton");
-    valueEl.textContent = "No disponible — backend no responde";
-    valueEl.classList.add("live-stat-value--error");
+    for (const valueEl of nodes) {
+      valueEl.classList.remove("skeleton");
+      valueEl.textContent = "No disponible — backend no responde";
+      valueEl.classList.add("live-stat-value--error");
+    }
   }
 }
 
