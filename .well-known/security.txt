@@ -1,5 +1,6 @@
+# Reportes de vulnerabilidad: mario@aethermx.online
 Contact: mailto:mario@aethermx.online
-Expires: 2027-10-16T18:00:00.000Z
+Expires: 2027-10-17T00:00:00.000Z
 Preferred-Languages: es, en
 Canonical: https://aethermx.online/.well-known/security.txt
 Policy: https://aethermx.online/
