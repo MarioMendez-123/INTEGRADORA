@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AETHER · reproductor</title>
+<link rel="stylesheet" href="./fonts.css" />
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  body.panel { cursor: default; }
+  #root { height: 100%; }
+</style>
+<script>
+  // Fuentes en local (player/fonts): el escenario puede no tener internet.
+  window.AETHER_LOCAL_FONTS = true;
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script src="./dist/player.js"></script>
+</body>
+</html>

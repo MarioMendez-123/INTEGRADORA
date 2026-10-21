@@ -1,0 +1,5346 @@
+{
+ "generated": "2026-09-29T08:25:15.940Z",
+ "what": "Tiempos reales de Lumina (dashboard/robot.js) medidos en el navegador con performance.now(). Ver phase0/REPORT.md.",
+ "how_voice_is_generated": "speak(text) → POST /robot/tts (backend/main.py) → ElevenLabs text-to-speech (eleven_multilingual_v2, sin streaming, sin caché) → blob mp3 → new Audio(url).play(). Si el fetch o play() fallan → speechSynthesis del navegador (voz elegida por pickBestSpanishVoice). Cada frase se pide DESPUÉS de que termina la anterior + su pausa (sin prefetch). NO reproduce Lumina_guion_con_pausas.mp3.",
+ "events_exposed_by_robot_js": "Ninguno hacia afuera (sin CustomEvent/BroadcastChannel/WebSocket). Internos: audio.onplaying/onended (ElevenLabs), utterance.onstart/onend/onboundary (respaldo), console.log de cada transcripción y del guion.",
+ "measured_where": {
+  "machine": "AMD Ryzen 5 4500U, 4 GB RAM (3.4 GB usables)",
+  "os": "Windows 11 Home Single Language build 26200",
+  "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+  "chrome_version": "154.0.8037.58",
+  "mode": "Chrome real (no Chromium) vía playwright-core, headless, --mute-audio; backend local 127.0.0.1:8000; la limitación de red de DevTools solo afecta el tramo navegador↔backend, NO el tramo backend↔ElevenLabs (internet real de esta máquina).",
+  "internet": "Wi-Fi doméstico; a api.elevenlabs.io: DNS 11-79 ms, TCP 38-118 ms, TLS 83-201 ms, TTFB 141-274 ms (curl, 5 muestras, 2026-09-28)",
+  "stage_hardware_measured": false
+ },
+ "percentiles": "Interpolación lineal (tipo 7). n pequeño → p95 ≈ máximo; los 'pooled' juntan todas las frases de todas las corridas del perfil.",
+ "profiles": {
+  "3g": {
+   "runs": 1,
+   "engine": [
+    "ElevenLabs (/robot/tts)"
+   ],
+   "conditions": {
+    "latency": 2000,
+    "downloadThroughput": 50000,
+    "uploadThroughput": 50000
+   },
+   "command_to_first_audio": {
+    "script_start_to_first_audio_ms": {
+     "n": 1,
+     "min": 2508,
+     "median": 2508,
+     "p95": 2508,
+     "max": 2508
+    },
+    "hidden_button_click_to_first_audio_ms": {
+     "n": 1,
+     "min": 13472,
+     "median": 13472,
+     "p95": 13472,
+     "max": 13472
+    }
+   },
+   "pooled": {
+    "latency_req_to_audio_ms": {
+     "n": 32,
+     "min": 2421,
+     "median": 2870,
+     "p95": 4222,
+     "max": 7302
+    },
+    "tts_response_headers_ms": {
+     "n": 32,
+     "min": 2055,
+     "median": 2086,
+     "p95": 3120,
+     "max": 5413
+    },
+    "gap_minus_scripted_pause_ms": {
+     "n": 30,
+     "min": 2441,
+     "median": 2895,
+     "p95": 4247,
+     "max": 7423
+    },
+    "rebuffer_events_total": 0
+   },
+   "total": {
+    "note": "click_to_last / first_audio_to_last incluyen el bloque del expositor (temporizador de 70.3 s en el flujo viejo) — para el video usar los dos tramos separados.",
+    "click_to_last_line_end_ms": {
+     "n": 1,
+     "min": 281080,
+     "median": 281080,
+     "p95": 281080,
+     "max": 281080
+    },
+    "first_audio_to_last_line_end_ms": {
+     "n": 1,
+     "min": 267608,
+     "median": 267608,
+     "p95": 267608,
+     "max": 267608
+    },
+    "first_audio_to_question_end_ms": {
+     "n": 1,
+     "min": 178156,
+     "median": 178156,
+     "p95": 178156,
+     "max": 178156
+    },
+    "line30_start_to_last_end_ms": {
+     "n": 1,
+     "min": 15341,
+     "median": 15341,
+     "p95": 15341,
+     "max": 15341
+    }
+   },
+   "interaction": {
+    "lumina_dispatch_to_digame_audio_ms": null,
+    "note": "Desde que robot.js despacha «lumina» (después del debounce de 600 ms del reconocimiento) hasta que suena «Dígame, señor.». Falta sumar la latencia del reconocimiento (phase0/recognition-test.html)."
+   },
+   "per_line": [
+    {
+     "i": 1,
+     "text": "Buenas tardes.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2508,
+      "median": 2508,
+      "p95": 2508,
+      "max": 2508
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1011,
+      "median": 1011,
+      "p95": 1011,
+      "max": 1011
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 2,
+     "text": "Mi nombre es Aether.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2621,
+      "median": 2621,
+      "p95": 2621,
+      "max": 2621
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1595,
+      "median": 1595,
+      "p95": 1595,
+      "max": 1595
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2623,
+      "median": 2623,
+      "p95": 2623,
+      "max": 2623
+     }
+    },
+    {
+     "i": 3,
+     "text": "Soy un sistema autónomo de inventario.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 3274,
+      "median": 3274,
+      "p95": 3274,
+      "max": 3274
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2189,
+      "median": 2189,
+      "p95": 2189,
+      "max": 2189
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3286,
+      "median": 3286,
+      "p95": 3286,
+      "max": 3286
+     }
+    },
+    {
+     "i": 4,
+     "text": "Yo observo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 3034,
+      "median": 3034,
+      "p95": 3034,
+      "max": 3034
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1029,
+      "median": 1029,
+      "p95": 1029,
+      "max": 1029
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3038,
+      "median": 3038,
+      "p95": 3038,
+      "max": 3038
+     }
+    },
+    {
+     "i": 5,
+     "text": "Eso es lo primero que hago.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2811,
+      "median": 2811,
+      "p95": 2811,
+      "max": 2811
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1829,
+      "median": 1829,
+      "p95": 1829,
+      "max": 1829
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2821,
+      "median": 2821,
+      "p95": 2821,
+      "max": 2821
+     }
+    },
+    {
+     "i": 6,
+     "text": "Una imagen aparece.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 2521,
+      "median": 2521,
+      "p95": 2521,
+      "max": 2521
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1350,
+      "median": 1350,
+      "p95": 1350,
+      "max": 1350
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2554,
+      "median": 2554,
+      "p95": 2554,
+      "max": 2554
+     }
+    },
+    {
+     "i": 7,
+     "text": "Encuentro algo.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 2467,
+      "median": 2467,
+      "p95": 2467,
+      "max": 2467
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1167,
+      "median": 1167,
+      "p95": 1167,
+      "max": 1167
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3272,
+      "median": 3272,
+      "p95": 3272,
+      "max": 3272
+     }
+    },
+    {
+     "i": 8,
+     "text": "Intento identificarlo.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 2708,
+      "median": 2708,
+      "p95": 2708,
+      "max": 2708
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1586,
+      "median": 1586,
+      "p95": 1586,
+      "max": 1586
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3511,
+      "median": 3511,
+      "p95": 3511,
+      "max": 3511
+     }
+    },
+    {
+     "i": 9,
+     "text": "Pero encontrar algo no significa entenderlo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2929,
+      "median": 2929,
+      "p95": 2929,
+      "max": 2929
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2411,
+      "median": 2411,
+      "p95": 2411,
+      "max": 2411
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4244,
+      "median": 4244,
+      "p95": 4244,
+      "max": 4244
+     }
+    },
+    {
+     "i": 10,
+     "text": "Una cámara puede detectar un objeto.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2785,
+      "median": 2785,
+      "p95": 2785,
+      "max": 2785
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2183,
+      "median": 2183,
+      "p95": 2183,
+      "max": 2183
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2787,
+      "median": 2787,
+      "p95": 2787,
+      "max": 2787
+     }
+    },
+    {
+     "i": 11,
+     "text": "Pero detectar no significa saber qué es.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 3131,
+      "median": 3131,
+      "p95": 3131,
+      "max": 3131
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2458,
+      "median": 2458,
+      "p95": 2458,
+      "max": 2458
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3133,
+      "median": 3133,
+      "p95": 3133,
+      "max": 3133
+     }
+    },
+    {
+     "i": 12,
+     "text": "Y saber qué es no significa necesariamente saber dónde está.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 4287,
+      "median": 4287,
+      "p95": 4287,
+      "max": 4287
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3785,
+      "median": 3785,
+      "p95": 3785,
+      "max": 3785
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5502,
+      "median": 5502,
+      "p95": 5502,
+      "max": 5502
+     }
+    },
+    {
+     "i": 13,
+     "text": "Mucho menos significa saber si esa información es confiable.",
+     "pause_scripted_ms": 2000,
+     "latency_ms": {
+      "n": 1,
+      "min": 7302,
+      "median": 7302,
+      "p95": 7302,
+      "max": 7302
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3341,
+      "median": 3341,
+      "p95": 3341,
+      "max": 3341
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 8723,
+      "median": 8723,
+      "p95": 8723,
+      "max": 8723
+     }
+    },
+    {
+     "i": 14,
+     "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 3260,
+      "median": 3260,
+      "p95": 3260,
+      "max": 3260
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2996,
+      "median": 2996,
+      "p95": 2996,
+      "max": 2996
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5341,
+      "median": 5341,
+      "p95": 5341,
+      "max": 5341
+     }
+    },
+    {
+     "i": 15,
+     "text": "Percibir.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 2559,
+      "median": 2559,
+      "p95": 2559,
+      "max": 2559
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 983,
+      "median": 983,
+      "p95": 983,
+      "max": 983
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2580,
+      "median": 2580,
+      "p95": 2580,
+      "max": 2580
+     }
+    },
+    {
+     "i": 16,
+     "text": "Identificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 2502,
+      "median": 2502,
+      "p95": 2502,
+      "max": 2502
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1234,
+      "median": 1234,
+      "p95": 1234,
+      "max": 1234
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3013,
+      "median": 3013,
+      "p95": 3013,
+      "max": 3013
+     }
+    },
+    {
+     "i": 17,
+     "text": "Verificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 2421,
+      "median": 2421,
+      "p95": 2421,
+      "max": 2421
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1045,
+      "median": 1045,
+      "p95": 1045,
+      "max": 1045
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2941,
+      "median": 2941,
+      "p95": 2941,
+      "max": 2941
+     }
+    },
+    {
+     "i": 18,
+     "text": "Localizar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 2439,
+      "median": 2439,
+      "p95": 2439,
+      "max": 2439
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1107,
+      "median": 1107,
+      "p95": 1107,
+      "max": 1107
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2946,
+      "median": 2946,
+      "p95": 2946,
+      "max": 2946
+     }
+    },
+    {
+     "i": 19,
+     "text": "Registrar.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2483,
+      "median": 2483,
+      "p95": 2483,
+      "max": 2483
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1038,
+      "median": 1038,
+      "p95": 1038,
+      "max": 1038
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2994,
+      "median": 2994,
+      "p95": 2994,
+      "max": 2994
+     }
+    },
+    {
+     "i": 20,
+     "text": "Ese es el proceso que permite transformar una imagen en información.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 3613,
+      "median": 3613,
+      "p95": 3613,
+      "max": 3613
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3977,
+      "median": 3977,
+      "p95": 3977,
+      "max": 3977
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4620,
+      "median": 4620,
+      "p95": 4620,
+      "max": 4620
+     }
+    },
+    {
+     "i": 21,
+     "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 3408,
+      "median": 3408,
+      "p95": 3408,
+      "max": 3408
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3792,
+      "median": 3792,
+      "p95": 3792,
+      "max": 3792
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4911,
+      "median": 4911,
+      "p95": 4911,
+      "max": 4911
+     }
+    },
+    {
+     "i": 22,
+     "text": "Un sistema de percepción, para observar mi entorno.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 4168,
+      "median": 4168,
+      "p95": 4168,
+      "max": 4168
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3004,
+      "median": 3004,
+      "p95": 3004,
+      "max": 3004
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5380,
+      "median": 5380,
+      "p95": 5380,
+      "max": 5380
+     }
+    },
+    {
+     "i": 23,
+     "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 3396,
+      "median": 3396,
+      "p95": 3396,
+      "max": 3396
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4110,
+      "median": 4110,
+      "p95": 4110,
+      "max": 4110
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4405,
+      "median": 4405,
+      "p95": 4405,
+      "max": 4405
+     }
+    },
+    {
+     "i": 24,
+     "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 3998,
+      "median": 3998,
+      "p95": 3998,
+      "max": 3998
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4423,
+      "median": 4423,
+      "p95": 4423,
+      "max": 4423
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5002,
+      "median": 5002,
+      "p95": 5002,
+      "max": 5002
+     }
+    },
+    {
+     "i": 25,
+     "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 4077,
+      "median": 4077,
+      "p95": 4077,
+      "max": 4077
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 5057,
+      "median": 5057,
+      "p95": 5057,
+      "max": 5057
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5082,
+      "median": 5082,
+      "p95": 5082,
+      "max": 5082
+     }
+    },
+    {
+     "i": 26,
+     "text": "No soy solamente una cámara.",
+     "pause_scripted_ms": 900,
+     "latency_ms": {
+      "n": 1,
+      "min": 2777,
+      "median": 2777,
+      "p95": 2777,
+      "max": 2777
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1772,
+      "median": 1772,
+      "p95": 1772,
+      "max": 1772
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4345,
+      "median": 4345,
+      "p95": 4345,
+      "max": 4345
+     }
+    },
+    {
+     "i": 27,
+     "text": "No soy solamente un robot.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 2754,
+      "median": 2754,
+      "p95": 2754,
+      "max": 2754
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1620,
+      "median": 1620,
+      "p95": 1620,
+      "max": 1620
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3655,
+      "median": 3655,
+      "p95": 3655,
+      "max": 3655
+     }
+    },
+    {
+     "i": 28,
+     "text": "Soy la integración de estos sistemas para resolver un problema.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 3186,
+      "median": 3186,
+      "p95": 3186,
+      "max": 3186
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3232,
+      "median": 3232,
+      "p95": 3232,
+      "max": 3232
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4402,
+      "median": 4402,
+      "p95": 4402,
+      "max": 4402
+     }
+    },
+    {
+     "i": 29,
+     "text": "¿Quieren ver cómo funciono?",
+     "pause_scripted_ms": 58000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2647,
+      "median": 2647,
+      "p95": 2647,
+      "max": 2647
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1513,
+      "median": 1513,
+      "p95": 1513,
+      "max": 1513
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4203,
+      "median": 4203,
+      "p95": 4203,
+      "max": 4203
+     }
+    },
+    {
+     "i": 30,
+     "text": "Dígame, señor.",
+     "pause_scripted_ms": 4000,
+     "latency_ms": {
+      "n": 1,
+      "min": 3660,
+      "median": 3660,
+      "p95": 3660,
+      "max": 3660
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1304,
+      "median": 1304,
+      "p95": 1304,
+      "max": 1304
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 31,
+     "text": "En un momento.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 2480,
+      "median": 2480,
+      "p95": 2480,
+      "max": 2480
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1078,
+      "median": 1078,
+      "p95": 1078,
+      "max": 1078
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 6488,
+      "median": 6488,
+      "p95": 6488,
+      "max": 6488
+     }
+    },
+    {
+     "i": 32,
+     "text": "Esto es lo que soy capaz de ver ahora mismo.",
+     "pause_scripted_ms": 30000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2999,
+      "median": 2999,
+      "p95": 2999,
+      "max": 2999
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2652,
+      "median": 2652,
+      "p95": 2652,
+      "max": 2652
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3820,
+      "median": 3820,
+      "p95": 3820,
+      "max": 3820
+     }
+    }
+   ],
+   "raw_runs": [
+    {
+     "file": "3g\\run-01.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:50:08.474Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": {
+      "latency": 2000,
+      "downloadThroughput": 50000,
+      "uploadThroughput": 50000
+     },
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 13471.800000000745,
+     "script_start_to_first_audio_ms": 2508.0999999996275,
+     "total_click_to_last_end_ms": 281080,
+     "total_first_start_to_last_end_ms": 267608.19999999925,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 178156.09999999963,
+     "line30_start_to_last_end_ms": 15341.299999998882
+    }
+   ]
+  },
+  "lat1000": {
+   "runs": 1,
+   "engine": [
+    "ElevenLabs (/robot/tts)"
+   ],
+   "conditions": {
+    "latency": 1000,
+    "downloadThroughput": -1,
+    "uploadThroughput": -1
+   },
+   "command_to_first_audio": {
+    "script_start_to_first_audio_ms": {
+     "n": 1,
+     "min": 1458,
+     "median": 1458,
+     "p95": 1458,
+     "max": 1458
+    },
+    "hidden_button_click_to_first_audio_ms": {
+     "n": 1,
+     "min": 12440,
+     "median": 12440,
+     "p95": 12440,
+     "max": 12440
+    }
+   },
+   "pooled": {
+    "latency_req_to_audio_ms": {
+     "n": 32,
+     "min": 1034,
+     "median": 1321,
+     "p95": 2190,
+     "max": 2389
+    },
+    "tts_response_headers_ms": {
+     "n": 32,
+     "min": 1011,
+     "median": 1274,
+     "p95": 2039,
+     "max": 2217
+    },
+    "gap_minus_scripted_pause_ms": {
+     "n": 30,
+     "min": 1041,
+     "median": 1347,
+     "p95": 2058,
+     "max": 2278
+    },
+    "rebuffer_events_total": 1
+   },
+   "total": {
+    "note": "click_to_last / first_audio_to_last incluyen el bloque del expositor (temporizador de 70.3 s en el flujo viejo) — para el video usar los dos tramos separados.",
+    "click_to_last_line_end_ms": {
+     "n": 1,
+     "min": 226800,
+     "median": 226800,
+     "p95": 226800,
+     "max": 226800
+    },
+    "first_audio_to_last_line_end_ms": {
+     "n": 1,
+     "min": 214360,
+     "median": 214360,
+     "p95": 214360,
+     "max": 214360
+    },
+    "first_audio_to_question_end_ms": {
+     "n": 1,
+     "min": 129167,
+     "median": 129167,
+     "p95": 129167,
+     "max": 129167
+    },
+    "line30_start_to_last_end_ms": {
+     "n": 1,
+     "min": 12328,
+     "median": 12328,
+     "p95": 12328,
+     "max": 12328
+    }
+   },
+   "interaction": {
+    "lumina_dispatch_to_digame_audio_ms": null,
+    "note": "Desde que robot.js despacha «lumina» (después del debounce de 600 ms del reconocimiento) hasta que suena «Dígame, señor.». Falta sumar la latencia del reconocimiento (phase0/recognition-test.html)."
+   },
+   "per_line": [
+    {
+     "i": 1,
+     "text": "Buenas tardes.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1458,
+      "median": 1458,
+      "p95": 1458,
+      "max": 1458
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1084,
+      "median": 1084,
+      "p95": 1084,
+      "max": 1084
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 2,
+     "text": "Mi nombre es Aether.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1056,
+      "median": 1056,
+      "p95": 1056,
+      "max": 1056
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1542,
+      "median": 1542,
+      "p95": 1542,
+      "max": 1542
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1059,
+      "median": 1059,
+      "p95": 1059,
+      "max": 1059
+     }
+    },
+    {
+     "i": 3,
+     "text": "Soy un sistema autónomo de inventario.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1220,
+      "median": 1220,
+      "p95": 1220,
+      "max": 1220
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2299,
+      "median": 2299,
+      "p95": 2299,
+      "max": 2299
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1221,
+      "median": 1221,
+      "p95": 1221,
+      "max": 1221
+     }
+    },
+    {
+     "i": 4,
+     "text": "Yo observo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1804,
+      "median": 1804,
+      "p95": 1804,
+      "max": 1804
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1033,
+      "median": 1033,
+      "p95": 1033,
+      "max": 1033
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1805,
+      "median": 1805,
+      "p95": 1805,
+      "max": 1805
+     }
+    },
+    {
+     "i": 5,
+     "text": "Eso es lo primero que hago.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1231,
+      "median": 1231,
+      "p95": 1231,
+      "max": 1231
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1803,
+      "median": 1803,
+      "p95": 1803,
+      "max": 1803
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1232,
+      "median": 1232,
+      "p95": 1232,
+      "max": 1232
+     }
+    },
+    {
+     "i": 6,
+     "text": "Una imagen aparece.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 1336,
+      "median": 1336,
+      "p95": 1336,
+      "max": 1336
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1318,
+      "median": 1318,
+      "p95": 1318,
+      "max": 1318
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1364,
+      "median": 1364,
+      "p95": 1364,
+      "max": 1364
+     }
+    },
+    {
+     "i": 7,
+     "text": "Encuentro algo.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 1401,
+      "median": 1401,
+      "p95": 1401,
+      "max": 1401
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1217,
+      "median": 1217,
+      "p95": 1217,
+      "max": 1217
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2218,
+      "median": 2218,
+      "p95": 2218,
+      "max": 2218
+     }
+    },
+    {
+     "i": 8,
+     "text": "Intento identificarlo.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 1034,
+      "median": 1034,
+      "p95": 1034,
+      "max": 1034
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1600,
+      "median": 1600,
+      "p95": 1600,
+      "max": 1600
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1841,
+      "median": 1841,
+      "p95": 1841,
+      "max": 1841
+     }
+    },
+    {
+     "i": 9,
+     "text": "Pero encontrar algo no significa entenderlo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1321,
+      "median": 1321,
+      "p95": 1321,
+      "max": 1321
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2474,
+      "median": 2474,
+      "p95": 2474,
+      "max": 2474
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2642,
+      "median": 2642,
+      "p95": 2642,
+      "max": 2642
+     }
+    },
+    {
+     "i": 10,
+     "text": "Una cámara puede detectar un objeto.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1132,
+      "median": 1132,
+      "p95": 1132,
+      "max": 1132
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2256,
+      "median": 2256,
+      "p95": 2256,
+      "max": 2256
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1134,
+      "median": 1134,
+      "p95": 1134,
+      "max": 1134
+     }
+    },
+    {
+     "i": 11,
+     "text": "Pero detectar no significa saber qué es.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 1148,
+      "median": 1148,
+      "p95": 1148,
+      "max": 1148
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2417,
+      "median": 2417,
+      "p95": 2417,
+      "max": 2417
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1149,
+      "median": 1149,
+      "p95": 1149,
+      "max": 1149
+     }
+    },
+    {
+     "i": 12,
+     "text": "Y saber qué es no significa necesariamente saber dónde está.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 1635,
+      "median": 1635,
+      "p95": 1635,
+      "max": 1635
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3916,
+      "median": 3916,
+      "p95": 3916,
+      "max": 3916
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2844,
+      "median": 2844,
+      "p95": 2844,
+      "max": 2844
+     }
+    },
+    {
+     "i": 13,
+     "text": "Mucho menos significa saber si esa información es confiable.",
+     "pause_scripted_ms": 2000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1717,
+      "median": 1717,
+      "p95": 1717,
+      "max": 1717
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3483,
+      "median": 3483,
+      "p95": 3483,
+      "max": 3483
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3023,
+      "median": 3023,
+      "p95": 3023,
+      "max": 3023
+     }
+    },
+    {
+     "i": 14,
+     "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1562,
+      "median": 1562,
+      "p95": 1562,
+      "max": 1562
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3085,
+      "median": 3085,
+      "p95": 3085,
+      "max": 3085
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3592,
+      "median": 3592,
+      "p95": 3592,
+      "max": 3592
+     }
+    },
+    {
+     "i": 15,
+     "text": "Percibir.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1167,
+      "median": 1167,
+      "p95": 1167,
+      "max": 1167
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 997,
+      "median": 997,
+      "p95": 997,
+      "max": 997
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1202,
+      "median": 1202,
+      "p95": 1202,
+      "max": 1202
+     }
+    },
+    {
+     "i": 16,
+     "text": "Identificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1119,
+      "median": 1119,
+      "p95": 1119,
+      "max": 1119
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1220,
+      "median": 1220,
+      "p95": 1220,
+      "max": 1220
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1636,
+      "median": 1636,
+      "p95": 1636,
+      "max": 1636
+     }
+    },
+    {
+     "i": 17,
+     "text": "Verificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1128,
+      "median": 1128,
+      "p95": 1128,
+      "max": 1128
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1005,
+      "median": 1005,
+      "p95": 1005,
+      "max": 1005
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1642,
+      "median": 1642,
+      "p95": 1642,
+      "max": 1642
+     }
+    },
+    {
+     "i": 18,
+     "text": "Localizar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1305,
+      "median": 1305,
+      "p95": 1305,
+      "max": 1305
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1069,
+      "median": 1069,
+      "p95": 1069,
+      "max": 1069
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1852,
+      "median": 1852,
+      "p95": 1852,
+      "max": 1852
+     }
+    },
+    {
+     "i": 19,
+     "text": "Registrar.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2125,
+      "median": 2125,
+      "p95": 2125,
+      "max": 2125
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1052,
+      "median": 1052,
+      "p95": 1052,
+      "max": 1052
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2632,
+      "median": 2632,
+      "p95": 2632,
+      "max": 2632
+     }
+    },
+    {
+     "i": 20,
+     "text": "Ese es el proceso que permite transformar una imagen en información.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1246,
+      "median": 1246,
+      "p95": 1246,
+      "max": 1246
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4155,
+      "median": 4155,
+      "p95": 4155,
+      "max": 4155
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2488,
+      "median": 2488,
+      "p95": 2488,
+      "max": 2488
+     }
+    },
+    {
+     "i": 21,
+     "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 2268,
+      "median": 2268,
+      "p95": 2268,
+      "max": 2268
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3688,
+      "median": 3688,
+      "p95": 3688,
+      "max": 3688
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3778,
+      "median": 3778,
+      "p95": 3778,
+      "max": 3778
+     }
+    },
+    {
+     "i": 22,
+     "text": "Un sistema de percepción, para observar mi entorno.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1438,
+      "median": 1438,
+      "p95": 1438,
+      "max": 1438
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3167,
+      "median": 3167,
+      "p95": 3167,
+      "max": 3167
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2656,
+      "median": 2656,
+      "p95": 2656,
+      "max": 2656
+     }
+    },
+    {
+     "i": 23,
+     "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1320,
+      "median": 1320,
+      "p95": 1320,
+      "max": 1320
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4098,
+      "median": 4098,
+      "p95": 4098,
+      "max": 4098
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2324,
+      "median": 2324,
+      "p95": 2324,
+      "max": 2324
+     }
+    },
+    {
+     "i": 24,
+     "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1355,
+      "median": 1355,
+      "p95": 1355,
+      "max": 1355
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4469,
+      "median": 4469,
+      "p95": 4469,
+      "max": 4469
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2356,
+      "median": 2356,
+      "p95": 2356,
+      "max": 2356
+     }
+    },
+    {
+     "i": 25,
+     "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1961,
+      "median": 1961,
+      "p95": 1961,
+      "max": 1961
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4949,
+      "median": 4949,
+      "p95": 4949,
+      "max": 4949
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2967,
+      "median": 2967,
+      "p95": 2967,
+      "max": 2967
+     }
+    },
+    {
+     "i": 26,
+     "text": "No soy solamente una cámara.",
+     "pause_scripted_ms": 900,
+     "latency_ms": {
+      "n": 1,
+      "min": 1220,
+      "median": 1220,
+      "p95": 1220,
+      "max": 1220
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1749,
+      "median": 1749,
+      "p95": 1749,
+      "max": 1749
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2729,
+      "median": 2729,
+      "p95": 2729,
+      "max": 2729
+     }
+    },
+    {
+     "i": 27,
+     "text": "No soy solamente un robot.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 1311,
+      "median": 1311,
+      "p95": 1311,
+      "max": 1311
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1641,
+      "median": 1641,
+      "p95": 1641,
+      "max": 1641
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2222,
+      "median": 2222,
+      "p95": 2222,
+      "max": 2222
+     }
+    },
+    {
+     "i": 28,
+     "text": "Soy la integración de estos sistemas para resolver un problema.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1636,
+      "median": 1636,
+      "p95": 1636,
+      "max": 1636
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3218,
+      "median": 3218,
+      "p95": 3218,
+      "max": 3218
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2841,
+      "median": 2841,
+      "p95": 2841,
+      "max": 2841
+     }
+    },
+    {
+     "i": 29,
+     "text": "¿Quieren ver cómo funciono?",
+     "pause_scripted_ms": 58000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1568,
+      "median": 1568,
+      "p95": 1568,
+      "max": 1568
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1551,
+      "median": 1551,
+      "p95": 1551,
+      "max": 1551
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3163,
+      "median": 3163,
+      "p95": 3163,
+      "max": 3163
+     }
+    },
+    {
+     "i": 30,
+     "text": "Dígame, señor.",
+     "pause_scripted_ms": 4000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2389,
+      "median": 2389,
+      "p95": 2389,
+      "max": 2389
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1280,
+      "median": 1280,
+      "p95": 1280,
+      "max": 1280
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 31,
+     "text": "En un momento.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 1146,
+      "median": 1146,
+      "p95": 1146,
+      "max": 1146
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1069,
+      "median": 1069,
+      "p95": 1069,
+      "max": 1069
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5160,
+      "median": 5160,
+      "p95": 5160,
+      "max": 5160
+     }
+    },
+    {
+     "i": 32,
+     "text": "Esto es lo que soy capaz de ver ahora mismo.",
+     "pause_scripted_ms": 30000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1280,
+      "median": 1280,
+      "p95": 1280,
+      "max": 1280
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2736,
+      "median": 2736,
+      "p95": 2736,
+      "max": 2736
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2084,
+      "median": 2084,
+      "p95": 2084,
+      "max": 2084
+     }
+    }
+   ],
+   "raw_runs": [
+    {
+     "file": "lat1000\\run-01.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:55:00.228Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": {
+      "latency": 1000,
+      "downloadThroughput": -1,
+      "uploadThroughput": -1
+     },
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 12439.799999998882,
+     "script_start_to_first_audio_ms": 1458.2999999988824,
+     "total_click_to_last_end_ms": 226799.59999999963,
+     "total_first_start_to_last_end_ms": 214359.80000000075,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 129166.80000000075,
+     "line30_start_to_last_end_ms": 12327.900000000373
+    }
+   ]
+  },
+  "none": {
+   "runs": 4,
+   "engine": [
+    "ElevenLabs (/robot/tts)"
+   ],
+   "conditions": null,
+   "command_to_first_audio": {
+    "script_start_to_first_audio_ms": {
+     "n": 4,
+     "min": 1229,
+     "median": 2057,
+     "p95": 3036,
+     "max": 3198
+    },
+    "hidden_button_click_to_first_audio_ms": {
+     "n": 4,
+     "min": 12203,
+     "median": 13033,
+     "p95": 14100,
+     "max": 14274
+    }
+   },
+   "pooled": {
+    "latency_req_to_audio_ms": {
+     "n": 128,
+     "min": 1007,
+     "median": 1428,
+     "p95": 2696,
+     "max": 8988
+    },
+    "tts_response_headers_ms": {
+     "n": 128,
+     "min": 968,
+     "median": 1338,
+     "p95": 2286,
+     "max": 7173
+    },
+    "gap_minus_scripted_pause_ms": {
+     "n": 120,
+     "min": 1009,
+     "median": 1438,
+     "p95": 2643,
+     "max": 6213
+    },
+    "rebuffer_events_total": 3
+   },
+   "total": {
+    "note": "click_to_last / first_audio_to_last incluyen el bloque del expositor (temporizador de 70.3 s en el flujo viejo) — para el video usar los dos tramos separados.",
+    "click_to_last_line_end_ms": {
+     "n": 4,
+     "min": 167372,
+     "median": 223574,
+     "p95": 251588,
+     "max": 256058
+    },
+    "first_audio_to_last_line_end_ms": {
+     "n": 4,
+     "min": 153098,
+     "median": 210995,
+     "p95": 238612,
+     "max": 242946
+    },
+    "first_audio_to_question_end_ms": {
+     "n": 4,
+     "min": 123223,
+     "median": 132378,
+     "p95": 145123,
+     "max": 146836
+    },
+    "line30_start_to_last_end_ms": {
+     "n": 4,
+     "min": 12120,
+     "median": 12431,
+     "p95": 16026,
+     "max": 16652
+    }
+   },
+   "interaction": {
+    "lumina_dispatch_to_digame_audio_ms": {
+     "n": 1,
+     "min": 1312,
+     "median": 1312,
+     "p95": 1312,
+     "max": 1312
+    },
+    "note": "Desde que robot.js despacha «lumina» (después del debounce de 600 ms del reconocimiento) hasta que suena «Dígame, señor.». Falta sumar la latencia del reconocimiento (phase0/recognition-test.html)."
+   },
+   "per_line": [
+    {
+     "i": 1,
+     "text": "Buenas tardes.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1229,
+      "median": 2057,
+      "p95": 3036,
+      "max": 3198
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1113,
+      "median": 1196,
+      "p95": 1424,
+      "max": 1461
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 2,
+     "text": "Mi nombre es Aether.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1145,
+      "median": 1165,
+      "p95": 1234,
+      "max": 1243
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1449,
+      "median": 1532,
+      "p95": 1579,
+      "max": 1582
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1147,
+      "median": 1177,
+      "p95": 1237,
+      "max": 1246
+     }
+    },
+    {
+     "i": 3,
+     "text": "Soy un sistema autónomo de inventario.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1191,
+      "median": 1305,
+      "p95": 1514,
+      "max": 1543
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 2179,
+      "median": 2322,
+      "p95": 2372,
+      "max": 2377
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1192,
+      "median": 1306,
+      "p95": 1515,
+      "max": 1544
+     }
+    },
+    {
+     "i": 4,
+     "text": "Yo observo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1007,
+      "median": 1253,
+      "p95": 2534,
+      "max": 2724
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1002,
+      "median": 1044,
+      "p95": 1077,
+      "max": 1081
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1009,
+      "median": 1254,
+      "p95": 2535,
+      "max": 2724
+     }
+    },
+    {
+     "i": 5,
+     "text": "Eso es lo primero que hago.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1049,
+      "median": 1421,
+      "p95": 1778,
+      "max": 1820
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1729,
+      "median": 1834,
+      "p95": 1874,
+      "max": 1874
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1050,
+      "median": 1430,
+      "p95": 1781,
+      "max": 1820
+     }
+    },
+    {
+     "i": 6,
+     "text": "Una imagen aparece.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 4,
+      "min": 1091,
+      "median": 1378,
+      "p95": 1577,
+      "max": 1607
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1320,
+      "median": 1382,
+      "p95": 1427,
+      "max": 1431
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1092,
+      "median": 1406,
+      "p95": 1592,
+      "max": 1620
+     }
+    },
+    {
+     "i": 7,
+     "text": "Encuentro algo.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 4,
+      "min": 1088,
+      "median": 1282,
+      "p95": 1569,
+      "max": 1605
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1155,
+      "median": 1160,
+      "p95": 1215,
+      "max": 1224
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1890,
+      "median": 2112,
+      "p95": 2383,
+      "max": 2418
+     }
+    },
+    {
+     "i": 8,
+     "text": "Intento identificarlo.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 4,
+      "min": 1024,
+      "median": 1167,
+      "p95": 1541,
+      "max": 1605
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1555,
+      "median": 1581,
+      "p95": 1632,
+      "max": 1641
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1834,
+      "median": 1976,
+      "p95": 2353,
+      "max": 2417
+     }
+    },
+    {
+     "i": 9,
+     "text": "Pero encontrar algo no significa entenderlo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1267,
+      "median": 1503,
+      "p95": 1866,
+      "max": 1905
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 2455,
+      "median": 2479,
+      "p95": 2517,
+      "max": 2520
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2579,
+      "median": 2813,
+      "p95": 3238,
+      "max": 3286
+     }
+    },
+    {
+     "i": 10,
+     "text": "Una cámara puede detectar un objeto.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1172,
+      "median": 1319,
+      "p95": 1627,
+      "max": 1667
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 2177,
+      "median": 2221,
+      "p95": 2293,
+      "max": 2299
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1173,
+      "median": 1321,
+      "p95": 1627,
+      "max": 1668
+     }
+    },
+    {
+     "i": 11,
+     "text": "Pero detectar no significa saber qué es.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 4,
+      "min": 1183,
+      "median": 1379,
+      "p95": 1502,
+      "max": 1512
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 2380,
+      "median": 2415,
+      "p95": 2479,
+      "max": 2488
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1183,
+      "median": 1381,
+      "p95": 1504,
+      "max": 1513
+     }
+    },
+    {
+     "i": 12,
+     "text": "Y saber qué es no significa necesariamente saber dónde está.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 4,
+      "min": 1183,
+      "median": 1533,
+      "p95": 1604,
+      "max": 1609
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 3835,
+      "median": 3894,
+      "p95": 3993,
+      "max": 4005
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2396,
+      "median": 2743,
+      "p95": 2807,
+      "max": 2810
+     }
+    },
+    {
+     "i": 13,
+     "text": "Mucho menos significa saber si esa información es confiable.",
+     "pause_scripted_ms": 2000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1214,
+      "median": 1597,
+      "p95": 2412,
+      "max": 2528
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 3398,
+      "median": 3429,
+      "p95": 3486,
+      "max": 3493
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2523,
+      "median": 2907,
+      "p95": 3726,
+      "max": 3844
+     }
+    },
+    {
+     "i": 14,
+     "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 4,
+      "min": 1271,
+      "median": 1618,
+      "p95": 2521,
+      "max": 2646
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 3040,
+      "median": 3108,
+      "p95": 3124,
+      "max": 3124
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 3302,
+      "median": 3640,
+      "p95": 4562,
+      "max": 4691
+     }
+    },
+    {
+     "i": 15,
+     "text": "Percibir.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1100,
+      "median": 1249,
+      "p95": 1709,
+      "max": 1786
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 950,
+      "median": 1051,
+      "p95": 1119,
+      "max": 1130
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1115,
+      "median": 1276,
+      "p95": 1745,
+      "max": 1822
+     }
+    },
+    {
+     "i": 16,
+     "text": "Identificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1107,
+      "median": 1191,
+      "p95": 1849,
+      "max": 1954
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1227,
+      "median": 1273,
+      "p95": 1306,
+      "max": 1311
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1609,
+      "median": 1697,
+      "p95": 2363,
+      "max": 2469
+     }
+    },
+    {
+     "i": 17,
+     "text": "Verificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1036,
+      "median": 1314,
+      "p95": 1415,
+      "max": 1429
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 967,
+      "median": 1039,
+      "p95": 1047,
+      "max": 1047
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1548,
+      "median": 1823,
+      "p95": 1924,
+      "max": 1939
+     }
+    },
+    {
+     "i": 18,
+     "text": "Localizar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1074,
+      "median": 1255,
+      "p95": 1448,
+      "max": 1467
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1076,
+      "median": 1087,
+      "p95": 1129,
+      "max": 1136
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1584,
+      "median": 1828,
+      "p95": 1981,
+      "max": 1983
+     }
+    },
+    {
+     "i": 19,
+     "text": "Registrar.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1056,
+      "median": 1356,
+      "p95": 1716,
+      "max": 1742
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1021,
+      "median": 1031,
+      "p95": 1052,
+      "max": 1056
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 1570,
+      "median": 1875,
+      "p95": 2226,
+      "max": 2250
+     }
+    },
+    {
+     "i": 20,
+     "text": "Ese es el proceso que permite transformar una imagen en información.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1188,
+      "median": 1562,
+      "p95": 1692,
+      "max": 1711
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 4007,
+      "median": 4124,
+      "p95": 4232,
+      "max": 4249
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2201,
+      "median": 2599,
+      "p95": 2717,
+      "max": 2736
+     }
+    },
+    {
+     "i": 21,
+     "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 4,
+      "min": 1422,
+      "median": 1803,
+      "p95": 2485,
+      "max": 2572
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 3682,
+      "median": 3691,
+      "p95": 3705,
+      "max": 3707
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2927,
+      "median": 3311,
+      "p95": 3993,
+      "max": 4080
+     }
+    },
+    {
+     "i": 22,
+     "text": "Un sistema de percepción, para observar mi entorno.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1255,
+      "median": 1435,
+      "p95": 2166,
+      "max": 2293
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 2947,
+      "median": 3072,
+      "p95": 3267,
+      "max": 3285
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2465,
+      "median": 2645,
+      "p95": 3379,
+      "max": 3506
+     }
+    },
+    {
+     "i": 23,
+     "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1777,
+      "median": 1935,
+      "p95": 2548,
+      "max": 2637
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 4031,
+      "median": 4129,
+      "p95": 4225,
+      "max": 4230
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2784,
+      "median": 2940,
+      "p95": 3552,
+      "max": 3641
+     }
+    },
+    {
+     "i": 24,
+     "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1276,
+      "median": 1938,
+      "p95": 2797,
+      "max": 2878
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 4165,
+      "median": 4408,
+      "p95": 4455,
+      "max": 4460
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2281,
+      "median": 2944,
+      "p95": 3803,
+      "max": 3883
+     }
+    },
+    {
+     "i": 25,
+     "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1501,
+      "median": 1846,
+      "p95": 5385,
+      "max": 5992
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 4838,
+      "median": 4968,
+      "p95": 5194,
+      "max": 5231
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2502,
+      "median": 2854,
+      "p95": 6575,
+      "max": 7213
+     }
+    },
+    {
+     "i": 26,
+     "text": "No soy solamente una cámara.",
+     "pause_scripted_ms": 900,
+     "latency_ms": {
+      "n": 4,
+      "min": 1158,
+      "median": 1353,
+      "p95": 4812,
+      "max": 5420
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1687,
+      "median": 1693,
+      "p95": 1729,
+      "max": 1734
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2659,
+      "median": 2861,
+      "p95": 6348,
+      "max": 6961
+     }
+    },
+    {
+     "i": 27,
+     "text": "No soy solamente un robot.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 4,
+      "min": 1115,
+      "median": 1389,
+      "p95": 1893,
+      "max": 1955
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1596,
+      "median": 1688,
+      "p95": 1734,
+      "max": 1740
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2016,
+      "median": 2292,
+      "p95": 2805,
+      "max": 2868
+     }
+    },
+    {
+     "i": 28,
+     "text": "Soy la integración de estos sistemas para resolver un problema.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 4,
+      "min": 1408,
+      "median": 1439,
+      "p95": 2107,
+      "max": 2223
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 3316,
+      "median": 3375,
+      "p95": 3425,
+      "max": 3431
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2609,
+      "median": 2652,
+      "p95": 3332,
+      "max": 3449
+     }
+    },
+    {
+     "i": 29,
+     "text": "¿Quieren ver cómo funciono?",
+     "pause_scripted_ms": 58000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1457,
+      "median": 1504,
+      "p95": 1691,
+      "max": 1721
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1511,
+      "median": 1598,
+      "p95": 1733,
+      "max": 1745
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 3013,
+      "median": 3091,
+      "p95": 3294,
+      "max": 3317
+     }
+    },
+    {
+     "i": 30,
+     "text": "Dígame, señor.",
+     "pause_scripted_ms": 4000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1297,
+      "median": 2066,
+      "p95": 7975,
+      "max": 8988
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1093,
+      "median": 1179,
+      "p95": 1991,
+      "max": 2126
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 31,
+     "text": "En un momento.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 4,
+      "min": 1084,
+      "median": 1252,
+      "p95": 3318,
+      "max": 3658
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 1033,
+      "median": 1076,
+      "p95": 1085,
+      "max": 1087
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 5090,
+      "median": 5265,
+      "p95": 7353,
+      "max": 7697
+     }
+    },
+    {
+     "i": 32,
+     "text": "Esto es lo que soy capaz de ver ahora mismo.",
+     "pause_scripted_ms": 30000,
+     "latency_ms": {
+      "n": 4,
+      "min": 1305,
+      "median": 1442,
+      "p95": 2020,
+      "max": 2115
+     },
+     "dur_ms": {
+      "n": 4,
+      "min": 2671,
+      "median": 2721,
+      "p95": 2804,
+      "max": 2814
+     },
+     "gap_before_ms": {
+      "n": 4,
+      "min": 2119,
+      "median": 2247,
+      "p95": 2832,
+      "max": 2929
+     }
+    }
+   ],
+   "raw_runs": [
+    {
+     "file": "none\\pilot-01.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:25:23.615Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": null,
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 12954.299999999814,
+     "script_start_to_first_audio_ms": 1994,
+     "total_click_to_last_end_ms": 220894.89999999944,
+     "total_first_start_to_last_end_ms": 207940.59999999963,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 123223,
+     "line30_start_to_last_end_ms": 12120.099999999627
+    },
+    {
+     "file": "none\\run-01.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:37:04.068Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": null,
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 12203.299999999814,
+     "script_start_to_first_audio_ms": 1228.5999999996275,
+     "total_click_to_last_end_ms": 226253,
+     "total_first_start_to_last_end_ms": 214049.7000000002,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 129337.79999999981,
+     "line30_start_to_last_end_ms": 12382
+    },
+    {
+     "file": "none\\run-02.json",
+     "run": 2,
+     "cold": false,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:40:54.335Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": null,
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 13112.100000000559,
+     "script_start_to_first_audio_ms": 2119.300000000745,
+     "total_click_to_last_end_ms": 256058.40000000037,
+     "total_first_start_to_last_end_ms": 242946.2999999998,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 146836.09999999963,
+     "line30_start_to_last_end_ms": 16652
+    },
+    {
+     "file": "none\\run-03.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-29T00:00:43.937Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": null,
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 14274.199999999255,
+     "script_start_to_first_audio_ms": 3198.199999999255,
+     "total_click_to_last_end_ms": 167372.40000000037,
+     "total_first_start_to_last_end_ms": 153098.20000000112,
+     "flow": "espera Lumina (robot.js nuevo)",
+     "lumina_dispatch_to_line30_start_ms": 1312.300000000745,
+     "first_start_to_line29_end_ms": 135418.5,
+     "line30_start_to_last_end_ms": 12479.900000000373
+    }
+   ]
+  },
+  "offline": {
+   "runs": 1,
+   "engine": [
+    "speechSynthesis · Microsoft Raul - Spanish (Mexico) (es-MX)"
+   ],
+   "conditions": {
+    "offline": true,
+    "latency": 0,
+    "downloadThroughput": -1,
+    "uploadThroughput": -1
+   },
+   "command_to_first_audio": {
+    "script_start_to_first_audio_ms": {
+     "n": 1,
+     "min": 1665,
+     "median": 1665,
+     "p95": 1665,
+     "max": 1665
+    },
+    "hidden_button_click_to_first_audio_ms": {
+     "n": 1,
+     "min": 12654,
+     "median": 12654,
+     "p95": 12654,
+     "max": 12654
+    }
+   },
+   "pooled": {
+    "latency_req_to_audio_ms": {
+     "n": 32,
+     "min": 32,
+     "median": 50,
+     "p95": 871,
+     "max": 1665
+    },
+    "tts_response_headers_ms": null,
+    "gap_minus_scripted_pause_ms": {
+     "n": 30,
+     "min": 34,
+     "median": 54,
+     "p95": 193,
+     "max": 685
+    },
+    "rebuffer_events_total": 0
+   },
+   "total": {
+    "note": "click_to_last / first_audio_to_last incluyen el bloque del expositor (temporizador de 70.3 s en el flujo viejo) — para el video usar los dos tramos separados.",
+    "click_to_last_line_end_ms": null,
+    "first_audio_to_last_line_end_ms": null,
+    "first_audio_to_question_end_ms": {
+     "n": 1,
+     "min": 112528,
+     "median": 112528,
+     "p95": 112528,
+     "max": 112528
+    },
+    "line30_start_to_last_end_ms": null
+   },
+   "interaction": {
+    "lumina_dispatch_to_digame_audio_ms": null,
+    "note": "Desde que robot.js despacha «lumina» (después del debounce de 600 ms del reconocimiento) hasta que suena «Dígame, señor.». Falta sumar la latencia del reconocimiento (phase0/recognition-test.html)."
+   },
+   "per_line": [
+    {
+     "i": 1,
+     "text": "Buenas tardes.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1665,
+      "median": 1665,
+      "p95": 1665,
+      "max": 1665
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1818,
+      "median": 1818,
+      "p95": 1818,
+      "max": 1818
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 2,
+     "text": "Mi nombre es Aether.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 88,
+      "median": 88,
+      "p95": 88,
+      "max": 88
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1945,
+      "median": 1945,
+      "p95": 1945,
+      "max": 1945
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 81,
+      "median": 81,
+      "p95": 81,
+      "max": 81
+     }
+    },
+    {
+     "i": 3,
+     "text": "Soy un sistema autónomo de inventario.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 52,
+      "median": 52,
+      "p95": 52,
+      "max": 52
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3097,
+      "median": 3097,
+      "p95": 3097,
+      "max": 3097
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 50,
+      "median": 50,
+      "p95": 50,
+      "max": 50
+     }
+    },
+    {
+     "i": 4,
+     "text": "Yo observo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 91,
+      "median": 91,
+      "p95": 91,
+      "max": 91
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1594,
+      "median": 1594,
+      "p95": 1594,
+      "max": 1594
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 90,
+      "median": 90,
+      "p95": 90,
+      "max": 90
+     }
+    },
+    {
+     "i": 5,
+     "text": "Eso es lo primero que hago.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 72,
+      "median": 72,
+      "p95": 72,
+      "max": 72
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2300,
+      "median": 2300,
+      "p95": 2300,
+      "max": 2300
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 70,
+      "median": 70,
+      "p95": 70,
+      "max": 70
+     }
+    },
+    {
+     "i": 6,
+     "text": "Una imagen aparece.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 62,
+      "median": 62,
+      "p95": 62,
+      "max": 62
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2139,
+      "median": 2139,
+      "p95": 2139,
+      "max": 2139
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 61,
+      "median": 61,
+      "p95": 61,
+      "max": 61
+     }
+    },
+    {
+     "i": 7,
+     "text": "Encuentro algo.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 33,
+      "median": 33,
+      "p95": 33,
+      "max": 33
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1820,
+      "median": 1820,
+      "p95": 1820,
+      "max": 1820
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 841,
+      "median": 841,
+      "p95": 841,
+      "max": 841
+     }
+    },
+    {
+     "i": 8,
+     "text": "Intento identificarlo.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 40,
+      "median": 40,
+      "p95": 40,
+      "max": 40
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2266,
+      "median": 2266,
+      "p95": 2266,
+      "max": 2266
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 858,
+      "median": 858,
+      "p95": 858,
+      "max": 858
+     }
+    },
+    {
+     "i": 9,
+     "text": "Pero encontrar algo no significa entenderlo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 64,
+      "median": 64,
+      "p95": 64,
+      "max": 64
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3434,
+      "median": 3434,
+      "p95": 3434,
+      "max": 3434
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1366,
+      "median": 1366,
+      "p95": 1366,
+      "max": 1366
+     }
+    },
+    {
+     "i": 10,
+     "text": "Una cámara puede detectar un objeto.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 34,
+      "median": 34,
+      "p95": 34,
+      "max": 34
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2891,
+      "median": 2891,
+      "p95": 2891,
+      "max": 2891
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 34,
+      "median": 34,
+      "p95": 34,
+      "max": 34
+     }
+    },
+    {
+     "i": 11,
+     "text": "Pero detectar no significa saber qué es.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 37,
+      "median": 37,
+      "p95": 37,
+      "max": 37
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3289,
+      "median": 3289,
+      "p95": 3289,
+      "max": 3289
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 36,
+      "median": 36,
+      "p95": 36,
+      "max": 36
+     }
+    },
+    {
+     "i": 12,
+     "text": "Y saber qué es no significa necesariamente saber dónde está.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 47,
+      "median": 47,
+      "p95": 47,
+      "max": 47
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4242,
+      "median": 4242,
+      "p95": 4242,
+      "max": 4242
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1251,
+      "median": 1251,
+      "p95": 1251,
+      "max": 1251
+     }
+    },
+    {
+     "i": 13,
+     "text": "Mucho menos significa saber si esa información es confiable.",
+     "pause_scripted_ms": 2000,
+     "latency_ms": {
+      "n": 1,
+      "min": 48,
+      "median": 48,
+      "p95": 48,
+      "max": 48
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4310,
+      "median": 4310,
+      "p95": 4310,
+      "max": 4310
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1355,
+      "median": 1355,
+      "p95": 1355,
+      "max": 1355
+     }
+    },
+    {
+     "i": 14,
+     "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 135,
+      "median": 135,
+      "p95": 135,
+      "max": 135
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4112,
+      "median": 4112,
+      "p95": 4112,
+      "max": 4112
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2143,
+      "median": 2143,
+      "p95": 2143,
+      "max": 2143
+     }
+    },
+    {
+     "i": 15,
+     "text": "Percibir.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 63,
+      "median": 63,
+      "p95": 63,
+      "max": 63
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1580,
+      "median": 1580,
+      "p95": 1580,
+      "max": 1580
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 62,
+      "median": 62,
+      "p95": 62,
+      "max": 62
+     }
+    },
+    {
+     "i": 16,
+     "text": "Identificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 38,
+      "median": 38,
+      "p95": 38,
+      "max": 38
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1678,
+      "median": 1678,
+      "p95": 1678,
+      "max": 1678
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 542,
+      "median": 542,
+      "p95": 542,
+      "max": 542
+     }
+    },
+    {
+     "i": 17,
+     "text": "Verificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 37,
+      "median": 37,
+      "p95": 37,
+      "max": 37
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1561,
+      "median": 1561,
+      "p95": 1561,
+      "max": 1561
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 546,
+      "median": 546,
+      "p95": 546,
+      "max": 546
+     }
+    },
+    {
+     "i": 18,
+     "text": "Localizar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 33,
+      "median": 33,
+      "p95": 33,
+      "max": 33
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1561,
+      "median": 1561,
+      "p95": 1561,
+      "max": 1561
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 540,
+      "median": 540,
+      "p95": 540,
+      "max": 540
+     }
+    },
+    {
+     "i": 19,
+     "text": "Registrar.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 40,
+      "median": 40,
+      "p95": 40,
+      "max": 40
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1589,
+      "median": 1589,
+      "p95": 1589,
+      "max": 1589
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 545,
+      "median": 545,
+      "p95": 545,
+      "max": 545
+     }
+    },
+    {
+     "i": 20,
+     "text": "Ese es el proceso que permite transformar una imagen en información.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 32,
+      "median": 32,
+      "p95": 32,
+      "max": 32
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4653,
+      "median": 4653,
+      "p95": 4653,
+      "max": 4653
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1037,
+      "median": 1037,
+      "p95": 1037,
+      "max": 1037
+     }
+    },
+    {
+     "i": 21,
+     "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 36,
+      "median": 36,
+      "p95": 36,
+      "max": 36
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4817,
+      "median": 4817,
+      "p95": 4817,
+      "max": 4817
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1537,
+      "median": 1537,
+      "p95": 1537,
+      "max": 1537
+     }
+    },
+    {
+     "i": 22,
+     "text": "Un sistema de percepción, para observar mi entorno.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 36,
+      "median": 36,
+      "p95": 36,
+      "max": 36
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4003,
+      "median": 4003,
+      "p95": 4003,
+      "max": 4003
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1245,
+      "median": 1245,
+      "p95": 1245,
+      "max": 1245
+     }
+    },
+    {
+     "i": 23,
+     "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 43,
+      "median": 43,
+      "p95": 43,
+      "max": 43
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4975,
+      "median": 4975,
+      "p95": 4975,
+      "max": 4975
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1052,
+      "median": 1052,
+      "p95": 1052,
+      "max": 1052
+     }
+    },
+    {
+     "i": 24,
+     "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 43,
+      "median": 43,
+      "p95": 43,
+      "max": 43
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 5472,
+      "median": 5472,
+      "p95": 5472,
+      "max": 5472
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1054,
+      "median": 1054,
+      "p95": 1054,
+      "max": 1054
+     }
+    },
+    {
+     "i": 25,
+     "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 39,
+      "median": 39,
+      "p95": 39,
+      "max": 39
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 6212,
+      "median": 6212,
+      "p95": 6212,
+      "max": 6212
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1044,
+      "median": 1044,
+      "p95": 1044,
+      "max": 1044
+     }
+    },
+    {
+     "i": 26,
+     "text": "No soy solamente una cámara.",
+     "pause_scripted_ms": 900,
+     "latency_ms": {
+      "n": 1,
+      "min": 233,
+      "median": 233,
+      "p95": 233,
+      "max": 233
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2675,
+      "median": 2675,
+      "p95": 2675,
+      "max": 2675
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1733,
+      "median": 1733,
+      "p95": 1733,
+      "max": 1733
+     }
+    },
+    {
+     "i": 27,
+     "text": "No soy solamente un robot.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 111,
+      "median": 111,
+      "p95": 111,
+      "max": 111
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2564,
+      "median": 2564,
+      "p95": 2564,
+      "max": 2564
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1012,
+      "median": 1012,
+      "p95": 1012,
+      "max": 1012
+     }
+    },
+    {
+     "i": 28,
+     "text": "Soy la integración de estos sistemas para resolver un problema.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 114,
+      "median": 114,
+      "p95": 114,
+      "max": 114
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4312,
+      "median": 4312,
+      "p95": 4312,
+      "max": 4312
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1315,
+      "median": 1315,
+      "p95": 1315,
+      "max": 1315
+     }
+    },
+    {
+     "i": 29,
+     "text": "¿Quieren ver cómo funciono?",
+     "pause_scripted_ms": 58000,
+     "latency_ms": {
+      "n": 1,
+      "min": 60,
+      "median": 60,
+      "p95": 60,
+      "max": 60
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2534,
+      "median": 2534,
+      "p95": 2534,
+      "max": 2534
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1587,
+      "median": 1587,
+      "p95": 1587,
+      "max": 1587
+     }
+    },
+    {
+     "i": 30,
+     "text": "Dígame, señor.",
+     "pause_scripted_ms": 4000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1131,
+      "median": 1131,
+      "p95": 1131,
+      "max": 1131
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2347,
+      "median": 2347,
+      "p95": 2347,
+      "max": 2347
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 31,
+     "text": "En un momento.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 658,
+      "median": 658,
+      "p95": 658,
+      "max": 658
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1781,
+      "median": 1781,
+      "p95": 1781,
+      "max": 1781
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4685,
+      "median": 4685,
+      "p95": 4685,
+      "max": 4685
+     }
+    },
+    {
+     "i": 32,
+     "text": "Esto es lo que soy capaz de ver ahora mismo.",
+     "pause_scripted_ms": 30000,
+     "latency_ms": {
+      "n": 1,
+      "min": 76,
+      "median": 76,
+      "p95": 76,
+      "max": 76
+     },
+     "dur_ms": null,
+     "gap_before_ms": {
+      "n": 1,
+      "min": 882,
+      "median": 882,
+      "p95": 882,
+      "max": 882
+     }
+    }
+   ],
+   "raw_runs": [
+    {
+     "file": "offline\\run-01.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:21:27.080Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": {
+      "offline": true,
+      "latency": 0,
+      "downloadThroughput": -1,
+      "uploadThroughput": -1
+     },
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 12654.400000000373,
+     "script_start_to_first_audio_ms": 1664.5999999996275,
+     "total_click_to_last_end_ms": null,
+     "total_first_start_to_last_end_ms": null,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 112528,
+     "line30_start_to_last_end_ms": null
+    }
+   ]
+  },
+  "slow4g": {
+   "runs": 1,
+   "engine": [
+    "ElevenLabs (/robot/tts)"
+   ],
+   "conditions": {
+    "latency": 562.5,
+    "downloadThroughput": 180000,
+    "uploadThroughput": 84375
+   },
+   "command_to_first_audio": {
+    "script_start_to_first_audio_ms": {
+     "n": 1,
+     "min": 6663,
+     "median": 6663,
+     "p95": 6663,
+     "max": 6663
+    },
+    "hidden_button_click_to_first_audio_ms": {
+     "n": 1,
+     "min": 17711,
+     "median": 17711,
+     "p95": 17711,
+     "max": 17711
+    }
+   },
+   "pooled": {
+    "latency_req_to_audio_ms": {
+     "n": 32,
+     "min": 1149,
+     "median": 1860,
+     "p95": 5242,
+     "max": 6663
+    },
+    "tts_response_headers_ms": {
+     "n": 32,
+     "min": 1038,
+     "median": 1564,
+     "p95": 4149,
+     "max": 5307
+    },
+    "gap_minus_scripted_pause_ms": {
+     "n": 30,
+     "min": 1153,
+     "median": 1852,
+     "p95": 4094,
+     "max": 6159
+    },
+    "rebuffer_events_total": 1
+   },
+   "total": {
+    "note": "click_to_last / first_audio_to_last incluyen el bloque del expositor (temporizador de 70.3 s en el flujo viejo) — para el video usar los dos tramos separados.",
+    "click_to_last_line_end_ms": {
+     "n": 1,
+     "min": 254885,
+     "median": 254885,
+     "p95": 254885,
+     "max": 254885
+    },
+    "first_audio_to_last_line_end_ms": {
+     "n": 1,
+     "min": 237174,
+     "median": 237174,
+     "p95": 237174,
+     "max": 237174
+    },
+    "first_audio_to_question_end_ms": {
+     "n": 1,
+     "min": 152275,
+     "median": 152275,
+     "p95": 152275,
+     "max": 152275
+    },
+    "line30_start_to_last_end_ms": {
+     "n": 1,
+     "min": 12560,
+     "median": 12560,
+     "p95": 12560,
+     "max": 12560
+    }
+   },
+   "interaction": {
+    "lumina_dispatch_to_digame_audio_ms": null,
+    "note": "Desde que robot.js despacha «lumina» (después del debounce de 600 ms del reconocimiento) hasta que suena «Dígame, señor.». Falta sumar la latencia del reconocimiento (phase0/recognition-test.html)."
+   },
+   "per_line": [
+    {
+     "i": 1,
+     "text": "Buenas tardes.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 6663,
+      "median": 6663,
+      "p95": 6663,
+      "max": 6663
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1333,
+      "median": 1333,
+      "p95": 1333,
+      "max": 1333
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 2,
+     "text": "Mi nombre es Aether.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1832,
+      "median": 1832,
+      "p95": 1832,
+      "max": 1832
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1446,
+      "median": 1446,
+      "p95": 1446,
+      "max": 1446
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1882,
+      "median": 1882,
+      "p95": 1882,
+      "max": 1882
+     }
+    },
+    {
+     "i": 3,
+     "text": "Soy un sistema autónomo de inventario.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1601,
+      "median": 1601,
+      "p95": 1601,
+      "max": 1601
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2566,
+      "median": 2566,
+      "p95": 2566,
+      "max": 2566
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1603,
+      "median": 1603,
+      "p95": 1603,
+      "max": 1603
+     }
+    },
+    {
+     "i": 4,
+     "text": "Yo observo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1435,
+      "median": 1435,
+      "p95": 1435,
+      "max": 1435
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1051,
+      "median": 1051,
+      "p95": 1051,
+      "max": 1051
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1436,
+      "median": 1436,
+      "p95": 1436,
+      "max": 1436
+     }
+    },
+    {
+     "i": 5,
+     "text": "Eso es lo primero que hago.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 1439,
+      "median": 1439,
+      "p95": 1439,
+      "max": 1439
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1723,
+      "median": 1723,
+      "p95": 1723,
+      "max": 1723
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1441,
+      "median": 1441,
+      "p95": 1441,
+      "max": 1441
+     }
+    },
+    {
+     "i": 6,
+     "text": "Una imagen aparece.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 2094,
+      "median": 2094,
+      "p95": 2094,
+      "max": 2094
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1399,
+      "median": 1399,
+      "p95": 1399,
+      "max": 1399
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2205,
+      "median": 2205,
+      "p95": 2205,
+      "max": 2205
+     }
+    },
+    {
+     "i": 7,
+     "text": "Encuentro algo.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 1370,
+      "median": 1370,
+      "p95": 1370,
+      "max": 1370
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1181,
+      "median": 1181,
+      "p95": 1181,
+      "max": 1181
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2197,
+      "median": 2197,
+      "p95": 2197,
+      "max": 2197
+     }
+    },
+    {
+     "i": 8,
+     "text": "Intento identificarlo.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 1920,
+      "median": 1920,
+      "p95": 1920,
+      "max": 1920
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1666,
+      "median": 1666,
+      "p95": 1666,
+      "max": 1666
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2752,
+      "median": 2752,
+      "p95": 2752,
+      "max": 2752
+     }
+    },
+    {
+     "i": 9,
+     "text": "Pero encontrar algo no significa entenderlo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2256,
+      "median": 2256,
+      "p95": 2256,
+      "max": 2256
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2482,
+      "median": 2482,
+      "p95": 2482,
+      "max": 2482
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3619,
+      "median": 3619,
+      "p95": 3619,
+      "max": 3619
+     }
+    },
+    {
+     "i": 10,
+     "text": "Una cámara puede detectar un objeto.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 2262,
+      "median": 2262,
+      "p95": 2262,
+      "max": 2262
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2288,
+      "median": 2288,
+      "p95": 2288,
+      "max": 2288
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2281,
+      "median": 2281,
+      "p95": 2281,
+      "max": 2281
+     }
+    },
+    {
+     "i": 11,
+     "text": "Pero detectar no significa saber qué es.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 1932,
+      "median": 1932,
+      "p95": 1932,
+      "max": 1932
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2399,
+      "median": 2399,
+      "p95": 2399,
+      "max": 2399
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1948,
+      "median": 1948,
+      "p95": 1948,
+      "max": 1948
+     }
+    },
+    {
+     "i": 12,
+     "text": "Y saber qué es no significa necesariamente saber dónde está.",
+     "pause_scripted_ms": 1300,
+     "latency_ms": {
+      "n": 1,
+      "min": 3164,
+      "median": 3164,
+      "p95": 3164,
+      "max": 3164
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3783,
+      "median": 3783,
+      "p95": 3783,
+      "max": 3783
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4367,
+      "median": 4367,
+      "p95": 4367,
+      "max": 4367
+     }
+    },
+    {
+     "i": 13,
+     "text": "Mucho menos significa saber si esa información es confiable.",
+     "pause_scripted_ms": 2000,
+     "latency_ms": {
+      "n": 1,
+      "min": 4805,
+      "median": 4805,
+      "p95": 4805,
+      "max": 4805
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3341,
+      "median": 3341,
+      "p95": 3341,
+      "max": 3341
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 6152,
+      "median": 6152,
+      "p95": 6152,
+      "max": 6152
+     }
+    },
+    {
+     "i": 14,
+     "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+     "pause_scripted_ms": 0,
+     "latency_ms": {
+      "n": 1,
+      "min": 3094,
+      "median": 3094,
+      "p95": 3094,
+      "max": 3094
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3059,
+      "median": 3059,
+      "p95": 3059,
+      "max": 3059
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5131,
+      "median": 5131,
+      "p95": 5131,
+      "max": 5131
+     }
+    },
+    {
+     "i": 15,
+     "text": "Percibir.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1794,
+      "median": 1794,
+      "p95": 1794,
+      "max": 1794
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1670,
+      "median": 1670,
+      "p95": 1670,
+      "max": 1670
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1823,
+      "median": 1823,
+      "p95": 1823,
+      "max": 1823
+     }
+    },
+    {
+     "i": 16,
+     "text": "Identificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 2215,
+      "median": 2215,
+      "p95": 2215,
+      "max": 2215
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1258,
+      "median": 1258,
+      "p95": 1258,
+      "max": 1258
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2723,
+      "median": 2723,
+      "p95": 2723,
+      "max": 2723
+     }
+    },
+    {
+     "i": 17,
+     "text": "Verificar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1149,
+      "median": 1149,
+      "p95": 1149,
+      "max": 1149
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1024,
+      "median": 1024,
+      "p95": 1024,
+      "max": 1024
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1653,
+      "median": 1653,
+      "p95": 1653,
+      "max": 1653
+     }
+    },
+    {
+     "i": 18,
+     "text": "Localizar.",
+     "pause_scripted_ms": 500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1233,
+      "median": 1233,
+      "p95": 1233,
+      "max": 1233
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1120,
+      "median": 1120,
+      "p95": 1120,
+      "max": 1120
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 1740,
+      "median": 1740,
+      "p95": 1740,
+      "max": 1740
+     }
+    },
+    {
+     "i": 19,
+     "text": "Registrar.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1592,
+      "median": 1592,
+      "p95": 1592,
+      "max": 1592
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1064,
+      "median": 1064,
+      "p95": 1064,
+      "max": 1064
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2119,
+      "median": 2119,
+      "p95": 2119,
+      "max": 2119
+     }
+    },
+    {
+     "i": 20,
+     "text": "Ese es el proceso que permite transformar una imagen en información.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 5776,
+      "median": 5776,
+      "p95": 5776,
+      "max": 5776
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4221,
+      "median": 4221,
+      "p95": 4221,
+      "max": 4221
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 7159,
+      "median": 7159,
+      "p95": 7159,
+      "max": 7159
+     }
+    },
+    {
+     "i": 21,
+     "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 2902,
+      "median": 2902,
+      "p95": 2902,
+      "max": 2902
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3738,
+      "median": 3738,
+      "p95": 3738,
+      "max": 3738
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 4483,
+      "median": 4483,
+      "p95": 4483,
+      "max": 4483
+     }
+    },
+    {
+     "i": 22,
+     "text": "Un sistema de percepción, para observar mi entorno.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1684,
+      "median": 1684,
+      "p95": 1684,
+      "max": 1684
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3081,
+      "median": 3081,
+      "p95": 3081,
+      "max": 3081
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2894,
+      "median": 2894,
+      "p95": 2894,
+      "max": 2894
+     }
+    },
+    {
+     "i": 23,
+     "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2636,
+      "median": 2636,
+      "p95": 2636,
+      "max": 2636
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4175,
+      "median": 4175,
+      "p95": 4175,
+      "max": 4175
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3656,
+      "median": 3656,
+      "p95": 3656,
+      "max": 3656
+     }
+    },
+    {
+     "i": 24,
+     "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+     "pause_scripted_ms": 1000,
+     "latency_ms": {
+      "n": 1,
+      "min": 2048,
+      "median": 2048,
+      "p95": 2048,
+      "max": 2048
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 4370,
+      "median": 4370,
+      "p95": 4370,
+      "max": 4370
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3051,
+      "median": 3051,
+      "p95": 3051,
+      "max": 3051
+     }
+    },
+    {
+     "i": 25,
+     "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 2624,
+      "median": 2624,
+      "p95": 2624,
+      "max": 2624
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 5100,
+      "median": 5100,
+      "p95": 5100,
+      "max": 5100
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3632,
+      "median": 3632,
+      "p95": 3632,
+      "max": 3632
+     }
+    },
+    {
+     "i": 26,
+     "text": "No soy solamente una cámara.",
+     "pause_scripted_ms": 900,
+     "latency_ms": {
+      "n": 1,
+      "min": 1562,
+      "median": 1562,
+      "p95": 1562,
+      "max": 1562
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1706,
+      "median": 1706,
+      "p95": 1706,
+      "max": 1706
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3083,
+      "median": 3083,
+      "p95": 3083,
+      "max": 3083
+     }
+    },
+    {
+     "i": 27,
+     "text": "No soy solamente un robot.",
+     "pause_scripted_ms": 1200,
+     "latency_ms": {
+      "n": 1,
+      "min": 1467,
+      "median": 1467,
+      "p95": 1467,
+      "max": 1467
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1722,
+      "median": 1722,
+      "p95": 1722,
+      "max": 1722
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2381,
+      "median": 2381,
+      "p95": 2381,
+      "max": 2381
+     }
+    },
+    {
+     "i": 28,
+     "text": "Soy la integración de estos sistemas para resolver un problema.",
+     "pause_scripted_ms": 1500,
+     "latency_ms": {
+      "n": 1,
+      "min": 1742,
+      "median": 1742,
+      "p95": 1742,
+      "max": 1742
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 3391,
+      "median": 3391,
+      "p95": 3391,
+      "max": 3391
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2949,
+      "median": 2949,
+      "p95": 2949,
+      "max": 2949
+     }
+    },
+    {
+     "i": 29,
+     "text": "¿Quieren ver cómo funciono?",
+     "pause_scripted_ms": 58000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1462,
+      "median": 1462,
+      "p95": 1462,
+      "max": 1462
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1522,
+      "median": 1522,
+      "p95": 1522,
+      "max": 1522
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 3038,
+      "median": 3038,
+      "p95": 3038,
+      "max": 3038
+     }
+    },
+    {
+     "i": 30,
+     "text": "Dígame, señor.",
+     "pause_scripted_ms": 4000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1889,
+      "median": 1889,
+      "p95": 1889,
+      "max": 1889
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1167,
+      "median": 1167,
+      "p95": 1167,
+      "max": 1167
+     },
+     "gap_before_ms": null
+    },
+    {
+     "i": 31,
+     "text": "En un momento.",
+     "pause_scripted_ms": 800,
+     "latency_ms": {
+      "n": 1,
+      "min": 1451,
+      "median": 1451,
+      "p95": 1451,
+      "max": 1451
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 1066,
+      "median": 1066,
+      "p95": 1066,
+      "max": 1066
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 5460,
+      "median": 5460,
+      "p95": 5460,
+      "max": 5460
+     }
+    },
+    {
+     "i": 32,
+     "text": "Esto es lo que soy capaz de ver ahora mismo.",
+     "pause_scripted_ms": 30000,
+     "latency_ms": {
+      "n": 1,
+      "min": 1399,
+      "median": 1399,
+      "p95": 1399,
+      "max": 1399
+     },
+     "dur_ms": {
+      "n": 1,
+      "min": 2664,
+      "median": 2664,
+      "p95": 2664,
+      "max": 2664
+     },
+     "gap_before_ms": {
+      "n": 1,
+      "min": 2203,
+      "median": 2203,
+      "p95": 2203,
+      "max": 2203
+     }
+    }
+   ],
+   "raw_runs": [
+    {
+     "file": "slow4g\\run-01.json",
+     "run": 1,
+     "cold": true,
+     "status": "ok",
+     "wallStart": "2026-09-28T23:45:40.023Z",
+     "chromeVersion": "154.0.8037.58",
+     "conditions": {
+      "latency": 562.5,
+      "downloadThroughput": 180000,
+      "uploadThroughput": 84375
+     },
+     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+     "click_to_first_audio_ms": 17711.199999999255,
+     "script_start_to_first_audio_ms": 6663.399999999441,
+     "total_click_to_last_end_ms": 254885.09999999963,
+     "total_first_start_to_last_end_ms": 237173.90000000037,
+     "flow": "temporizador 70.3 s (robot.js original)",
+     "lumina_dispatch_to_line30_start_ms": null,
+     "first_start_to_line29_end_ms": 152275,
+     "line30_start_to_last_end_ms": 12559.5
+    }
+   ]
+  }
+ },
+ "show_channel_relay": {
+  "note": "robot.js → WebSocket → backend /show/ws → otro cliente, misma máquina (sin desfase de reloj). En el escenario suma la red local entre equipos.",
+  "sent_to_received_ms": {
+   "n": 102,
+   "min": 0,
+   "median": 4,
+   "p95": 41,
+   "max": 775
+  },
+  "events": 102
+ },
+ "voice_onset_in_mp3": {
+  "note": "Silencio al inicio del mp3 real de ElevenLabs = retraso entre el evento 'playing' y la primera sílaba.",
+  "lead_silence_ms": {
+   "n": 32,
+   "min": 0,
+   "median": 55,
+   "p95": 101,
+   "max": 102
+  },
+  "trail_silence_ms": {
+   "n": 32,
+   "min": 0,
+   "median": 0,
+   "p95": 0,
+   "max": 0
+  }
+ },
+ "reference_vs_live": {
+  "reference_file": "lumina_audio/Lumina_guion_con_pausas.mp3",
+  "reference_total_ms": 250128,
+  "reference_format": "stream|codec_name=mp3|sample_rate=24000|channels=1|bit_rate=48000",
+  "live_format": "stream|codec_name=mp3|sample_rate=44100|channels=1|bit_rate=128000",
+  "per_line": [
+   {
+    "i": 1,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 814,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1071,
+     "median": 1071,
+     "p95": 1071,
+     "max": 1071
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1071,
+     "median": 1071,
+     "p95": 1071,
+     "max": 1071
+    }
+   },
+   {
+    "i": 2,
+    "ref_file_ms": 2184,
+    "ref_speech_ms": 1061,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1437,
+     "median": 1437,
+     "p95": 1437,
+     "max": 1437
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1437,
+     "median": 1437,
+     "p95": 1437,
+     "max": 1437
+    }
+   },
+   {
+    "i": 3,
+    "ref_file_ms": 3096,
+    "ref_speech_ms": 1996,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 2325,
+     "median": 2325,
+     "p95": 2325,
+     "max": 2325
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 2325,
+     "median": 2325,
+     "p95": 2325,
+     "max": 2325
+    }
+   },
+   {
+    "i": 4,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 753,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    }
+   },
+   {
+    "i": 5,
+    "ref_file_ms": 2496,
+    "ref_speech_ms": 1414,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1802,
+     "median": 1802,
+     "p95": 1802,
+     "max": 1802
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1855,
+     "median": 1855,
+     "p95": 1855,
+     "max": 1855
+    }
+   },
+   {
+    "i": 6,
+    "ref_file_ms": 2208,
+    "ref_speech_ms": 1166,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1330,
+     "median": 1330,
+     "p95": 1330,
+     "max": 1330
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1384,
+     "median": 1384,
+     "p95": 1384,
+     "max": 1384
+    }
+   },
+   {
+    "i": 7,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 846,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1087,
+     "median": 1087,
+     "p95": 1087,
+     "max": 1087
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1149,
+     "median": 1149,
+     "p95": 1149,
+     "max": 1149
+    }
+   },
+   {
+    "i": 8,
+    "ref_file_ms": 2352,
+    "ref_speech_ms": 1293,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1566,
+     "median": 1566,
+     "p95": 1566,
+     "max": 1566
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1620,
+     "median": 1620,
+     "p95": 1620,
+     "max": 1620
+    }
+   },
+   {
+    "i": 9,
+    "ref_file_ms": 3384,
+    "ref_speech_ms": 2304,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 2407,
+     "median": 2407,
+     "p95": 2407,
+     "max": 2407
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 2508,
+     "median": 2508,
+     "p95": 2508,
+     "max": 2508
+    }
+   },
+   {
+    "i": 10,
+    "ref_file_ms": 3000,
+    "ref_speech_ms": 1963,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 2112,
+     "median": 2112,
+     "p95": 2112,
+     "max": 2112
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 2168,
+     "median": 2168,
+     "p95": 2168,
+     "max": 2168
+    }
+   },
+   {
+    "i": 11,
+    "ref_file_ms": 3384,
+    "ref_speech_ms": 2289,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 2301,
+     "median": 2301,
+     "p95": 2301,
+     "max": 2301
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 2403,
+     "median": 2403,
+     "p95": 2403,
+     "max": 2403
+    }
+   },
+   {
+    "i": 12,
+    "ref_file_ms": 4440,
+    "ref_speech_ms": 3355,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 3944,
+     "median": 3944,
+     "p95": 3944,
+     "max": 3944
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 3997,
+     "median": 3997,
+     "p95": 3997,
+     "max": 3997
+    }
+   },
+   {
+    "i": 13,
+    "ref_file_ms": 4296,
+    "ref_speech_ms": 3225,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 3313,
+     "median": 3313,
+     "p95": 3313,
+     "max": 3313
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 3370,
+     "median": 3370,
+     "p95": 3370,
+     "max": 3370
+    }
+   },
+   {
+    "i": 14,
+    "ref_file_ms": 4080,
+    "ref_speech_ms": 2998,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 3006,
+     "median": 3006,
+     "p95": 3006,
+     "max": 3006
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 3109,
+     "median": 3109,
+     "p95": 3109,
+     "max": 3109
+    }
+   },
+   {
+    "i": 15,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 541,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 990,
+     "median": 990,
+     "p95": 990,
+     "max": 990
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1071,
+     "median": 1071,
+     "p95": 1071,
+     "max": 1071
+    }
+   },
+   {
+    "i": 16,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 830,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1203,
+     "median": 1203,
+     "p95": 1203,
+     "max": 1203
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1254,
+     "median": 1254,
+     "p95": 1254,
+     "max": 1254
+    }
+   },
+   {
+    "i": 17,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 679,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    }
+   },
+   {
+    "i": 18,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 661,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1015,
+     "median": 1015,
+     "p95": 1015,
+     "max": 1015
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1071,
+     "median": 1071,
+     "p95": 1071,
+     "max": 1071
+    }
+   },
+   {
+    "i": 19,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 693,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    }
+   },
+   {
+    "i": 20,
+    "ref_file_ms": 4800,
+    "ref_speech_ms": 3715,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 4014,
+     "median": 4014,
+     "p95": 4014,
+     "max": 4014
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 4075,
+     "median": 4075,
+     "p95": 4075,
+     "max": 4075
+    }
+   },
+   {
+    "i": 21,
+    "ref_file_ms": 4776,
+    "ref_speech_ms": 3681,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 3569,
+     "median": 3569,
+     "p95": 3569,
+     "max": 3569
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 3657,
+     "median": 3657,
+     "p95": 3657,
+     "max": 3657
+    }
+   },
+   {
+    "i": 22,
+    "ref_file_ms": 3936,
+    "ref_speech_ms": 2872,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 3102,
+     "median": 3102,
+     "p95": 3102,
+     "max": 3102
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 3161,
+     "median": 3161,
+     "p95": 3161,
+     "max": 3161
+    }
+   },
+   {
+    "i": 23,
+    "ref_file_ms": 4800,
+    "ref_speech_ms": 3743,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 4125,
+     "median": 4125,
+     "p95": 4125,
+     "max": 4125
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 4180,
+     "median": 4180,
+     "p95": 4180,
+     "max": 4180
+    }
+   },
+   {
+    "i": 24,
+    "ref_file_ms": 5376,
+    "ref_speech_ms": 4331,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 4304,
+     "median": 4304,
+     "p95": 4304,
+     "max": 4304
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 4362,
+     "median": 4362,
+     "p95": 4362,
+     "max": 4362
+    }
+   },
+   {
+    "i": 25,
+    "ref_file_ms": 6192,
+    "ref_speech_ms": 5123,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 4907,
+     "median": 4907,
+     "p95": 4907,
+     "max": 4907
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 4963,
+     "median": 4963,
+     "p95": 4963,
+     "max": 4963
+    }
+   },
+   {
+    "i": 26,
+    "ref_file_ms": 2688,
+    "ref_speech_ms": 1632,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1672,
+     "median": 1672,
+     "p95": 1672,
+     "max": 1672
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1672,
+     "median": 1672,
+     "p95": 1672,
+     "max": 1672
+    }
+   },
+   {
+    "i": 27,
+    "ref_file_ms": 2592,
+    "ref_speech_ms": 1586,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1672,
+     "median": 1672,
+     "p95": 1672,
+     "max": 1672
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1672,
+     "median": 1672,
+     "p95": 1672,
+     "max": 1672
+    }
+   },
+   {
+    "i": 28,
+    "ref_file_ms": 4344,
+    "ref_speech_ms": 3249,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 3291,
+     "median": 3291,
+     "p95": 3291,
+     "max": 3291
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 3291,
+     "median": 3291,
+     "p95": 3291,
+     "max": 3291
+    }
+   },
+   {
+    "i": 29,
+    "ref_file_ms": 2424,
+    "ref_speech_ms": 1350,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1389,
+     "median": 1389,
+     "p95": 1389,
+     "max": 1389
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1489,
+     "median": 1489,
+     "p95": 1489,
+     "max": 1489
+    }
+   },
+   {
+    "i": 30,
+    "ref_file_ms": 2376,
+    "ref_speech_ms": 1242,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 1097,
+     "median": 1097,
+     "p95": 1097,
+     "max": 1097
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1097,
+     "median": 1097,
+     "p95": 1097,
+     "max": 1097
+    }
+   },
+   {
+    "i": 31,
+    "ref_file_ms": 2088,
+    "ref_speech_ms": 756,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 957,
+     "median": 957,
+     "p95": 957,
+     "max": 957
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 1019,
+     "median": 1019,
+     "p95": 1019,
+     "max": 1019
+    }
+   },
+   {
+    "i": 32,
+    "ref_file_ms": 3264,
+    "ref_speech_ms": 2198,
+    "live_speech_ms": {
+     "n": 1,
+     "min": 2691,
+     "median": 2691,
+     "p95": 2691,
+     "max": 2691
+    },
+    "live_file_ms": {
+     "n": 1,
+     "min": 2691,
+     "median": 2691,
+     "p95": 2691,
+     "max": 2691
+    }
+   }
+  ]
+ }
+}

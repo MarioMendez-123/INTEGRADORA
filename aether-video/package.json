@@ -1,0 +1,52 @@
+{
+  "name": "aether-video",
+  "version": "1.0.0",
+  "description": "AETHER — video de presentación en vivo (Remotion), sincronizado con Lumina",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/bundler": "4.0.529",
+    "@remotion/cli": "4.0.529",
+    "@remotion/google-fonts": "4.0.529",
+    "@remotion/noise": "4.0.529",
+    "@remotion/paths": "4.0.529",
+    "@remotion/player": "4.0.529",
+    "@remotion/renderer": "4.0.529",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.529"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.529",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/web": "0.0.166",
+    "esbuild": "^0.28.2",
+    "eslint": "9.19.0",
+    "playwright-core": "^1.63.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "phase0:measure": "node phase0/measure-lumina.mjs",
+    "phase0:analyze": "node phase0/analyze.mjs",
+    "timeline": "node scripts/build-timeline.mjs",
+    "music": "node scripts/music.mjs",
+    "levels": "node scripts/levels.mjs",
+    "stills": "node scripts/stills.mjs",
+    "render": "node scripts/render.mjs",
+    "player:build": "esbuild player/main.tsx --bundle --minify --format=iife --jsx=automatic --loader:.js=jsx --define:process.env.NODE_ENV=\\\"production\\\" --outfile=player/dist/player.js",
+    "show": "npm run player:build && node scripts/serve.mjs 5055",
+    "test": "node player/controller.test.mjs",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "web:build": "esbuild web/embed.tsx --bundle --minify --format=iife --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=../dashboard/web-scenes.js",
+    "call:build": "esbuild call/embed.tsx --bundle --minify --format=iife --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=../dashboard/call-screen.js"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

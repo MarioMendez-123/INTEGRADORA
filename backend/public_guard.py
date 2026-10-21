@@ -146,7 +146,11 @@ def _too_many(ip: str) -> bool:
 
 
 def security_headers(restricted: bool, https: bool) -> list[tuple[bytes, bytes]]:
-    camera = b"camera=(), microphone=(), geolocation=()" if restricted else b"camera=(self), microphone=(), geolocation=()"
+    camera = (
+        b"camera=(), microphone=(), geolocation=()"
+        if restricted
+        else b"camera=(self), microphone=(self), geolocation=()"
+    )
     rows = [
         (b"x-content-type-options", b"nosniff"),
         (b"referrer-policy", b"strict-origin-when-cross-origin"),

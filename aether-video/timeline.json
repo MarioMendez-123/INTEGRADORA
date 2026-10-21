@@ -1,0 +1,764 @@
+{
+ "version": 1,
+ "fps": 30,
+ "width": 1920,
+ "height": 1080,
+ "maxDurationMs": 330000,
+ "durationMs": 264989,
+ "measured": {
+  "from": "phase0/lumina_timing.json",
+  "profile": "none",
+  "runs": 4,
+  "note": "Tiempos de frases = mediana por frase (no mediana de la suma). En vivo, cada cue se dispara con el evento real; estos tiempos solo calibran el MP4 y el modo de ensayo."
+ },
+ "sync": {
+  "voiceOnsetAfterPlayingMs": 55,
+  "relayMs": {
+   "median": 4,
+   "p95": 41
+  },
+  "latencyMs": {
+   "median": 1428,
+   "p95": 2696,
+   "max": 8988
+  },
+  "watchdog": {
+   "withoutRequestMs": "pausa del guion + 4196",
+   "afterRequestMs": 10488,
+   "note": "Sin line-request (enlace caído): pausa + p95 medido + 1.5 s. Con line-request (Lumina viva, audio en camino): latencia máxima medida + 1.5 s. Ambos se estiran 1.5× la mayor latencia reciente. Si vence, el video avanza con la duración mediana y lo registra."
+  },
+  "targetMs": {
+   "median": 250,
+   "p95": 500
+  }
+ },
+ "pausesMs": [
+  0,
+  0,
+  0,
+  0,
+  0,
+  800,
+  800,
+  1300,
+  0,
+  0,
+  1200,
+  1300,
+  2000,
+  0,
+  500,
+  500,
+  500,
+  500,
+  1000,
+  1500,
+  1200,
+  1000,
+  1000,
+  1000,
+  1500,
+  900,
+  1200,
+  1500,
+  0,
+  4000,
+  800,
+  52500
+ ],
+ "acts": [
+  {
+   "id": "despertar",
+   "energy": [
+    0.1,
+    0.2
+   ],
+   "startCue": "wake"
+  },
+  {
+   "id": "observacion",
+   "energy": [
+    0.2,
+    0.35
+   ],
+   "startCue": "L04"
+  },
+  {
+   "id": "problema",
+   "energy": [
+    0.35,
+    0.25
+   ],
+   "startCue": "L09"
+  },
+  {
+   "id": "solucion",
+   "energy": [
+    0.25,
+    0.45
+   ],
+   "startCue": "L14"
+  },
+  {
+   "id": "revelacion",
+   "energy": [
+    0.45,
+    0.55
+   ],
+   "startCue": "L20"
+  },
+  {
+   "id": "arquitectura",
+   "energy": [
+    0.55,
+    0.7
+   ],
+   "startCue": "L21"
+  },
+  {
+   "id": "integracion",
+   "energy": [
+    0.7,
+    0.85
+   ],
+   "startCue": "L26"
+  },
+  {
+   "id": "pregunta",
+   "energy": [
+    0.85,
+    0.15
+   ],
+   "startCue": "L29"
+  },
+  {
+   "id": "expositor",
+   "energy": [
+    0.1,
+    0.15
+   ],
+   "startCue": "await"
+  },
+  {
+   "id": "interaccion",
+   "energy": [
+    0.15,
+    0.3
+   ],
+   "startCue": "heard"
+  },
+  {
+   "id": "demo",
+   "energy": [
+    0.3,
+    0.5
+   ],
+   "startCue": "camera"
+  },
+  {
+   "id": "evolucion",
+   "energy": [
+    0.5,
+    0.75
+   ],
+   "startCue": "C1"
+  },
+  {
+   "id": "cierre",
+   "energy": [
+    0.75,
+    0
+   ],
+   "startCue": "C3"
+  }
+ ],
+ "cues": [
+  {
+   "id": "wake",
+   "act": "despertar",
+   "trigger": {
+    "type": "lumina",
+    "event": "wake"
+   },
+   "atMs": 2000,
+   "source": "diseño: 2 s de negro antes del encendido"
+  },
+  {
+   "id": "start",
+   "act": "despertar",
+   "trigger": {
+    "type": "lumina",
+    "event": "script-start"
+   },
+   "atMs": 6000,
+   "source": "diseño: el expositor dice «Iniciar presentación» (tiempo humano, no medible)"
+  },
+  {
+   "id": "L01",
+   "act": "despertar",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 1
+   },
+   "text": "Buenas tardes.",
+   "atMs": 8057,
+   "durMs": 1196,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L02",
+   "act": "despertar",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 2
+   },
+   "text": "Mi nombre es Aether.",
+   "atMs": 10430,
+   "durMs": 1532,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L03",
+   "act": "despertar",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 3
+   },
+   "text": "Soy un sistema autónomo de inventario.",
+   "atMs": 13268,
+   "durMs": 2322,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L04",
+   "act": "observacion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 4
+   },
+   "text": "Yo observo.",
+   "atMs": 16844,
+   "durMs": 1044,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L05",
+   "act": "observacion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 5
+   },
+   "text": "Eso es lo primero que hago.",
+   "atMs": 19318,
+   "durMs": 1834,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L06",
+   "act": "observacion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 6
+   },
+   "text": "Una imagen aparece.",
+   "atMs": 22558,
+   "durMs": 1382,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L07",
+   "act": "observacion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 7
+   },
+   "text": "Encuentro algo.",
+   "atMs": 26052,
+   "durMs": 1160,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L08",
+   "act": "observacion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 8
+   },
+   "text": "Intento identificarlo.",
+   "atMs": 29188,
+   "durMs": 1581,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L09",
+   "act": "problema",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 9
+   },
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "atMs": 33582,
+   "durMs": 2479,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L10",
+   "act": "problema",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 10
+   },
+   "text": "Una cámara puede detectar un objeto.",
+   "atMs": 37382,
+   "durMs": 2221,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L11",
+   "act": "problema",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 11
+   },
+   "text": "Pero detectar no significa saber qué es.",
+   "atMs": 40984,
+   "durMs": 2415,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L12",
+   "act": "problema",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 12
+   },
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "atMs": 46142,
+   "durMs": 3894,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L13",
+   "act": "problema",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 13
+   },
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "atMs": 52943,
+   "durMs": 3429,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L14",
+   "act": "solucion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 14
+   },
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "atMs": 60012,
+   "durMs": 3108,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L15",
+   "act": "solucion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 15
+   },
+   "text": "Percibir.",
+   "atMs": 64396,
+   "durMs": 1051,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L16",
+   "act": "solucion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 16
+   },
+   "text": "Identificar.",
+   "atMs": 67144,
+   "durMs": 1273,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L17",
+   "act": "solucion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 17
+   },
+   "text": "Verificar.",
+   "atMs": 70240,
+   "durMs": 1039,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L18",
+   "act": "solucion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 18
+   },
+   "text": "Localizar.",
+   "atMs": 73107,
+   "durMs": 1087,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L19",
+   "act": "solucion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 19
+   },
+   "text": "Registrar.",
+   "atMs": 76069,
+   "durMs": 1031,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L20",
+   "act": "revelacion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 20
+   },
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "atMs": 79699,
+   "durMs": 4124,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L21",
+   "act": "arquitectura",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 21
+   },
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "atMs": 87134,
+   "durMs": 3691,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L22",
+   "act": "arquitectura",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 22
+   },
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "atMs": 93470,
+   "durMs": 3072,
+   "keyWordEndMs": 1411,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L23",
+   "act": "arquitectura",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 23
+   },
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "atMs": 99482,
+   "durMs": 4129,
+   "keyWordEndMs": 1445,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L24",
+   "act": "arquitectura",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 24
+   },
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "atMs": 106555,
+   "durMs": 4408,
+   "keyWordEndMs": 1491,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L25",
+   "act": "arquitectura",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 25
+   },
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "atMs": 113817,
+   "durMs": 4968,
+   "keyWordEndMs": 1271,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L26",
+   "act": "integracion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 26
+   },
+   "text": "No soy solamente una cámara.",
+   "atMs": 121646,
+   "durMs": 1693,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L27",
+   "act": "integracion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 27
+   },
+   "text": "No soy solamente un robot.",
+   "atMs": 125631,
+   "durMs": 1688,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L28",
+   "act": "integracion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 28
+   },
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "atMs": 129971,
+   "durMs": 3375,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L29",
+   "act": "pregunta",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 29
+   },
+   "text": "¿Quieren ver cómo funciono?",
+   "atMs": 136437,
+   "durMs": 1598,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "await",
+   "act": "expositor",
+   "trigger": {
+    "type": "lumina",
+    "event": "await-lumina"
+   },
+   "atMs": 138035,
+   "source": "medido: robot.js emite await-lumina al terminar la frase 29"
+  },
+  {
+   "id": "heard",
+   "act": "interaccion",
+   "trigger": {
+    "type": "lumina",
+    "event": "heard-lumina"
+   },
+   "atMs": 196035,
+   "source": "diseño: bloque del expositor ~58 s (brief); en vivo lo decide el expositor"
+  },
+  {
+   "id": "L30",
+   "act": "interaccion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 30
+   },
+   "text": "Dígame, señor.",
+   "atMs": 198101,
+   "durMs": 1179,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L31",
+   "act": "interaccion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 31
+   },
+   "text": "En un momento.",
+   "atMs": 204545,
+   "durMs": 1076,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "L32",
+   "act": "interaccion",
+   "trigger": {
+    "type": "lumina",
+    "event": "line-start",
+    "i": 32
+   },
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "atMs": 207868,
+   "durMs": 2721,
+   "source": "medido: mediana por frase, perfil sin límite (phase0/lumina_timing.json)"
+  },
+  {
+   "id": "camera",
+   "act": "demo",
+   "trigger": {
+    "type": "lumina",
+    "event": "camera-on"
+   },
+   "atMs": 210589,
+   "source": "medido: robot.js activa la cámara al terminar la frase 32"
+  },
+  {
+   "id": "C1",
+   "act": "evolucion",
+   "trigger": {
+    "type": "clicker",
+    "n": 1
+   },
+   "text": "But we don't want it to end there.",
+   "atMs": 240589,
+   "speaker": "expositor",
+   "source": "diseño: 30 s de demo (pausa de robot.js tras la frase 32)"
+  },
+  {
+   "id": "SEE",
+   "act": "evolucion",
+   "trigger": {
+    "type": "clicker",
+    "n": 2
+   },
+   "text": "We want it to see,",
+   "atMs": 243789,
+   "speaker": "expositor",
+   "source": "diseño: lo dispara el clicker del expositor"
+  },
+  {
+   "id": "UNDERSTAND",
+   "act": "evolucion",
+   "trigger": {
+    "type": "clicker",
+    "n": 3
+   },
+   "text": "understand,",
+   "atMs": 244589,
+   "speaker": "expositor",
+   "source": "diseño: lo dispara el clicker del expositor"
+  },
+  {
+   "id": "DECIDE",
+   "act": "evolucion",
+   "trigger": {
+    "type": "clicker",
+    "n": 4
+   },
+   "text": "and decide.",
+   "atMs": 245489,
+   "speaker": "expositor",
+   "source": "diseño: lo dispara el clicker del expositor"
+  },
+  {
+   "id": "C3",
+   "act": "cierre",
+   "trigger": {
+    "type": "clicker",
+    "n": 5
+   },
+   "text": "Because the future of automation is not to do more.",
+   "atMs": 248489,
+   "speaker": "expositor",
+   "source": "diseño: lo dispara el clicker del expositor"
+  },
+  {
+   "id": "C4",
+   "act": "cierre",
+   "trigger": {
+    "type": "clicker",
+    "n": 6
+   },
+   "text": "It is to learn to do it better.",
+   "atMs": 252089,
+   "speaker": "expositor",
+   "source": "diseño: lo dispara el clicker del expositor"
+  },
+  {
+   "id": "C5",
+   "act": "cierre",
+   "trigger": {
+    "type": "clicker",
+    "n": 7
+   },
+   "text": "This is Aether.",
+   "atMs": 255289,
+   "speaker": "expositor",
+   "source": "diseño: lo dispara el clicker del expositor"
+  },
+  {
+   "id": "silence",
+   "act": "cierre",
+   "trigger": {
+    "type": "after",
+    "cue": "C5",
+    "ms": 2400
+   },
+   "atMs": 257689,
+   "source": "diseño: clímax final 2.4 s tras «This is Aether.»"
+  },
+  {
+   "id": "card",
+   "act": "cierre",
+   "trigger": {
+    "type": "after",
+    "cue": "C5",
+    "ms": 3200
+   },
+   "atMs": 258489,
+   "source": "diseño: 0.8 s de silencio, luego tarjeta"
+  },
+  {
+   "id": "end",
+   "act": "cierre",
+   "trigger": {
+    "type": "after",
+    "cue": "C5",
+    "ms": 9700
+   },
+   "atMs": 264989,
+   "source": "diseño: tarjeta 5 s + fundido a negro 1.5 s"
+  }
+ ]
+}

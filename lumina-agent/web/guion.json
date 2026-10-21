@@ -1,0 +1,389 @@
+[
+ {
+  "speaker": "aether",
+  "text": "Buenas tardes.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Mi nombre es Aether.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Soy un sistema autónomo de inventario.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Yo observo.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Eso es lo primero que hago.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Una imagen aparece.",
+  "pause": 0.8,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Encuentro algo.",
+  "pause": 0.8,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Intento identificarlo.",
+  "pause": 1.3,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Pero encontrar algo no significa entenderlo.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Una cámara puede detectar un objeto.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Pero detectar no significa saber qué es.",
+  "pause": 1.2,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Y saber qué es no significa necesariamente saber dónde está.",
+  "pause": 1.3,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Mucho menos significa saber si esa información es confiable.",
+  "pause": 2,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "cue",
+  "text": "[INICIA LA MÚSICA]"
+ },
+ {
+  "speaker": "aether",
+  "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+  "pause": 0,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Percibir.",
+  "pause": 0.5,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Identificar.",
+  "pause": 0.5,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Verificar.",
+  "pause": 0.5,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Localizar.",
+  "pause": 0.5,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Registrar.",
+  "pause": 1,
+  "mood": "pensando"
+ },
+ {
+  "speaker": "aether",
+  "text": "Ese es el proceso que permite transformar una imagen en información.",
+  "pause": 1.5,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+  "pause": 1.2,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Un sistema de percepción, para observar mi entorno.",
+  "pause": 1,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+  "pause": 1,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+  "pause": 1,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+  "pause": 1.5,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "No soy solamente una cámara.",
+  "pause": 0.9,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "No soy solamente un robot.",
+  "pause": 1.2,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Soy la integración de estos sistemas para resolver un problema.",
+  "pause": 1.5,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "¿Quieren ver cómo funciono?",
+  "pause": 58,
+  "mood": "sorprendido"
+ },
+ {
+  "speaker": "expositor",
+  "text": "Ahora sí.",
+  "pause": 0
+ },
+ {
+  "speaker": "expositor",
+  "text": "Vamos a abrirlo.",
+  "pause": 0.8
+ },
+ {
+  "speaker": "expositor",
+  "text": "Cuando Aether dice que percibe, se refiere a algo concreto: un modelo de detección de objetos llamado YOLO.",
+  "pause": 1.3
+ },
+ {
+  "speaker": "expositor",
+  "text": "Cuando dice que identifica, no está adivinando.",
+  "pause": 0.6
+ },
+ {
+  "speaker": "expositor",
+  "text": "Lee códigos de barras y códigos QR directamente sobre cada objeto que detecta, para saber exactamente qué producto es.",
+  "pause": 1.3
+ },
+ {
+  "speaker": "expositor",
+  "text": "Y cuando dice que verifica su ubicación, lo hace con unos marcadores especiales llamados ArUco.",
+  "pause": 0.7
+ },
+ {
+  "speaker": "expositor",
+  "text": "Es importante ser precisos: esto no es navegación autónoma todavía.",
+  "pause": 0.6
+ },
+ {
+  "speaker": "expositor",
+  "text": "Es una capa de verificación de posición.",
+  "pause": 0.6
+ },
+ {
+  "speaker": "expositor",
+  "text": "Aether confirma dónde está, pero todavía no decide por sí solo cómo recorrer un almacén completo.",
+  "pause": 1.4
+ },
+ {
+  "speaker": "expositor",
+  "text": "Toda esa información está diseñada para procesarse sobre un Jetson Orin Nano Super: un sistema de cómputo en el borde, pensado para ejecutar modelos de inteligencia artificial directamente en el robot.",
+  "pause": 1.3
+ },
+ {
+  "speaker": "expositor",
+  "text": "Y una vez que Aether decide qué vio, esa información no se queda suelta.",
+  "pause": 0.7
+ },
+ {
+  "speaker": "expositor",
+  "text": "Se organiza en un motor de inventario propio, que separa cuidadosamente lo que se observó de lo que se declara como inventario real.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Así evitamos confundir una observación parcial con una certeza de inventario.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Pero no queremos quedarnos en una explicación.",
+  "pause": 0
+ },
+ {
+  "speaker": "expositor",
+  "text": "Queremos que lo vean funcionando.",
+  "pause": 0
+ },
+ {
+  "speaker": "expositor",
+  "text": "Aether.",
+  "pause": 0
+ },
+ {
+  "speaker": "aether",
+  "text": "Dígame, señor.",
+  "pause": 4,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "expositor",
+  "text": "Muéstrales qué puedes ver.",
+  "pause": 0
+ },
+ {
+  "speaker": "aether",
+  "text": "En un momento.",
+  "pause": 0.8,
+  "mood": "neutral"
+ },
+ {
+  "speaker": "aether",
+  "text": "Esto es lo que soy capaz de ver ahora mismo.",
+  "pause": 30,
+  "mood": "neutral",
+  "cueAfter": "activateCamera"
+ },
+ {
+  "speaker": "expositor",
+  "text": "Lo que están viendo no es una animación.",
+  "pause": 0.6
+ },
+ {
+  "speaker": "expositor",
+  "text": "Es la percepción real del sistema, corriendo en este momento frente a ustedes.",
+  "pause": 1.2
+ },
+ {
+  "speaker": "expositor",
+  "text": "Cada caja que aparece sobre la imagen corresponde a una detección real.",
+  "pause": 0.7
+ },
+ {
+  "speaker": "expositor",
+  "text": "Y cada una de esas detecciones se guarda como un registro individual.",
+  "pause": 0
+ },
+ {
+  "speaker": "expositor",
+  "text": "Nosotros le llamamos una Observation.",
+  "pause": 1.4
+ },
+ {
+  "speaker": "expositor",
+  "text": "Después, esa información puede convertirse en inventario declarado.",
+  "pause": 1.2
+ },
+ {
+  "speaker": "expositor",
+  "text": "Esa distinción importa.",
+  "pause": 0.6
+ },
+ {
+  "speaker": "expositor",
+  "text": "Aether no solamente cuenta lo que ve.",
+  "pause": 0.6
+ },
+ {
+  "speaker": "expositor",
+  "text": "Distingue entre lo que observó y lo que puede declarar con certeza.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Y Aether Inventory, lo que están viendo funcionar en este momento, es solamente una pieza del proyecto completo.",
+  "pause": 1.2
+ },
+ {
+  "speaker": "expositor",
+  "text": "Nuestra visión es llevar esta arquitectura hasta una línea de manufactura completa.",
+  "pause": 0.8
+ },
+ {
+  "speaker": "expositor",
+  "text": "A partir de ahí, la arquitectura puede crecer hacia una línea de manufactura donde la información obtenida por Aether pueda utilizarse para coordinar procesos automatizados.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Esa es la dirección que sigue nuestro desarrollo.",
+  "pause": 1
+ },
+ {
+  "speaker": "expositor",
+  "text": "No estamos construyendo solamente una máquina que vea.",
+  "pause": 1
+ },
+ {
+  "speaker": "expositor",
+  "text": "Estamos construyendo una plataforma que pueda convertir lo que ve en información útil para actuar sobre el mundo físico.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Aether comienza observando.",
+  "pause": 1.2
+ },
+ {
+  "speaker": "expositor",
+  "text": "Pero no queremos que termine ahí.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Queremos que vea, comprenda y decida.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Porque el futuro de la automatización no es hacer más.",
+  "pause": 1.5
+ },
+ {
+  "speaker": "expositor",
+  "text": "Es aprender a hacerlo mejor.",
+  "pause": 2
+ },
+ {
+  "speaker": "expositor",
+  "text": "Esto es Aether.",
+  "pause": 0
+ }
+]

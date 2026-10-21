@@ -20,24 +20,42 @@ body.robot-body {
 }
 
 /* ============================================================
-   PALETA "OLED SCI-FI" — sobreescribe --accent SOLO dentro de esta
-   página (cascada de custom properties: :root en style.css sigue
-   intacto para index.html/inventory.html, que no llevan .robot-body).
-   Todo el motor de expresiones ya está construido sobre var(--accent)/
-   var(--positive)/var(--warn) (ver ACCENT_VAR en robot.js) — retinta
-   solo cambiando estos tres tokens, sin tocar una sola línea de JS.
-   El fondo negro con gradiente sutil (body { background: radial-gradient
-   ... } en style.css) ya cumple el look OLED pedido, no se toca aparte.
+   DISEÑO "LA CASA DE NOCHE" (lumina-agent/DISENO.md, secciones 2-3).
+   Tokens OKLCH de marca, locales a esta página; se mapean sobre los
+   nombres que ya usa el motor de expresiones (--accent/--positive/--warn/
+   --text-muted, ver ACCENT_VAR en robot.js), así el JS no cambia.
+   Calma = luz de luna; riesgo = ámbar; confirmación = menta.
    ============================================================ */
 body.robot-body {
-  --accent: #00f3ff;
-  --accent-soft: rgba(0, 243, 255, 0.14);
-  --accent-border: rgba(0, 243, 255, 0.45);
-  /* azul profundo — segundo tono del glow, no reemplaza a --accent, se usa
-     junto a él en .face-eye/.face-mouth para un resplandor de dos capas
-     (cian por dentro, azul eléctrico más difuso por fuera) en vez de un
-     solo color plano repetido. */
-  --accent-2: #0066ff;
+  --night: oklch(17% 0.035 250);
+  --night-deep: oklch(10% 0.022 255);
+  --dusk-raised: oklch(29% 0.044 268);
+  --ink: oklch(95% 0.012 268);
+  --ink-2: oklch(79% 0.03 268);
+  --ink-3: oklch(66% 0.04 268);
+  /* Mismo cian del wordmark y del dashboard: la cara es parte del sistema. */
+  --moon: oklch(86% 0.14 205);
+  --amber: oklch(82% 0.135 72);
+  --mint: oklch(84% 0.09 165);
+  --line-strong: oklch(86% 0.065 268 / 0.22);
+
+  --accent: var(--moon);
+  --accent-soft: oklch(86% 0.065 268 / 0.14);
+  --accent-border: var(--line-strong);
+  --accent-2: oklch(72% 0.17 305); /* segunda capa del glow: halo violeta, como el wordmark */
+  --positive: var(--mint);
+  --warn: var(--amber);
+  --text-muted: var(--ink-3);
+  --border: oklch(86% 0.065 268 / 0.12);
+  --font-sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-mono: var(--font-sans); /* el diseño prohíbe monoespaciadas */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* DISENO.md 10.2 — algo que ya está en pantalla y se mueve */
+  --d-view: 380ms; /* DISENO.md 10.2 — viaje/transición de vista */
+
+  background: radial-gradient(ellipse at 50% 30%, var(--night), var(--night-deep) 75%);
+  font-family: var(--font-sans);
+  color: var(--ink);
 }
 
 /* ============================================================
@@ -56,6 +74,21 @@ body.robot-body {
   text-align: center;
   padding: var(--space-6);
   overflow: hidden;
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity var(--d-view) var(--ease-in-out),
+    transform var(--d-view) var(--ease-in-out);
+}
+
+/* Cambio de vista cara↔cámara (DISENO.md 10.3: "la cara viaja y se
+   encoge") — sin View Transitions API (no la usa el resto del proyecto),
+   así que se aproxima con fundido + escala en los dos elementos, 380ms
+   --d-view, en vez del salto instantáneo de hidden/hidden que había
+   antes. Ver activateRobot()/deactivateRobot() en robot.js. */
+.face-screen--leaving {
+  opacity: 0;
+  transform: scale(0.96);
 }
 
 /* Wrapper externo — recibe el parallax del mouse (ver robot.js) como
@@ -112,6 +145,273 @@ body.robot-body {
   transition:
     opacity 400ms ease,
     background 300ms ease;
+}
+
+/* ---------- fila superior: reloj + estado de voz (DISENO.md 7.1) ---------- */
+.face-topbar {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  pointer-events: none;
+}
+
+.face-clock {
+  /* min-width:0 es lo que de verdad evita el encimado: sin esto, un flex
+     item nunca encoge más allá de su min-content — con la fecha larga
+     ("lunes, 28 de septiembre") eso empuja a la píldora y las letras de
+     ambos quedan una sobre otra en vez de truncarse/apretarse. */
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+  color: var(--ink);
+}
+
+.face-clock-time,
+.face-clock-date {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.face-clock-time {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+.face-clock-date {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+/* Píldora translúcida — reemplaza el punto suelto de antes: ahora lleva
+   el punto (mismo elemento #voice-status-dot, ver robot.js) + una
+   etiqueta de texto con el vocabulario de estado real (Dormida, En
+   espera, Te escucho, Pensando…, Hablando, Buscando con la cámara,
+   Micrófono bloqueado — DISENO.md 7.1). Vacía y sin fondo cuando no hay
+   nada honesto que reportar (arranque, cámara sin cambios de estado). */
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  backdrop-filter: none;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  opacity: 0;
+  flex: 0 0 auto; /* nunca se estira ni se deja aplastar por .face-clock */
+  max-width: 55vw;
+  transition:
+    opacity 250ms ease,
+    background 250ms ease,
+    border-color 250ms ease;
+}
+
+.status-pill span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-pill.status-pill--visible {
+  opacity: 1;
+  background: oklch(17% 0.036 268 / 0.55);
+  border-color: var(--line-strong);
+  backdrop-filter: blur(12px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .status-pill.status-pill--visible {
+    background: var(--dusk-raised);
+    backdrop-filter: none;
+  }
+}
+
+/* ---------- subtítulos + sugerencia (DISENO.md 7.1/10.3) ---------- */
+/* Centrados bajo la cara y grandes: en presentación se leen desde el fondo
+   del salón, no desde el escritorio. */
+.face-captions {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 3;
+  margin: 0;
+  width: min(52ch, 92vw);
+  max-height: 11vh;
+  overflow: hidden;
+  translate: -50% 0;
+  text-align: center;
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 0.75rem + 0.8vw, 1.4rem);
+  line-height: 1.25;
+  color: var(--ink);
+  opacity: 0;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+}
+
+.face-screen--essay .face-captions {
+  bottom: 8.5rem;
+}
+
+.essay-status {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 6;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  width: min(40rem, 88vw);
+  margin: 0;
+  padding: 0.85rem 1.25rem 1rem;
+  border-radius: 16px;
+  background: oklch(14% 0.03 255 / 0.96);
+  border: 1px solid oklch(86% 0.14 205 / 0.45);
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+  color: var(--moon);
+  pointer-events: none;
+}
+
+.essay-status[hidden] {
+  display: none;
+}
+
+.essay-bar {
+  display: block;
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  background: oklch(86% 0.065 268 / 0.28);
+  overflow: hidden;
+  box-shadow: 0 0 18px oklch(86% 0.14 205 / 0.35);
+}
+
+.essay-bar::before {
+  content: "";
+  display: block;
+  width: 35%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--moon);
+  animation: essay-slide 1.3s ease-in-out infinite;
+}
+
+@keyframes essay-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.essay-status--finishing {
+  color: var(--amber);
+  background: oklch(22% 0.05 72 / 0.96);
+}
+
+.essay-status--finishing .essay-bar {
+  height: 14px;
+}
+
+.essay-status--finishing .essay-bar::before {
+  animation: none;
+  width: 100%;
+  transform: none;
+  background: var(--amber);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .essay-bar::before {
+    animation: none;
+    width: 100%;
+    opacity: 0.65;
+  }
+}
+
+.face-captions.face-captions--visible {
+  opacity: 1;
+}
+
+.face-captions .cap-word {
+  opacity: 0.38;
+  transition: opacity 140ms ease;
+}
+
+.face-captions .cap-word--said {
+  opacity: 1;
+}
+
+.face-suggestion {
+  position: absolute;
+  right: var(--space-6);
+  bottom: 9%;
+  z-index: 3;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.face-suggestion.face-suggestion--visible {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  /* Muy angosto: ni truncar alcanza sin verse apretado — se apilan en vez
+     de compartir la misma fila (DISENO.md 7.3 ya apila subtítulos/pastilla
+     en ≤720px; el mismo criterio aplica aquí). */
+  .face-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  .status-pill {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .face-topbar {
+    align-items: center;
+  }
+  .face-clock-time {
+    font-size: 1.5rem;
+  }
+  .face-captions,
+  .face-suggestion {
+    left: var(--space-4);
+    right: var(--space-4);
+    max-width: none;
+    width: auto;
+    translate: none;
+  }
+  .face-suggestion {
+    display: none; /* DISENO.md 7.3: se ocultan las sugerencias ≤720px */
+  }
 }
 
 .face-svg {
@@ -340,9 +640,10 @@ body.robot-body {
   bottom: var(--space-4);
   right: var(--space-4);
   z-index: 5;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 0.875rem;
   padding: 8px 16px;
+  min-height: 44px;
+  border-radius: 10px;
   opacity: 0.16;
   transition:
     opacity 200ms ease,
@@ -355,42 +656,14 @@ body.robot-body {
   opacity: 1;
 }
 
-/* ---------- indicador de estado en texto — discreto a propósito ----------
-   Solo aparece durante escuchando/pensando/hablando (robot.js decide el
-   texto y la visibilidad — ver updateStatusIndicator()); en reposo y en
-   Modo Cámara se queda vacío/oculto, para no romper la sensación de
-   presencia real que pide el comentario grande de robot.html. */
-.status-indicator {
-  position: absolute;
-  bottom: 9%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--face-accent);
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 300ms ease,
-    color 200ms ease;
-}
-
-.status-indicator.status-indicator--visible {
-  opacity: 0.6;
-}
-
-/* ---------- punto de estado de voz — único rastro visible por default ----------
-   El texto completo (permiso, transcripción, errores) va a
-   console.log/warn (ver robot.js) — esto es solo un color con un tooltip
-   nativo (title) para quien lo busque, nunca texto permanente en pantalla. */
+/* ---------- punto dentro de la píldora de estado de voz ----------
+   El texto completo (permiso, transcripción, errores) sigue yendo a
+   console.log/warn (ver robot.js); el punto + la etiqueta de la píldora
+   (ver .status-pill arriba) son el único rastro visible, y solo durante
+   escuchando/pensando/hablando/cámara/bloqueado — nunca en reposo puro,
+   para no romper la sensación de presencia real. */
 .voice-status-dot {
-  position: fixed;
-  top: var(--space-4);
-  right: var(--space-4);
-  z-index: 5;
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -406,14 +679,23 @@ body.robot-body {
 .voice-status-dot--listening {
   background: var(--positive);
   opacity: 0.85;
-  box-shadow: 0 0 8px 1px rgba(95, 167, 121, 0.7);
+  box-shadow: 0 0 8px 1px var(--mint);
   animation: voice-blink 1.4s ease-in-out infinite;
 }
 
 .voice-status-dot--attention {
   background: var(--warn);
   opacity: 0.9;
-  box-shadow: 0 0 8px 1px rgba(224, 166, 74, 0.6);
+  box-shadow: 0 0 8px 1px var(--amber);
+}
+
+/* Llamando/llamada en curso (POST /robot/call vía Zavu) — luz de luna
+   parpadeando más rápido que el escuchando normal, para distinguirse. */
+.voice-status-dot--calling {
+  background: var(--moon);
+  opacity: 0.95;
+  box-shadow: 0 0 8px 1px var(--moon);
+  animation: voice-blink 0.8s ease-in-out infinite;
 }
 
 @keyframes voice-blink {
@@ -434,10 +716,20 @@ body.robot-body {
   position: fixed;
   inset: 0;
   z-index: 10;
-  background: #000;
+  background: var(--night-deep);
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transform: scale(1.03);
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+
+.camera-screen.camera-screen--visible {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .camera-screen-stream {
@@ -460,8 +752,7 @@ body.robot-body {
 
 .camera-screen-connecting p {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .camera-screen-label {
@@ -469,12 +760,11 @@ body.robot-body {
   top: var(--space-4);
   left: var(--space-4);
   z-index: 2;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  background: rgba(5, 7, 10, 0.65);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: oklch(17% 0.036 268 / 0.7);
+  backdrop-filter: blur(12px);
+  font-size: 0.875rem;
   color: var(--positive);
 }
 
@@ -487,12 +777,12 @@ body.robot-body {
   max-height: 26vh;
   overflow-y: auto;
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  background: rgba(5, 7, 10, 0.6);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  background: oklch(17% 0.036 268 / 0.7);
   border: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: 0.875rem;
+  color: var(--ink-2);
 }
 
 #detections-log-lines {
@@ -543,7 +833,7 @@ body.robot-body {
   position: fixed;
   inset: 0;
   z-index: 20; /* por encima de .camera-screen (10) y .face-screen (2) */
-  background: #000;
+  background: var(--night-deep);
   transition: opacity 700ms ease;
 }
 
@@ -574,7 +864,7 @@ body.robot-body {
   position: fixed;
   inset: 0;
   z-index: 21;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9) 0%, transparent 60%);
+  background: radial-gradient(circle at 50% 50%, oklch(86% 0.065 268 / 0.9) 0%, transparent 60%);
   opacity: 0;
   pointer-events: none;
 }
@@ -596,6 +886,25 @@ body.robot-body {
     opacity: 0;
     transform: scale(1.5);
   }
+}
+
+/* ============================================================
+   PANTALLA DE LLAMADA — sustituye a la cara mientras Lumina llama por
+   teléfono (POST /robot/call, placeCall() en robot.js). La animación es un
+   Remotion Player (aether-video/src/call/CallScreen.tsx, compilado a
+   /call-screen.js). z-index entre la cámara (10) y el arranque (20).
+   ============================================================ */
+.call-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  background: #0a0a09;
+}
+
+.call-screen[hidden] {
+  display: none;
 }
 
 @media (max-width: 640px) {
@@ -627,5 +936,10 @@ body.robot-body {
   .boot-flash.boot-flash--active {
     animation: none;
     opacity: 0;
+  }
+  .face-screen,
+  .camera-screen {
+    transition: opacity 200ms ease; /* fundido en vez de viaje, sin transform (DISENO.md 10.4) */
+    transform: none !important;
   }
 }

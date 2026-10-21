@@ -1,0 +1,1544 @@
+{
+ "profile": "none",
+ "run": 1,
+ "cold": true,
+ "lane": "0",
+ "status": "ok",
+ "wallStart": "2026-09-28T23:37:04.068Z",
+ "chromeVersion": "154.0.8037.58",
+ "conditions": null,
+ "meta": {
+  "timeOrigin": 1790638621245.8,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 6
+ },
+ "events": [
+  {
+   "t": 2912.7999999998137,
+   "type": "click",
+   "id": "boot-hidden-btn"
+  },
+  {
+   "t": 13887.5,
+   "type": "tts_req",
+   "text": "Buenas tardes."
+  },
+  {
+   "t": 15026,
+   "type": "tts_resp",
+   "text": "Buenas tardes.",
+   "status": 200
+  },
+  {
+   "t": 15029.599999999627,
+   "type": "tts_body",
+   "text": "Buenas tardes.",
+   "bytes": 16762
+  },
+  {
+   "t": 15042.799999999814,
+   "type": "audio_play",
+   "text": "Buenas tardes.",
+   "dur": null
+  },
+  {
+   "t": 15074.799999999814,
+   "type": "audio_loadedmetadata",
+   "text": "Buenas tardes.",
+   "dur": 0.975238
+  },
+  {
+   "t": 15116.099999999627,
+   "type": "audio_playing",
+   "text": "Buenas tardes.",
+   "dur": 0.975238
+  },
+  {
+   "t": 16577.39999999944,
+   "type": "audio_pause",
+   "text": "Buenas tardes.",
+   "dur": 0.975238
+  },
+  {
+   "t": 16577.5,
+   "type": "audio_ended",
+   "text": "Buenas tardes.",
+   "dur": 0.975238
+  },
+  {
+   "t": 16596.099999999627,
+   "type": "tts_req",
+   "text": "Mi nombre es Aether."
+  },
+  {
+   "t": 17708.099999999627,
+   "type": "tts_resp",
+   "text": "Mi nombre es Aether.",
+   "status": 200
+  },
+  {
+   "t": 17709,
+   "type": "tts_body",
+   "text": "Mi nombre es Aether.",
+   "bytes": 24285
+  },
+  {
+   "t": 17712.700000000186,
+   "type": "audio_play",
+   "text": "Mi nombre es Aether.",
+   "dur": null
+  },
+  {
+   "t": 17715.5,
+   "type": "audio_loadedmetadata",
+   "text": "Mi nombre es Aether.",
+   "dur": 1.439637
+  },
+  {
+   "t": 17742.299999999814,
+   "type": "audio_playing",
+   "text": "Mi nombre es Aether.",
+   "dur": 1.439637
+  },
+  {
+   "t": 19246.799999999814,
+   "type": "audio_pause",
+   "text": "Mi nombre es Aether.",
+   "dur": 1.439637
+  },
+  {
+   "t": 19246.89999999944,
+   "type": "audio_ended",
+   "text": "Mi nombre es Aether.",
+   "dur": 1.439637
+  },
+  {
+   "t": 19249.099999999627,
+   "type": "tts_req",
+   "text": "Soy un sistema autónomo de inventario."
+  },
+  {
+   "t": 20463.799999999814,
+   "type": "tts_resp",
+   "text": "Soy un sistema autónomo de inventario.",
+   "status": 200
+  },
+  {
+   "t": 20464.5,
+   "type": "tts_body",
+   "text": "Soy un sistema autónomo de inventario.",
+   "bytes": 36824
+  },
+  {
+   "t": 20467.599999999627,
+   "type": "audio_play",
+   "text": "Soy un sistema autónomo de inventario.",
+   "dur": null
+  },
+  {
+   "t": 20476.89999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Soy un sistema autónomo de inventario.",
+   "dur": 2.229116
+  },
+  {
+   "t": 20510.299999999814,
+   "type": "audio_playing",
+   "text": "Soy un sistema autónomo de inventario.",
+   "dur": 2.229116
+  },
+  {
+   "t": 22808.89999999944,
+   "type": "audio_pause",
+   "text": "Soy un sistema autónomo de inventario.",
+   "dur": 2.229116
+  },
+  {
+   "t": 22809,
+   "type": "audio_ended",
+   "text": "Soy un sistema autónomo de inventario.",
+   "dur": 2.229116
+  },
+  {
+   "t": 22810.799999999814,
+   "type": "tts_req",
+   "text": "Yo observo."
+  },
+  {
+   "t": 23779.099999999627,
+   "type": "tts_resp",
+   "text": "Yo observo.",
+   "status": 200
+  },
+  {
+   "t": 23780.39999999944,
+   "type": "tts_body",
+   "text": "Yo observo.",
+   "bytes": 17598
+  },
+  {
+   "t": 23781.89999999944,
+   "type": "audio_play",
+   "text": "Yo observo.",
+   "dur": null
+  },
+  {
+   "t": 23792.39999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Yo observo.",
+   "dur": 1.021678
+  },
+  {
+   "t": 23818,
+   "type": "audio_playing",
+   "text": "Yo observo.",
+   "dur": 1.021678
+  },
+  {
+   "t": 24898.89999999944,
+   "type": "audio_pause",
+   "text": "Yo observo.",
+   "dur": 1.021678
+  },
+  {
+   "t": 24898.89999999944,
+   "type": "audio_ended",
+   "text": "Yo observo.",
+   "dur": 1.021678
+  },
+  {
+   "t": 24899.599999999627,
+   "type": "tts_req",
+   "text": "Eso es lo primero que hago."
+  },
+  {
+   "t": 26068.299999999814,
+   "type": "tts_resp",
+   "text": "Eso es lo primero que hago.",
+   "status": 200
+  },
+  {
+   "t": 26086.200000000186,
+   "type": "tts_body",
+   "text": "Eso es lo primero que hago.",
+   "bytes": 27629
+  },
+  {
+   "t": 26104.799999999814,
+   "type": "audio_play",
+   "text": "Eso es lo primero que hago.",
+   "dur": null
+  },
+  {
+   "t": 26117.5,
+   "type": "audio_loadedmetadata",
+   "text": "Eso es lo primero que hago.",
+   "dur": 1.671837
+  },
+  {
+   "t": 26200.200000000186,
+   "type": "audio_playing",
+   "text": "Eso es lo primero que hago.",
+   "dur": 1.671837
+  },
+  {
+   "t": 27929.39999999944,
+   "type": "audio_pause",
+   "text": "Eso es lo primero que hago.",
+   "dur": 1.671837
+  },
+  {
+   "t": 27929.39999999944,
+   "type": "audio_ended",
+   "text": "Eso es lo primero que hago.",
+   "dur": 1.671837
+  },
+  {
+   "t": 27942.39999999944,
+   "type": "tts_req",
+   "text": "Una imagen aparece."
+  },
+  {
+   "t": 29283.799999999814,
+   "type": "tts_resp",
+   "text": "Una imagen aparece.",
+   "status": 200
+  },
+  {
+   "t": 29284.599999999627,
+   "type": "tts_body",
+   "text": "Una imagen aparece.",
+   "bytes": 23449
+  },
+  {
+   "t": 29309.200000000186,
+   "type": "audio_play",
+   "text": "Una imagen aparece.",
+   "dur": null
+  },
+  {
+   "t": 29380.299999999814,
+   "type": "audio_loadedmetadata",
+   "text": "Una imagen aparece.",
+   "dur": 1.393197
+  },
+  {
+   "t": 29549.200000000186,
+   "type": "audio_playing",
+   "text": "Una imagen aparece.",
+   "dur": 1.393197
+  },
+  {
+   "t": 30980.099999999627,
+   "type": "audio_pause",
+   "text": "Una imagen aparece.",
+   "dur": 1.393197
+  },
+  {
+   "t": 30980.200000000186,
+   "type": "audio_ended",
+   "text": "Una imagen aparece.",
+   "dur": 1.393197
+  },
+  {
+   "t": 31793.200000000186,
+   "type": "tts_req",
+   "text": "Encuentro algo."
+  },
+  {
+   "t": 33342.59999999963,
+   "type": "tts_resp",
+   "text": "Encuentro algo.",
+   "status": 200
+  },
+  {
+   "t": 33343.09999999963,
+   "type": "tts_body",
+   "text": "Encuentro algo.",
+   "bytes": 18852
+  },
+  {
+   "t": 33345.700000000186,
+   "type": "audio_play",
+   "text": "Encuentro algo.",
+   "dur": null
+  },
+  {
+   "t": 33349.700000000186,
+   "type": "audio_loadedmetadata",
+   "text": "Encuentro algo.",
+   "dur": 1.114558
+  },
+  {
+   "t": 33398.59999999963,
+   "type": "audio_playing",
+   "text": "Encuentro algo.",
+   "dur": 1.114558
+  },
+  {
+   "t": 34562.89999999944,
+   "type": "audio_pause",
+   "text": "Encuentro algo.",
+   "dur": 1.114558
+  },
+  {
+   "t": 34562.89999999944,
+   "type": "audio_ended",
+   "text": "Encuentro algo.",
+   "dur": 1.114558
+  },
+  {
+   "t": 35369.89999999944,
+   "type": "tts_req",
+   "text": "Intento identificarlo."
+  },
+  {
+   "t": 36481.700000000186,
+   "type": "tts_resp",
+   "text": "Intento identificarlo.",
+   "status": 200
+  },
+  {
+   "t": 36483.200000000186,
+   "type": "tts_body",
+   "text": "Intento identificarlo.",
+   "bytes": 24703
+  },
+  {
+   "t": 36485.799999999814,
+   "type": "audio_play",
+   "text": "Intento identificarlo.",
+   "dur": null
+  },
+  {
+   "t": 36494.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Intento identificarlo.",
+   "dur": 1.486077
+  },
+  {
+   "t": 36527.59999999963,
+   "type": "audio_playing",
+   "text": "Intento identificarlo.",
+   "dur": 1.486077
+  },
+  {
+   "t": 38082.59999999963,
+   "type": "audio_pause",
+   "text": "Intento identificarlo.",
+   "dur": 1.486077
+  },
+  {
+   "t": 38082.59999999963,
+   "type": "audio_ended",
+   "text": "Intento identificarlo.",
+   "dur": 1.486077
+  },
+  {
+   "t": 39398.89999999944,
+   "type": "tts_req",
+   "text": "Pero encontrar algo no significa entenderlo."
+  },
+  {
+   "t": 41011.5,
+   "type": "tts_resp",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "status": 200
+  },
+  {
+   "t": 41012.200000000186,
+   "type": "tts_body",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "bytes": 39750
+  },
+  {
+   "t": 41013.799999999814,
+   "type": "audio_play",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "dur": null
+  },
+  {
+   "t": 41021.200000000186,
+   "type": "audio_loadedmetadata",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "dur": 2.414875
+  },
+  {
+   "t": 41044.09999999963,
+   "type": "audio_playing",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "dur": 2.414875
+  },
+  {
+   "t": 43503.89999999944,
+   "type": "audio_pause",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "dur": 2.414875
+  },
+  {
+   "t": 43503.89999999944,
+   "type": "audio_ended",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "dur": 2.414875
+  },
+  {
+   "t": 43505.59999999963,
+   "type": "tts_req",
+   "text": "Una cámara puede detectar un objeto."
+  },
+  {
+   "t": 44723.799999999814,
+   "type": "tts_resp",
+   "text": "Una cámara puede detectar un objeto.",
+   "status": 200
+  },
+  {
+   "t": 44724.89999999944,
+   "type": "tts_body",
+   "text": "Una cámara puede detectar un objeto.",
+   "bytes": 36824
+  },
+  {
+   "t": 44726.700000000186,
+   "type": "audio_play",
+   "text": "Una cámara puede detectar un objeto.",
+   "dur": null
+  },
+  {
+   "t": 44729.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Una cámara puede detectar un objeto.",
+   "dur": 2.229116
+  },
+  {
+   "t": 44745.09999999963,
+   "type": "audio_playing",
+   "text": "Una cámara puede detectar un objeto.",
+   "dur": 2.229116
+  },
+  {
+   "t": 47044.09999999963,
+   "type": "audio_pause",
+   "text": "Una cámara puede detectar un objeto.",
+   "dur": 2.229116
+  },
+  {
+   "t": 47044.09999999963,
+   "type": "audio_ended",
+   "text": "Una cámara puede detectar un objeto.",
+   "dur": 2.229116
+  },
+  {
+   "t": 47045,
+   "type": "tts_req",
+   "text": "Pero detectar no significa saber qué es."
+  },
+  {
+   "t": 48294.09999999963,
+   "type": "tts_resp",
+   "text": "Pero detectar no significa saber qué es.",
+   "status": 200
+  },
+  {
+   "t": 48296.799999999814,
+   "type": "tts_body",
+   "text": "Pero detectar no significa saber qué es.",
+   "bytes": 38078
+  },
+  {
+   "t": 48300.09999999963,
+   "type": "audio_play",
+   "text": "Pero detectar no significa saber qué es.",
+   "dur": null
+  },
+  {
+   "t": 48314.200000000186,
+   "type": "audio_loadedmetadata",
+   "text": "Pero detectar no significa saber qué es.",
+   "dur": 2.321995
+  },
+  {
+   "t": 48358.39999999944,
+   "type": "audio_playing",
+   "text": "Pero detectar no significa saber qué es.",
+   "dur": 2.321995
+  },
+  {
+   "t": 50755.09999999963,
+   "type": "audio_pause",
+   "text": "Pero detectar no significa saber qué es.",
+   "dur": 2.321995
+  },
+  {
+   "t": 50755.09999999963,
+   "type": "audio_ended",
+   "text": "Pero detectar no significa saber qué es.",
+   "dur": 2.321995
+  },
+  {
+   "t": 51956.299999999814,
+   "type": "tts_req",
+   "text": "Y saber qué es no significa necesariamente saber dónde está."
+  },
+  {
+   "t": 53393.799999999814,
+   "type": "tts_resp",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "status": 200
+  },
+  {
+   "t": 53395.700000000186,
+   "type": "tts_body",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "bytes": 61902
+  },
+  {
+   "t": 53399,
+   "type": "audio_play",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "dur": null
+  },
+  {
+   "t": 53459.89999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "dur": 3.808073
+  },
+  {
+   "t": 53565,
+   "type": "audio_playing",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "dur": 3.808073
+  },
+  {
+   "t": 57431.89999999944,
+   "type": "audio_pause",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "dur": 3.808073
+  },
+  {
+   "t": 57431.89999999944,
+   "type": "audio_ended",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "dur": 3.808073
+  },
+  {
+   "t": 58739.59999999963,
+   "type": "tts_req",
+   "text": "Mucho menos significa saber si esa información es confiable."
+  },
+  {
+   "t": 60424.89999999944,
+   "type": "tts_resp",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "status": 200
+  },
+  {
+   "t": 60427.39999999944,
+   "type": "tts_body",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "bytes": 56050
+  },
+  {
+   "t": 60430.59999999963,
+   "type": "audio_play",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "dur": null
+  },
+  {
+   "t": 60448.89999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "dur": 3.436553
+  },
+  {
+   "t": 60488.799999999814,
+   "type": "audio_playing",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "dur": 3.436553
+  },
+  {
+   "t": 63981.39999999944,
+   "type": "audio_pause",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "dur": 3.436553
+  },
+  {
+   "t": 63981.39999999944,
+   "type": "audio_ended",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "dur": 3.436553
+  },
+  {
+   "t": 66006.89999999944,
+   "type": "tts_req",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo."
+  },
+  {
+   "t": 67380.20000000019,
+   "type": "tts_resp",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "status": 200
+  },
+  {
+   "t": 67380.79999999981,
+   "type": "tts_body",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "bytes": 49363
+  },
+  {
+   "t": 67384.29999999981,
+   "type": "audio_play",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "dur": null
+  },
+  {
+   "t": 67394.39999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "dur": 3.018594
+  },
+  {
+   "t": 67431.39999999944,
+   "type": "audio_playing",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "dur": 3.018594
+  },
+  {
+   "t": 69587.39999999944,
+   "type": "audio_playing",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "dur": 3.018594
+  },
+  {
+   "t": 70525.29999999981,
+   "type": "audio_pause",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "dur": 3.018594
+  },
+  {
+   "t": 70525.29999999981,
+   "type": "audio_ended",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "dur": 3.018594
+  },
+  {
+   "t": 70544.09999999963,
+   "type": "tts_req",
+   "text": "Percibir."
+  },
+  {
+   "t": 71647.89999999944,
+   "type": "tts_resp",
+   "text": "Percibir.",
+   "status": 200
+  },
+  {
+   "t": 71660.5,
+   "type": "tts_body",
+   "text": "Percibir.",
+   "bytes": 16762
+  },
+  {
+   "t": 71662.20000000019,
+   "type": "audio_play",
+   "text": "Percibir.",
+   "dur": null
+  },
+  {
+   "t": 71721.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Percibir.",
+   "dur": 0.975238
+  },
+  {
+   "t": 71768.39999999944,
+   "type": "audio_playing",
+   "text": "Percibir.",
+   "dur": 0.975238
+  },
+  {
+   "t": 72828.79999999981,
+   "type": "audio_pause",
+   "text": "Percibir.",
+   "dur": 0.975238
+  },
+  {
+   "t": 72828.79999999981,
+   "type": "audio_ended",
+   "text": "Percibir.",
+   "dur": 0.975238
+  },
+  {
+   "t": 73332,
+   "type": "tts_req",
+   "text": "Identificar."
+  },
+  {
+   "t": 74414.39999999944,
+   "type": "tts_resp",
+   "text": "Identificar.",
+   "status": 200
+  },
+  {
+   "t": 74415,
+   "type": "tts_body",
+   "text": "Identificar.",
+   "bytes": 19688
+  },
+  {
+   "t": 74424.29999999981,
+   "type": "audio_play",
+   "text": "Identificar.",
+   "dur": null
+  },
+  {
+   "t": 74427.09999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Identificar.",
+   "dur": 1.160998
+  },
+  {
+   "t": 74458.59999999963,
+   "type": "audio_playing",
+   "text": "Identificar.",
+   "dur": 1.160998
+  },
+  {
+   "t": 75722.89999999944,
+   "type": "audio_pause",
+   "text": "Identificar.",
+   "dur": 1.160998
+  },
+  {
+   "t": 75722.89999999944,
+   "type": "audio_ended",
+   "text": "Identificar.",
+   "dur": 1.160998
+  },
+  {
+   "t": 76224.09999999963,
+   "type": "tts_req",
+   "text": "Verificar."
+  },
+  {
+   "t": 77449.70000000019,
+   "type": "tts_resp",
+   "text": "Verificar.",
+   "status": 200
+  },
+  {
+   "t": 77459.59999999963,
+   "type": "tts_body",
+   "text": "Verificar.",
+   "bytes": 16762
+  },
+  {
+   "t": 77461.09999999963,
+   "type": "audio_play",
+   "text": "Verificar.",
+   "dur": null
+  },
+  {
+   "t": 77530.29999999981,
+   "type": "audio_loadedmetadata",
+   "text": "Verificar.",
+   "dur": 0.975238
+  },
+  {
+   "t": 77563.09999999963,
+   "type": "audio_playing",
+   "text": "Verificar.",
+   "dur": 0.975238
+  },
+  {
+   "t": 78610.20000000019,
+   "type": "audio_pause",
+   "text": "Verificar.",
+   "dur": 0.975238
+  },
+  {
+   "t": 78610.20000000019,
+   "type": "audio_ended",
+   "text": "Verificar.",
+   "dur": 0.975238
+  },
+  {
+   "t": 79122,
+   "type": "tts_req",
+   "text": "Localizar."
+  },
+  {
+   "t": 80247.5,
+   "type": "tts_resp",
+   "text": "Localizar.",
+   "status": 200
+  },
+  {
+   "t": 80252.70000000019,
+   "type": "tts_body",
+   "text": "Localizar.",
+   "bytes": 17598
+  },
+  {
+   "t": 80254.89999999944,
+   "type": "audio_play",
+   "text": "Localizar.",
+   "dur": null
+  },
+  {
+   "t": 80258.89999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Localizar.",
+   "dur": 1.021678
+  },
+  {
+   "t": 80295.5,
+   "type": "audio_playing",
+   "text": "Localizar.",
+   "dur": 1.021678
+  },
+  {
+   "t": 81387.09999999963,
+   "type": "audio_pause",
+   "text": "Localizar.",
+   "dur": 1.021678
+  },
+  {
+   "t": 81387.09999999963,
+   "type": "audio_ended",
+   "text": "Localizar.",
+   "dur": 1.021678
+  },
+  {
+   "t": 81905.09999999963,
+   "type": "tts_req",
+   "text": "Registrar."
+  },
+  {
+   "t": 82979.79999999981,
+   "type": "tts_resp",
+   "text": "Registrar.",
+   "status": 200
+  },
+  {
+   "t": 82986.89999999944,
+   "type": "tts_body",
+   "text": "Registrar.",
+   "bytes": 15926
+  },
+  {
+   "t": 82994.70000000019,
+   "type": "audio_play",
+   "text": "Registrar.",
+   "dur": null
+  },
+  {
+   "t": 83014.5,
+   "type": "audio_loadedmetadata",
+   "text": "Registrar.",
+   "dur": 0.928798
+  },
+  {
+   "t": 83051.29999999981,
+   "type": "audio_playing",
+   "text": "Registrar.",
+   "dur": 0.928798
+  },
+  {
+   "t": 84071.79999999981,
+   "type": "audio_pause",
+   "text": "Registrar.",
+   "dur": 0.928798
+  },
+  {
+   "t": 84071.79999999981,
+   "type": "audio_ended",
+   "text": "Registrar.",
+   "dur": 0.928798
+  },
+  {
+   "t": 85088.59999999963,
+   "type": "tts_req",
+   "text": "Ese es el proceso que permite transformar una imagen en información."
+  },
+  {
+   "t": 86627.5,
+   "type": "tts_resp",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "status": 200
+  },
+  {
+   "t": 86628.59999999963,
+   "type": "tts_body",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "bytes": 65663
+  },
+  {
+   "t": 86632.5,
+   "type": "audio_play",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "dur": null
+  },
+  {
+   "t": 86639.79999999981,
+   "type": "audio_loadedmetadata",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "dur": 4.040272
+  },
+  {
+   "t": 86677.09999999963,
+   "type": "audio_playing",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "dur": 4.040272
+  },
+  {
+   "t": 90812.79999999981,
+   "type": "audio_pause",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "dur": 4.040272
+  },
+  {
+   "t": 90812.79999999981,
+   "type": "audio_ended",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "dur": 4.040272
+  },
+  {
+   "t": 92322.29999999981,
+   "type": "tts_req",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos."
+  },
+  {
+   "t": 93776.59999999963,
+   "type": "tts_resp",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "status": 200
+  },
+  {
+   "t": 93777.89999999944,
+   "type": "tts_body",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "bytes": 58976
+  },
+  {
+   "t": 93779.79999999981,
+   "type": "audio_play",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "dur": null
+  },
+  {
+   "t": 93796.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "dur": 3.622313
+  },
+  {
+   "t": 93934.70000000019,
+   "type": "audio_playing",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "dur": 3.622313
+  },
+  {
+   "t": 97641.39999999944,
+   "type": "audio_pause",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "dur": 3.622313
+  },
+  {
+   "t": 97641.39999999944,
+   "type": "audio_ended",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "dur": 3.622313
+  },
+  {
+   "t": 98851.70000000019,
+   "type": "tts_req",
+   "text": "Un sistema de percepción, para observar mi entorno."
+  },
+  {
+   "t": 100211.70000000019,
+   "type": "tts_resp",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "status": 200
+  },
+  {
+   "t": 100212.59999999963,
+   "type": "tts_body",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "bytes": 52288
+  },
+  {
+   "t": 100218.89999999944,
+   "type": "audio_play",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "dur": null
+  },
+  {
+   "t": 100236.39999999944,
+   "type": "audio_loadedmetadata",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "dur": 3.204354
+  },
+  {
+   "t": 100272.59999999963,
+   "type": "audio_playing",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "dur": 3.204354
+  },
+  {
+   "t": 103557.89999999944,
+   "type": "audio_pause",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "dur": 3.204354
+  },
+  {
+   "t": 103557.89999999944,
+   "type": "audio_ended",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "dur": 3.204354
+  },
+  {
+   "t": 104562.09999999963,
+   "type": "tts_req",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo."
+  },
+  {
+   "t": 106510.09999999963,
+   "type": "tts_resp",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "status": 200
+  },
+  {
+   "t": 106511.59999999963,
+   "type": "tts_body",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "bytes": 64827
+  },
+  {
+   "t": 106520.09999999963,
+   "type": "audio_play",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "dur": null
+  },
+  {
+   "t": 106536.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "dur": 3.993832
+  },
+  {
+   "t": 106611.29999999981,
+   "type": "audio_playing",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "dur": 3.993832
+  },
+  {
+   "t": 110674.09999999963,
+   "type": "audio_pause",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "dur": 3.993832
+  },
+  {
+   "t": 110674.09999999963,
+   "type": "audio_ended",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "dur": 3.993832
+  },
+  {
+   "t": 111676,
+   "type": "tts_req",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles."
+  },
+  {
+   "t": 113141.39999999944,
+   "type": "tts_resp",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "status": 200
+  },
+  {
+   "t": 113144.39999999944,
+   "type": "tts_body",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "bytes": 66499
+  },
+  {
+   "t": 113157.20000000019,
+   "type": "audio_play",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "dur": null
+  },
+  {
+   "t": 113169,
+   "type": "audio_loadedmetadata",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "dur": 4.086712
+  },
+  {
+   "t": 113210.70000000019,
+   "type": "audio_playing",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "dur": 4.086712
+  },
+  {
+   "t": 117375.20000000019,
+   "type": "audio_pause",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "dur": 4.086712
+  },
+  {
+   "t": 117375.20000000019,
+   "type": "audio_ended",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "dur": 4.086712
+  },
+  {
+   "t": 118386.20000000019,
+   "type": "tts_req",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."
+  },
+  {
+   "t": 120221.39999999944,
+   "type": "tts_resp",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "status": 200
+  },
+  {
+   "t": 120254,
+   "type": "tts_body",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "bytes": 79038
+  },
+  {
+   "t": 120256.59999999963,
+   "type": "audio_play",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "dur": null
+  },
+  {
+   "t": 120287.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "dur": 4.87619
+  },
+  {
+   "t": 120337,
+   "type": "audio_playing",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "dur": 4.87619
+  },
+  {
+   "t": 125288.5,
+   "type": "audio_pause",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "dur": 4.87619
+  },
+  {
+   "t": 125288.5,
+   "type": "audio_ended",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "dur": 4.87619
+  },
+  {
+   "t": 126798.5,
+   "type": "tts_req",
+   "text": "No soy solamente una cámara."
+  },
+  {
+   "t": 127987.20000000019,
+   "type": "tts_resp",
+   "text": "No soy solamente una cámara.",
+   "status": 200
+  },
+  {
+   "t": 127988.89999999944,
+   "type": "tts_body",
+   "text": "No soy solamente una cámara.",
+   "bytes": 27211
+  },
+  {
+   "t": 127996,
+   "type": "audio_play",
+   "text": "No soy solamente una cámara.",
+   "dur": null
+  },
+  {
+   "t": 128008.79999999981,
+   "type": "audio_loadedmetadata",
+   "text": "No soy solamente una cámara.",
+   "dur": 1.625397
+  },
+  {
+   "t": 128136.09999999963,
+   "type": "audio_playing",
+   "text": "No soy solamente una cámara.",
+   "dur": 1.625397
+  },
+  {
+   "t": 129832.5,
+   "type": "audio_pause",
+   "text": "No soy solamente una cámara.",
+   "dur": 1.625397
+  },
+  {
+   "t": 129832.59999999963,
+   "type": "audio_ended",
+   "text": "No soy solamente una cámara.",
+   "dur": 1.625397
+  },
+  {
+   "t": 130733.79999999981,
+   "type": "tts_req",
+   "text": "No soy solamente un robot."
+  },
+  {
+   "t": 131910.5,
+   "type": "tts_resp",
+   "text": "No soy solamente un robot.",
+   "status": 200
+  },
+  {
+   "t": 131917.7000000002,
+   "type": "tts_body",
+   "text": "No soy solamente un robot.",
+   "bytes": 27211
+  },
+  {
+   "t": 131924.7000000002,
+   "type": "audio_play",
+   "text": "No soy solamente un robot.",
+   "dur": null
+  },
+  {
+   "t": 131932.09999999963,
+   "type": "audio_loadedmetadata",
+   "text": "No soy solamente un robot.",
+   "dur": 1.625397
+  },
+  {
+   "t": 131969.2000000002,
+   "type": "audio_playing",
+   "text": "No soy solamente un robot.",
+   "dur": 1.625397
+  },
+  {
+   "t": 133673.7999999998,
+   "type": "audio_pause",
+   "text": "No soy solamente un robot.",
+   "dur": 1.625397
+  },
+  {
+   "t": 133673.7999999998,
+   "type": "audio_ended",
+   "text": "No soy solamente un robot.",
+   "dur": 1.625397
+  },
+  {
+   "t": 134890.2000000002,
+   "type": "tts_req",
+   "text": "Soy la integración de estos sistemas para resolver un problema."
+  },
+  {
+   "t": 136201,
+   "type": "tts_resp",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "status": 200
+  },
+  {
+   "t": 136203,
+   "type": "tts_body",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "bytes": 55214
+  },
+  {
+   "t": 136208.39999999944,
+   "type": "audio_play",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "dur": null
+  },
+  {
+   "t": 136240.7000000002,
+   "type": "audio_loadedmetadata",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "dur": 3.390113
+  },
+  {
+   "t": 136341.2000000002,
+   "type": "audio_playing",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "dur": 3.390113
+  },
+  {
+   "t": 139772.39999999944,
+   "type": "audio_pause",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "dur": 3.390113
+  },
+  {
+   "t": 139772.39999999944,
+   "type": "audio_ended",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "dur": 3.390113
+  },
+  {
+   "t": 141329.59999999963,
+   "type": "tts_req",
+   "text": "¿Quieren ver cómo funciono?"
+  },
+  {
+   "t": 142678,
+   "type": "tts_resp",
+   "text": "¿Quieren ver cómo funciono?",
+   "status": 200
+  },
+  {
+   "t": 142690.5,
+   "type": "tts_body",
+   "text": "¿Quieren ver cómo funciono?",
+   "bytes": 26375
+  },
+  {
+   "t": 142700.09999999963,
+   "type": "audio_play",
+   "text": "¿Quieren ver cómo funciono?",
+   "dur": null
+  },
+  {
+   "t": 142720.7000000002,
+   "type": "audio_loadedmetadata",
+   "text": "¿Quieren ver cómo funciono?",
+   "dur": 1.578957
+  },
+  {
+   "t": 142786.39999999944,
+   "type": "audio_playing",
+   "text": "¿Quieren ver cómo funciono?",
+   "dur": 1.578957
+  },
+  {
+   "t": 144453.89999999944,
+   "type": "audio_pause",
+   "text": "¿Quieren ver cómo funciono?",
+   "dur": 1.578957
+  },
+  {
+   "t": 144453.89999999944,
+   "type": "audio_ended",
+   "text": "¿Quieren ver cómo funciono?",
+   "dur": 1.578957
+  },
+  {
+   "t": 214888.89999999944,
+   "type": "tts_req",
+   "text": "Dígame, señor."
+  },
+  {
+   "t": 216608.2000000002,
+   "type": "tts_resp",
+   "text": "Dígame, señor.",
+   "status": 200
+  },
+  {
+   "t": 216627.09999999963,
+   "type": "tts_body",
+   "text": "Dígame, señor.",
+   "bytes": 18016
+  },
+  {
+   "t": 216676.39999999944,
+   "type": "audio_play",
+   "text": "Dígame, señor.",
+   "dur": null
+  },
+  {
+   "t": 216737.2999999998,
+   "type": "audio_loadedmetadata",
+   "text": "Dígame, señor.",
+   "dur": 1.068118
+  },
+  {
+   "t": 216783.7999999998,
+   "type": "audio_playing",
+   "text": "Dígame, señor.",
+   "dur": 1.068118
+  },
+  {
+   "t": 218010,
+   "type": "audio_pause",
+   "text": "Dígame, señor.",
+   "dur": 1.068118
+  },
+  {
+   "t": 218010.09999999963,
+   "type": "audio_ended",
+   "text": "Dígame, señor.",
+   "dur": 1.068118
+  },
+  {
+   "t": 222025.5,
+   "type": "tts_req",
+   "text": "En un momento."
+  },
+  {
+   "t": 223036.09999999963,
+   "type": "tts_resp",
+   "text": "En un momento.",
+   "status": 200
+  },
+  {
+   "t": 223045.2999999998,
+   "type": "tts_body",
+   "text": "En un momento.",
+   "bytes": 17598
+  },
+  {
+   "t": 223056.09999999963,
+   "type": "audio_play",
+   "text": "En un momento.",
+   "dur": null
+  },
+  {
+   "t": 223071.59999999963,
+   "type": "audio_loadedmetadata",
+   "text": "En un momento.",
+   "dur": 1.021678
+  },
+  {
+   "t": 223134.7999999998,
+   "type": "audio_playing",
+   "text": "En un momento.",
+   "dur": 1.021678
+  },
+  {
+   "t": 224213.09999999963,
+   "type": "audio_pause",
+   "text": "En un momento.",
+   "dur": 1.021678
+  },
+  {
+   "t": 224213.09999999963,
+   "type": "audio_ended",
+   "text": "En un momento.",
+   "dur": 1.021678
+  },
+  {
+   "t": 225016.7999999998,
+   "type": "tts_req",
+   "text": "Esto es lo que soy capaz de ver ahora mismo."
+  },
+  {
+   "t": 226461,
+   "type": "tts_resp",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "status": 200
+  },
+  {
+   "t": 226462.7999999998,
+   "type": "tts_body",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "bytes": 42675
+  },
+  {
+   "t": 226466.2999999998,
+   "type": "audio_play",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "dur": null
+  },
+  {
+   "t": 226474.2000000002,
+   "type": "audio_loadedmetadata",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "dur": 2.600635
+  },
+  {
+   "t": 226494.7999999998,
+   "type": "audio_playing",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "dur": 2.600635
+  },
+  {
+   "t": 229165.7999999998,
+   "type": "audio_pause",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "dur": 2.600635
+  },
+  {
+   "t": 229165.7999999998,
+   "type": "audio_ended",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "dur": 2.600635
+  }
+ ],
+ "console": [
+  "log: Aether · voces en español disponibles (2): [Microsoft Raul - Spanish (Mexico) (es-MX), Microsoft Sabina - Spanish (Mexico) (es-MX)]",
+  "log: Aether · voz elegida: Microsoft Raul - Spanish (Mexico) (es-MX) · es-MX",
+  "warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+  "warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+  "log: Aether · micrófono: pendiente de confirmar",
+  "warning: Aether · error de voz: permiso de micrófono denegado",
+  "log: Aether · micrófono: denegado",
+  "log: Aether · reconocimiento: inactivo",
+  "log: Aether · guion: [INICIA LA MÚSICA]",
+  "error: Failed to load resource: net::ERR_FAILED"
+ ]
+}

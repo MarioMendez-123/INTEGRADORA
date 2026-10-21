@@ -4,6 +4,39 @@ Registro de cambios de arquitectura relevantes para todo el equipo — no es un
 changelog de cada commit, solo de decisiones que afectan a más de una persona
 o requieren que alguien "se entere" antes de seguir trabajando.
 
+## 2026-09-30 — Loader global, animaciones y vista explosionada del robot (dashboard)
+
+### Qué cambió
+
+- **Loader global** en `index.html` e `inventory.html` (`dashboard/loader.js`
+  + `dashboard/robot-model.js`): anillo con progreso real de la carga, robot
+  que se desarma y se arma en bucle, logo que se dibuja. Mínimo 800ms,
+  máximo 3s; lo que siga cargando después se ve como skeleton.
+- **Sección nueva "Pieza por pieza" (#robot)** en la portada: al hacer scroll,
+  la unidad móvil se desarma en cinco capas (percepción, cómputo, control,
+  energía, tracción), cada una con el estado real de su decisión. Es un
+  **diseño conceptual beta**, no el modelo mecánico — así está rotulado en
+  la página.
+- Entradas animadas al hacer scroll, nav translúcida con sección activa,
+  cifras que ruedan hasta su valor real, diálogo y bitácora animados
+  (`dashboard/motion.js`). Todo respeta `prefers-reduced-motion`.
+- Bug corregido: `line-vision.js` redeclaraba constantes globales de
+  `camera-stream.js` y no corría — el botón "Iniciar visión de línea" no
+  hacía nada. Ahora vive en su propio ámbito.
+
+### Qué deben tener en cuenta
+
+- **Página nueva del dashboard:** agregar como primeros hijos del `<body>`
+  `<script src="/robot-model.js"></script>` y `<script src="/loader.js"></script>`,
+  y `motion.js` antes de los scripts propios de la página.
+- **Carga de datos inicial:** envolverla en `AetherLoader.track(promesa)`
+  para que el anillo refleje esa carga real (ver `portada.js` y `app.js`).
+- `robot.html` **no** lleva el loader a propósito (pantalla de arranque
+  negra hasta la activación por voz).
+- No hay pantalla de "celda de manufactura" todavía; cuando exista, su
+  loader debe durar como máximo 1s y mostrar el estado de la celda en cuanto
+  llegue el primer dato (requisito de Fase 3.5, pendiente de esa pantalla).
+
 ## 2026-09-16 — La línea de manufactura ya no usa brazos robóticos (KUKA/UR5)
 
 **Commits:** `a486eff`, `9b15e2e` — rama `feature/robot-lumina-camera-sharing`.

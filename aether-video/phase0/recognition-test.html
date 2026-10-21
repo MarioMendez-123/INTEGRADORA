@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prueba de reconocimiento</title>
+<style>
+  :root { --bg: #0b0b0a; --fg: #efe9df; --dim: #8a857c; --amber: #e0a13a; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 "IBM Plex Sans", system-ui, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px; }
+  h1 { font-weight: 500; font-size: 22px; margin: 0 0 4px; }
+  p { color: var(--dim); margin: 0 0 16px; }
+  #prompt { font: 500 40px/1.2 "IBM Plex Mono", monospace; margin: 32px 0; min-height: 56px; }
+  #prompt.go { color: var(--amber); }
+  button { background: none; color: var(--fg); border: 1px solid var(--dim); padding: 8px 16px; font: inherit; cursor: pointer; margin-right: 8px; }
+  button:disabled { opacity: .4; cursor: default; }
+  table { border-collapse: collapse; width: 100%; font: 13px/1.4 "IBM Plex Mono", monospace; margin-top: 16px; }
+  td, th { border-bottom: 1px solid #262521; padding: 4px 6px; text-align: left; }
+  #level { height: 4px; background: var(--amber); width: 0; transition: width 50ms linear; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Prueba de reconocimiento de Lumina</h1>
+  <p>Misma configuración que dashboard/robot.js: webkitSpeechRecognition es-MX, continuous, interimResults, debounce de 600 ms y el mismo LUMINA_PATTERN.
+  Hazla en el escenario, con el micrófono y la persona reales. Guarda en silencio 2 s al inicio (calibra el ruido).
+  Cuando el texto se ponga ámbar, di la frase una vez, con tu volumen normal.</p>
+  <button id="start">Iniciar prueba</button><button id="dl" disabled>Descargar JSON</button>
+  <div id="level"></div>
+  <div id="prompt"></div>
+  <table><thead><tr><th>#</th><th>dicho</th><th>transcrito (final)</th><th>fin voz→final ms</th><th>fin voz→despacho ms</th><th>¿robot.js lo acepta?</th></tr></thead><tbody id="rows"></tbody></table>
+</main>
+<script>
+// Copiados tal cual de dashboard/robot.js — si cambian allá, cambiar aquí.
+const LUMINA_PATTERN = /\b(lumina|ilumina|luminia|lumia)\b/i;
+const VOICE_COMMAND_DEBOUNCE_MS = 600;
+const PLAN = [...Array(10).fill("Lumina"), ...Array(5).fill("Lumina, inicia"), ...Array(5).fill("Iniciar presentación")];
+const GAP_MS = 6000;
+
+const log = [];
+const ev = (type, data = {}) => log.push({ t: performance.now(), type, ...data });
+const $ = (id) => document.getElementById(id);
+
+$("start").onclick = async () => {
+  $("start").disabled = true;
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  const ac = new AudioContext();
+  const an = ac.createAnalyser();
+  an.fftSize = 1024;
+  ac.createMediaStreamSource(stream).connect(an);
+  const buf = new Float32Array(an.fftSize);
+
+  // VAD por energía: ruido de fondo medido 2 s, umbral = ruido + 12 dB.
+  let noise = [], thr = null, above = false, lastAbove = 0, firstAbove = 0;
+  const tick = () => {
+    an.getFloatTimeDomainData(buf);
+    const rms = Math.sqrt(buf.reduce((s, x) => s + x * x, 0) / buf.length);
+    const now = performance.now();
+    $("level").style.width = Math.min(100, rms * 800) + "%";
+    if (thr === null) {
+      noise.push(rms);
+      if (noise.length > 120) { thr = Math.max(0.004, (noise.reduce((a, b) => a + b) / noise.length) * 4); ev("vad_threshold", { thr }); next(); }
+    } else if (rms > thr) {
+      if (!above) { above = true; firstAbove = now; }
+      lastAbove = now;
+    } else if (above && now - lastAbove > 300) {
+      above = false;
+      if (lastAbove - firstAbove > 120) ev("speech", { start: firstAbove, end: lastAbove });
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+
+  const rec = new webkitSpeechRecognition();
+  rec.continuous = true; rec.interimResults = true; rec.lang = "es-MX";
+  let buffer = "", timer = null;
+  rec.onresult = (e) => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const r = e.results[i];
+      if (!r.isFinal) { ev("interim", { text: r[0].transcript }); continue; }
+      const text = r[0].transcript.toLowerCase().trim();
+      ev("final", { text, conf: r[0].confidence });
+      buffer = buffer ? `${buffer} ${text}` : text;
+      clearTimeout(timer);
+      timer = setTimeout(() => { ev("dispatched", { text: buffer, accepted: LUMINA_PATTERN.test(buffer) }); buffer = ""; render(); }, VOICE_COMMAND_DEBOUNCE_MS);
+    }
+  };
+  rec.onerror = (e) => ev("error", { err: e.error });
+  rec.onend = () => { ev("rec_end"); if (!finished) try { rec.start(); } catch {} };
+  rec.start();
+
+  let i = 0, finished = false;
+  function next() {
+    if (i >= PLAN.length) { finished = true; $("prompt").textContent = "Listo."; $("prompt").className = ""; $("dl").disabled = false; rec.stop(); render(); return; }
+    $("prompt").textContent = `${i + 1}/${PLAN.length} · ${PLAN[i]}`;
+    $("prompt").className = "go";
+    ev("prompt", { i, phrase: PLAN[i] });
+    setTimeout(() => { $("prompt").className = ""; }, 2500);
+    i++;
+    setTimeout(next, GAP_MS);
+  }
+};
+
+// Empareja cada frase pedida con el primer segmento de voz, final y despacho que le siguen.
+function trials() {
+  const prompts = log.filter((e) => e.type === "prompt");
+  return prompts.map((p, k) => {
+    const until = prompts[k + 1] ? prompts[k + 1].t : Infinity;
+    const inWin = (e) => e.t >= p.t && e.t < until + 3000;
+    const speech = log.find((e) => e.type === "speech" && e.start >= p.t && e.start < until);
+    const fin = speech && log.find((e) => e.type === "final" && e.t > speech.end - 200 && inWin(e));
+    const disp = fin && log.find((e) => e.type === "dispatched" && e.t > fin.t);
+    return {
+      phrase: p.phrase,
+      speech_ms: speech ? Math.round(speech.end - speech.start) : null,
+      final: fin ? fin.text : null,
+      conf: fin ? fin.conf : null,
+      speechEnd_to_final_ms: fin ? Math.round(fin.t - speech.end) : null,
+      speechEnd_to_dispatch_ms: disp ? Math.round(disp.t - speech.end) : null,
+      dispatched: disp ? disp.text : null,
+      accepted_by_robot_js: disp ? disp.accepted : false,
+    };
+  });
+}
+
+function render() {
+  $("rows").innerHTML = trials().map((r, k) => `<tr><td>${k + 1}</td><td>${r.phrase}</td><td>${r.final ?? "—"}</td><td>${r.speechEnd_to_final_ms ?? "—"}</td><td>${r.speechEnd_to_dispatch_ms ?? "—"}</td><td>${r.accepted_by_robot_js ? "sí" : "NO"}</td></tr>`).join("");
+}
+
+$("dl").onclick = () => {
+  const data = { when: new Date().toISOString(), userAgent: navigator.userAgent, trials: trials(), events: log };
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: "application/json" }));
+  a.download = "recognition-results.json";
+  a.click();
+};
+</script>
+</body>
+</html>

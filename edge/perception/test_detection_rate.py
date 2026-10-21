@@ -53,11 +53,12 @@ from ultralytics import YOLO
 # Permite importar edge/logging_config.py sin importar desde dónde se corra
 # este script (directamente o dentro de edge/).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from logging_config import setup_logging
+from model_weights import resolve_yolo_weights
 
 CAMERA_INDEX = 0
-MODEL_NAME = "yolov8n.pt"
 WINDOW_NAME = "Aether — tasa de detección (ESPACIO/B confirma, Q termina)"
 OUTPUT_PATH = Path(__file__).resolve().parent / "detection_rate_output.json"
 
@@ -125,8 +126,9 @@ def main() -> None:
     setup_logging()
     logger = logging.getLogger(__name__)
 
-    model = YOLO(MODEL_NAME)
-    logger.info("Modelo YOLO '%s' cargado correctamente.", MODEL_NAME)
+    model_name = resolve_yolo_weights()
+    model = YOLO(model_name)
+    logger.info("Modelo YOLO '%s' cargado correctamente.", model_name)
 
     cap = cv2.VideoCapture(CAMERA_INDEX)
     if not cap.isOpened():

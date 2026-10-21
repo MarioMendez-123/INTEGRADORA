@@ -41,8 +41,47 @@ backend/aether.db
 # se regenera solo (ver docstring de edge/perception/test_yolo.py)
 yolov8n.pt
 
+# Dataset de piezas (fotos y etiquetas) y el peso entrenado. classes.txt
+# sí se versiona; las imágenes no.
+edge/perception/parts/images/
+edge/perception/parts/labels/
+edge/perception/parts/data.yaml
+edge/perception/parts/lists/
+edge/perception/weights/
+edge/perception/runs/
+
 # Variables de entorno / secretos (contraseñas, llaves)
 .env
+backend/spotify_token.json
+backend/lumina_actions.jsonl
+backend/lumina_memory.json
+# Agenda de "Lumina, llama a <nombre>" (números personales)
+backend/contactos.json
 
 # Dependencias de Node.js (por si el dashboard usa JavaScript/React)
 node_modules/
+.arena/
+
+# Skills locales del agente (fuentes y recetas, no son el producto)
+.claude/skills/
+.agents/skills/
+SKILLS-DISENO-WEB.zip
+lumina-agent.zip
+
+# Audio/video de narración y render — superan el límite práctico de GitHub
+AETHER_NARRACION.mp3
+AETHER_NARRACION_trozos/
+Lumina_Audio.mp3
+Lumina_Audio.wav
+lumina_audio/
+Aether_Preview.mp4
+Aether_Final.mp4
+aether-video/node_modules/
+aether-video/render/
+aether-video/out/
+aether-video/**/*.wav
+aether-video/**/*.mp4
+
+# Capturas sueltas y archivos basura
+logo_frozen_frame*.png
+docs/architecture/decisions/sdasd.py

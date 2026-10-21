@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aether · Celda 01 · HMI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css?v=14" />
+  </head>
+  <body class="hmi">
+    <div class="hmi-lock" id="hmi-lock" style="position:fixed;inset:0;z-index:80;background:#0a0e13;">
+      <form id="hmi-login" autocomplete="off">
+        <h1>Celda 01</h1>
+        <p>Inicia sesión para ver y mandar la celda.</p>
+        <label>Usuario <input name="user" required autocomplete="username" /></label>
+        <label>Contraseña <input name="password" type="password" required autocomplete="current-password" /></label>
+        <button type="submit" class="hmi-btn">Entrar</button>
+        <p class="hmi-lock-hint" id="hmi-login-error"></p>
+      </form>
+    </div>
+    <div class="hmi-app">
+      <header class="hmi-bar">
+        <a class="hmi-brand" href="/">
+          <svg class="wordmark-mark" viewBox="0 0 120 120" aria-hidden="true">
+            <polygon points="60,0 112,30 112,90 60,120 8,90 8,30" />
+            <circle cx="60" cy="60" r="16" />
+          </svg>
+          <b>AETHER</b><span>Celda 01 · Inspección visual</span>
+        </a>
+
+        <div class="hmi-state" id="readout" data-state="—" aria-live="polite">
+          <span class="hmi-lamp" aria-hidden="true"></span>
+          <b id="cell-state">—</b>
+          <span class="hmi-state-reason" id="cell-reason"></span>
+          <span class="hmi-state-time" id="state-time" title="Tiempo en el estado actual, desde que se abrió esta pantalla"></span>
+        </div>
+
+        <div class="hmi-proc" role="group" aria-label="Proceso de la celda">
+          <span class="hmi-proc-kicker" id="proc-status" data-on="">
+            <b id="proc-status-text">—</b>
+            <small id="proc-source">EN VIVO</small>
+          </span>
+          <button type="button" class="hmi-push hmi-push--run" id="proc-start" aria-pressed="false">
+            <span class="hmi-push-lamp" aria-hidden="true"></span>
+            <b>Arranque</b>
+            <small>Ciclo completo</small>
+          </button>
+          <button type="button" class="hmi-push hmi-push--stop" id="proc-stop" aria-pressed="false">
+            <span class="hmi-push-lamp" aria-hidden="true"></span>
+            <b>Paro</b>
+            <small>Ciclo completo</small>
+          </button>
+        </div>
+
+        <div class="hmi-links-wrap">
+          <span class="hmi-who" id="hmi-who"></span>
+          <button type="button" class="hmi-btn" id="hmi-logout" hidden>Salir</button>
+          <nav class="hmi-links" aria-label="Otras pantallas">
+            <a href="/">Portada</a>
+            <a href="/inventory.html">Inventario</a>
+          </nav>
+          <time class="hmi-clock" id="hmi-clock">--:--:--</time>
+        </div>
+      </header>
+
+      <div class="hmi-alarm-banner" id="alarm-banner" role="alert" hidden>
+        <span class="hmi-alarm-sev" id="alarm-banner-sev"></span>
+        <span id="alarm-banner-text"></span>
+        <button type="button" class="hmi-btn" id="alarm-ack">Reconocer</button>
+      </div>
+
+      <main class="hmi-main">
+        <section class="hmi-panel hmi-cam" aria-labelledby="cam-heading">
+          <div class="hmi-panel-head">
+            <h2 id="cam-heading">CAM 01 · Visión de línea</h2>
+            <div class="module-status module-status--idle" id="line-vision-station-status">
+              <span class="status-dot" id="line-vision-dot" aria-hidden="true"></span>
+              <span id="line-vision-status-text">Inactiva</span>
+            </div>
+            <div class="hmi-toolbar">
+              <button type="button" class="hmi-btn" id="cam-grid" aria-pressed="false">Retícula</button>
+              <button type="button" class="hmi-btn" id="cam-snap" disabled>Capturar</button>
+              <button type="button" class="hmi-btn" id="line-vision-fullscreen" hidden>Pantalla completa</button>
+              <button type="button" class="hmi-btn" id="line-vision-stop" hidden>Detener</button>
+              <button type="button" class="hmi-btn hmi-btn--primary" id="line-vision-start">Iniciar cámara</button>
+            </div>
+          </div>
+          <div class="camera-placeholder reticle" id="line-vision-placeholder">
+            <img
+              class="camera-stream"
+              id="line-vision-stream"
+              alt="Transmisión de visión de línea — confirmación binaria de pieza ensamblada"
+              hidden
+            />
+            <div class="hmi-grid-overlay" id="grid-overlay" hidden aria-hidden="true"></div>
+            <span class="reticle-corner reticle-corner--tl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--tr" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--bl" aria-hidden="true"></span>
+            <span class="reticle-corner reticle-corner--br" aria-hidden="true"></span>
+            <span class="camera-label" id="line-vision-label">VISIÓN · SIN SEÑAL</span>
+            <p class="camera-placeholder-text" id="line-vision-placeholder-text">
+              Presiona "Iniciar cámara" para activar la transmisión.
+            </p>
+            <div class="camera-loading" id="line-vision-loading" hidden>
+              <span class="camera-spinner" aria-hidden="true"></span>
+              <p class="camera-loading-text" id="line-vision-loading-text">Estableciendo conexión…</p>
+            </div>
+          </div>
+          <dl class="hmi-caminfo">
+            <div><dt>Fuente</dt><dd>/line/vision/stream</dd></div>
+            <div><dt>Resolución</dt><dd id="cam-res">—</dd></div>
+            <div><dt>En línea</dt><dd id="cam-uptime">—</dd></div>
+            <div><dt>Última captura</dt><dd id="cam-last-snap">—</dd></div>
+          </dl>
+        </section>
+
+        <aside class="hmi-side">
+          <section class="hmi-panel hmi-result" id="result-box" data-result="" aria-live="polite">
+            <div class="hmi-panel-head"><h2>Juicio · última pieza</h2><span class="hmi-tag" id="tag-juicio">EN VIVO</span></div>
+            <div class="hmi-result-body">
+              <b class="hmi-result-value" id="last-result">—</b>
+              <p class="hmi-result-meta"><span id="last-piece">Sin piezas</span><span id="last-action"></span></p>
+            </div>
+          </section>
+
+          <section class="hmi-panel" id="kpi-box" aria-labelledby="kpi-heading">
+            <div class="hmi-panel-head"><h2 id="kpi-heading">Producción</h2><span class="hmi-tag" id="kpi-validity">EN VIVO</span></div>
+            <dl class="hmi-kpis">
+              <div><dt>Inspeccionadas</dt><dd id="n-inspected">0</dd></div>
+              <div><dt>Rendimiento</dt><dd id="n-yield">—</dd></div>
+              <div><dt>Ritmo</dt><dd id="n-rate">—</dd></div>
+              <div class="hmi-kpi--pass"><dt>PASS</dt><dd id="n-pass">0</dd></div>
+              <div class="hmi-kpi--fail"><dt>FAIL</dt><dd id="n-fail">0</dd></div>
+              <div><dt>Salidas</dt><dd id="n-plc">—</dd></div>
+            </dl>
+          </section>
+
+          <section class="hmi-panel hmi-history" aria-labelledby="log-heading">
+            <div class="hmi-panel-head"><h2 id="log-heading">Últimas piezas</h2><span class="hmi-tag" id="tag-log">EN VIVO</span></div>
+            <ol class="hmi-log" id="cell-log"></ol>
+          </section>
+        </aside>
+
+        <section class="hmi-panel hmi-alarms" aria-labelledby="alarm-heading">
+          <div class="hmi-panel-head">
+            <h2 id="alarm-heading">Alarmas</h2>
+            <button type="button" class="hmi-btn" id="alarm-clear" hidden>Borrar histórico</button>
+            <span class="hmi-tag" id="alarm-count">0 activas</span>
+          </div>
+          <ol class="hmi-alarm-list" id="alarm-list">
+            <li class="hmi-alarm-empty">Sin alarmas desde que se abrió esta pantalla.</li>
+          </ol>
+          <p class="hmi-foot">
+            <span id="cell-updated">—</span>
+            <span>Paro de emergencia: watchdog de hardware, fuera de esta pantalla.</span>
+            <span id="cell-error" hidden></span>
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="hmi-confirm" id="confirm">
+      <p id="confirm-text"></p>
+      <div>
+        <button type="button" class="hmi-btn" id="confirm-yes">Confirmar</button>
+        <button type="button" class="hmi-btn" id="confirm-no">Cancelar</button>
+      </div>
+    </dialog>
+    <script src="/celda.js?v=7"></script>
+    <script src="/line-vision.js"></script>
+  </body>
+</html>

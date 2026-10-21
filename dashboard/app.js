@@ -74,6 +74,11 @@ let allEntries = [];
 
 // ---------- resumen (franja de instrumentos) ----------
 
+// La primera vez que llegan, las cifras ruedan hasta su valor real
+// (AetherMotion.countUp, motion.js); en el polling posterior se escriben
+// directo — un contador que se reanima cada 8 s distrae de los datos.
+let summaryRenderedOnce = false;
+
 function renderSummary(entries) {
   const identified = entries.filter((e) => !isUnidentified(e.identifier));
   const unidentified = entries.filter((e) => isUnidentified(e.identifier));
@@ -82,12 +87,20 @@ function renderSummary(entries) {
   const lastSeenTimestamps = entries.map((e) => new Date(e.last_seen).getTime());
   const lastUpdated = lastSeenTimestamps.length ? Math.max(...lastSeenTimestamps) : null;
 
-  document.getElementById("stat-identified").textContent = identified.length;
-  document.getElementById("stat-unidentified").textContent = unidentified.length;
-  document.getElementById("stat-total-observations").textContent = totalObservations;
-  document.getElementById("stat-last-updated").textContent = lastUpdated
-    ? formatTimestamp(new Date(lastUpdated).toISOString())
-    : "—";
+  const counts = {
+    "stat-identified": identified.length,
+    "stat-unidentified": unidentified.length,
+    "stat-total-observations": totalObservations,
+  };
+  Object.entries(counts).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    el.classList.remove("skeleton");
+    window.AetherMotion.countUp(el, value, String, !summaryRenderedOnce);
+  });
+  const lastUpdatedEl = document.getElementById("stat-last-updated");
+  lastUpdatedEl.classList.remove("skeleton");
+  lastUpdatedEl.textContent = lastUpdated ? formatTimestamp(new Date(lastUpdated).toISOString()) : "—";
+  summaryRenderedOnce = true;
 }
 
 // ---------- tabla de Declared Inventory ----------
@@ -103,8 +116,18 @@ function renderActionsCell(entry) {
   return `<button type="button" class="btn btn--sm btn--warn retire-btn" data-identifier="${entry.identifier}">Retirar</button>`;
 }
 
+// Si la primera carga llega cuando el loader ya se fue (backend lento), las
+// filas entran escalonadas en vez de reemplazar al skeleton de golpe. Nunca
+// en el polling: ahí solo cambian los datos, no debe moverse nada.
+let tableRenderedOnce = false;
+
 function renderInventoryTable(entries) {
   const body = document.getElementById("inventory-body");
+  body.classList.toggle(
+    "rows-enter",
+    !tableRenderedOnce && document.documentElement.classList.contains("is-ready"),
+  );
+  tableRenderedOnce = true;
   document.getElementById("inventory-count").textContent =
     entries.length === 1 ? "1 producto" : `${entries.length} productos`;
 
@@ -115,7 +138,7 @@ function renderInventoryTable(entries) {
   }
 
   body.innerHTML = entries
-    .map((entry) => {
+    .map((entry, index) => {
       const unidentified = isUnidentified(entry.identifier);
       const retired = entry.status === "retired";
       const tag = unidentified ? '<span class="unidentified-tag">sin código</span>' : "";
@@ -123,7 +146,7 @@ function renderInventoryTable(entries) {
         .filter(Boolean)
         .join(" ");
       return `
-        <tr class="${rowClasses}">
+        <tr class="${rowClasses}" style="--r: ${index}">
           <td class="identifier-cell">${entry.identifier}${tag}</td>
           <td>${entry.detected_class}</td>
           <td class="num">${entry.total_observations}</td>
@@ -358,6 +381,7 @@ function renderFromCache() {
   // nada nuevo a la API.
   const navStatEl = document.getElementById("nav-stat-value");
   if (navStatEl) {
+    navStatEl.classList.remove("skeleton");
     navStatEl.textContent =
       activeEntries.length === 1 ? "1 activa" : `${activeEntries.length} activas`;
   }
@@ -381,10 +405,15 @@ async function loadAll() {
     document.getElementById("history-list").innerHTML = `<p class="state-text">${message}</p>`;
     const navStatEl = document.getElementById("nav-stat-value");
     if (navStatEl) navStatEl.textContent = "no disponible";
+    // Sin datos: los skeletons no deben quedarse "cargando" para siempre.
+    document.querySelectorAll(".skeleton").forEach((el) => el.classList.remove("skeleton"));
   }
 }
 
-loadAll();
+// Primera carga = tarea del loader global: el anillo no se completa hasta
+// que llega (o falla) el inventario real.
+const firstLoad = loadAll();
+window.AetherLoader?.track(firstLoad);
 
 // Polling simple, sin WebSockets (Decisión 9 / ADR 0009 — auto-refresh es
 // una versión reducida de la Opción C de la Decisión 7, WebSockets sigue
@@ -474,5 +503,6 @@ autoRefreshStopBtn.addEventListener("click", async () => {
   }
 });
 
-refreshAutoRefreshStatus();
+const firstStatus = refreshAutoRefreshStatus();
+window.AetherLoader?.track(firstStatus);
 setInterval(refreshAutoRefreshStatus, STATUS_POLL_MS);

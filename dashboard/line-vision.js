@@ -18,8 +18,14 @@
  * (Banda+fixtures/Pistón/Aether Inventory, ver ADR 0010): esas siguen fijas
  * en "Pendiente de hardware" en el HTML, porque no hay nada real que animar
  * ahí todavía.
+ *
+ * Todo el archivo vive dentro de una función a propósito: camera-stream.js
+ * declara las mismas constantes globales (START_URL, startBtn, …) y, como
+ * scripts clásicos comparten el ámbito global, la segunda declaración
+ * lanzaba SyntaxError y este archivo entero no corría (el botón "Iniciar
+ * visión de línea" no hacía nada).
  */
-
+(() => {
 const START_URL = "/line/vision/stream";
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1500;
@@ -131,3 +137,4 @@ streamImg.addEventListener("error", () => {
 startBtn.addEventListener("click", startStream);
 stopBtn.addEventListener("click", () => stopStream());
 fullscreenBtn.addEventListener("click", toggleFullscreen);
+})();

@@ -574,7 +574,7 @@ def test_laboratorio_sigue_pidiendo_la_celda(client, monkeypatch):
     monkeypatch.setenv("AETHER_PUBLIC_MODE", "auto")
     response = client.post("/line/cell/run", json={"on": False})
     assert response.status_code == 401
-    assert "camera=(self)" in response.headers["permissions-policy"]
+    assert response.headers["permissions-policy"] == "camera=(self), microphone=(self), geolocation=()"
 
 
 def test_dominio_publico_cierra_camara_y_piston(client, monkeypatch):
@@ -591,6 +591,7 @@ def test_dominio_publico_cierra_camara_y_piston(client, monkeypatch):
     inventory = client.get("/inventory", headers={"Host": "aethermx.online"})
     assert inventory.status_code == 200
     assert inventory.json() == []
+    assert inventory.headers["permissions-policy"] == "camera=(), microphone=(), geolocation=()"
 
 
 def test_archivos_ocultos_responden_404(client):

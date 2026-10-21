@@ -1,0 +1,4 @@
+# Un nombre por línea: minúsculas, números y _. Ejemplo: tornillo_m6
+computadora1
+computadora2
+computadora3

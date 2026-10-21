@@ -19,28 +19,26 @@ sitio (módulos, arquitectura, inventory.html) es denso, alineado, sin
 adornos — panel de control, no landing.
 
 ## Tokens (dashboard/style.css, :root)
-- **Superficie:** `--bg` `#05070A` (fondo), `--bg2` `#0A0F16` (degradado del
-  hero), `--surface` (paneles/tarjetas, mismo tono que bg2),
-  `--surface-raised` `#131A24` (hover, un paso arriba).
+- **Superficie:** `--bg` `#03060F`, `--bg2` `#07111F`, `--surface` `#071422`,
+  `--surface-raised` `#0D1D33`. El fondo lleva halo cian que sigue al puntero.
 - **Texto:** `--ink` `#EDEFF3` (primario), `--ink-dim` `#8891A0`
   (terciario), más `--text-secondary`/`--text-muted` interpolados entre
   ambos. 4 niveles, igual que antes — cambió la paleta, no el sistema de
   jerarquía por opacidad.
 - **Bordes:** `--line` `#1B222C` (base, la mayoría de los casos),
   `--border-strong` `#2A3442` (inputs, tags que necesitan más definición).
-  Profundidad solo por línea, nunca sombra — principio que se mantiene sin
-  cambios sobre el sistema anterior.
-- **Acento único (interactivo):** `--accent` `#6E8CFF`, con `--node-a`
-  `#4C7CE0` / `--node-b` `#9C6BE0` como el par azul→violeta del campo de
-  nodos. Úsalo para todo lo clickeable: hover de tiles, subrayado de
-  navlinks, foco de teclado, CTA primario.
-- **Positivo (estado operativo):** `--positive` `#5FA779` — el mismo verde
+  Profundidad por línea más halo de color: la luz marca lo activo, el borde
+  sigue marcando la estructura.
+- **Acento único (interactivo):** `--accent` `#2EE6FF`, con `--node-a` el
+  mismo cian y `--node-b` `#C084FC` en el campo de nodos. Halo en títulos y
+  botones. Úsalo para todo lo clickeable.
+- **Positivo (estado operativo):** `--positive` `#3DFFC2` — el mismo verde
   que ya trae el `.status-dot` de la referencia para "en línea". Reutilizado
   en todo el sistema para "Funcionando", nunca decorativo. Deliberadamente
   distinto de `--accent`: un tile puede ser interactivo (borde/reticle en
   accent) Y estar funcionando (dot/texto de estado en positive) — dos
   señales separadas, no una.
-- **Atención (ámbar):** `--warn` `#E0A64A` — única adición sobre la
+- **Atención (ámbar):** `--warn` `#FFC14D` — única adición sobre la
   referencia del usuario, necesaria para no perder la distinción de tres
   vías que ya existía en el sistema anterior (interactivo / funciona /
   necesita atención). Se usa SOLO para: sin identificar, pendiente de
@@ -149,6 +147,62 @@ mezclan arbitrariamente:
   `--surface-raised`, `:active` baja a `--bg` — el mismo par
   claro-al-pasar/oscuro-al-presionar que un botón físico.
 
+## Movimiento — cuándo y cómo se mueve algo
+Tokens: `--ease-out` `cubic-bezier(0.23, 1, 0.32, 1)` (entradas, respuesta a
+la persona) y `--ease-in-out` `cubic-bezier(0.77, 0, 0.175, 1)` (algo que ya
+está en pantalla y va de A a B). Nunca `ease-in`, nunca `transition: all`,
+solo `transform`/`translate`/`scale`/`opacity`/`clip-path`. Todo respeta
+`prefers-reduced-motion`: menos y más suave, no cero (fundidos cortos sí;
+desplazamiento, escala, shimmer y scrub no).
+- **Un solo momento orquestado por página:** al desvanecerse el loader
+  (`html.is-ready`) entran nav + hero en cascada (`[data-enter]` con
+  `--i`, 60ms entre pasos, 500–800ms); "AETHER" sube desde su propia máscara.
+- **Entradas al hacer scroll:** `[data-reveal]` (motion.js) — fade +
+  24px, 900ms, escalonado 60ms por lote (tope 8). `data-reveal="title"`
+  sube desde una máscara de clip-path. `data-reveal="soft"` (8px, 420ms)
+  en inventory.html: herramienta de uso diario, no presentación. Van por
+  WAAPI, no por `transition`,
+  para no pisar el hover/`:active` propio de cada componente.
+- **Firma en movimiento — la mira fija el objetivo:** todo `.reticle` que
+  entra lleva sus cuatro esquinas desde 8px afuera hasta su lugar, como
+  YOLO fijando una detección. En la vista explosionada la mira sigue a la
+  pieza enfocada y rotula su etapa.
+- **Scroll nativo, nunca secuestrado:** el hero se retira con
+  `animation-timeline: scroll()` (solo donde hay soporte); la vista
+  explosionada usa sticky + progreso suavizado (inercia) sobre el scroll
+  real. Anclas con `scroll-behavior: smooth`.
+- **Nav de portada:** material translúcido (`backdrop-filter`) en cuanto hay
+  scroll; la sección visible queda marcada (`aria-current`, subrayado).
+- **Datos:** cifras reales ruedan hasta su valor solo en la primera carga
+  (`AetherMotion.countUp`); en el polling se escriben directo. Lo que sigue
+  cargando tras el loader se ve como `.skeleton` (shimmer), nunca como un
+  número inventado.
+- **Controles:** `<dialog>` entra/sale con `@starting-style` (sale más
+  rápido: 150ms vs 220ms); la bitácora (`<details>`) se despliega con
+  `::details-content` donde hay soporte.
+
+## Loader global (loader.js + robot-model.js)
+Dos `<script>` síncronos al inicio del `<body>` de cada página — es el
+"componente del layout raíz" en un sitio sin framework. Anillo con
+progreso REAL (DOM, fuentes, `load` y cada `AetherLoader.track(promesa)`
+de la página), robot isométrico que se desarma/arma en bucle dentro del
+anillo (CSS, fuera del hilo principal), marca hexagonal que se dibuja
+(termina en <560ms, antes del mínimo) y wordmark en mono como la nav.
+Mínimo 800ms, máximo 3s: al tope la página se muestra sin completar el
+anillo y lo pendiente queda en skeleton. **No se monta en robot.html**: su
+pantalla de arranque debe quedar negra y sin nada de Aether hasta la
+activación por voz.
+
+## Vista explosionada (#robot, explode.js)
+Diseño conceptual BETA de la unidad móvil (robot-model.js genera el SVG
+isométrico desde cajas en coordenadas de mundo; lo comparten el loader y
+esta sección). Cinco etapas = cinco capas = cinco decisiones reales, cada
+una con su estado real en los colores del sistema (`--positive` solo para
+Percepción, que sí corre en demo; `--warn` para todo lo pendiente de
+hardware). Capas no enfocadas se apagan por arista, nunca por opacidad
+(las caras siguen tapando lo de atrás). El LED de la placa es neutro a
+propósito: el verde significa "funcionando" y esa placa no existe todavía.
+
 ## Páginas actuales
 - `dashboard/index.html` — portada: campo de nodos (`node-field.js`, sin
   tocar la API, puramente decorativo) + hero + secciones Percepción
@@ -163,3 +217,26 @@ mezclan arbitrariamente:
   Backend + Dashboard).
 - `dashboard/node-field.js` — animación del campo de nodos del hero.
   Respeta `prefers-reduced-motion` (un solo cuadro estático, sin parallax).
+- `dashboard/loader.js` + `dashboard/robot-model.js` — loader global (ver
+  arriba); `dashboard/motion.js` — entradas, nav, scrollspy, countUp;
+  `dashboard/explode.js` — vista explosionada de la portada.
+- `dashboard/robot.html` — interfaz de Lumina (cara, voz, cámara), con su
+  propio sistema visual en `robot.css`; comparte `style.css` pero no el
+  loader ni motion.js. La pantalla del escenario sigue negra hasta la voz.
+  La cara usa el cian del sistema con halo violeta (`--moon`, `--accent-2`);
+  subtítulos centrados y grandes para leerse desde lejos; reloj secundario.
+- `dashboard/celda.html` — HMI de operación de la celda (`body.hmi`), no
+  página de presentación: cabe en un monitor sin scroll, fondo neutro y color
+  solo para estados (verde marcha, ámbar paro/aviso, rojo falla; cian = cámara
+  y foco). Solo cámara y datos: sin escena ni mímico del proceso. Cámara real
+  (`line-vision.js`) con cuadrícula de alineación, captura PNG, resolución y
+  tiempo en vivo; resultado, KPIs (rendimiento, piezas/min), historial y
+  tendencia de rendimiento salen de `GET /line/cell/status` y llevan marca SIM
+  mientras el PLC no exista. Alarmas con reconocimiento (ISA-18.2
+  simplificado), nacidas en el cliente: no hay historial en backend. Sin
+  loader, campo de nodos ni tilt — es una herramienta.
+- Línea de manufactura en la portada (`corridor.js`): pasillo CSS 3D fijo
+  (sticky) que el scroll recorre en Z; cada estación es una tarjeta a los
+  lados. Solo ≥900px y sin reduced motion; si no, queda la lista plana.
+- Nav fija de la portada: se retira al bajar y vuelve al subir, al acercar el
+  puntero al borde superior o con Tab (`motion.js`).

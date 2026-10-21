@@ -41,6 +41,30 @@ Respuestas: `200` con `{"identifier": ..., "status": "retired"}` si la
 contraseña es correcta; `403` si es incorrecta; `404` si el `identifier` no
 existe.
 
+### `GET /line/cell/status`
+Estado de la celda para `dashboard/celda.html`. La fuente es `backend/cell_line.py`:
+`"source": "celda"`. Cada pieza la decide la cámara. `sources.plc` es true cuando
+los GPIO 8 y 9 están abiertos. Campos: `state` (`OPERANDO` | `DETENIDA` | `SIN_CONEXION`),
+`reason`, `sources.vision_linea`, `sources.plc`, `counts` (`inspected`, `pass`, `fail`),
+`recent` (Evento A/B del handshake), `updated_at`, `running` y `alarms`
+(histórico de la HMI: prioridad, causa, acción, activa, reconocida).
+
+### `POST /line/cell/session`
+
+Cuerpo `{"user", "password"}`. Deja la cookie `celda_session`. `401` si la cuenta no existe. `GET` devuelve `{user, role}` o `401`. `DELETE` cierra la sesión.
+
+### `POST /line/cell/run`
+
+Cuerpo `{"on": true|false}`. Exige sesión. Con `on: false` corta los dos pulsos y el estado pasa a `DETENIDA` con motivo «Paro solicitado por el operador». No mueve el pistón por su cuenta. La respuesta es el mismo objeto que `GET /line/cell/status`.
+
+### `POST /line/cell/alarms/ack`
+
+Exige sesión. Marca reconocidas las alarmas abiertas.
+
+### `POST /line/cell/alarms/clear`
+
+Exige la cuenta `admin`. Borra el histórico. `403` con cualquier otro rol.
+
 ### `GET /inventory/history`
 Devuelve la bitácora completa (Decisión 7): todas las filas de
 `declared_entry_history`, más recientes primero. Sin filtros ni paginación

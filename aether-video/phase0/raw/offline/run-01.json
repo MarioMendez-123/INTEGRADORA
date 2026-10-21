@@ -1,0 +1,961 @@
+{
+ "profile": "offline",
+ "run": 1,
+ "cold": true,
+ "lane": "0",
+ "status": "ok",
+ "wallStart": "2026-09-28T23:21:27.080Z",
+ "chromeVersion": "154.0.8037.58",
+ "conditions": {
+  "offline": true,
+  "latency": 0,
+  "downloadThroughput": -1,
+  "uploadThroughput": -1
+ },
+ "meta": {
+  "timeOrigin": 1790637684275.6,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+  "hardwareConcurrency": 6
+ },
+ "events": [
+  {
+   "t": 2892.5,
+   "type": "click",
+   "id": "boot-hidden-btn"
+  },
+  {
+   "t": 13882.300000000745,
+   "type": "tts_req",
+   "text": "Buenas tardes."
+  },
+  {
+   "t": 13963.200000000186,
+   "type": "tts_err",
+   "text": "Buenas tardes.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 14007.600000000559,
+   "type": "synth_req",
+   "text": "Buenas tardes.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 15546.900000000373,
+   "type": "synth_start",
+   "text": "Buenas tardes."
+  },
+  {
+   "t": 17356.800000000745,
+   "type": "tts_req",
+   "text": "Mi nombre es Aether."
+  },
+  {
+   "t": 17364.700000000186,
+   "type": "synth_end",
+   "text": "Buenas tardes."
+  },
+  {
+   "t": 17386,
+   "type": "tts_err",
+   "text": "Mi nombre es Aether.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 17386.800000000745,
+   "type": "synth_req",
+   "text": "Mi nombre es Aether.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 17445.200000000186,
+   "type": "synth_start",
+   "text": "Mi nombre es Aether."
+  },
+  {
+   "t": 19388.200000000186,
+   "type": "tts_req",
+   "text": "Soy un sistema autónomo de inventario."
+  },
+  {
+   "t": 19390.10000000056,
+   "type": "synth_end",
+   "text": "Mi nombre es Aether."
+  },
+  {
+   "t": 19394.900000000373,
+   "type": "tts_err",
+   "text": "Soy un sistema autónomo de inventario.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 19395.300000000745,
+   "type": "synth_req",
+   "text": "Soy un sistema autónomo de inventario.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 19440.200000000186,
+   "type": "synth_start",
+   "text": "Soy un sistema autónomo de inventario."
+  },
+  {
+   "t": 22535.700000000186,
+   "type": "tts_req",
+   "text": "Yo observo."
+  },
+  {
+   "t": 22537.400000000373,
+   "type": "synth_end",
+   "text": "Soy un sistema autónomo de inventario."
+  },
+  {
+   "t": 22544.800000000745,
+   "type": "tts_err",
+   "text": "Yo observo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 22546.800000000745,
+   "type": "synth_req",
+   "text": "Yo observo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 22627,
+   "type": "synth_start",
+   "text": "Yo observo."
+  },
+  {
+   "t": 24219,
+   "type": "tts_req",
+   "text": "Eso es lo primero que hago."
+  },
+  {
+   "t": 24220.5,
+   "type": "synth_end",
+   "text": "Yo observo."
+  },
+  {
+   "t": 24226.200000000186,
+   "type": "tts_err",
+   "text": "Eso es lo primero que hago.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 24227.400000000373,
+   "type": "synth_req",
+   "text": "Eso es lo primero que hago.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 24290.900000000373,
+   "type": "synth_start",
+   "text": "Eso es lo primero que hago."
+  },
+  {
+   "t": 26589.800000000745,
+   "type": "tts_req",
+   "text": "Una imagen aparece."
+  },
+  {
+   "t": 26590.5,
+   "type": "synth_end",
+   "text": "Eso es lo primero que hago."
+  },
+  {
+   "t": 26607,
+   "type": "tts_err",
+   "text": "Una imagen aparece.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 26607.700000000186,
+   "type": "synth_req",
+   "text": "Una imagen aparece.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 26651.5,
+   "type": "synth_start",
+   "text": "Una imagen aparece."
+  },
+  {
+   "t": 28790.60000000056,
+   "type": "synth_end",
+   "text": "Una imagen aparece."
+  },
+  {
+   "t": 29598,
+   "type": "tts_req",
+   "text": "Encuentro algo."
+  },
+  {
+   "t": 29602.10000000056,
+   "type": "tts_err",
+   "text": "Encuentro algo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 29602.60000000056,
+   "type": "synth_req",
+   "text": "Encuentro algo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 29631.400000000373,
+   "type": "synth_start",
+   "text": "Encuentro algo."
+  },
+  {
+   "t": 31451.5,
+   "type": "synth_end",
+   "text": "Encuentro algo."
+  },
+  {
+   "t": 32269.400000000373,
+   "type": "tts_req",
+   "text": "Intento identificarlo."
+  },
+  {
+   "t": 32273.5,
+   "type": "tts_err",
+   "text": "Intento identificarlo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 32274,
+   "type": "synth_req",
+   "text": "Intento identificarlo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 32309.300000000745,
+   "type": "synth_start",
+   "text": "Intento identificarlo."
+  },
+  {
+   "t": 34575.300000000745,
+   "type": "synth_end",
+   "text": "Intento identificarlo."
+  },
+  {
+   "t": 35877,
+   "type": "tts_req",
+   "text": "Pero encontrar algo no significa entenderlo."
+  },
+  {
+   "t": 35887.700000000186,
+   "type": "tts_err",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 35889.10000000056,
+   "type": "synth_req",
+   "text": "Pero encontrar algo no significa entenderlo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 35940.800000000745,
+   "type": "synth_start",
+   "text": "Pero encontrar algo no significa entenderlo."
+  },
+  {
+   "t": 39374.300000000745,
+   "type": "tts_req",
+   "text": "Una cámara puede detectar un objeto."
+  },
+  {
+   "t": 39374.90000000037,
+   "type": "synth_end",
+   "text": "Pero encontrar algo no significa entenderlo."
+  },
+  {
+   "t": 39378.40000000037,
+   "type": "tts_err",
+   "text": "Una cámara puede detectar un objeto.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 39379.90000000037,
+   "type": "synth_req",
+   "text": "Una cámara puede detectar un objeto.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 39408.60000000056,
+   "type": "synth_start",
+   "text": "Una cámara puede detectar un objeto."
+  },
+  {
+   "t": 42298.90000000037,
+   "type": "tts_req",
+   "text": "Pero detectar no significa saber qué es."
+  },
+  {
+   "t": 42299.700000000186,
+   "type": "synth_end",
+   "text": "Una cámara puede detectar un objeto."
+  },
+  {
+   "t": 42303,
+   "type": "tts_err",
+   "text": "Pero detectar no significa saber qué es.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 42303.40000000037,
+   "type": "synth_req",
+   "text": "Pero detectar no significa saber qué es.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 42335.800000000745,
+   "type": "synth_start",
+   "text": "Pero detectar no significa saber qué es."
+  },
+  {
+   "t": 45625.200000000186,
+   "type": "synth_end",
+   "text": "Pero detectar no significa saber qué es."
+  },
+  {
+   "t": 46829.200000000186,
+   "type": "tts_req",
+   "text": "Y saber qué es no significa necesariamente saber dónde está."
+  },
+  {
+   "t": 46834.60000000056,
+   "type": "tts_err",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 46835.10000000056,
+   "type": "synth_req",
+   "text": "Y saber qué es no significa necesariamente saber dónde está.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 46876.60000000056,
+   "type": "synth_start",
+   "text": "Y saber qué es no significa necesariamente saber dónde está."
+  },
+  {
+   "t": 51118.60000000056,
+   "type": "synth_end",
+   "text": "Y saber qué es no significa necesariamente saber dónde está."
+  },
+  {
+   "t": 52425.200000000186,
+   "type": "tts_req",
+   "text": "Mucho menos significa saber si esa información es confiable."
+  },
+  {
+   "t": 52433.60000000056,
+   "type": "tts_err",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 52434,
+   "type": "synth_req",
+   "text": "Mucho menos significa saber si esa información es confiable.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 52473.5,
+   "type": "synth_start",
+   "text": "Mucho menos significa saber si esa información es confiable."
+  },
+  {
+   "t": 56783.300000000745,
+   "type": "synth_end",
+   "text": "Mucho menos significa saber si esa información es confiable."
+  },
+  {
+   "t": 58791.40000000037,
+   "type": "tts_req",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo."
+  },
+  {
+   "t": 58876.700000000186,
+   "type": "tts_err",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 58877.5,
+   "type": "synth_req",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 58926,
+   "type": "synth_start",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo."
+  },
+  {
+   "t": 63036.90000000037,
+   "type": "tts_req",
+   "text": "Percibir."
+  },
+  {
+   "t": 63038.10000000056,
+   "type": "synth_end",
+   "text": "Por eso, mi proceso no termina cuando encuentro algo."
+  },
+  {
+   "t": 63051.90000000037,
+   "type": "tts_err",
+   "text": "Percibir.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 63052.40000000037,
+   "type": "synth_req",
+   "text": "Percibir.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 63099.700000000186,
+   "type": "synth_start",
+   "text": "Percibir."
+  },
+  {
+   "t": 64680.10000000056,
+   "type": "synth_end",
+   "text": "Percibir."
+  },
+  {
+   "t": 65184.10000000056,
+   "type": "tts_req",
+   "text": "Identificar."
+  },
+  {
+   "t": 65188,
+   "type": "tts_err",
+   "text": "Identificar.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 65188.5,
+   "type": "synth_req",
+   "text": "Identificar.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 65221.800000000745,
+   "type": "synth_start",
+   "text": "Identificar."
+  },
+  {
+   "t": 66899.60000000056,
+   "type": "synth_end",
+   "text": "Identificar."
+  },
+  {
+   "t": 67408.60000000056,
+   "type": "tts_req",
+   "text": "Verificar."
+  },
+  {
+   "t": 67416,
+   "type": "tts_err",
+   "text": "Verificar.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 67416.40000000037,
+   "type": "synth_req",
+   "text": "Verificar.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 67445.60000000056,
+   "type": "synth_start",
+   "text": "Verificar."
+  },
+  {
+   "t": 69006.30000000075,
+   "type": "synth_end",
+   "text": "Verificar."
+  },
+  {
+   "t": 69513.60000000056,
+   "type": "tts_req",
+   "text": "Localizar."
+  },
+  {
+   "t": 69517.60000000056,
+   "type": "tts_err",
+   "text": "Localizar.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 69517.90000000037,
+   "type": "synth_req",
+   "text": "Localizar.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 69546.5,
+   "type": "synth_start",
+   "text": "Localizar."
+  },
+  {
+   "t": 71107.5,
+   "type": "synth_end",
+   "text": "Localizar."
+  },
+  {
+   "t": 71612.40000000037,
+   "type": "tts_req",
+   "text": "Registrar."
+  },
+  {
+   "t": 71616.30000000075,
+   "type": "tts_err",
+   "text": "Registrar.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 71616.70000000019,
+   "type": "synth_req",
+   "text": "Registrar.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 71652.10000000056,
+   "type": "synth_start",
+   "text": "Registrar."
+  },
+  {
+   "t": 73240.70000000019,
+   "type": "synth_end",
+   "text": "Registrar."
+  },
+  {
+   "t": 74245.10000000056,
+   "type": "tts_req",
+   "text": "Ese es el proceso que permite transformar una imagen en información."
+  },
+  {
+   "t": 74248.80000000075,
+   "type": "tts_err",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 74249.10000000056,
+   "type": "synth_req",
+   "text": "Ese es el proceso que permite transformar una imagen en información.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 74277.20000000019,
+   "type": "synth_start",
+   "text": "Ese es el proceso que permite transformar una imagen en información."
+  },
+  {
+   "t": 78930.10000000056,
+   "type": "synth_end",
+   "text": "Ese es el proceso que permite transformar una imagen en información."
+  },
+  {
+   "t": 80431.5,
+   "type": "tts_req",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos."
+  },
+  {
+   "t": 80434.90000000037,
+   "type": "tts_err",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 80435.20000000019,
+   "type": "synth_req",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 80467.20000000019,
+   "type": "synth_start",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos."
+  },
+  {
+   "t": 85284.10000000056,
+   "type": "synth_end",
+   "text": "Para hacerlo, necesito diferentes sistemas trabajando juntos."
+  },
+  {
+   "t": 86492.80000000075,
+   "type": "tts_req",
+   "text": "Un sistema de percepción, para observar mi entorno."
+  },
+  {
+   "t": 86496.80000000075,
+   "type": "tts_err",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 86497.10000000056,
+   "type": "synth_req",
+   "text": "Un sistema de percepción, para observar mi entorno.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 86529.10000000056,
+   "type": "synth_start",
+   "text": "Un sistema de percepción, para observar mi entorno."
+  },
+  {
+   "t": 90531.80000000075,
+   "type": "synth_end",
+   "text": "Un sistema de percepción, para observar mi entorno."
+  },
+  {
+   "t": 91541.40000000037,
+   "type": "tts_req",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo."
+  },
+  {
+   "t": 91548,
+   "type": "tts_err",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 91548.5,
+   "type": "synth_req",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 91584.20000000019,
+   "type": "synth_start",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo."
+  },
+  {
+   "t": 96559.40000000037,
+   "type": "synth_end",
+   "text": "Un sistema de computación, para procesar e interpretar lo que observo."
+  },
+  {
+   "t": 97570.90000000037,
+   "type": "tts_req",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles."
+  },
+  {
+   "t": 97576.90000000037,
+   "type": "tts_err",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 97577.70000000019,
+   "type": "synth_req",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 97613.5,
+   "type": "synth_start",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles."
+  },
+  {
+   "t": 103085.80000000075,
+   "type": "synth_end",
+   "text": "Un sistema de comunicación, para convertir esa información en datos útiles."
+  },
+  {
+   "t": 104091.30000000075,
+   "type": "tts_req",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."
+  },
+  {
+   "t": 104096,
+   "type": "tts_err",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 104096.60000000056,
+   "type": "synth_req",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 104129.90000000037,
+   "type": "synth_start",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."
+  },
+  {
+   "t": 110342.20000000019,
+   "type": "synth_end",
+   "text": "Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."
+  },
+  {
+   "t": 111842.90000000037,
+   "type": "tts_req",
+   "text": "No soy solamente una cámara."
+  },
+  {
+   "t": 111849.60000000056,
+   "type": "tts_err",
+   "text": "No soy solamente una cámara.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 111850,
+   "type": "synth_req",
+   "text": "No soy solamente una cámara.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 112075.5,
+   "type": "synth_start",
+   "text": "No soy solamente una cámara."
+  },
+  {
+   "t": 114750.10000000056,
+   "type": "synth_end",
+   "text": "No soy solamente una cámara."
+  },
+  {
+   "t": 115651.10000000056,
+   "type": "tts_req",
+   "text": "No soy solamente un robot."
+  },
+  {
+   "t": 115661.10000000056,
+   "type": "tts_err",
+   "text": "No soy solamente un robot.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 115662,
+   "type": "synth_req",
+   "text": "No soy solamente un robot.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 115762.10000000056,
+   "type": "synth_start",
+   "text": "No soy solamente un robot."
+  },
+  {
+   "t": 118326,
+   "type": "synth_end",
+   "text": "No soy solamente un robot."
+  },
+  {
+   "t": 119527.20000000019,
+   "type": "tts_req",
+   "text": "Soy la integración de estos sistemas para resolver un problema."
+  },
+  {
+   "t": 119530.60000000056,
+   "type": "tts_err",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 119530.90000000037,
+   "type": "synth_req",
+   "text": "Soy la integración de estos sistemas para resolver un problema.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 119641.40000000037,
+   "type": "synth_start",
+   "text": "Soy la integración de estos sistemas para resolver un problema."
+  },
+  {
+   "t": 123953.80000000075,
+   "type": "synth_end",
+   "text": "Soy la integración de estos sistemas para resolver un problema."
+  },
+  {
+   "t": 125480.30000000075,
+   "type": "tts_req",
+   "text": "¿Quieren ver cómo funciono?"
+  },
+  {
+   "t": 125493.40000000037,
+   "type": "tts_err",
+   "text": "¿Quieren ver cómo funciono?",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 125493.80000000075,
+   "type": "synth_req",
+   "text": "¿Quieren ver cómo funciono?",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 125540.5,
+   "type": "synth_start",
+   "text": "¿Quieren ver cómo funciono?"
+  },
+  {
+   "t": 128074.90000000037,
+   "type": "synth_end",
+   "text": "¿Quieren ver cómo funciono?"
+  },
+  {
+   "t": 198441.90000000037,
+   "type": "tts_req",
+   "text": "Dígame, señor."
+  },
+  {
+   "t": 198729.7000000002,
+   "type": "tts_err",
+   "text": "Dígame, señor.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 198757.7000000002,
+   "type": "synth_req",
+   "text": "Dígame, señor.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 199573.2000000002,
+   "type": "synth_start",
+   "text": "Dígame, señor."
+  },
+  {
+   "t": 201920.2000000002,
+   "type": "synth_end",
+   "text": "Dígame, señor."
+  },
+  {
+   "t": 205947,
+   "type": "tts_req",
+   "text": "En un momento."
+  },
+  {
+   "t": 206255.2000000002,
+   "type": "tts_err",
+   "text": "En un momento.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 206286.30000000075,
+   "type": "synth_req",
+   "text": "En un momento.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 206605.30000000075,
+   "type": "synth_start",
+   "text": "En un momento."
+  },
+  {
+   "t": 208386,
+   "type": "synth_end",
+   "text": "En un momento."
+  },
+  {
+   "t": 209192.10000000056,
+   "type": "tts_req",
+   "text": "Esto es lo que soy capaz de ver ahora mismo."
+  },
+  {
+   "t": 209207.40000000037,
+   "type": "tts_err",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "err": "TypeError: Failed to fetch"
+  },
+  {
+   "t": 209208,
+   "type": "synth_req",
+   "text": "Esto es lo que soy capaz de ver ahora mismo.",
+   "voice": "Microsoft Raul - Spanish (Mexico) (es-MX)"
+  },
+  {
+   "t": 209268.2000000002,
+   "type": "synth_start",
+   "text": "Esto es lo que soy capaz de ver ahora mismo."
+  }
+ ],
+ "console": [
+  "log: Aether · voces en español disponibles (2): [Microsoft Raul - Spanish (Mexico) (es-MX), Microsoft Sabina - Spanish (Mexico) (es-MX)]",
+  "log: Aether · voz elegida: Microsoft Raul - Spanish (Mexico) (es-MX) · es-MX",
+  "warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+  "warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio",
+  "log: Aether · micrófono: pendiente de confirmar",
+  "warning: Aether · error de voz: permiso de micrófono denegado",
+  "log: Aether · micrófono: denegado",
+  "log: Aether · reconocimiento: inactivo",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)\n    at http://127.0.0.1:8000/robot.js:1010:21",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "log: Aether · guion: [INICIA LA MÚSICA]",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)",
+  "error: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+  "warning: Aether: ElevenLabs no disponible, uso voz del navegador. TypeError: Failed to fetch\n    at window.fetch (<anonymous>:19:24)\n    at speak (http://127.0.0.1:8000/robot.js:1591:28)\n    at http://127.0.0.1:8000/robot.js:1261:35\n    at new Promise (<anonymous>)\n    at speakScripted (http://127.0.0.1:8000/robot.js:1261:10)\n    at runPresentationScript (http://127.0.0.1:8000/robot.js:1288:13)"
+ ]
+}

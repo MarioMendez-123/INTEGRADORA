@@ -1,0 +1,2647 @@
+<title>Armado del carrito Aether</title>
+<script>if (location.search.indexOf("embed=1") >= 0) document.documentElement.classList.add("embed")</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Concepto: hoja de armado técnica — visor 3D grande, ficha de etapa al costado, transporte abajo. */
+:root {
+  --bg: #eef1f4; --panel: #ffffff; --ink: #17202a; --muted: #5a6673; --line: #d6dde5; --chip: #e8edf3;
+  --accent: #0f4c81; --accent-ink: #ffffff; --ok: #15803d; --okbg: #e8f5ec; --warn: #a2510a; --warnbg: #fdf1e3;
+  --scene: #e6eaef; --floor: #d6dce3; --dim: #0f3a66; --tagbg: rgba(255, 255, 255, 0.94); --shadow: 0 1px 2px rgba(16, 32, 48, .08), 0 4px 14px rgba(16, 32, 48, .08);
+  --f-disp: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --f-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1318; --panel: #151c23; --ink: #e5eaef; --muted: #9ba8b5; --line: #26313c; --chip: #1d2731;
+  --accent: #7db5ee; --accent-ink: #0a1520; --ok: #5ad48a; --okbg: #12261b; --warn: #f5b546; --warnbg: #2a2010;
+  --scene: #18212a; --floor: #212b36; --dim: #cfe4ff; --tagbg: rgba(21, 28, 35, 0.94); --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .35); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1318; --panel: #151c23; --ink: #e5eaef; --muted: #9ba8b5; --line: #26313c; --chip: #1d2731;
+  --accent: #7db5ee; --accent-ink: #0a1520; --ok: #5ad48a; --okbg: #12261b; --warn: #f5b546; --warnbg: #2a2010;
+  --scene: #18212a; --floor: #212b36; --dim: #cfe4ff; --tagbg: rgba(21, 28, 35, 0.94); --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .35); color-scheme: dark }
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+html, body { height: 100%; margin: 0 }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); overflow: hidden }
+button, input { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+#app { display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: minmax(0, 1fr) auto; height: 100% }
+#view { grid-column: 1; grid-row: 1; position: relative; min-height: 0; overflow: hidden; background: var(--scene) }
+#view canvas { display: block; width: 100%; height: 100%; touch-action: none }
+.labels { position: absolute; inset: 0; pointer-events: none }
+#panel { grid-column: 2; grid-row: 1 / span 2; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0 }
+#sheetHead { display: none }
+#panelBody { overflow-y: auto; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 14px; min-height: 0 }
+#panelBody > * { flex: none }
+#chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin }
+.chip { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 0; border: 1px solid var(--line); background: var(--chip); border-radius: 6px; padding: 5px 9px; text-align: left; line-height: 1.15 }
+.chip b { font: 700 13px/1.2 var(--f-disp); letter-spacing: .02em }
+.chip span { font-size: 12px; color: var(--muted); white-space: nowrap }
+.chip[aria-current="step"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+.chip[aria-current="step"] span { color: var(--accent-ink); opacity: .85 }
+.stage { display: flex; justify-content: space-between; align-items: baseline; gap: 8px }
+#etapa { font: 700 13px/1 var(--f-disp); text-transform: uppercase; letter-spacing: .12em; color: var(--accent) }
+#stepn { font: 500 12px/1 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums }
+h1 { font: 700 26px/1.12 var(--f-disp); margin: -6px 0 0; text-wrap: balance; letter-spacing: -.005em }
+.prog { height: 4px; background: var(--chip); border-radius: 2px; overflow: hidden }
+.prog i { display: block; height: 100%; width: 0; background: var(--accent) }
+dl { margin: 0; display: grid; gap: 10px }
+dl > div { display: grid; gap: 2px }
+dt { font: 600 12px/1.2 var(--f-disp); text-transform: uppercase; letter-spacing: .1em; color: var(--muted) }
+dd { margin: 0; max-width: 62ch }
+.box { border-radius: 6px; padding: 9px 11px }
+.box.ok { background: var(--okbg) } .box.ok dt { color: var(--ok) }
+.box.warn { background: var(--warnbg) } .box.warn dt { color: var(--warn) }
+#legend { list-style: none; margin: 0; padding: 10px 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 13px; color: var(--muted) }
+#legend li { display: flex; align-items: center; gap: 7px }
+#legend i { width: 11px; height: 11px; border-radius: 3px; flex: none }
+.linkbtn { align-self: flex-start; border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 7px 11px; font-weight: 600 }
+.linkbtn:hover { background: var(--chip) }
+/* rótulo del paso sobre el visor */
+#vHead { position: absolute; left: 12px; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; max-width: 520px }
+#vEtapa { align-self: flex-start; font: 700 12px/1 var(--f-disp); text-transform: uppercase; letter-spacing: .12em; background: var(--accent); color: var(--accent-ink); padding: 5px 8px; border-radius: 4px }
+#vTitle { font: 700 19px/1.15 var(--f-disp); text-shadow: 0 1px 0 var(--scene), 0 0 8px var(--scene) }
+.vbar { width: 140px; height: 3px; background: color-mix(in srgb, var(--ink) 15%, transparent); border-radius: 2px; overflow: hidden }
+.vbar i { display: block; height: 100%; width: 0; background: var(--accent) }
+#hint { position: absolute; right: 12px; bottom: 10px; font-size: 12px; color: var(--muted); pointer-events: none }
+/* etiquetas y cotas 3D */
+.tag3d { position: absolute; transform: translate(-6px, -6px); pointer-events: none; transition: opacity .3s }
+.tag-dot { position: absolute; left: 0; top: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--accent) }
+.tag-box { position: absolute; left: 4px; bottom: 8px; display: flex; flex-direction: column; background: var(--tagbg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 8px 5px; box-shadow: var(--shadow); white-space: nowrap; max-width: 300px }
+.tag-box::before { content: ''; position: absolute; left: 0; bottom: -9px; width: 1px; height: 9px; background: var(--accent) }
+.tag-box b { font: 600 14px/1.2 var(--f-disp); letter-spacing: .01em }
+.tag-box small { font-size: 12px; color: var(--muted); line-height: 1.25; white-space: normal; min-width: 150px }
+.tag3d.right .tag-box { left: auto; right: -4px }
+.tag3d.right .tag-box::before { left: auto; right: 0 }
+.tag3d.inv .tag-box { padding: 3px 6px 4px } .tag3d.inv .tag-box b { font-size: 13px } .tag3d.inv .tag-box small { font-size: 11.5px; min-width: 0; white-space: nowrap }
+.tag3d.hot .tag-dot { background: var(--warn); box-shadow: 0 0 0 1px var(--warn) }
+.tag3d.hot .tag-box { border-color: var(--warn) }
+.dim3d { font: 500 12px/1 var(--f-mono); color: var(--dim); background: var(--tagbg); border: 1px solid color-mix(in srgb, var(--dim) 35%, transparent); padding: 3px 6px; border-radius: 4px; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums }
+.dim3d.hot { color: var(--warn); border-color: var(--warn) }
+/* controles */
+#controls { min-width: 0; grid-column: 1; grid-row: 2; background: var(--panel); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px }
+.tl { display: flex; align-items: center; gap: 10px; font: 500 12px/1 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.tlwrap { position: relative; flex: 1; min-width: 0; height: 26px; display: flex; align-items: center }
+#ticks { position: absolute; left: 0; right: 0; top: 50%; height: 10px; transform: translateY(-50%); pointer-events: none }
+#ticks i { position: absolute; top: 2px; width: 1px; height: 6px; background: var(--line) }
+#ticks i.ch { top: -2px; height: 14px; width: 2px; background: var(--muted) }
+#timeline { width: 100%; margin: 0; accent-color: var(--accent); height: 26px; background: transparent; position: relative }
+.row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0 }
+.row > * { min-width: 0 }
+.transport { display: flex; gap: 6px }
+.ib { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--chip); border-radius: 8px; padding: 0 }
+.ib svg { width: 18px; height: 18px; fill: currentColor }
+#bPlay { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); width: 48px }
+#bPlay .i-pause { display: none } #bPlay.playing .i-pause { display: block } #bPlay.playing .i-play { display: none }
+.speed { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.speed button { border: 0; background: transparent; padding: 0 11px; height: 38px; font: 500 13px/1 var(--f-mono) }
+.speed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink) }
+.toggles { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; max-width: 100% }
+.toggles label { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; font-size: 14px; cursor: pointer; user-select: none; background: var(--panel) }
+.toggles input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0 }
+.toggles label:has(input:checked) { border-color: var(--accent) }
+/* tarjeta final y supuestos */
+#endCard { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; width: min(420px, calc(100% - 32px)) }
+#endCard h2 { margin: 0; font: 700 20px/1.1 var(--f-disp) }
+#endCard p { margin: 0; color: var(--muted); font-size: 14px }
+#endCard .row { gap: 8px }
+.pbtn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 8px 12px; font-weight: 600 }
+#supDlg { position: fixed; inset: 0; background: color-mix(in srgb, #000 45%, transparent); display: grid; place-items: center; padding: 16px; z-index: 20 }
+#supDlg > div { background: var(--panel); border-radius: 10px; max-width: 720px; width: 100%; max-height: 86vh; overflow: auto; padding: 18px 20px; box-shadow: var(--shadow) }
+#supDlg h2 { margin: 0 0 4px; font: 700 24px/1.1 var(--f-disp) }
+#supDlg p { margin: 0 0 12px; color: var(--muted) }
+#supList { margin: 0; padding-left: 20px; display: grid; gap: 7px }
+#supList b { font-weight: 600 }
+#supClose { float: right }
+body:not(.ready) #view::after { content: 'Cargando modelo 3D…'; position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted) }
+/* celular */
+@media (max-width: 820px) {
+  body { font-size: 15px }
+  #app { display: flex; flex-direction: column; height: 100% }
+  #view { flex: 1 1 auto; min-height: 0 }
+  #panel { order: 2; border-left: 0; border-top: 1px solid var(--line); flex: none }
+  #sheetHead { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 0; background: var(--panel); width: 100%; text-align: left; min-height: 48px }
+  #sheetTitle { flex: 1; min-width: 0; font: 600 15px/1.2 var(--f-disp); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+  #sheetHead svg { width: 18px; height: 18px; fill: currentColor; transition: transform .2s; flex: none }
+  body.sheet-open #sheetHead svg { transform: rotate(180deg) }
+  #panelBody { display: none; max-height: 44vh; padding: 4px 16px 16px }
+  body.sheet-open #panelBody { display: flex }
+  #panelBody h1, #panelBody .stage { display: none }
+  #controls { order: 3; width: 100%; padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)) }
+  #panel { width: 100%; min-width: 0 }
+  .row { gap: 8px; justify-content: space-between }
+  .ib { width: 48px; height: 48px } #bPlay { width: 60px }
+  .speed button { height: 46px; padding: 0 12px }
+  .toggles { width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px }
+  .toggles label { flex: none; padding: 8px 12px }
+  #vTitle { font-size: 17px }
+  #hint { display: none }
+  .tag-box b { font-size: 12.5px } .tag-box small { font-size: 11px; min-width: 120px } .tag-box { max-width: 210px; padding: 3px 6px 4px }
+  .dim3d { font-size: 11px }
+}
+@media (prefers-reduced-motion: reduce) { .tag3d { transition: none } }
+#app { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+#panel, #controls, #vHead, #hint, #endCard { display: none !important; }
+#revealCap { position: absolute; left: 16px; top: 16px; z-index: 2; pointer-events: none; font: 700 13px/1 var(--f-disp); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); background: color-mix(in srgb, var(--panel) 82%, transparent); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px }
+.pname { pointer-events: none }
+.pname span { display: block; transform: translate(-50%, -125%); max-width: 150px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); background: color-mix(in srgb, var(--tagbg) 90%, transparent); color: var(--ink); font: 600 11px/1.25 var(--f-disp); text-align: center; box-shadow: 0 1px 4px rgba(0, 0, 0, .35) }
+html.embed, html.embed body, html.embed #view { background: transparent !important; }
+</style>
+
+<div id="app">
+  <div id="view">
+    <div id="vHead"><span id="vEtapa">Inventario</span><span id="vTitle"></span><span class="vbar"><i id="vStepBar"></i></span></div>
+    <div id="revealCap" hidden></div>
+    <div id="hint">Arrastra para girar · rueda o pellizco para zoom · clic derecho para desplazar</div>
+    <div id="endCard" hidden>
+      <h2>Carrito armado y probado</h2>
+      <p>Recorrieron las 7 partes de la guía, de las piezas sueltas a la descarga en la rampa.</p>
+      <div class="row"><button class="pbtn" id="bSup2" type="button">Ver supuestos</button><button class="linkbtn" id="bRestart" type="button">Volver a empezar</button></div>
+    </div>
+  </div>
+  <aside id="panel">
+    <button id="sheetHead" type="button" aria-expanded="false" aria-controls="panelBody"><span id="sheetTitle"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14l5-5 5 5z"/></svg></button>
+    <div id="panelBody">
+      <nav id="chips" aria-label="Capítulos"></nav>
+      <div class="stage"><span id="etapa"></span><span id="stepn"></span></div>
+      <h1 id="title"></h1>
+      <div class="prog" aria-hidden="true"><i id="progbar"></i></div>
+      <dl>
+        <div><dt>Qué se hace</dt><dd id="t-que"></dd></div>
+        <div><dt>Por qué</dt><dd id="t-porque"></dd></div>
+        <div id="row-herr"><dt>Herramienta</dt><dd id="t-herr"></dd></div>
+        <div class="box ok"><dt>Comprobación</dt><dd id="t-check"></dd></div>
+        <div class="box warn"><dt>Error común</dt><dd id="t-error"></dd></div>
+      </dl>
+      <ul id="legend" aria-label="Colores por subsistema"></ul>
+      <button class="linkbtn" id="bSup" type="button">Supuestos y medidas aproximadas</button>
+    </div>
+  </aside>
+  <div id="controls">
+    <div class="tl"><span id="tcur">0:00</span><div class="tlwrap"><div id="ticks"></div><input type="range" id="timeline" min="0" max="100" value="0" aria-label="Línea de tiempo"></div><span id="ttot">0:00</span></div>
+    <div class="row">
+      <div class="transport">
+        <button class="ib" id="bPrev" type="button" aria-label="Paso anterior"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+        <button class="ib" id="bPlay" type="button" aria-label="Reproducir"><svg class="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg><svg class="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+        <button class="ib" id="bNext" type="button" aria-label="Paso siguiente"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      </div>
+      <div class="speed" role="group" aria-label="Velocidad"><button type="button" data-speed="0.5" aria-pressed="false">0.5×</button><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button></div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tLabels">Etiquetas</label>
+        <label><input type="checkbox" id="tDims">Cotas</label>
+        <label><input type="checkbox" id="tExplode">Explosionada</label>
+        <label><input type="checkbox" id="tTransp">Estructura transparente</label>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="supDlg" hidden role="dialog" aria-modal="true" aria-labelledby="supH">
+  <div>
+    <button class="linkbtn" id="supClose" type="button">Cerrar</button>
+    <h2 id="supH">Supuestos</h2>
+    <p>Lo que no está en los documentos (rev. 3.2) y se dibujó con una medida razonable. Todo lo demás sale de la guía técnica, la guía de armado y la tabla de costos.</p>
+    <ol id="supList"></ol>
+  </div>
+</div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+/* =====================================================================
+   TABLA DE MEDIDAS Y POSICIONES — carrito Aether, rev. 3.2
+   Unidades: metros. Ejes: x → frente (hacia la banda), y → arriba,
+   z → derecha del carrito (viéndolo desde atrás hacia el frente).
+   Origen: centro de la huella, sobre el piso.
+   Fuentes: [G] CARRITO_CONSTRUCCION_PASO_A_PASO.md · [A] GUIA_ARMADO_PRINCIPIANTES.md
+            [C] COSTOS_CARRITO.md · [X] PROYECTO_INTEGRADOR_CONTEXTO.md §3c
+   "~" = aproximada (no está en los documentos) → aparece en el panel Supuestos.
+   ---------------------------------------------------------------------
+   ESTRUCTURA
+   Huella exterior ......... 0.500 (x) × 0.400 (z) .................. [G P8][A E4]
+   Perfil 3030 ............. 0.030 × 0.030, ranura 8 mm ............. [G P8][memoria]
+   Postes .................. 4 × 0.950 .............................. [G P8]
+   Largueros (eje x) ....... 4 × 0.440 = 0.500 − 2·0.030 ✓ ........... [G P8]
+   Travesaños (eje z) ...... 7 × 0.340 = 0.400 − 2·0.030 ✓ ........... [G P8]
+     4 de marcos + 1 central inferior + 2 de la torre
+   Barras de 2 m ........... 950+950 (sobra ~95) ×2, 440×4 (~228),
+                             340×5 (~285), 340×2 (~1.3 m); corte ~3 mm  [G P8][A E6]
+   Rodaja twin 50 mm ....... alto 0.090 (con espiga) ................ [G P3]
+   Base del marco inferior . y = 0.090 (alto de la rodaja) ........... [G P8.1]
+   Tope del marco superior . y = 0.090 + 0.950 = 1.040 (guía: ~1.03) . ~
+   Diagonal 500 × 400 ...... √(0.5²+0.4²) = 0.640 (calculada) ........ [A E7]
+   Escuadras impresas ...... 36 (2 por unión: 16 esquinas + 2 central)  [A E5][C]
+   Columnas de la torre .... 4 × 0.890 (0.120 → 1.010): delanteras x 0.220–0.250,
+                             traseras x −0.015–0.015 (sobre el travesaño central),
+                             z ±0.099–0.129; entre caras 0.198 > fixture 0.180 ✓ ~
+   Travesaño sup. central .. 0.340 entre largueros superiores, x = 0 ~
+   Travesaño del empujador . 0.198 entre columnas traseras, y 0.940–0.970 ~
+   Barras de 2 m (propuesta) 7: 950+950 ×2, 890+890 ×2, 440×4, 340×5+198, 340 ~
+   TRACCIÓN
+   M0601 ................... rueda Ø0.102, ancho ~0.045 ............... [G P3] ~
+   Eje de las ruedas ....... x = +0.070, z = ±0.1425 (rueda no toca el
+                             travesaño central: tope 0.102 > 0.090) .... ~
+   Suspensión .............. pivote M8 + 2×608ZZ, resorte libre 0.075,
+                             comprimido 0.028 → 0.047, 85 N, k≈3 N/mm .. [G P3][A E7]
+   Batería BR-1224 ......... ~0.166 × 0.175 × 0.125, 8.3 kg, al centro  [G P5] ~
+   TORRE (columna pegada al frente)
+   Hueco ................... 0.220 (x) × 0.190 (z), centro XC = 0.133 . [G P4]
+                             x 0.023…0.243, z ±0.095; holgura 5 mm ✓
+   Fixture + ECU ........... 0.210 × 0.180 × 0.064; costados 0.070 ..... [G P1][A E3]
+                             (fixture 21×18 en hueco 22×19 → 5 mm por lado ✓)
+   Nivel ................... 0.070 .................................. [G P1]
+   Banda (superficie) ...... 0.830 (medir) ............................ [G P0]
+   Ventana ................. 0.240 (z) × 0.097 (y); borde inf. 0.818 ✓
+                             (0.830 − 0.012), borde sup. 0.915 ......... [G P4]
+   Plataforma (cara sup.) .. carga: 0.827 − n·0.070 → 0.827…0.407 ✓
+                             descarga: 0.832 − (n−1)·0.070 → 0.832…0.482 ✓
+                             final de carrera inf. 0.392, tope sup. 0.840 [G P4][A E9]
+   Husillos TR8 ............ 2 × 0.600, y 0.300…0.900, x 0.183, z ±0.165 ~ (posición)
+   KFL08 ................... inferior 0.318…0.336, superior 0.866…0.884
+                             útil = 0.866 − 0.336 = 0.530 ≈ 0.527 ✓ .... [G P4]
+   NEMA 17 elevador ........ 0.042 × 0.042 × 0.040 (cuerpo ~) y 0.235…0.275
+   Varillas 8 mm ........... 2 × 0.600, x 0.183, z ±0.128 ............. ~ (posición)
+   Guías en L .............. alas 0.018 × 0.004 ~; traseras 0.380…0.905,
+                             delanteras 0.380…0.818 (borde de la ventana) [A E9]
+   EMPUJADOR
+   Placa ................... 0.150 (z) × 0.030 (y), y 0.836…0.866
+                             (0.6 a 3.6 cm sobre la banda ✓) ........... [G P4][A E10]
+   Carrera ................. 0.250; home p0 = 0.008 (cara de la placa) . [G P4]
+   Uña ..................... pin 0.010 × 0.010, 0.035 adelante de la placa ~
+   Ranura del fixture ...... 0.028 (x) × 0.016 (z), entre barra trasera y ECU [G P1]
+   Banda deja el fixture ... ~0.090 afuera de la ventana; jala ~0.100 .. [G P4]
+   Cremallera .............. 0.300 (2 × 0.150), piñón m1.5 z20 Ø0.030 .. [G P4]
+   Varillas empujador ...... 2 × 0.300, y 0.874, z ±0.045 .............. ~ (posición)
+   ESTACIONES
+   Rampa ................... 1.40 m, 14 rodillos cada 0.10, 4° ......... [G P7][A E15]
+   Primer rodillo .......... en la orilla, tope 0.830 (2 mm bajo 0.832) [A E15]
+   COMPROBACIONES HECHAS (ver también la función checkGeometry al final)
+   ✓ ruedas (Ø102) y rodajas (9 cm) tocan el piso a la vez.
+   ✓ ventana a la altura de la banda: borde inferior 1.2 cm abajo.
+   ✓ plataforma de 40.7 a 83.2 cm; finales de carrera 39.2 / 84.0.
+   ✓ columna 22.0 × 19.0 cm; fixture 21 × 18 cm.
+   ✓ alto de la pila llena: 0.407 + 6·0.070 = 0.827 = tope bajo la banda.
+   ===================================================================== */
+
+const D = {
+  // estructura
+  L: 0.50, W: 0.40, PF: 0.030, H0: 0.090, POST: 0.950,
+  get HT() { return this.H0 + this.POST; },          // 1.040
+  XI: 0.22, ZI: 0.17,                                // caras interiores de los postes
+  XP: 0.235, ZP: 0.185,                              // ejes de los perfiles perimetrales
+  YB: 0.105, get YT() { return this.HT - 0.015; },   // ejes de marcos inferior y superior
+  COLXF: 0.235, COLXB: 0, COLZC: 0.114, COLL: 0.890,  // columnas de la torre (propuesta ~)
+  YSC: 1.025, YEMP: 0.955,                           // travesaño superior central y del empujador (~)
+  // tracción
+  WR: 0.051, WW: 0.045, WX: 0.070, WZ: 0.1425,
+  CX: 0.200, CZ: 0.178,                              // ejes de las rodajas (~)
+  BAT: { l: 0.166, w: 0.175, h: 0.125 },             // batería (~)
+  // torre
+  XC: 0.133, COLX0: 0.023, COLX1: 0.243, COLZ: 0.095,
+  FL: 0.210, FW: 0.180, PITCH: 0.070,
+  BELT: 0.830, WIN0: 0.818, WIN1: 0.915, WINZ: 0.120,
+  LOAD0: 0.827, UNL0: 0.832, LSLO: 0.392, LSHI: 0.840,
+  SX: 0.183, SZ: 0.165, RZ: 0.128,                   // husillo y varilla (~)
+  GL: 0.018, GT: 0.004, GB: 0.380, GTB: 0.905, GTF: 0.818,
+  // empujador
+  PY0: 0.836, PY1: 0.866, P0: 0.008, STROKE: 0.250, PINDX: 0.035,
+  RODY: 0.874, RODZ: 0.045, RACKY: 0.886,
+  // panel
+  PANX: 0.250, PANT: 0.003,
+};
+D.LEVEL = n => D.LOAD0 - n * D.PITCH;          // cara de la plataforma al cargar con n en la pila
+D.UNLV = n => D.UNL0 - (n - 1) * D.PITCH;      // al descargar con n en la pila
+
+// Colores por subsistema (leyenda)
+const SUBS = {
+  est:  { name: 'Estructura',       color: 0x8d9bab, accent: 0x50657e },
+  trac: { name: 'Tracción',         color: 0x2f6fdf, accent: 0x2f6fdf },
+  torre:{ name: 'Torre y elevador', color: 0xf07f1e, accent: 0xf07f1e },
+  emp:  { name: 'Empujador y uña',  color: 0x8b5cf6, accent: 0x8b5cf6 },
+  elec: { name: 'Electrónica',      color: 0x16a34a, accent: 0x16a34a },
+  fix:  { name: 'Fixtures',         color: 0x0d9488, accent: 0x0d9488 },
+  sta:  { name: 'Estaciones',       color: 0xb7834a, accent: 0xb7834a },
+};
+
+// Supuestos (panel final). Todo lo que no sale de los documentos.
+const SUPUESTOS = [
+  ['Altura total', 'Con postes de 950 mm sobre rodajas de 9 cm el tope queda en 104 cm; la guía dice ~1.03 m.'],
+  ['Base del marco', 'Se tomó a 9.0 cm del piso (alto de la rodaja con su espiga dentro de un bloque impreso de ~3 cm).'],
+  ['Ruedas M0601', 'Ancho de rueda ~45 mm. El eje queda ~7 cm adelante del travesaño central: con Ø102 mm la rueda sube a 10.2 cm y chocaría con un perfil a 9 cm.'],
+  ['Suspensión', 'Forma de la placa pivotante, del soporte del pivote y del asiento del resorte (bajo el larguero) dibujada a criterio.'],
+  ['Batería', 'Medidas ~16.6 × 17.5 × 12.5 cm (típicas de 12 V 24 Ah). Cuna impresa y barra superior con 2 varillas M6.'],
+  ['Columnas de la torre (propuesta)', 'Los documentos no dicen a qué se atornillan las guías, los husillos ni el empujador. Se agregan 4 columnas de 890 mm (2 junto a los postes delanteros y 2 sobre el travesaño central), un travesaño superior central de 340 mm y un travesaño de 198 mm para el empujador. Los 2 "travesaños de la torre" de la lista se usan para estos dos últimos.'],
+  ['Perfil extra', 'Con las columnas son 19 cortes (~11.4 m): 7 barras de 2 m, o sea comprar 6 en lugar de 4. Si lo venden cortado a medida, ~3.6 m más.'],
+  ['Ventana', 'Las columnas delanteras quedan detrás del panel: entre ellas hay 19.8 cm y el fixture mide 18 cm (9 mm por lado). La guía lateral de la banda (2–3 mm) lo centra.'],
+  ['Escuadras y placas', 'Las 36 escuadras cubren las 16 uniones de las esquinas y las 2 del travesaño central. Las columnas y sus travesaños necesitan ~22 piezas impresas más (placas de unión planas y escuadras).'],
+  ['Husillos y varillas', 'Cerca del frente (x ≈ 18 cm desde el centro), husillo a 16.5 cm y varilla a 12.8 cm del eje. Sus soportes impresos (abajo y arriba) se atornillan a la cara trasera de la columna delantera y del poste.'],
+  ['NEMA 17, KFL08, SC8UU, cople', 'Medidas de catálogo aproximadas (42 × 42 × 40 mm, brida 48 × 27 mm, bloque 34 × 30 × 22 mm, Ø19 × 25 mm).'],
+  ['Guías en L', 'Alas de 18 × 4 mm. Las traseras llegan a 90.5 cm; las delanteras terminan en el borde de la ventana (81.8 cm).'],
+  ['Plataforma', '12 mm de grueso, con 2 brazos laterales de 35 mm de ancho que salen entre las guías.'],
+  ['Empujador', 'Varillas a 87.4 cm y cremallera a 88.6 cm, centradas detrás de la torre. Adelante cuelgan del travesaño del empujador; atrás, del travesaño superior trasero. En home, la cola de la cremallera y las varillas asoman ~4 cm por atrás del carrito: revisarlo en el CAD.'],
+  ['Uña', 'El pin baja en línea recta dentro de una guía; en el real lo mueve el brazo del servo. El pin va 35 mm adelante de la placa.'],
+  ['Punto donde la banda deja el fixture', '~9 cm afuera de la ventana es la estimación de la guía; se mide con la banda real (Etapa 15).'],
+  ['Fixture', 'Base de 6 mm, barras de 12 × 34 mm, ECU como bloque de ~14 × 13 × 5.8 cm.'],
+  ['Electrónica', 'Bandeja detrás de la batería; tamaños de módulos aproximados. Cables simplificados y rutas aproximadas.'],
+  ['Jetson y cámara', 'Jetson (~10 × 9 × 3.5 cm) sobre una placa en el marco superior trasero; cámara arriba al frente.'],
+  ['Sensores', 'VL53L0X de obstáculos a ~15 cm del piso en el frente y los costados; el de la pila colgado del larguero superior, a ~96 cm.'],
+  ['Estación de descarga', 'Rodillos de Ø30 × 22 cm, mesa y bastidor dibujados a criterio.'],
+  ['Tiempos', 'La animación va más rápida que el carrito real (un nivel real tarda 7 s; cargar un fixture ~18 s).'],
+];
+
+// ============================================================ ESCENA
+const $ = id => document.getElementById(id);
+const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const seg = (t, a, b) => clamp01((t - a) / (b - a));            // 0→1 entre a y b
+const segE = (t, a, b) => ease(seg(t, a, b));
+
+const viewEl = $('view');
+const isPhone = () => matchMedia('(max-width: 820px)').matches;
+const EMBED = new URLSearchParams(location.search).get("embed") === "1";
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: EMBED, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, isPhone() ? 1.75 : 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+viewEl.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.domElement.className = 'labels';
+viewEl.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.02, 40);
+camera.position.set(1.6, 1.3, 1.6);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.target.set(0, 0.5, 0);
+controls.maxDistance = 9; controls.minDistance = 0.15;
+controls.maxPolarAngle = Math.PI * 0.495;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8f99a6, 1.0));
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(2.0, 3.4, 1.4);
+sun.castShadow = true;
+sun.shadow.mapSize.set(isPhone() ? 1024 : 2048, isPhone() ? 1024 : 2048);
+Object.assign(sun.shadow.camera, { left: -1.6, right: 1.6, top: 1.6, bottom: -1.6, near: 0.5, far: 8 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.01; sun.shadow.radius = 4;
+scene.add(sun); scene.add(sun.target);
+const fill = new THREE.DirectionalLight(0xdfe8ff, 0.7); fill.position.set(-2.2, 1.4, -1.6); scene.add(fill);
+
+const floorMat = new THREE.MeshStandardMaterial({ color: 0xd9dee4, roughness: 0.95 });
+const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), floorMat);
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+const grid = new THREE.GridHelper(6, 60, 0x000000, 0x000000);
+grid.material.transparent = true; grid.material.opacity = 0.06; grid.position.y = 0.0005; scene.add(grid);
+
+const cartRoot = new THREE.Group(); scene.add(cartRoot);     // todo lo que viaja con el carrito
+const worldRoot = new THREE.Group(); scene.add(worldRoot);   // estaciones, inventario, barras
+
+// Colores del tema (el lienzo sigue el tema claro/oscuro de la página)
+const theme = { bg: new THREE.Color(), dim: new THREE.Color(), dimLine: '#000' };
+function readTheme() {
+  const cs = getComputedStyle(document.documentElement);
+  theme.bg.set(cs.getPropertyValue('--scene').trim() || '#e6eaef');
+  floorMat.color.set(cs.getPropertyValue('--floor').trim() || '#d9dee4');
+  theme.dim.copy(theme.bg);
+  theme.dimLine = cs.getPropertyValue('--dim').trim() || '#123';
+  scene.background = EMBED ? null : theme.bg.clone();
+  scene.fog = EMBED ? null : new THREE.Fog(theme.bg, 6, 14);
+  if (EMBED) { renderer.setClearColor(0x000000, 0); floor.visible = false; grid.visible = false; }
+  for (const d of DIMS) d.mat.color.set(theme.dimLine);
+  partsDirty = true;
+  poke();
+}
+
+// ============================================================ MATERIALES
+const MAT = {
+  alu:    { c: 0xb4bec9, m: 0.55, r: 0.38 },
+  steel:  { c: 0xd8dde3, m: 0.85, r: 0.22 },
+  dark:   { c: 0x2a2e33, m: 0.25, r: 0.55 },
+  black:  { c: 0x1a1c1f, m: 0.10, r: 0.70 },
+  brass:  { c: 0xc9a227, m: 0.75, r: 0.32 },
+  rubber: { c: 0x232528, m: 0.00, r: 0.92 },
+  nylon:  { c: 0xece8dc, m: 0.00, r: 0.60 },
+  ecu:    { c: 0xb9c0c8, m: 0.70, r: 0.35 },
+  pcb:    { c: 0x1f6f43, m: 0.10, r: 0.60 },
+  pcbB:   { c: 0x1d3f8a, m: 0.10, r: 0.60 },
+  perf:   { c: 0xc8a165, m: 0.05, r: 0.80 },
+  mdf:    { c: 0xc59a6d, m: 0.00, r: 0.85 },
+  wood:   { c: 0xb58450, m: 0.00, r: 0.80 },
+  bat:    { c: 0x30353b, m: 0.10, r: 0.60 },
+  red:    { c: 0xd62828, m: 0.10, r: 0.45 },
+  yellow: { c: 0xf2c418, m: 0.05, r: 0.50 },
+  orange: { c: 0xf97316, m: 0.05, r: 0.50 },
+  blue:   { c: 0x2563eb, m: 0.05, r: 0.50 },
+  white:  { c: 0xf4f4f2, m: 0.00, r: 0.60 },
+  green:  { c: 0x22c55e, m: 0.00, r: 0.50 },
+  belt:   { c: 0x24272b, m: 0.00, r: 0.90 },
+  glass:  { c: 0x111418, m: 0.30, r: 0.15 },
+  cRed:   { c: 0xdc2626, m: 0.0, r: 0.5 }, cOra: { c: 0xf97316, m: 0.0, r: 0.5 },
+  cBlk:   { c: 0x1f2328, m: 0.0, r: 0.6 }, cBlu: { c: 0x3b82f6, m: 0.0, r: 0.5 },
+  cYel:   { c: 0xeab308, m: 0.0, r: 0.5 }, cGrn: { c: 0x16a34a, m: 0.0, r: 0.5 },
+  cWht:   { c: 0xe5e7eb, m: 0.0, r: 0.5 }, cPur: { c: 0xa855f7, m: 0.0, r: 0.5 },
+};
+function matSpec(key, sub) {
+  if (key === 'P') return { c: SUBS[sub].color, m: 0.05, r: 0.55 };        // pieza impresa / color del subsistema
+  if (key === 'Pd') return { c: SUBS[sub].accent, m: 0.05, r: 0.55 };
+  return MAT[key];
+}
+
+// ============================================================ PIEZAS
+// Cada pieza se modela en coordenadas del carrito; el builder la centra en su pivote
+// y une las primitivas por material (pocas llamadas de dibujo → fluido en celular).
+const PARTS = new Map();
+let partsDirty = true;
+const PROFILE_SHAPE = (() => {
+  const s = new THREE.Shape(), h = 0.015, n = 0.004, d = 0.0035;   // 30 × 30 con ranura de 8 mm
+  const pts = [];
+  const side = (ax, ay, bx, by, nx, ny) => {                         // de a→b con muesca al centro
+    const mx = (ax + bx) / 2, my = (ay + by) / 2, ux = (bx - ax) / (2 * h), uy = (by - ay) / (2 * h);
+    pts.push([ax, ay], [mx - ux * n, my - uy * n], [mx - ux * n + nx * d, my - uy * n + ny * d],
+      [mx + ux * n + nx * d, my + uy * n + ny * d], [mx + ux * n, my + uy * n]);
+  };
+  side(-h, -h, h, -h, 0, 1); side(h, -h, h, h, -1, 0); side(h, h, -h, h, 0, -1); side(-h, h, -h, -h, 1, 0);
+  s.moveTo(...pts[0]); for (let i = 1; i < pts.length; i++) s.lineTo(...pts[i]); s.closePath();
+  const hole = new THREE.Path(); hole.absarc(0, 0, 0.0034, 0, Math.PI * 2, true); s.holes.push(hole);
+  return s;
+})();
+const GEO_CACHE = new Map();
+function cachedGeo(key, make) { if (!GEO_CACHE.has(key)) GEO_CACHE.set(key, make()); return GEO_CACHE.get(key); }
+
+class Builder {
+  constructor(sub) { this.sub = sub; this.items = []; }
+  add(geo, mat, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1) {
+    const m = new THREE.Matrix4().compose(V3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), V3(sx, sy, sz));
+    this.items.push({ geo, mat, m }); return this;
+  }
+  box(w, h, d, x, y, z, mat = 'P', rx = 0, ry = 0, rz = 0) {
+    return this.add(cachedGeo('box', () => new THREE.BoxGeometry(1, 1, 1)), mat, x, y, z, rx, ry, rz, w, h, d);
+  }
+  // caja por esquinas (x0..x1, y0..y1, z0..z1)
+  bb(x0, x1, y0, y1, z0, z1, mat = 'P') { return this.box(x1 - x0, y1 - y0, z1 - z0, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, mat); }
+  cyl(r, h, x, y, z, axis = 'y', mat = 'P', segs = 20, r2 = r) {
+    const g = cachedGeo(`cyl${segs}_${(r2 / r).toFixed(3)}`, () => new THREE.CylinderGeometry(r2 / r, 1, 1, segs));
+    const rx = axis === 'z' ? Math.PI / 2 : 0, rz = axis === 'x' ? -Math.PI / 2 : 0;
+    return this.add(g, mat, x, y, z, rx, 0, rz, r, h, r);
+  }
+  hex(r, h, x, y, z, axis = 'y', mat = 'steel') { return this.cyl(r, h, x, y, z, axis, mat, 6); }
+  tube(points, r, mat, segs = 48, closed = false) {
+    const curve = new THREE.CatmullRomCurve3(points.map(p => V3(...p)), closed, 'catmullrom', 0.2);
+    return this.add(new THREE.TubeGeometry(curve, segs, r, 6, closed), mat);
+  }
+  // perfil 3030 de largo L, eje 'x' | 'y' | 'z', centrado en (x,y,z)
+  profile(L, axis, x, y, z) {
+    const g = cachedGeo('pf' + L, () => { const e = new THREE.ExtrudeGeometry(PROFILE_SHAPE, { depth: L, bevelEnabled: false, curveSegments: 6 }); e.translate(0, 0, -L / 2); return e; });
+    const r = axis === 'x' ? [0, Math.PI / 2, 0] : axis === 'y' ? [Math.PI / 2, 0, 0] : [0, 0, 0];
+    return this.add(g, 'alu', x, y, z, ...r);
+  }
+  // escuadra en L (patas a y b, ancho w, grueso t); orientada con dos vectores unitarios
+  bracket(x, y, z, ua, ub, w = 0.02, a = 0.036, t = 0.006, mat = 'Pd') {
+    // ua: dirección de la pata 1 (desde la esquina), ub: pata 2; ancho en ua×ub
+    const A = V3(...ua), B = V3(...ub), N = A.clone().cross(B).normalize();
+    const put = (len, dir, other) => {
+      const c = V3(x, y, z).addScaledVector(dir, len / 2).addScaledVector(other, t / 2);
+      const m = new THREE.Matrix4().makeBasis(dir, other, dir.clone().cross(other));
+      const q = new THREE.Quaternion().setFromRotationMatrix(m);
+      const e = new THREE.Euler().setFromQuaternion(q);
+      this.box(len, t, w, c.x, c.y, c.z, mat, e.x, e.y, e.z);
+    };
+    put(a, A, B); put(a, B, A);
+    const g = V3(x, y, z).addScaledVector(A, 0.014).addScaledVector(B, 0.014);   // cartela
+    const m = new THREE.Matrix4().makeBasis(A.clone().add(B).normalize(), N, A.clone().sub(B).normalize());
+    const e = new THREE.Euler().setFromQuaternion(new THREE.Quaternion().setFromRotationMatrix(m));
+    this.box(0.022, 0.004, 0.004, g.x, g.y, g.z, mat, e.x, e.y, e.z);
+    return this;
+  }
+}
+
+function addPart(id, sub, name, build, opt = {}) {
+  const b = new Builder(sub); build(b);
+  const prims = b.items.filter(it => !(it.geo.type === 'TubeGeometry')).map(it => { if (!it.geo.boundingBox) it.geo.computeBoundingBox(); return it.geo.boundingBox.clone().applyMatrix4(it.m); });
+  const groups = new Map();
+  for (const it of b.items) {
+    const key = it.mat;
+    if (!groups.has(key)) groups.set(key, []);
+    let g = it.geo.index ? it.geo.toNonIndexed() : it.geo.clone();
+    if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+    g.applyMatrix4(it.m); groups.get(key).push(g);
+  }
+  const merged = [];
+  const box = new THREE.Box3();
+  for (const [k, arr] of groups) { const g = mergeGeometries(arr, false); g.computeBoundingBox(); box.union(g.boundingBox); merged.push([k, g]); arr.forEach(a => a.dispose()); }
+  const pivot = opt.pivot ? V3(...opt.pivot) : box.getCenter(V3());
+  const group = new THREE.Group(); group.name = id;
+  const mats = [];
+  const size = box.getSize(V3()); const big = Math.max(size.x, size.y, size.z) > 0.025;
+  for (const [k, g] of merged) {
+    g.translate(-pivot.x, -pivot.y, -pivot.z);
+    const s = matSpec(k, sub);
+    const mat = new THREE.MeshStandardMaterial({ color: s.c, metalness: s.m, roughness: s.r, flatShading: false });
+    const mesh = new THREE.Mesh(g, mat);
+    mesh.castShadow = opt.shadow ?? big; mesh.receiveShadow = true;
+    group.add(mesh); mats.push({ mat, base: new THREE.Color(s.c) });
+  }
+  group.position.copy(pivot);
+  (opt.world ? worldRoot : cartRoot).add(group);
+  const p = {
+    id, sub, name, group, mats, home: pivot.clone(), homeQ: new THREE.Quaternion(),
+    explode: opt.explode ? V3(...opt.explode) : null, from: opt.from ? V3(...opt.from) : null,
+    mount: opt.mount || null, track: [], mode: '', localBox: box.clone().translate(pivot.clone().negate()),
+    nest: opt.nest || [], world: !!opt.world, noCheck: !!opt.noCheck, only: opt.only || null, prims,
+  };
+  PARTS.set(id, p);
+  return p;
+}
+
+// Explosión por defecto: hacia afuera del centro del carrito y un poco hacia arriba
+function defaultExplode(p) {
+  const c = p.home, dir = V3(c.x, 0, c.z);
+  if (dir.length() < 0.02) dir.set(0, 0, 0);
+  dir.normalize().multiplyScalar(0.28);
+  dir.y = 0.12 + Math.max(0, c.y - 0.5) * 0.15;
+  return dir;
+}
+
+// ============================================================ ESTADO VISUAL
+function setMode(p, mode, pulse = 0) {
+  const struct = ui.transp && p.sub === 'est' && p.track.length && mode !== 'hidden';
+  const fade = p.fade == null ? 1 : p.fade;
+  const t = struct ? 0.13 * fade : fade;
+  const key = mode + (t < 0.999 ? 'F' + t.toFixed(2) : '') + (mode === 'new' ? pulse.toFixed(2) : '') + (partsDirty ? Math.random() : '');
+  if (p.mode === key) return;
+  p.mode = key;
+  p.group.visible = mode !== 'hidden';
+  if (mode === 'hidden') return;
+  const acc = new THREE.Color(SUBS[p.sub].accent);
+  for (const { mat, base } of p.mats) {
+    mat.color.copy(base);
+    mat.emissive.setRGB(0, 0, 0);
+    if (mode === 'old') mat.color.lerp(theme.dim, 0.55);
+    if (mode === 'new') mat.emissive.copy(acc).multiplyScalar(0.10 + 0.22 * pulse);
+    if (mode === 'focus') mat.emissive.copy(acc).multiplyScalar(0.16);
+    if ((mat.opacity !== t) || (mat.transparent !== (t < 1))) {
+      mat.opacity = t; mat.transparent = t < 1; mat.depthWrite = t === 1; mat.needsUpdate = true;
+    }
+  }
+  for (const m of p.group.children) m.castShadow = m.castShadow && t > 0.9;
+}
+
+// ============================================================ ETIQUETAS 3D
+function makeLabel(title, sub, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'tag3d ' + cls;
+  el.innerHTML = `<span class="tag-dot"></span><span class="tag-box"><b></b>${sub ? '<small></small>' : ''}</span>`;
+  el.querySelector('b').textContent = title;
+  if (sub) el.querySelector('small').textContent = sub;
+  const o = new CSS2DObject(el); o.visible = false; scene.add(o);
+  return o;
+}
+
+// ============================================================ COTAS
+const DIMS = [];
+const ARROW = new THREE.ConeGeometry(0.0055, 0.016, 10);
+function makeDim(a, b, off, text, opt = {}) {
+  const A = V3(...a), B = V3(...b), O = V3(...(off || [0, 0, 0]));
+  const A2 = A.clone().add(O), B2 = B.clone().add(O);
+  const mat = new THREE.LineBasicMaterial({ color: theme.dimLine, depthTest: false, transparent: true });
+  const g = new THREE.Group();
+  const lines = [A2, B2];
+  if (O.length() > 1e-4) {
+    const ext = O.clone().normalize().multiplyScalar(0.012);
+    lines.push(A, A2.clone().add(ext), B, B2.clone().add(ext));
+  }
+  const geo = new THREE.BufferGeometry().setFromPoints(lines);
+  const ls = new THREE.LineSegments(geo, mat); ls.renderOrder = 10; g.add(ls);
+  const dir = B2.clone().sub(A2).normalize();
+  const amat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, transparent: true });
+  for (const [P, s] of [[A2, -1], [B2, 1]]) {
+    const c = new THREE.Mesh(ARROW, amat);
+    c.position.copy(P).addScaledVector(dir, -s * 0.008);
+    c.quaternion.setFromUnitVectors(V3(0, 1, 0), dir.clone().multiplyScalar(s));
+    c.renderOrder = 11; g.add(c);
+  }
+  const el = document.createElement('div'); el.className = 'dim3d' + (opt.cls ? ' ' + opt.cls : ''); el.textContent = text;
+  const lab = new CSS2DObject(el); lab.position.copy(A2).lerp(B2, opt.labAt ?? 0.5); g.add(lab);
+  g.visible = false; scene.add(g);
+  const d = { g, mat, amat, lab, mount: opt.mount || null, t: opt.t ?? 0.8, grow: !!opt.grow, A2, B2, geo, lines };
+  DIMS.push(d);
+  return d;
+}
+
+// ============================================================ CÁMARA
+const camTween = { active: false, t: 0, dur: 1.1, p0: V3(), t0: V3(), p1: V3(), t1: V3() };
+function fitDistance(r) {
+  const vf = THREE.MathUtils.degToRad(camera.fov);
+  const hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
+  return r / Math.sin(Math.min(vf, hf) / 2);
+}
+function camGoal(c, cartM) {
+  const t = V3(...c.t), d = V3(...c.d).normalize();
+  if (c.follow && cartM) t.applyMatrix4(cartM);
+  return { target: t, pos: t.clone().addScaledVector(d, fitDistance(c.r)) };
+}
+function flyTo(c, instant = false, cartM = null) {
+  const g = camGoal(c, cartM);
+  if (instant) { camera.position.copy(g.pos); controls.target.copy(g.target); camTween.active = false; return; }
+  Object.assign(camTween, { active: true, t: 0 });
+  camTween.p0.copy(camera.position); camTween.t0.copy(controls.target);
+  camTween.p1.copy(g.pos); camTween.t1.copy(g.target);
+}
+controls.addEventListener('start', () => { camTween.active = false; ui.userCam = true; poke(); });
+let applyingControls = false;
+controls.addEventListener('change', () => { if (!applyingControls) poke(); });
+
+// ============================================================ ESTRUCTURA (perfil 3030)
+const PF = [];   // { id, L, axis, pos:[x,y,z], name }
+{
+  const { XP, ZP, YB, H0, POST } = D, YT = D.YT, yP = H0 + POST / 2;
+  const add = (id, L, axis, pos, name) => PF.push({ id, L, axis, pos, name });
+  add('post_FL', 0.95, 'y', [XP, yP, -ZP], 'Poste delantero izq.');
+  add('post_FR', 0.95, 'y', [XP, yP, ZP], 'Poste delantero der.');
+  add('post_BL', 0.95, 'y', [-XP, yP, -ZP], 'Poste trasero izq.');
+  add('post_BR', 0.95, 'y', [-XP, yP, ZP], 'Poste trasero der.');
+  add('larg_bL', 0.44, 'x', [0, YB, -ZP], 'Larguero inferior izq.');
+  add('larg_bR', 0.44, 'x', [0, YB, ZP], 'Larguero inferior der.');
+  add('larg_tL', 0.44, 'x', [0, YT, -ZP], 'Larguero superior izq.');
+  add('larg_tR', 0.44, 'x', [0, YT, ZP], 'Larguero superior der.');
+  add('trav_bF', 0.34, 'z', [XP, YB, 0], 'Travesaño inferior delantero');
+  add('trav_bB', 0.34, 'z', [-XP, YB, 0], 'Travesaño inferior trasero');
+  add('trav_tF', 0.34, 'z', [XP, YT, 0], 'Travesaño superior delantero');
+  add('trav_tB', 0.34, 'z', [-XP, YT, 0], 'Travesaño superior trasero');
+  add('trav_c', 0.34, 'z', [0, YB, 0], 'Travesaño central (motores)');
+  const yC = H0 + D.PF + D.COLL / 2;
+  add('col_FL', D.COLL, 'y', [D.COLXF, yC, -D.COLZC], 'Columna delantera izq.');
+  add('col_FR', D.COLL, 'y', [D.COLXF, yC, D.COLZC], 'Columna delantera der.');
+  add('col_BL', D.COLL, 'y', [D.COLXB, yC, -D.COLZC], 'Columna trasera izq.');
+  add('col_BR', D.COLL, 'y', [D.COLXB, yC, D.COLZC], 'Columna trasera der.');
+  add('trav_sc', 0.34, 'z', [0, D.YSC, 0], 'Travesaño superior central');
+  add('trav_emp', 0.198, 'z', [0, D.YEMP, 0], 'Travesaño del empujador');
+  for (const f of PF) addPart(f.id, 'est', f.name, b => b.profile(f.L, f.axis, ...f.pos), { pivot: f.pos });
+}
+
+// Acomodo en barras de 2 m (Etapa 6): [cortes], sobra
+const BARS = [
+  { ids: ['post_FL', 'post_FR'], waste: 0.094, note: '950 + 950 · sobra ~95 mm' },
+  { ids: ['post_BL', 'post_BR'], waste: 0.094, note: '950 + 950 · sobra ~95 mm' },
+  { ids: ['col_FL', 'col_FR'], waste: 0.214, note: '890 + 890 · sobra ~214 mm' },
+  { ids: ['col_BL', 'col_BR'], waste: 0.214, note: '890 + 890 · sobra ~214 mm' },
+  { ids: ['larg_bL', 'larg_bR', 'larg_tL', 'larg_tR'], waste: 0.228, note: '440 × 4 · sobra ~228 mm' },
+  { ids: ['trav_bF', 'trav_bB', 'trav_tF', 'trav_tB', 'trav_c', 'trav_emp'], waste: 0.084, note: '340 × 5 + 198 · sobra ~84 mm' },
+  { ids: ['trav_sc'], waste: 1.657, note: '340 · sobra ~1.66 m (repuesto)' },
+];
+const BAR_X0 = -1.0, BAR_Z0 = 0.62, BAR_DZ = 0.12;
+const Q_ALONG_X = { x: new THREE.Quaternion(), y: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2)), z: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)) };
+const PF_BY = id => PF.find(f => f.id === id);
+function barPose(id, gap) {      // pieza acostada sobre el piso, alineada en su barra
+  for (let k = 0; k < BARS.length; k++) {
+    let x = BAR_X0; const b = BARS[k];
+    for (const pid of b.ids) {
+      const f = PF_BY(pid);
+      if (pid === id) return { pos: V3(x + f.L / 2, 0.0151, BAR_Z0 + k * BAR_DZ), q: Q_ALONG_X[f.axis].clone() };
+      x += f.L + gap;
+    }
+  }
+}
+function sortedPose(id) {         // acomodadas por tipo, listas para armar
+  const f = PF_BY(id), q = Q_ALONG_X[f.axis].clone();
+  const K = o => o.startsWith('post') ? 0 : o.startsWith('col') ? 1 : o.startsWith('larg') ? 2 : 3;
+  const kind = K(id);
+  const list = PF.filter(o => K(o.id) === kind);
+  const i = list.indexOf(f);
+  const xc = [-0.50, -0.50, 0.28, 0.86][kind], z0 = [0.62, 0.86, 0.62, 0.62][kind];
+  return { pos: V3(xc, 0.0151, z0 + i * 0.05), q };
+}
+// sobras de cada barra (solo en la Etapa 6)
+BARS.forEach((b, k) => {
+  const used = b.ids.reduce((a, id) => a + PF_BY(id).L + 0.003, 0);
+  const x = BAR_X0 + used + b.waste / 2;
+  addPart('waste' + k, 'est', 'Sobra', bb => {
+    bb.add(cachedGeo('pfw' + k, () => { const e = new THREE.ExtrudeGeometry(PROFILE_SHAPE, { depth: b.waste, bevelEnabled: false, curveSegments: 6 }); e.translate(0, 0, -b.waste / 2); return e; }),
+      'alu', x, 0.0151, BAR_Z0 + k * BAR_DZ, 0, Math.PI / 2, 0);
+  }, { world: true, noCheck: true });
+});
+
+// ============================================================ ESCUADRAS
+{
+  const { XI, ZI, H0, PF: T } = D, yTop = D.H0 + T, yBotT = D.HT - T;
+  const bot = [], top = [];
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+    // marco inferior: arriba del larguero y del travesaño contra el poste + 2 por dentro de la esquina
+    bot.push([sx * XI, yTop, sz * D.ZP, [-sx, 0, 0], [0, 1, 0]]);
+    bot.push([sx * D.XP, yTop, sz * ZI, [0, 0, -sz], [0, 1, 0]]);
+    bot.push([sx * XI, H0 + 0.0075, sz * ZI, [-sx, 0, 0], [0, 0, -sz], 0.014]);
+    bot.push([sx * XI, H0 + 0.0225, sz * ZI, [0, 0, -sz], [-sx, 0, 0], 0.014]);
+    top.push([sx * XI, yBotT, sz * D.ZP, [-sx, 0, 0], [0, -1, 0]]);
+    top.push([sx * D.XP, yBotT, sz * ZI, [0, 0, -sz], [0, -1, 0]]);
+    top.push([sx * XI, D.HT - 0.0075, sz * ZI, [-sx, 0, 0], [0, 0, -sz], 0.014]);
+    top.push([sx * XI, D.HT - 0.0225, sz * ZI, [0, 0, -sz], [-sx, 0, 0], 0.014]);
+  }
+  const cen = [];
+  for (const s of [-1, 1]) {
+    cen.push([0, yTop, s * ZI, [0, 0, -s], [0, 1, 0]]);
+    cen.push([-0.015, H0 + 0.015, s * ZI, [-1, 0, 0], [0, 0, -s], 0.014]);
+  }
+  const tow = [];
+  for (const s of [-1, 1]) {
+    tow.push([D.COLXF, yTop, s * 0.099, [0, 0, -s], [0, 1, 0]]);             // columna delantera: escuadra por dentro, abajo
+    tow.push([D.COLXF, yBotT, s * 0.099, [0, 0, -s], [0, -1, 0]]);            // y arriba
+    tow.push([0, yBotT, s * ZI, [0, 0, -s], [0, -1, 0]]);                      // travesaño superior central con el larguero
+  }
+  const mk = (id, name, list) => addPart(id, 'est', name, b => { for (const e of list) b.bracket(e[0], e[1], e[2], e[3], e[4], e[5] || 0.02); }, { nest: ['*pf'] });
+  mk('esc_b', 'Escuadras del marco inferior (16)', bot);
+  mk('esc_c', 'Escuadras del travesaño central (4)', cen);
+  mk('esc_t', 'Escuadras del marco superior (16)', top);
+  mk('esc_tw', 'Escuadras de la torre (6)', tow);
+  // placas de unión planas (impresas): columna con el travesaño, en caras que quedan al mismo plano
+  addPart('placas', 'est', 'Placas de unión de la torre (16)', b => {
+    const P = (x0, x1, y0, y1, z0, z1) => { b.bb(x0, x1, y0, y1, z0, z1, 'Pd'); for (const y of [y0 + 0.015, y1 - 0.015]) b.cyl(0.005, 0.003, x0 < 0 ? x0 - 0.0015 : x1 + 0.0015, y, (z0 + z1) / 2, 'x', 'steel', 10); };
+    for (const s of [-1, 1]) {
+      const z = (a, c) => [Math.min(s * a, s * c), Math.max(s * a, s * c)];
+      P(0.214, 0.220, 0.094, 0.165, ...z(0.100, 0.128));                       // columna delantera, abajo (cara trasera)
+      P(0.214, 0.220, 0.960, 1.036, ...z(0.100, 0.128));                       // columna delantera, arriba
+      for (const [x0, x1] of [[0.015, 0.021], [-0.021, -0.015]]) {
+        P(x0, x1, 0.094, 0.165, ...z(0.100, 0.118));                           // columna trasera sobre el travesaño central (libra la rueda)
+        P(x0, x1, 0.975, 1.036, ...z(0.100, 0.128));                           // columna trasera con el travesaño superior central
+        P(x0, x1, 0.940, 0.970, ...z(0.070, 0.128));                           // travesaño del empujador
+      }
+    }
+  }, { nest: ['*pf'] });
+}
+
+// ============================================================ TUERCAS EN LA RANURA
+function nutsPart(id, name, axis, fixed, positions, slotY, from) {
+  return addPart(id, 'est', name, b => {
+    for (const u of positions) {
+      const p = axis === 'x' ? [u, slotY, fixed] : [fixed, slotY, u];
+      b.hex(0.0058, 0.005, p[0], p[1], p[2], 'y', 'steel');
+    }
+  }, { from, nest: ['*pf'], noCheck: true });
+}
+{
+  const yb = D.H0 + D.PF - 0.0045, yt = D.HT - D.PF + 0.0045;
+  const ux = [-0.20, -0.17, -0.06, 0.06, 0.17, 0.20], uz = [-0.15, -0.12, 0.12, 0.15];
+  nutsPart('nut_bL', 'Tuercas M6 en la ranura', 'x', -D.ZP, ux, yb, [-0.55, 0, 0]);
+  nutsPart('nut_bR', 'Tuercas M6 en la ranura', 'x', D.ZP, ux, yb, [0.55, 0, 0]);
+  nutsPart('nut_bF', 'Tuercas M6 en la ranura', 'z', D.XP, uz, yb, [0, 0, 0.45]);
+  nutsPart('nut_bB', 'Tuercas M6 en la ranura', 'z', -D.XP, uz, yb, [0, 0, -0.45]);
+  nutsPart('nut_tL', 'Tuercas M6 en la ranura', 'x', -D.ZP, ux, yt, [-0.55, 0, 0]);
+  nutsPart('nut_tR', 'Tuercas M6 en la ranura', 'x', D.ZP, ux, yt, [0.55, 0, 0]);
+  nutsPart('nut_tF', 'Tuercas M6 en la ranura', 'z', D.XP, uz, yt, [0, 0, 0.45]);
+  nutsPart('nut_tB', 'Tuercas M6 en la ranura', 'z', -D.XP, uz, yt, [0, 0, -0.45]);
+}
+
+// ============================================================ RODAJAS
+for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+  const id = 'cast_' + (sx > 0 ? 'F' : 'B') + (sz < 0 ? 'L' : 'R');
+  const x = sx * D.CX, z = sz * D.CZ;
+  addPart(id, 'trac', 'Rodaja twin 50 mm', b => {
+    b.bb(x - 0.02, x + 0.02, 0.060, 0.090, z - 0.016, z + 0.016, 'P');          // bloque impreso (espiga adentro)
+    b.cyl(0.017, 0.004, x, 0.058, z, 'y', 'dark');                            // arillo / placa
+    b.cyl(0.006, 0.010, x, 0.052, z, 'y', 'steel');                           // giro
+    b.bb(x - 0.026, x + 0.006, 0.030, 0.050, z - 0.017, z + 0.017, 'dark');    // horquilla
+    for (const d of [-1, 1]) b.cyl(0.025, 0.013, x - 0.016, 0.025, z + d * 0.0105, 'z', 'nylon', 18);
+    b.cyl(0.006, 0.040, x - 0.016, 0.025, z, 'z', 'steel', 10);
+  });
+}
+
+// ============================================================ SUSPENSIÓN Y MOTORES M0601
+for (const s of [-1, 1]) {
+  const side = s < 0 ? 'L' : 'R', zp = s * 0.170;
+  addPart('susp_' + side, 'trac', 'Placa pivotante', b => {
+    b.bb(-0.015, 0.015, 0.050, D.H0, Math.min(s * 0.150, s * 0.166), Math.max(s * 0.150, s * 0.166), 'Pd');   // soporte del pivote (bajo el travesaño)
+    b.bb(-0.020, 0.100, 0.030, 0.085, Math.min(s * 0.166, s * 0.174), Math.max(s * 0.166, s * 0.174), 'P');   // placa
+    b.bb(0.055, 0.085, 0.037, 0.043, Math.min(s * 0.174, s * 0.198), Math.max(s * 0.174, s * 0.198), 'P');   // pestaña del resorte
+    b.cyl(0.011, 0.0082, 0, 0.068, zp, 'z', 'steel', 18);                      // 2 × 608ZZ
+    b.cyl(0.004, 0.044, 0, 0.068, s * 0.168, 'z', 'steel', 10);               // tornillo M8 de pivote
+    b.hex(0.0075, 0.006, 0, 0.068, s * 0.193, 'z', 'steel');
+    b.cyl(0.0155, 0.004, D.WX, D.WR, s * 0.1655, 'z', 'dark', 18);            // brida del estator
+    b.cyl(0.004, 0.072, D.WX, 0.065, s * 0.186, 'y', 'steel', 10);            // tornillo guía M8
+    b.hex(0.0075, 0.006, D.WX, 0.034, s * 0.186, 'y', 'steel');                // tuerca de precarga
+  }, { nest: ['*pf', 'mot_' + side, 'spring_' + side] });
+  const coil = [];
+  for (let i = 0; i <= 220; i++) { const a = i / 220 * Math.PI * 2 * 9.5; coil.push([D.WX + 0.009 * Math.cos(a), 0.043 + i / 220 * 0.047, s * 0.186 + 0.009 * Math.sin(a)]); }
+  addPart('spring_' + side, 'trac', 'Resorte de compresión', b => b.tube(coil, 0.001, 'steel', 300), { pivot: [D.WX, 0.043, s * 0.186], mount: 'spring', nest: ['susp_' + side], shadow: false });
+  addPart('mot_' + side, 'trac', s < 0 ? 'M0601 izquierdo' : 'M0601 derecho', b => {
+    const z = s * D.WZ;
+    b.cyl(D.WR, D.WW, D.WX, D.WR, z, 'z', 'rubber', 28);
+    b.cyl(0.036, D.WW + 0.002, D.WX, D.WR, z, 'z', 'P', 28);
+    for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; b.box(0.03, 0.006, 0.003, D.WX + Math.cos(a) * 0.018, D.WR + Math.sin(a) * 0.018, z - s * (D.WW / 2 + 0.002), 'Pd', 0, 0, a); }
+    b.cyl(0.010, 0.004, D.WX, D.WR, z - s * (D.WW / 2 + 0.003), 'z', 'dark', 16);
+  }, { pivot: [D.WX, D.WR, s * D.WZ], mount: 'wheel', nest: ['susp_' + side] });
+}
+
+// ============================================================ BATERÍA
+{
+  const { l, w, h } = D.BAT, y0 = 0.126;
+  addPart('bat_cradle', 'elec', 'Cuna de la batería', b => {
+    b.bb(-0.11, -0.023, 0.120, y0, -0.198, 0.198, 'P');
+    b.bb(0.023, 0.11, 0.120, y0, -0.198, 0.198, 'P');
+    b.bb(-0.023, 0.023, 0.120, y0, -0.097, 0.097, 'P');                       // muescas para las columnas traseras
+  }, { nest: ['*pf'] });
+  addPart('bat', 'elec', 'Batería BR-1224', b => {
+    b.bb(-l / 2, l / 2, y0, y0 + h, -w / 2, w / 2, 'bat');
+    b.bb(-l / 2 + 0.004, l / 2 - 0.004, y0 + h, y0 + h + 0.003, -w / 2 + 0.004, w / 2 - 0.004, 'dark');
+    b.bb(-l / 2 - 0.0005, -l / 2, y0 + 0.03, y0 + 0.07, -0.06, 0.06, 'green');
+    b.cyl(0.006, 0.012, -0.060, y0 + h + 0.009, 0.055, 'y', 'red', 12);
+    b.cyl(0.006, 0.012, -0.060, y0 + h + 0.009, -0.055, 'y', 'black', 12);
+  });
+  addPart('bat_hold', 'elec', 'Sujeción de la batería', b => {
+    b.bb(-0.108, 0.108, y0 + h + 0.003, y0 + h + 0.011, -0.012, 0.012, 'P');
+    for (const x of [-0.1, 0.1]) {
+      b.cyl(0.003, y0 + h + 0.022 - 0.108, x, (0.108 + y0 + h + 0.022) / 2, 0, 'y', 'steel', 8);
+      b.hex(0.0055, 0.005, x, y0 + h + 0.0135, 0, 'y', 'steel');
+    }
+  }, { nest: ['bat_cradle', 'bat', '*pf'] });
+}
+
+// ============================================================ TORRE: GUÍAS
+{
+  const { COLX0, COLX1, COLZ, GL, GT, GB } = D;
+  for (const front of [false, true]) for (const s of [-1, 1]) {
+    const id = 'guide_' + (front ? 'F' : 'B') + (s < 0 ? 'L' : 'R');
+    const top = front ? D.GTF : D.GTB;
+    const xp = front ? [COLX1, COLX1 + GT] : [COLX0 - GT, COLX0];          // ala en el plano frontal/trasero
+    const xs = front ? [COLX1 - GL, COLX1] : [COLX0, COLX0 + GL];           // ala en el plano lateral
+    const zIn = s * (COLZ - GL + GT), zOut = s * (COLZ + GT);
+    addPart(id, 'torre', 'Guía en L', b => {
+      b.bb(xp[0], xp[1], GB, top, Math.min(zIn, zOut), Math.max(zIn, zOut), 'P');
+      b.bb(xs[0], xs[1], GB, top, Math.min(s * COLZ, zOut), Math.max(s * COLZ, zOut), 'P');
+      const zc = (a, c) => [Math.min(s * a, s * c), Math.max(s * a, s * c)];
+      if (!front) {                                                            // pestaña atornillada a la cara frontal de la columna trasera
+        b.bb(0.015, COLX0, GB, top, ...zc(0.099, 0.125), 'Pd');
+        for (const y of [GB + 0.04, (GB + top) / 2, top - 0.04]) b.cyl(0.005, 0.003, COLX0 + 0.0015, y, s * 0.114, 'x', 'steel', 10);
+      } else {                                                                 // tornillos a la cara interior de la columna delantera
+        for (const y of [GB + 0.04, (GB + top) / 2, top - 0.04]) b.cyl(0.0045, 0.0012, D.COLXF, y, s * (COLZ - 0.0006), 'z', 'steel', 10);   // cabeza avellanada
+      }
+    }, { nest: front ? ['col_F' + (s < 0 ? 'L' : 'R')] : ['col_B' + (s < 0 ? 'L' : 'R')] });
+  }
+}
+
+// ============================================================ ELEVADOR (2 lados)
+for (const s of [-1, 1]) {
+  const side = s < 0 ? 'L' : 'R', zs = s * D.SZ, zr = s * D.RZ, x = D.SX;
+  const zr2 = (a, b) => [Math.min(s * a, s * b), Math.max(s * a, s * b)];
+  addPart('brk_lo_' + side, 'torre', 'Soporte inferior (NEMA + KFL08)', b => {
+    b.bb(0.214, 0.220, 0.232, 0.336, ...zr2(0.110, 0.192), 'Pd');
+    for (const y of [0.250, 0.318]) for (const zz of [0.114, 0.185]) b.cyl(0.005, 0.003, 0.2125, y, s * zz, 'x', 'steel', 10);   // a columna y poste
+    b.bb(0.155, 0.214, 0.275, 0.281, ...zr2(0.140, 0.192), 'Pd');
+    b.bb(0.155, 0.214, 0.312, 0.318, ...zr2(0.110, 0.192), 'Pd');
+    b.bb(0.172, 0.194, 0.318, 0.334, ...zr2(0.118, 0.138), 'Pd');          // soporte de la varilla
+    b.cyl(0.003, 0.034, x, 0.335, s * 0.188, 'y', 'Pd', 8);                 // poste del final de carrera
+  }, { nest: ['*pf', 'nema_' + side, 'rod_' + side, 'lsw_' + side, 'screw_' + side] });
+  addPart('nema_' + side, 'torre', 'NEMA 17 del elevador', b => {
+    b.bb(x - 0.021, x + 0.021, 0.239, 0.271, zs - 0.021, zs + 0.021, 'black');
+    b.bb(x - 0.021, x + 0.021, 0.235, 0.239, zs - 0.021, zs + 0.021, 'alu');
+    b.bb(x - 0.021, x + 0.021, 0.271, 0.275, zs - 0.021, zs + 0.021, 'alu');
+    b.cyl(0.011, 0.003, x, 0.2765, zs, 'y', 'alu', 16);
+    b.cyl(0.0025, 0.024, x, 0.287, zs, 'y', 'steel', 10);
+    b.bb(x - 0.008, x + 0.008, 0.240, 0.248, zs + s * 0.021, zs + s * 0.026, 'white');
+  }, { nest: ['brk_lo_' + side, 'cople_' + side] });
+  addPart('cople_' + side, 'torre', 'Cople flexible 5 → 8 mm', b => {
+    b.cyl(0.0095, 0.025, x, 0.2995, zs, 'y', 'alu', 18);
+    for (const y of [0.291, 0.296, 0.303, 0.308]) b.cyl(0.0097, 0.0012, x, y, zs, 'y', 'dark', 18);
+    for (const y of [0.290, 0.309]) b.cyl(0.0016, 0.006, x + 0.0095, y, zs, 'x', 'black', 6);
+  }, { nest: ['nema_' + side, 'screw_' + side] });
+  addPart('kflLo_' + side, 'torre', 'KFL08 inferior', b => {
+    b.bb(x - 0.024, x + 0.024, 0.318, 0.330, zs - 0.0135, zs + 0.0135, 'alu');
+    b.cyl(0.011, 0.006, x, 0.333, zs, 'y', 'alu', 18);
+    b.cyl(0.0055, 0.004, x, 0.338, zs, 'y', 'steel', 14);
+    for (const d of [-1, 1]) b.cyl(0.0018, 0.006, x + d * 0.012, 0.333, zs, 'x', 'red', 6);   // prisioneros
+  }, { nest: ['screw_' + side, 'brk_lo_' + side] });
+  addPart('screw_' + side, 'torre', 'Husillo TR8 de 60 cm', b => {
+    b.cyl(0.004, 0.600, x, 0.600, zs, 'y', 'steel', 14);
+    b.bb(x + 0.0032, x + 0.0046, 0.302, 0.898, zs - 0.0008, zs + 0.0008, 'black');   // franja para ver el giro
+  }, { pivot: [x, 0.6, zs], mount: 'screw', nest: ['*', 'plat'] });
+  addPart('rod_' + side, 'torre', 'Varilla lisa 8 mm × 60 cm', b => b.cyl(0.004, 0.600, x, 0.600, zr, 'y', 'steel', 14),
+    { nest: ['brk_lo_' + side, 'brk_up_' + side, 'sc_' + side] });
+  addPart('kflUp_' + side, 'torre', 'KFL08 superior', b => {
+    b.bb(x - 0.024, x + 0.024, 0.872, 0.884, zs - 0.0135, zs + 0.0135, 'alu');
+    b.cyl(0.011, 0.006, x, 0.869, zs, 'y', 'alu', 18);
+  }, { nest: ['screw_' + side, 'brk_up_' + side] });
+  addPart('brk_up_' + side, 'torre', 'Soporte superior (KFL08)', b => {
+    b.bb(0.214, 0.220, 0.884, 0.955, ...zr2(0.110, 0.192), 'Pd');
+    for (const y of [0.900, 0.940]) for (const zz of [0.114, 0.185]) b.cyl(0.005, 0.003, 0.2125, y, s * zz, 'x', 'steel', 10);
+    b.bb(0.155, 0.214, 0.884, 0.890, ...zr2(0.110, 0.192), 'Pd');
+    b.bb(0.172, 0.194, 0.874, 0.884, ...zr2(0.118, 0.138), 'Pd');
+  }, { nest: ['*pf', 'rod_' + side, 'screw_' + side, 'kflUp_' + side] });
+  addPart('lsw_' + side, 'torre', 'Final de carrera inferior', b => {
+    b.bb(x - 0.010, x + 0.010, 0.352, 0.372, ...zr2(0.181, 0.195), 'black');
+    b.bb(x - 0.010, x + 0.006, 0.3725, 0.3745, ...zr2(0.184, 0.192), 'steel');
+    b.cyl(0.0025, 0.004, x + 0.007, 0.3775, s * 0.188, 'z', 'steel', 8);
+  }, { nest: ['brk_lo_' + side] });
+  // en la plataforma (se mueven con ella)
+  const T = D.LOAD0;
+  addPart('nutsc_' + side, 'torre', 'Tuerca de latón', b => {
+    b.cyl(0.011, 0.006, x, T - 0.015, zs, 'y', 'brass', 18);
+    b.cyl(0.005, 0.009, x, T - 0.0225, zs, 'y', 'brass', 14);
+  }, { mount: 'plat', nest: ['screw_' + side, 'plat'] });
+  addPart('sc_' + side, 'torre', 'SC8UU ×2', b => {
+    for (const [y0, y1] of [[T, T + 0.030], [T - 0.042, T - 0.012]]) {
+      b.bb(x - 0.011, x + 0.011, y0, y1, zr - 0.017, zr + 0.017, 'alu');
+      b.bb(x - 0.0115, x - 0.0105, y0 + 0.004, y1 - 0.004, zr - 0.012, zr + 0.012, 'dark');
+    }
+  }, { mount: 'plat', nest: ['rod_' + side, 'plat'] });
+}
+// plataforma con 2 brazos y nervaduras
+addPart('plat', 'torre', 'Plataforma', b => {
+  const T = D.LOAD0, x0 = D.XC - D.FL / 2, x1 = D.XC + D.FL / 2;
+  b.bb(x0, x1, T - 0.012, T, -D.FW / 2, D.FW / 2, 'P');
+  for (const z of [-0.06, 0, 0.06]) b.bb(x0 + 0.01, x1 - 0.01, T - 0.020, T - 0.012, z - 0.004, z + 0.004, 'Pd');
+  for (const s of [-1, 1]) b.bb(0.165, 0.200, T - 0.012, T, Math.min(s * 0.09, s * 0.19), Math.max(s * 0.09, s * 0.19), 'P');
+}, { mount: 'plat', nest: ['nutsc_L', 'nutsc_R', 'sc_L', 'sc_R', 'screw_L', 'screw_R', 'rod_L', 'rod_R'] });
+
+// ============================================================ EMPUJADOR
+const PP = D.P0;     // modelado en home
+addPart('prod_L', 'emp', 'Varilla 8 mm × 30 cm', b => b.cyl(0.004, 0.300, -0.134, D.RODY, -D.RODZ, 'x', 'steel', 12), { nest: ['pframe', 'pframe_r', 'sled'] });
+addPart('prod_R', 'emp', 'Varilla 8 mm × 30 cm', b => b.cyl(0.004, 0.300, -0.134, D.RODY, D.RODZ, 'x', 'steel', 12), { nest: ['pframe', 'pframe_r', 'sled'] });
+addPart('pframe', 'emp', 'Soportes delanteros y del NEMA', b => {
+  for (const s of [-1, 1]) {
+    const z = (a, c) => [Math.min(s * a, s * c), Math.max(s * a, s * c)];
+    b.bb(0.008, 0.016, 0.868, 0.882, ...z(0.035, 0.055), 'Pd');
+    b.bb(0.008, 0.015, 0.882, 0.940, ...z(0.040, 0.050), 'Pd');            // cuelgan del travesaño del empujador
+  }
+  b.bb(-0.040, 0.005, 0.888, 0.940, 0.006, 0.010, 'Pd');
+  b.bb(-0.015, 0.005, 0.934, 0.940, 0.006, 0.050, 'Pd');
+}, { nest: ['pnema', 'prod_L', 'prod_R', '*pf'] });
+addPart('pframe_r', 'emp', 'Soporte trasero y final de carrera', b => {
+  for (const s of [-1, 1]) {
+    const z = (a, c) => [Math.min(s * a, s * c), Math.max(s * a, s * c)];
+    b.bb(-0.284, -0.276, 0.868, 0.882, ...z(0.035, 0.055), 'Pd');
+    b.bb(-0.284, -0.276, 0.882, 1.048, ...z(0.040, 0.050), 'Pd');
+    b.bb(-0.284, -0.218, 1.040, 1.048, ...z(0.035, 0.055), 'Pd');
+  }
+  b.bb(-0.284, -0.278, 0.878, 0.892, 0.050, 0.064, 'Pd');
+  b.bb(-0.284, -0.278, 0.880, 0.890, 0.064, 0.080, 'black');                 // final de carrera (home)
+  b.bb(-0.278, -0.2755, 0.884, 0.886, 0.064, 0.078, 'steel');
+}, { nest: ['*pf', 'prod_L', 'prod_R'] });
+addPart('sled', 'emp', 'Carro, placa y cremallera', b => {
+  b.bb(PP - 0.012, PP, D.PY0, D.PY1, -0.075, 0.075, 'P');                     // placa 15 × 3 cm
+  b.bb(PP - 0.012, PP - 0.002, D.PY1, 0.876, -0.030, 0.030, 'Pd');
+  b.bb(PP - 0.012, PP + 0.045, 0.876, 0.886, -0.030, 0.030, 'Pd');            // pestaña de la uña
+  b.bb(PP + 0.027, PP + 0.043, 0.886, 0.902, -0.008, 0.008, 'Pd');            // guía del pin
+  b.bb(PP - 0.296, PP - 0.004, 0.886, 0.8935, -0.006, 0.006, 'P');            // cremallera (2 tramos)
+  for (let i = 0; i < 61; i++) b.bb(PP - 0.294 + i * 0.00471, PP - 0.294 + i * 0.00471 + 0.0022, 0.8935, 0.898, -0.006, 0.006, 'P');
+  b.bb(PP - 0.152, PP - 0.140, 0.879, 0.886, -0.012, 0.012, 'Pd');            // unión de los 2 tramos (M3)
+  b.bb(PP - 0.283, PP - 0.253, 0.880, 0.886, -0.062, 0.062, 'Pd');            // travesaño del carro
+  for (const s of [-1, 1]) {
+    const z0 = s * D.RODZ;
+    b.bb(PP - 0.283, PP - 0.253, 0.863, 0.880, z0 - 0.017, z0 + 0.017, 'alu');  // SC8UU
+  }
+}, { mount: 'push', nest: ['prod_L', 'prod_R', 'pin', 'servo', 'pinion'] });
+addPart('pinion', 'emp', 'Piñón m1.5 · 20 dientes', b => {
+  const cx = -0.017, cy = 0.913;
+  b.cyl(0.0145, 0.012, cx, cy, 0, 'z', 'P', 24);
+  for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2; b.box(0.004, 0.003, 0.012, cx + Math.cos(a) * 0.0155, cy + Math.sin(a) * 0.0155, 0, 'P', 0, 0, a + Math.PI / 2); }
+  b.cyl(0.004, 0.014, cx, cy, 0.001, 'z', 'Pd', 10);
+}, { pivot: [-0.017, 0.913, 0], mount: 'pinion', nest: ['sled', 'pnema', 'pframe'] });
+addPart('pnema', 'emp', 'NEMA 17 del empujador', b => {
+  b.bb(-0.038, 0.004, 0.892, 0.934, 0.014, 0.046, 'black');
+  b.bb(-0.038, 0.004, 0.892, 0.934, 0.010, 0.014, 'alu');
+  b.bb(-0.038, 0.004, 0.892, 0.934, 0.046, 0.050, 'alu');
+  b.cyl(0.0025, 0.016, -0.017, 0.913, 0.002, 'z', 'steel', 8);
+}, { nest: ['pframe', 'pinion'] });
+addPart('servo', 'emp', 'Microservo MG90S', b => {
+  b.bb(PP + 0.002, PP + 0.025, 0.886, 0.898, -0.038, -0.010, 'blue');
+  b.bb(PP - 0.002, PP + 0.029, 0.891, 0.893, -0.038, -0.010, 'blue');
+  b.cyl(0.0035, 0.004, PP + 0.020, 0.892, -0.008, 'z', 'white', 10);
+}, { mount: 'push', nest: ['sled'] });
+addPart('horn', 'emp', 'Brazo del servo', b => {
+  b.bb(PP + 0.018, PP + 0.036, 0.8905, 0.8935, -0.006, -0.0045, 'white');
+}, { pivot: [PP + 0.020, 0.892, -0.005], mount: 'horn', nest: ['servo', 'sled', 'pin'] });
+addPart('pin', 'emp', 'Pin de la uña 10 × 10 mm', b => {
+  b.bb(PP + D.PINDX - 0.005, PP + D.PINDX + 0.005, 0.878, 0.902, -0.005, 0.005, 'Pd');
+  b.bb(PP + D.PINDX - 0.005, PP + D.PINDX + 0.005, 0.902, 0.906, -0.007, 0.007, 'Pd');
+}, { mount: 'pin', nest: ['sled', 'horn', 'fx*'] });
+
+// ============================================================ FIXTURES (6) — origen en el centro de la base
+function qrTexture(n) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#111';
+  let s = n * 9301 + 49297; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if (i < 2 && j < 2 || i > 5 && j < 2 || i < 2 && j > 5 || r() > 0.55) g.fillRect(4 + i * 7, 4 + j * 7, 7, 7);
+  g.fillStyle = '#0d9488'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.fillText(String(n), 32, 41);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const FIXTURES = [];
+for (let i = 0; i < 6; i++) {
+  const p = addPart('fx' + i, 'fix', `Fixture ${i + 1} con ECU`, b => {
+    b.bb(-0.102, 0.102, 0, 0.003, -0.087, 0.087, 'P');                          // chaflán de 3 mm
+    b.bb(-0.105, -0.093, 0.003, 0.006, -0.09, 0.09, 'P');
+    b.bb(-0.093, -0.065, 0.003, 0.006, 0.008, 0.09, 'P');
+    b.bb(-0.093, -0.065, 0.003, 0.006, -0.09, -0.008, 'P');
+    b.bb(-0.065, 0.105, 0.003, 0.006, -0.09, 0.09, 'P');
+    for (const s of [-1, 1]) b.bb(-0.099, 0.099, 0.006, 0.070, Math.min(s * 0.072, s * 0.084), Math.max(s * 0.072, s * 0.084), 'Pd');
+    b.bb(-0.105, -0.093, 0.006, 0.040, -0.06, 0.06, 'Pd');
+    b.bb(0.093, 0.105, 0.006, 0.040, -0.06, 0.06, 'Pd');
+    const ecu = i % 2 ? 'dark' : 'ecu';
+    b.bb(-0.060, 0.080, 0.006, 0.052, -0.065, 0.065, ecu);
+    for (let k = 0; k < 6; k++) b.bb(-0.045, 0.065, 0.052, 0.064, -0.055 + k * 0.022, -0.049 + k * 0.022, ecu);
+    b.bb(0.060, 0.080, 0.020, 0.044, -0.040, 0.010, 'black');
+  }, { pivot: [0, 0, 0], mount: 'fx' });
+  const qr = new THREE.Mesh(new THREE.PlaneGeometry(0.026, 0.026), new THREE.MeshBasicMaterial({ map: qrTexture(i + 1) }));
+  qr.position.set(0.1052, 0.023, 0); qr.rotation.y = Math.PI / 2; p.group.add(qr);
+  p.fixIndex = i; FIXTURES.push(p);
+}
+
+// ============================================================ ELECTRÓNICA: BANDEJA (se arma en la mesa, Etapa 11)
+const TRAY = { x0: -0.245, x1: -0.112, z: 0.13, y: 0.132 };
+const TY = TRAY.y + 0.006;   // altura de los separadores M3
+addPart('tray', 'elec', 'Bandeja de electrónica', b => {
+  b.bb(TRAY.x0, TRAY.x1, 0.126, TRAY.y, -TRAY.z, TRAY.z, 'P');
+  b.bb(TRAY.x0, TRAY.x0 + 0.02, 0.120, 0.126, -TRAY.z, TRAY.z, 'Pd');                     // apoyo sobre el travesaño trasero
+  for (const [x, z] of [[-0.236, -0.118], [-0.236, 0.018], [-0.159, -0.118], [-0.159, 0.018]]) b.cyl(0.0025, 0.006, x, TRAY.y + 0.003, z, 'y', 'white', 8);
+}, { nest: ['*pf', 'bat_cradle'] });
+addPart('perf', 'elec', 'Placa perforada 9 × 15 cm', b => {
+  const y = TY;
+  b.bb(-0.242, -0.152, y, y + 0.0016, -0.125, 0.025, 'perf');
+  // ESP32 sobre tira header hembra
+  b.bb(-0.214, -0.186, y + 0.0016, y + 0.0096, -0.072, -0.068, 'black');
+  b.bb(-0.214, -0.186, y + 0.0016, y + 0.0096, -0.022, -0.018, 'black');
+  b.bb(-0.214, -0.186, y + 0.0096, y + 0.0112, -0.072, -0.018, 'pcb');
+  b.bb(-0.209, -0.191, y + 0.0112, y + 0.0142, -0.040, -0.022, 'steel');
+  // 3 A4988 con disipador y su capacitor de 100 µF
+  for (let k = 0; k < 3; k++) {
+    const z = -0.115 + k * 0.022;
+    b.bb(-0.240, -0.224, y + 0.0016, y + 0.0096, z - 0.0085, z + 0.0085, 'black');
+    b.bb(-0.240, -0.224, y + 0.0096, y + 0.0112, z - 0.0085, z + 0.0085, 'pcbB');
+    b.bb(-0.236, -0.228, y + 0.0112, y + 0.0172, z - 0.004, z + 0.004, 'alu');
+    b.cyl(0.003, 0.010, -0.219, y + 0.0066, z, 'y', 'blue', 10);
+  }
+  b.bb(-0.180, -0.165, y + 0.0016, y + 0.0056, -0.122, -0.078, 'pcbB');                       // MAX485
+  b.bb(-0.180, -0.167, y + 0.0016, y + 0.0056, -0.068, -0.054, 'pcb');                        // convertidor de nivel
+  b.bb(-0.180, -0.164, y + 0.0016, y + 0.0056, -0.045, -0.008, 'pcbB');                       // PCF8574
+  for (let k = 0; k < 7; k++) b.bb(-0.160, -0.153, y + 0.0016, y + 0.0116, -0.120 + k * 0.020, -0.110 + k * 0.020, 'green');   // borneras KF301
+}, { nest: ['tray'] });
+addPart('boost', 'elec', 'Elevador de voltaje 400 W', b => {
+  b.bb(-0.242, -0.182, TY, TY + 0.0016, 0.035, 0.125, 'pcbB');
+  b.bb(-0.236, -0.188, TY + 0.0016, TY + 0.026, 0.045, 0.060, 'alu');
+  b.bb(-0.236, -0.188, TY + 0.0016, TY + 0.026, 0.100, 0.115, 'alu');
+  b.cyl(0.009, 0.020, -0.225, TY + 0.0116, 0.080, 'y', 'dark', 14);
+  b.cyl(0.009, 0.020, -0.200, TY + 0.0116, 0.080, 'y', 'dark', 14);
+  b.cyl(0.003, 0.010, -0.188, TY + 0.0066, 0.120, 'y', 'blue', 8);
+}, { nest: ['tray'] });
+addPart('xl4005', 'elec', 'Reductor XL4005', b => {
+  b.bb(-0.145, -0.118, TY, TY + 0.0016, -0.122, -0.068, 'pcbB');
+  b.cyl(0.006, 0.010, -0.131, TY + 0.0066, -0.105, 'y', 'dark', 12);
+  b.bb(-0.140, -0.130, TY + 0.0016, TY + 0.0076, -0.085, -0.075, 'black');
+}, { nest: ['tray'] });
+addPart('relay', 'elec', 'Módulo relé T90 30 A', b => {
+  b.bb(-0.175, -0.118, TY, TY + 0.0016, 0.035, 0.085, 'pcb');
+  b.bb(-0.170, -0.142, TY + 0.0016, TY + 0.0266, 0.040, 0.060, 'blue');
+  b.bb(-0.170, -0.142, TY + 0.0016, TY + 0.0266, 0.062, 0.082, 'blue');
+  b.bb(-0.136, -0.122, TY + 0.0016, TY + 0.0116, 0.040, 0.080, 'green');
+}, { nest: ['tray'] });
+addPart('fuses', 'elec', 'Fusibles 15 A y 10 A', b => {
+  for (const [z, m] of [[0.098, 'cBlu'], [0.115, 'cRed']]) {
+    b.bb(-0.165, -0.125, TRAY.y, TRAY.y + 0.012, z - 0.007, z + 0.007, 'black');
+    b.bb(-0.150, -0.140, TRAY.y + 0.012, TRAY.y + 0.020, z - 0.003, z + 0.003, m);
+  }
+}, { nest: ['tray'] });
+// cables dentro de la bandeja (viajan con ella)
+addPart('trayCab', 'elec', 'Cables de la bandeja', b => {
+  const y = TY + 0.012;
+  b.tube([[-0.140, TRAY.y + 0.016, 0.098], [-0.150, y + 0.012, 0.090], [-0.130, y + 0.01, 0.078]], 0.0018, 'cRed', 16);   // 15 A → relé COM
+  b.tube([[-0.160, y + 0.015, 0.075], [-0.180, y + 0.02, 0.090], [-0.200, y + 0.02, 0.105], [-0.214, y + 0.005, 0.110]], 0.0018, 'cRed', 20); // relé NO → boost
+  b.tube([[-0.130, y, 0.040], [-0.140, y + 0.01, 0.020], [-0.155, y + 0.004, -0.002], [-0.156, TY + 0.012, -0.010]], 0.0016, 'cRed', 20);  // relé NO → VMOT
+  b.tube([[-0.140, TRAY.y + 0.016, 0.115], [-0.128, y + 0.015, 0.0], [-0.125, y + 0.01, -0.070]], 0.0012, 'cRed', 20);       // 10 A → XL4005
+  b.tube([[-0.124, TY + 0.003, -0.090], [-0.140, y + 0.006, -0.100], [-0.156, TY + 0.012, -0.110]], 0.0012, 'cRed', 16);    // 5 V → placa
+  b.tube([[-0.130, TY + 0.003, -0.075], [-0.145, y + 0.008, -0.060], [-0.156, TY + 0.012, -0.090]], 0.0012, 'cBlk', 16);
+  b.tube([[-0.188, TY + 0.012, 0.122], [-0.170, y + 0.014, 0.128], [-0.130, y + 0.012, 0.127], [-0.116, TRAY.y + 0.012, 0.126]], 0.0018, 'cOra', 20);  // salida 18 V
+  b.tube([[-0.186, TY + 0.010, 0.118], [-0.165, y + 0.010, 0.123], [-0.128, y + 0.008, 0.121], [-0.116, TRAY.y + 0.012, 0.119]], 0.0018, 'cBlk', 20);
+}, { noCheck: true, shadow: false });
+
+// ============================================================ EN EL CARRITO (Etapa 13)
+addPart('kcd1', 'elec', 'Interruptor KCD1', b => {
+  b.bb(-0.258, -0.250, 0.124, 0.170, 0.060, 0.100, 'Pd');
+  b.bb(-0.264, -0.258, 0.137, 0.157, 0.070, 0.090, 'black');
+  b.bb(-0.268, -0.262, 0.143, 0.155, 0.073, 0.087, 'red', 0.2);
+}, { nest: ['*pf'] });
+addPart('estop', 'elec', 'Paro de emergencia LAY37', b => {
+  b.bb(-0.250, -0.205, 1.040, 1.046, 0.090, 0.150, 'Pd');
+  b.cyl(0.020, 0.008, -0.225, 1.050, 0.120, 'y', 'yellow', 20);
+  b.cyl(0.011, 0.020, -0.225, 1.064, 0.120, 'y', 'black', 16);
+  b.cyl(0.019, 0.012, -0.225, 1.080, 0.120, 'y', 'red', 20, 0.016);
+}, { nest: ['*pf'] });
+function vl53(b, x, y, z, nx, nz) {     // placa del sensor mirando hacia (nx, 0, nz) o hacia abajo
+  if (nx === 0 && nz === 0) { b.bb(x - 0.007, x + 0.007, y - 0.0016, y, z - 0.012, z + 0.012, 'pcbB'); b.bb(x - 0.002, x + 0.002, y - 0.0036, y - 0.0016, z - 0.003, z + 0.003, 'black'); return; }
+  const w = 0.0125, t = 0.0016;
+  if (nx) { b.bb(x, x + nx * t, y - 0.007, y + 0.007, z - w, z + w, 'pcbB'); b.bb(x + nx * t, x + nx * 0.0036, y - 0.002, y + 0.002, z - 0.003, z + 0.003, 'black'); }
+  else { b.bb(x - w, x + w, y - 0.007, y + 0.007, z, z + nz * t, 'pcbB'); b.bb(x - 0.003, x + 0.003, y - 0.002, y + 0.002, z + nz * t, z + nz * 0.0036, 'black'); }
+}
+addPart('vl_front', 'elec', 'VL53L0X frontal', b => {
+  b.bb(0.226, 0.246, 0.120, 0.126, -0.015, 0.015, 'Pd');
+  b.bb(0.240, 0.244, 0.126, 0.165, -0.015, 0.015, 'Pd');
+  vl53(b, 0.244, 0.150, 0, 1, 0);
+}, { nest: ['*pf'] });
+for (const s of [-1, 1]) {
+  addPart('vl_side' + (s < 0 ? 'L' : 'R'), 'elec', 'VL53L0X lateral', b => {
+    const z = (a, c) => [Math.min(s * a, s * c), Math.max(s * a, s * c)];
+    b.bb(-0.170, -0.130, 0.120, 0.126, ...z(0.175, 0.200), 'Pd');
+    b.bb(-0.165, -0.135, 0.126, 0.165, ...z(0.196, 0.200), 'Pd');
+    vl53(b, -0.150, 0.150, s * 0.200, 0, s);
+  }, { nest: ['*pf'] });
+}
+addPart('vl_pile', 'elec', 'VL53L0X de la pila', b => {
+  b.bb(0.030, 0.050, 0.955, D.YT - 0.015, 0.164, 0.170, 'Pd');
+  b.bb(0.030, 0.050, 0.955, 0.961, 0.066, 0.170, 'Pd');
+  vl53(b, 0.040, 0.955, 0.078, 0, 0);
+}, { nest: ['*pf'] });
+addPart('qtr', 'elec', 'Barra IR QTR-8A', b => {
+  b.bb(0.220, 0.226, 0.006, D.H0, -0.012, 0.012, 'Pd');
+  b.bb(0.220, 0.242, 0.084, D.H0, -0.012, 0.012, 'Pd');
+  b.bb(0.196, 0.220, 0.006, 0.0076, -0.0375, 0.0375, 'pcbB');
+  for (let k = 0; k < 8; k++) b.bb(0.205, 0.211, 0.004, 0.006, -0.033 + k * 0.0095, -0.029 + k * 0.0095, 'black');
+}, { nest: ['*pf'] });
+addPart('jet_plate', 'elec', 'Placa del Jetson', b => b.bb(-0.202, -0.040, D.HT, D.HT + 0.006, -0.198, 0.198, 'mdf'), { nest: ['*pf'] });
+addPart('jetson', 'elec', 'Jetson Orin Nano Super', b => {
+  const y = D.HT + 0.006;
+  b.bb(-0.200, -0.100, y, y + 0.004, -0.050, 0.040, 'pcb');
+  for (const [x, z] of [[-0.196, -0.046], [-0.104, -0.046], [-0.196, 0.036], [-0.104, 0.036]]) b.cyl(0.002, 0.004, x, y + 0.006, z, 'y', 'steel', 6);
+  b.bb(-0.190, -0.110, y + 0.008, y + 0.030, -0.040, 0.030, 'alu');
+  b.cyl(0.020, 0.006, -0.150, y + 0.033, -0.005, 'y', 'black', 18);
+  b.bb(-0.202, -0.198, y + 0.006, y + 0.016, -0.040, 0.020, 'dark');
+}, { nest: ['jet_plate'] });
+addPart('camera', 'elec', 'Cámara Logitech 1080p', b => {
+  b.bb(0.226, 0.244, D.HT, D.HT + 0.006, -0.020, 0.020, 'Pd');
+  b.bb(0.222, 0.248, D.HT + 0.006, D.HT + 0.034, -0.045, 0.045, 'black');
+  b.cyl(0.009, 0.004, 0.250, D.HT + 0.020, 0, 'x', 'glass', 16);
+}, { nest: ['*pf'] });
+
+// cables del carrito (rutas simplificadas)
+function cablePart(id, name, mat, r, pts, opt = {}) { return addPart(id, 'elec', name, b => b.tube(pts, r, mat, Math.max(24, pts.length * 10)), { noCheck: true, shadow: false, ...opt }); }
+const yBat = 0.126 + D.BAT.h;
+cablePart('cab_bat', 'Batería → fusibles (14 AWG)', 'cRed', 0.0022, [[-0.060, yBat + 0.014, 0.055], [-0.075, yBat + 0.030, 0.075], [-0.110, yBat - 0.02, 0.095], [-0.130, TRAY.y + 0.02, 0.098]]);
+cablePart('cab_batN', 'Batería − → GND', 'cBlk', 0.0022, [[-0.060, yBat + 0.014, -0.055], [-0.080, yBat + 0.030, -0.075], [-0.112, yBat - 0.02, -0.090], [-0.130, TY + 0.004, -0.080]]);
+for (const s of [-1, 1]) {
+  const side = s < 0 ? 'L' : 'R';
+  cablePart('cab_18_' + side, 'Elevador → M0601 (18 V)', 'cOra', 0.0018, [[-0.116, TRAY.y + 0.012, 0.122], [-0.105, 0.124, s * 0.135], [-0.02, 0.123, s * 0.150], [0.05, 0.110, s * 0.118], [0.070, 0.090, s * 0.115]]);
+  cablePart('cab_485_' + side, 'RS485 (A, B, GND)', 'cGrn', 0.0011, [[-0.165, TY + 0.006, -0.100], [-0.150, 0.150, s * 0.110], [-0.03, 0.132, s * 0.140], [0.06, 0.104, s * 0.116], [0.078, 0.084, s * 0.115]]);
+  cablePart('cab_nema_' + side, 'NEMA del elevador → A4988', 'cBlu', 0.0012, [[0.183, 0.243, s * 0.188], [0.160, 0.215, s * 0.195], [0.0, 0.180, s * 0.150], [-0.150, 0.160, s * 0.100], [-0.226, TY + 0.012, -0.10 + (s + 1) * 0.011]]);
+  cablePart('cab_lsw_' + side, 'Final de carrera → GPIO', 'cWht', 0.0010, [[0.183, 0.355, s * 0.196], [0.195, 0.330, s * 0.198], [0.120, 0.230, s * 0.180], [-0.100, 0.170, s * 0.110], [-0.175, TY + 0.012, -0.03]]);
+}
+cablePart('cab_pnema', 'NEMA del empujador → A4988', 'cBlu', 0.0012, [[-0.040, 0.913, 0.040], [-0.120, 0.95, 0.090], [-0.214, 0.90, 0.140], [-0.214, 0.40, 0.155], [-0.214, 0.20, 0.120], [-0.226, TY + 0.012, -0.071]]);
+cablePart('cab_servo', 'Servo de la uña (curva floja de ~30 cm)', 'cOra', 0.0011, [[0.010, 0.900, -0.030], [-0.040, 0.960, -0.050], [-0.120, 0.975, -0.070], [-0.180, 0.930, -0.090], [-0.214, 0.880, -0.120], [-0.214, 0.40, -0.150], [-0.214, 0.20, -0.120], [-0.190, TY + 0.012, -0.050]]);
+cablePart('cab_i2c', 'I²C a los VL53L0X', 'cYel', 0.0010, [[0.040, 0.958, 0.090], [0.040, 0.990, 0.150], [-0.050, 1.000, 0.160], [-0.214, 0.95, 0.160], [-0.214, 0.40, 0.160], [-0.214, 0.20, 0.115], [-0.170, TY + 0.010, -0.020]]);
+cablePart('cab_i2cF', 'I²C sensores bajos', 'cYel', 0.0010, [[0.240, 0.150, 0.004], [0.200, 0.135, 0.010], [0.0, 0.130, 0.105], [-0.150, 0.150, 0.192], [-0.175, TY + 0.010, -0.010]]);
+cablePart('cab_qtr', 'QTR-8A (5 sensores)', 'cPur', 0.0011, [[0.222, 0.030, 0.0], [0.200, 0.100, -0.105], [0.0, 0.125, -0.112], [-0.155, 0.140, -0.110], [-0.180, TY + 0.012, -0.020]]);
+cablePart('cab_jet', 'Rama auxiliar → Jetson (12 V)', 'cRed', 0.0016, [[-0.140, TRAY.y + 0.02, 0.115], [-0.238, 0.20, 0.150], [-0.238, 0.80, 0.150], [-0.205, 1.03, 0.130], [-0.200, D.HT + 0.012, 0.010]]);
+cablePart('cab_stop', 'Paro (NC) → relé', 'cRed', 0.0011, [[-0.225, 1.046, 0.120], [-0.236, 1.00, 0.150], [-0.236, 0.40, 0.156], [-0.225, 0.20, 0.140], [-0.150, TY + 0.02, 0.070]]);
+cablePart('cab_usb', 'USB Jetson ↔ ESP32', 'cWht', 0.0014, [[-0.198, D.HT + 0.011, -0.030], [-0.232, 1.00, -0.150], [-0.232, 0.40, -0.156], [-0.230, 0.20, -0.130], [-0.200, TY + 0.016, -0.045]]);
+
+// ============================================================ PANEL FRONTAL MDF (ventana 24 × 9.7 cm)
+addPart('panel', 'est', 'Panel frontal MDF 3 mm', b => {
+  const x0 = D.PANX, x1 = D.PANX + D.PANT, z = D.W / 2;
+  b.bb(x0, x1, D.H0, D.WIN0, -z, z, 'mdf');
+  b.bb(x0, x1, D.WIN1, D.HT, -z, z, 'mdf');
+  b.bb(x0, x1, D.WIN0, D.WIN1, -z, -D.WINZ, 'mdf');
+  b.bb(x0, x1, D.WIN0, D.WIN1, D.WINZ, z, 'mdf');
+}, { explode: [0.35, 0.05, 0], nest: ['*pf'] });
+
+// ============================================================ ESTACIÓN DE CARGA (banda)
+const DOCK = D.PANX + D.PANT + 0.003;        // 0.256: frente del carrito acoplado
+const SLOPE = 4 * Math.PI / 180;
+function funnelAndAruco(b, label) {
+  for (const s of [-1, 1]) {
+    const a = Math.atan2(0.14, 0.42) * -s, len = Math.hypot(0.42, 0.14);
+    b.box(len, 0.02, 0.02, 0.05, 0.01, s * (0.212 + 0.07), 'P', 0, a, 0);
+  }
+  b.bb(0.345, 0.365, 0, 0.50, 0.29, 0.31, 'alu');
+}
+function arucoMesh(parent, x, y, z) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#000'; g.fillRect(6, 6, 52, 52); g.fillStyle = '#fff';
+  [[1, 1], [3, 1], [2, 2], [4, 2], [1, 3], [3, 4], [2, 4], [4, 4]].forEach(([i, j]) => g.fillRect(6 + i * 8.7, 6 + j * 8.7, 8.7, 8.7));
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.10, 0.10), new THREE.MeshBasicMaterial({ map: t }));
+  m.position.set(x, y, z); m.rotation.y = -Math.PI / 2; parent.add(m);
+}
+const BELT_X1 = 1.25;
+const stBelt = addPart('st_belt', 'sta', 'Banda transportadora', b => {
+  const y = D.BELT;
+  b.bb(DOCK + 0.004, BELT_X1, y - 0.040, y, -0.150, 0.150, 'belt');
+  for (const s of [-1, 1]) b.bb(DOCK, BELT_X1, y - 0.055, y - 0.005, Math.min(s * 0.155, s * 0.175), Math.max(s * 0.155, s * 0.175), 'alu');
+  b.cyl(0.020, 0.30, DOCK + 0.020, y - 0.020, 0, 'z', 'alu', 18);
+  for (const x of [DOCK + 0.10, BELT_X1 - 0.06]) for (const s of [-1, 1]) b.bb(x - 0.015, x + 0.015, 0, y - 0.055, s * 0.165 - 0.015, s * 0.165 + 0.015, 'alu');
+  for (const s of [-1, 1]) b.bb(DOCK + 0.008, BELT_X1, y, y + 0.030, Math.min(s * (D.FW / 2 + 0.0025), s * (D.FW / 2 + 0.0085)), Math.max(s * (D.FW / 2 + 0.0025), s * (D.FW / 2 + 0.0085)), 'P');
+  funnelAndAruco(b);
+}, { world: true, noCheck: true });
+arucoMesh(stBelt.group, 0.344 - stBelt.home.x, 0.45 - stBelt.home.y, 0.30 - stBelt.home.z);
+addPart('st_stripes', 'sta', 'Banda en movimiento', b => {
+  for (let k = 0; k < 11; k++) b.bb(DOCK + 0.03 + k * 0.09, DOCK + 0.036 + k * 0.09, D.BELT, D.BELT + 0.0006, -0.148, 0.148, 'dark');
+}, { world: true, noCheck: true, mount: 'belt', shadow: false });
+
+// ============================================================ ESTACIÓN DE DESCARGA (rampa de 14 rodillos)
+const RAMP = { x0: DOCK, y0: D.BELT, len: 1.40, r: 0.015 };
+const rampPos = s => V3(RAMP.x0 + s * Math.cos(SLOPE), RAMP.y0 - s * Math.sin(SLOPE), 0);   // cara de los rodillos
+const stRamp = addPart('st_ramp', 'sta', 'Rampa de rodillos', b => {
+  const qz = -SLOPE, mid = rampPos(RAMP.len / 2);
+  for (const s of [-1, 1]) {
+    b.box(RAMP.len + 0.02, 0.07, 0.015, mid.x, mid.y - 0.03, s * 0.1325, 'wood', 0, 0, qz);            // bastidor MDF 15 mm
+    b.box(RAMP.len, 0.035, 0.010, mid.x, mid.y + 0.0175, s * 0.115, 'P', 0, 0, qz);                     // topes laterales
+  }
+  const end = rampPos(RAMP.len);
+  b.box(0.012, 0.06, 0.24, end.x, end.y + 0.02, 0, 'P', 0, 0, qz);                                        // tope final
+  for (const s of [-1, 1]) for (const k of [0.15, 1.25]) { const p = rampPos(k); b.bb(p.x - 0.02, p.x + 0.02, 0, p.y - 0.065, s * 0.13 - 0.02, s * 0.13 + 0.02, 'wood'); }
+  for (let k = 0; k < 14; k++) { const p = rampPos(0.012 + k * 0.10); b.cyl(0.004, 0.25, p.x, p.y - RAMP.r, 0, 'z', 'steel', 8); }
+  funnelAndAruco(b);
+}, { world: true, noCheck: true });
+arucoMesh(stRamp.group, 0.344 - stRamp.home.x, 0.45 - stRamp.home.y, 0.30 - stRamp.home.z);
+addPart('st_rollers', 'sta', 'Rodillos', b => {
+  for (let k = 0; k < 14; k++) {
+    const p = rampPos(0.012 + k * 0.10);
+    b.cyl(RAMP.r, 0.22, p.x, p.y - RAMP.r, 0, 'z', 'P', 14);
+    b.bb(p.x - 0.0015, p.x + 0.0015, p.y - 0.0005, p.y + 0.0003, -0.10, 0.10, 'Pd');
+  }
+}, { world: true, noCheck: true });
+// pose de un fixture sobre la rampa (s = distancia del centro desde la orilla)
+function rampFixturePose(s) {
+  const p = rampPos(s);
+  return { pos: V3(p.x, p.y, 0), rz: -SLOPE };
+}
+
+// ============================================================ MESA DE TRABAJO (Etapa 11)
+const TABLE_OFF = V3(0.10, 0.596, 0.80);
+addPart('mesa', 'sta', 'Mesa de trabajo', b => {
+  b.bb(-0.36, 0.20, 0.700, 0.726, 0.55, 1.05, 'wood');
+  for (const x of [-0.33, 0.17]) for (const z of [0.58, 1.02]) b.bb(x - 0.02, x + 0.02, 0, 0.70, z - 0.02, z + 0.02, 'wood');
+}, { world: true, noCheck: true });
+
+// ============================================================ INVENTARIO (capítulo 0)
+const INV = [];       // { id, zone, name, qty, anchor: V3 }
+function cloneForInv(pid) {
+  const src = PARTS.get(pid).group;
+  const g = src.clone(true);
+  const mats = [];
+  g.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.castShadow = true; if (o.material.emissive) mats.push({ mat: o.material, base: o.material.color.clone() }); } });
+  return { g, mats };
+}
+function addInv(id, zone, name, qty, entries, sub) {
+  const group = new THREE.Group(); group.name = id; worldRoot.add(group);
+  const mats = [];
+  let top = V3(0, 0, 0), n = 0, maxH = 0;
+  for (const e of entries) {
+    const [pid, x, z, rx = 0, ry = 0, rz = 0, dy = 0] = e;
+    const { g, mats: m } = cloneForInv(pid);
+    g.position.set(0, 0, 0); g.quaternion.setFromEuler(new THREE.Euler(rx, ry, rz));
+    g.updateMatrixWorld(true);
+    const bx = new THREE.Box3().setFromObject(g);
+    g.position.set(x - (bx.min.x + bx.max.x) / 2, -bx.min.y + dy, z - (bx.min.z + bx.max.z) / 2);
+    group.add(g); mats.push(...m);
+    top.add(V3(x, 0, z)); n++; maxH = Math.max(maxH, bx.max.y - bx.min.y + dy);
+  }
+  top.divideScalar(n); top.y = maxH + 0.015;
+  const p = { id, sub: sub || PARTS.get(entries[0][0]).sub, name, group, mats, home: V3(), homeQ: new THREE.Quaternion(), explode: V3(0, 0.15, 0),
+    from: V3(0, 0.25, 0), mount: null, track: [], mode: '', localBox: new THREE.Box3(), nest: [], world: true, noCheck: true, only: null, inv: zone };
+  PARTS.set(id, p);
+  INV.push({ id, zone, name, qty, anchor: top });
+}
+// Rejilla de 4 columnas × 4 filas por zona (celdas de 30 cm), vista desde arriba
+const ZX = { A: -1.32, B: 0, C: 1.32 };
+const cell = (zone, col, row) => [ZX[zone] + (col - 1.5) * 0.30, (row - 1.5) * 0.30];
+const at = (zone, col, row, dx = 0, dz = 0) => { const [x, z] = cell(zone, col, row); return [x + dx, z + dz]; };
+const RZ90 = [0, 0, Math.PI / 2], RY90 = [0, Math.PI / 2, 0];
+const E = (pid, xz, r = [0, 0, 0]) => [pid, xz[0], xz[1], ...r];
+// Zona A: estructura, tracción y energía
+addInv('inv_post', 'A', 'Postes 950 mm', '×4', [E('post_FL', at('A', 1.5, 0, 0, -0.03), RZ90), E('post_FR', at('A', 1.5, 0, 0, 0.03), RZ90)]);
+addInv('inv_col', 'A', 'Columnas de la torre 890 mm', '×4 (propuesta)', [E('col_FL', at('A', 1.5, 0, 0, 0.09), RZ90), E('col_FR', at('A', 1.5, 0, 0, 0.14), RZ90)]);
+addInv('inv_pf', 'A', 'Largueros 440 · travesaños 340', '×4 · ×6 (+1 de 198)', [E('larg_bL', at('A', 0.5, 1, 0, -0.05)), E('trav_bF', at('A', 0.5, 1, 0, 0.04), RY90)]);
+addInv('inv_esc', 'A', 'Escuadras impresas', '×36 + ~22 de la torre', [E('esc_c', at('A', 2, 1))]);
+addInv('inv_nut', 'A', 'Tuercas y tornillos M6', '~80 juegos', [E('nut_bF', at('A', 3, 1))]);
+addInv('inv_cast', 'A', 'Rodaja twin 50 mm', '×4', [E('cast_FL', at('A', 0, 2, -0.04, -0.04)), E('cast_FR', at('A', 0, 2, 0.04, -0.04)), E('cast_BL', at('A', 0, 2, -0.04, 0.04)), E('cast_BR', at('A', 0, 2, 0.04, 0.04))]);
+addInv('inv_mot', 'A', 'Motor-rueda M0601', 'izq. FIT1042 · der. FIT1038', [E('mot_L', at('A', 1, 2, -0.05)), E('mot_R', at('A', 1, 2, 0.05))]);
+addInv('inv_susp', 'A', 'Placas pivotantes y resortes', 'M8 · 608ZZ · k ≈ 3 N/mm', [E('susp_L', at('A', 2, 2, -0.03)), E('spring_R', at('A', 2, 2, 0.08))]);
+addInv('inv_bat', 'A', 'Batería BR-1224', '12 V · 24 Ah · 8.3 kg', [E('bat', at('A', 3, 2))], 'elec');
+addInv('inv_bat2', 'A', 'Barra y varillas M6 de la batería', '+ cuna impresa', [E('bat_hold', at('A', 1.5, 3), RY90)], 'elec');
+// Zona B: torre, empujador y fixtures
+addInv('inv_screw', 'B', 'Husillos TR8 60 cm + tuerca', '×2 · esperar: confirmar 1 entrada', [E('screw_L', at('B', 0.5, 0, 0, -0.05), RZ90), E('screw_R', at('B', 0.5, 0, 0, -0.015), RZ90), E('rod_L', at('B', 0.5, 0, 0, 0.03), RZ90), E('rod_R', at('B', 0.5, 0, 0, 0.065), RZ90)]);
+addInv('inv_guide', 'B', 'Guías en L impresas', '×4 · ~50 cm', [E('guide_BL', at('B', 2.5, 0, 0, -0.03), RZ90), E('guide_BR', at('B', 2.5, 0, 0, 0.04), RZ90)]);
+addInv('inv_nema', 'B', 'NEMA 17 17HS4401', '×3', [E('nema_L', at('B', 0, 1, -0.05)), E('nema_R', at('B', 0, 1, 0.01)), E('pnema', at('B', 0, 1, 0.07))]);
+addInv('inv_kfl', 'B', 'KFL08 ×4 · cople ×2', '5 → 8 mm', [E('kflLo_L', at('B', 1, 1, -0.04, -0.03)), E('kflLo_R', at('B', 1, 1, 0.04, -0.03)), E('kflUp_L', at('B', 1, 1, -0.04, 0.04)), E('kflUp_R', at('B', 1, 1, 0.04, 0.04)), E('cople_L', at('B', 1, 1, 0.10, 0))]);
+addInv('inv_sc', 'B', 'SC8UU', '×6 · varillas 8 mm', [E('sc_L', at('B', 2, 1))]);
+addInv('inv_lsw', 'B', 'Final de carrera', '×3', [E('lsw_L', at('B', 3, 1, -0.03)), E('lsw_R', at('B', 3, 1, 0.03))]);
+addInv('inv_plat', 'B', 'Plataforma impresa', '21 × 18 cm, 2 brazos', [E('plat', at('B', 0, 2, 0.02))]);
+addInv('inv_sled', 'B', 'Carro, placa 15 × 3 y cremallera', '2 tramos de 15 cm', [E('sled', at('B', 1.5, 2, 0.02))]);
+addInv('inv_pin', 'B', 'Piñón m1.5 z20 · MG90S · pin', 'servo de 180°', [E('pinion', at('B', 3, 2, -0.05)), E('servo', at('B', 3, 2, 0.03)), E('pin', at('B', 3, 2, 0.08))]);
+addInv('inv_fx', 'B', 'Fixtures con costados', '×6 · nivel de 7.0 cm', [E('fx0', at('B', 1, 3, -0.04)), E('fx1', at('B', 2, 3, 0.04))]);
+// Zona C: electrónica
+addInv('inv_perf', 'C', 'Placa con ESP32 y 3 A4988', 'MAX485 · convertidor · PCF8574', [E('perf', at('C', 0, 0, 0.04))]);
+addInv('inv_boost', 'C', 'Elevador 400 W', '12 → 18 V', [E('boost', at('C', 1, 0, 0.05))]);
+addInv('inv_xl', 'C', 'Reductor XL4005', '12 → 5 V', [E('xl4005', at('C', 2, 0))]);
+addInv('inv_relay', 'C', 'Relé T90 30 A', '2 canales', [E('relay', at('C', 3, 0))]);
+addInv('inv_fuse', 'C', 'Fusibles y portafusibles', '15 A · 10 A', [E('fuses', at('C', 0, 1, 0.03))]);
+addInv('inv_stop', 'C', 'KCD1 y paro LAY37', 'encendido · paro NC', [E('kcd1', at('C', 1, 1, -0.05)), E('estop', at('C', 1, 1, 0.04))]);
+addInv('inv_vl', 'C', 'VL53L0X', '×4 · 3 obstáculos + 1 pila', [E('vl_front', at('C', 2, 1, -0.03)), E('vl_pile', at('C', 2, 1, 0.04))]);
+addInv('inv_qtr', 'C', 'Barra IR QTR-8A', 'respaldo, a 3.3 V', [E('qtr', at('C', 3, 1))]);
+addInv('inv_jet', 'C', 'Jetson Orin Nano Super', 'ya comprado', [E('jetson', at('C', 0, 2, 0.05))]);
+addInv('inv_cam', 'C', 'Cámara Logitech 1080p', 'ya la tiene Mario', [E('camera', at('C', 1, 2, 0.03))]);
+addInv('inv_tray', 'C', 'Bandeja impresa', 'separadores M3', [E('tray', at('C', 2.5, 2, 0.06))]);
+addInv('inv_panel', 'C', 'Panel frontal MDF 3 mm', 'ventana 24 × 9.7 cm', [E('panel', at('C', 1.5, 3, 0, 0.03), RZ90)], 'est');
+
+// ============================================================ CAPÍTULOS Y PASOS
+const CHAPTERS = [
+  { n: '0', name: 'Inventario' }, { n: 'E6', name: 'Perfil' }, { n: 'E7', name: 'Base' }, { n: 'E8', name: 'Estructura' },
+  { n: 'E9', name: 'Elevador' }, { n: 'E10', name: 'Empujador y uña' }, { n: 'E11·13', name: 'Electrónica' }, { n: '▶', name: 'Funcionamiento' },
+];
+const STEPS = [];
+function S(o) { STEPS.push(Object.assign({ dur: 8, add: [], labels: [], dims: [], dimOld: true, addStart: 0.3, stagger: 0.45, addDur: 1.3 }, o)); }
+const ids = pre => [...PARTS.keys()].filter(k => k.startsWith(pre));
+const invZone = z => INV.filter(i => i.zone === z);
+const PF_IDS = PF.map(f => f.id);
+const CAM = {
+  front: (t, r) => ({ t, d: [0.9, 0.55, 1.0], r }),
+};
+
+// ---------- mecánica: carga y descarga (funciones puras del tiempo)
+const RSTOP = i => 1.40 - 0.008 - D.FL / 2 - i * (D.FL + 0.004);           // dónde se detiene el i-ésimo en la rampa
+const PIN_TRAVEL = 0.878 - (D.LOAD0 + 0.0015);
+const PW = 0.13 - 0.009;                                                  // espera del empujador (fixture con ~9 cm afuera)
+function pileSet(m, list, top) { list.forEach((fi, k) => { m.fx[fi] = { x: D.XC, y: top + k * D.PITCH, z: 0, rz: 0 }; }); }
+function loadCycle(m, t, n, fi, k = 1) {              // carga del fixture fi sobre una pila de n; k = escala de tiempo
+  const T = x => x * k;
+  const plat0 = D.LEVEL(n), plat1 = D.LEVEL(n + 1);
+  m.plat = lerp(plat0, plat1, segE(t, T(8.8), T(11.2)));
+  // empujador: a la espera, jala, afloja, regresa
+  let p = D.P0;
+  p = lerp(p, PW, segE(t, 0, T(1.0)));
+  const pullEnd = 0.010;
+  if (t > T(4.2)) p = lerp(PW, pullEnd, seg(t, T(4.2), T(7.0)));
+  if (t > T(7.0)) p = lerp(pullEnd, pullEnd + 0.002, seg(t, T(7.0), T(7.3)));
+  if (t > T(8.0)) p = lerp(pullEnd + 0.002, D.P0, segE(t, T(8.0), T(8.8)));
+  m.push = p;
+  m.pin = segE(t, T(3.5), T(4.2)) * (1 - segE(t, T(7.3), T(8.0)));
+  // fixture: llega por la banda hasta quedar ~9 cm afuera, luego la uña lo jala
+  const rStop = 0.13, rFinal = D.XC - D.FL / 2;
+  let r = lerp(0.88, rStop, seg(t, T(0.5), T(3.5)));
+  if (t > T(4.2)) r = Math.min(rStop, Math.max(rFinal, m.push + 0.018));
+  const inside = seg(r, rStop - 0.02, rFinal);
+  m.fx[fi] = { x: r + D.FL / 2, y: lerp(D.BELT, plat0 + n * D.PITCH, inside > 0.95 ? 1 : 0) - (t > T(8.8) ? plat0 - m.plat : 0), z: 0, rz: 0 };
+  m.belt = (m.beltBase || 0) + (0.88 - Math.max(r, rStop)) * (t < T(3.6) ? 1 : 1);
+  if (t < T(0.5)) m.fx[fi].x = 0.88 + D.FL / 2;
+}
+function unloadCycle(m, t, n, fi, slot, k = 1) {      // saca el de arriba (fi) de una pila de n; slot = lugar en la rampa
+  const T = x => x * k;
+  const lvl = D.UNLV(n);
+  m.plat = lvl;
+  let p = lerp(D.P0, D.P0 + D.STROKE, segE(t, T(0.3), T(3.4)));
+  if (t > T(3.4)) p = lerp(D.P0 + D.STROKE, D.P0, segE(t, T(3.6), T(5.0)));
+  m.push = p;
+  const r0 = D.XC - D.FL / 2, rMax = D.P0 + D.STROKE;
+  const r = Math.max(r0, Math.min(rMax, p > r0 ? (t > T(3.4) ? rMax : p) : r0));
+  const xc = r + D.FL / 2;
+  const sEnd = RSTOP(slot), s0 = rMax + D.FL / 2 - DOCK;
+  if (t <= T(3.4)) {
+    const base = lvl + (n - 1) * D.PITCH;
+    const onR = seg(xc, DOCK, DOCK + D.FL / 2);
+    const s = xc - DOCK;
+    const rp = rampPos(Math.max(0, s));
+    m.fx[fi] = { x: xc, y: lerp(base, rp.y, onR), z: 0, rz: -SLOPE * seg(r, DOCK - 0.01, DOCK + 0.03) };
+  } else {
+    const s = lerp(s0, sEnd, segE(t, T(3.5), T(5.6)));
+    const pose = rampFixturePose(s);
+    m.fx[fi] = { x: pose.pos.x, y: pose.pos.y, z: 0, rz: pose.rz };
+  }
+  m.roll = (m.rollBase || 0) + (t > T(0.3) ? (Math.min(t, T(5.6)) - T(0.3)) * 6 : 0);
+}
+function rampSet(m, list) { list.forEach((fi, slot) => { const p = rampFixturePose(RSTOP(slot)); m.fx[fi] = { x: p.pos.x, y: p.pos.y, z: 0, rz: p.rz }; }); }
+
+// ====================================================== CAPÍTULO 0 — INVENTARIO
+const INV_TXT = {
+  A: ['Estructura, tracción y energía', {
+    que: 'Antes de armar, cuenten cada pieza contra la lista de compras y guárdenla en cajas etiquetadas por subsistema: tracción, torre, empujador, electrónica y tornillería.',
+    porque: 'Si falta una pieza a media etapa, se detiene todo. Y lo que se mide al recibir (espiga de las rodajas, conectores del M0601, resortes) corrige el CAD.',
+    herr: 'Vernier, flexómetro, báscula de cocina, cajas con etiqueta.',
+    check: 'Hay un M0601 izquierdo (FIT1042) y uno derecho (FIT1038), no dos iguales.',
+    error: 'Comprar dos M0601 del mismo lado: una rueda giraría al revés de lo esperado y no embona igual.' }],
+  B: ['Torre, empujador y fixtures', {
+    que: 'Revisen las piezas de la torre y el empujador. Los husillos se compran hasta confirmar que son de 1 entrada.',
+    porque: 'Solo el husillo de 1 entrada (avance 2 mm) se autobloquea: si se va la energía, la pila no se cae.',
+    herr: 'Plumón y vernier para la prueba del husillo.',
+    check: 'Prueba del husillo: con una vuelta la tuerca avanza 2 mm. Si avanza 8 mm es de 4 entradas y no sirve para la demo.',
+    error: 'Comprar el MG90S de 360°: no se queda en un ángulo. La uña necesita el de 180°.' }],
+  C: ['Electrónica', {
+    que: 'Cuenten los módulos y pruébenlos sueltos en el banco de pruebas (Etapa 2B) antes de soldar nada.',
+    porque: 'Un módulo dañado se descubre en la mesa, no con el carrito armado.',
+    herr: 'Multímetro, protoboards y cables dupont.',
+    check: 'Batería cargada con el BR-700, marcando ~12.8 V en reposo.',
+    error: 'Probar un motor conectándolo "a ver qué pasa" a una fuente: nada se conecta hasta la Etapa 11.' }],
+};
+const INV_CAM = { A: { t: [ZX.A, 0.0, 0.02], d: [0.0, 1, 0.42], r: 0.66 }, B: { t: [ZX.B, 0.0, 0.02], d: [0.0, 1, 0.42], r: 0.66 }, C: { t: [ZX.C, 0.0, 0.02], d: [0.0, 1, 0.42], r: 0.66 } };
+for (const z of ['A', 'B', 'C']) {
+  const items = invZone(z);
+  S({ ch: 0, et: 'Inventario', title: INV_TXT[z][0], txt: INV_TXT[z][1], dur: 11, cam: INV_CAM[z], inv: z,
+    add: z === 'A' ? INV.map(i => i.id) : [], addStart: 0.1, stagger: 0.05, addDur: 0.8,
+    labels: items.map((it, k) => ({ at: it.anchor.toArray(), t: it.name, s: it.qty, when: 0.6 + k * 0.15, cls: 'inv' })) });
+}
+
+// ====================================================== CAPÍTULO 1 — ETAPA 6 — PERFIL
+const bar1 = barPose('post_FL', 0.003).pos, barY = 0.04;
+S({ ch: 1, et: 'Etapa 6', title: 'Las 7 barras de 2 m', dur: 8,
+  cam: { t: [0.22, 0.0, BAR_Z0 + 3 * BAR_DZ], d: [0.0, 1.0, 0.18], r: 1.3 },
+  add: [{ ids: PF_IDS, pose: id => barPose(id, 0.003), from: [0, 0.35, 0] }, ...BARS.map((b, k) => 'waste' + k)], stagger: 0.12,
+  show: BARS.map((b, k) => 'waste' + k),
+  labels: BARS.map((b, k) => ({ p: 'waste' + k, o: [0, 0.02, 0], t: `Barra ${k + 1}${k === BARS.length - 1 ? ' (ya la tienen)' : ''} · ${b.note}`, when: 1.2 + k * 0.25, cls: 'inv' })),
+  dims: [{ a: [BAR_X0, 0.03, BAR_Z0 - 0.016], b: [BAR_X0 + 2.0, 0.03, BAR_Z0 - 0.016], off: [0, 0, -0.05], text: '2000 mm', when: 1.5 }],
+  txt: { que: 'El perfil se compra en barras de 2 m. Con las 4 columnas de la torre (propuesta) son 19 cortes y 7 barras: tienen 1 y compran 6 (la lista original eran 15 cortes en 5 barras).',
+    porque: 'Cada corte se come ~3 mm (el grueso del disco) y las sobras no alcanzan para otra pieza; por eso se acomoda barra por barra.',
+    herr: 'Ingletadora con disco para aluminio (o segueta de 24 dientes y caja de ingletes), escuadra, flexómetro, plumón, lentes y guantes.',
+    check: 'La punta de cada barra está a escuadra; si no, recorten 5 mm para emparejarla.',
+    error: 'Medir cada pieza desde la anterior y no desde la punta: los errores se suman.' } });
+S({ ch: 1, et: 'Etapa 6', title: 'Cortar a escuadra y limar', dur: 8,
+  cam: { t: [0.08, 0.0, BAR_Z0 + 3 * BAR_DZ], d: [0.0, 1.0, 0.18], r: 1.28 },
+  add: [{ ids: PF_IDS, pose: id => barPose(id, 0.06) }], stagger: 0.05,
+  show: BARS.map((b, k) => 'waste' + k), focus: PF_IDS,
+  labels: [{ p: 'post_FL', o: [0, 0.03, 0], t: 'Poste · 950 mm', s: '±1 mm', when: 1.6 }, { p: 'larg_bL', o: [0, 0.03, 0], t: 'Larguero · 440 mm', when: 1.9 }, { p: 'trav_bF', o: [0, 0.03, 0], t: 'Travesaño · 340 mm', when: 2.2 }],
+  txt: { que: 'Marquen desde la punta, midan otra vez y corten del lado de afuera de la línea con la barra sujeta con prensa. Limen las rebabas por fuera y dentro de las ranuras.',
+    porque: 'Un corte chueco hace que todo el marco quede torcido.',
+    herr: 'Ingletadora o segueta, prensa (sargento), lima plana y media caña.',
+    check: 'Largo final ±1 mm, corte a escuadra y una tuerca M6 desliza por la ranura de cada pieza.',
+    error: 'No limar dentro de la ranura: las tuercas no entran y con el marco armado ya no se puede limar.' } });
+S({ ch: 1, et: 'Etapa 6', title: 'Las 19 piezas, marcadas y ordenadas', dur: 8,
+  cam: { t: [0.15, 0.0, 0.78], d: [0.25, 1.0, 0.8], r: 0.95 },
+  add: [{ ids: PF_IDS, pose: id => sortedPose(id) }], stagger: 0.04,
+  labels: [{ at: [-0.50, 0.04, 0.62 + 0.075], t: '4 × 950 mm', s: 'postes', when: 1.8 }, { at: [-0.50, 0.04, 0.86 + 0.075], t: '4 × 890 mm', s: 'columnas de la torre (propuesta)', when: 2.0 },
+    { at: [0.28, 0.04, 0.62 + 0.075], t: '4 × 440 mm', s: 'largueros de los marcos', when: 2.2 },
+    { at: [0.86, 0.04, 0.62 + 0.15], t: '6 × 340 + 1 × 198 mm', s: 'marcos, central, superior central y empujador', when: 2.4 }],
+  txt: { que: 'Marquen cada pieza con su nombre ("poste 1", "larguero arriba") y limpien la viruta de las ranuras con aire o una brocha.',
+    porque: 'Las 19 piezas se ven casi iguales; marcadas, cada una va a su lugar a la primera.',
+    herr: 'Plumón, brocha o aire.',
+    check: 'Los 4 postes miden lo mismo (máximo 1 mm de diferencia); las 4 columnas, los 4 largueros y los travesaños, también.',
+    error: 'Postes de distinto largo: el carrito queda cojo y la torre se tuerce.' } });
+
+// ====================================================== CAPÍTULO 2 — ETAPA 7 — BASE
+const yTopB = D.H0 + D.PF;
+S({ ch: 2, et: 'Etapa 7', title: 'Tuercas en la ranura, antes de cerrar', dur: 8,
+  cam: { t: [0.12, 0.10, 0.10], d: [0.85, 0.9, 1.0], r: 0.24 },
+  add: [['larg_bL', 'larg_bR', 'trav_bF', 'trav_bB'], ['nut_bL', 'nut_bR', 'nut_bF', 'nut_bB']], addStart: 0.2, stagger: 1.6, addDur: 1.6,
+  labels: [{ p: 'nut_bR', o: [0.17, 0.02, 0], t: 'Tuercas M6 por la punta de la ranura', s: '2 por escuadra + 2–3 extra', when: 3.6 },
+    { p: 'larg_bL', o: [-0.1, 0.03, 0], t: 'Larguero 440 mm', when: 1.6 }, { p: 'trav_bF', o: [0, 0.03, 0.08], t: 'Travesaño 340 mm', when: 1.8 }],
+  txt: { que: 'Antes de unir nada, metan las tuercas hexagonales M6 por la punta de cada ranura: 2 por cada escuadra que va en esa ranura, más 2–3 extra donde después se atornillará algo (rodajas, motores, bandeja, batería).',
+    porque: 'Con el marco cerrado ya no entran. Sobran tuercas, pero nunca faltan.',
+    herr: 'Tuercas M6 y tornillos M6 × 16 (si la tuerca gira en la ranura, tuercas T).',
+    check: 'Cada tuerca desliza por toda la ranura sin atorarse.',
+    error: 'Cerrar el marco sin tuercas extra y tener que desarmarlo después.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Postes y marco inferior con escuadras', dur: 9,
+  cam: { t: [0, 0.48, 0], d: [0.9, 0.5, 1.05], r: 0.72 },
+  add: [['post_FL', 'post_FR', 'post_BL', 'post_BR'], 'esc_b'], stagger: 2.0, addDur: 1.6,
+  labels: [{ p: 'post_FR', o: [0.02, 0.36, 0.02], t: 'Poste 950 mm', s: 'en cada esquina', when: 1.8 }, { p: 'esc_b', o: [0.2, 0.06, 0.2], t: 'Escuadras impresas', s: '2 por unión, por dentro · M6 × 16 a medias', when: 3.8 }],
+  dims: [{ a: [D.L / 2, 0.02, D.W / 2 + 0.002], b: [-D.L / 2, 0.02, D.W / 2 + 0.002], off: [0, 0, 0.07], text: '500 mm', when: 4.5 },
+    { a: [D.L / 2 + 0.002, 0.02, -D.W / 2], b: [D.L / 2 + 0.002, 0.02, D.W / 2], off: [0.07, 0, 0], text: '400 mm (frente)', when: 4.8 },
+    { a: [D.XP + 0.016, D.H0, D.ZP + 0.016], b: [D.XP + 0.016, D.HT, D.ZP + 0.016], off: [0.05, 0, 0.05], text: '950 mm', when: 2.4 }],
+  txt: { que: 'Paren los 4 postes en las esquinas y unan sus pies con los 2 largueros de 440 mm (lados largos) y los 2 travesaños de 340 mm (frente y atrás), al ras de abajo. En cada unión, 2 escuadras impresas por dentro.',
+    porque: 'Los tornillos M6 × 16 se aprietan solo a medias: primero hay que escuadrar.',
+    herr: 'Llaves Allen, tornillos M6 × 16.',
+    check: 'Las escuadras asientan planas contra el perfil y los tornillos entran sin forzar.',
+    error: 'Escuadras impresas con poco relleno: se quiebran al apretar. Usen las de 40 % de relleno y 5 perímetros.' } });
+const diagY = yTopB + 0.003;
+S({ ch: 2, et: 'Etapa 7', title: 'Escuadrar: las 2 diagonales iguales', dur: 8,
+  cam: { t: [0, 0.10, 0], d: [0.32, 1, 0.42], r: 0.42 },
+  dims: [{ a: [D.L / 2, diagY, -D.W / 2], b: [-D.L / 2, diagY, D.W / 2], text: '≈ 640 mm', when: 0.6, grow: [0.6, 2.4], cls: 'hot', labAt: 0.25 },
+    { a: [D.L / 2, diagY + 0.004, D.W / 2], b: [-D.L / 2, diagY + 0.004, -D.W / 2], text: '≈ 640 mm (±2 mm)', when: 2.8, grow: [2.8, 4.6], cls: 'hot', labAt: 0.75 }],
+  labels: [{ at: [0, diagY + 0.02, 0], t: 'Diagonales iguales = esquinas a 90°', s: '√(500² + 400²) ≈ 640 mm', when: 5.0 }],
+  txt: { que: 'Midan las 2 diagonales del rectángulo de abajo con el flexómetro, de esquina exterior a esquina exterior. Si no son iguales (±2 mm), empujen la esquina larga hasta igualarlas y entonces aprieten firme.',
+    porque: 'Un rectángulo con diagonales iguales tiene sus 4 esquinas a escuadra; todo lo de arriba hereda este marco.',
+    herr: 'Flexómetro y llave Allen.',
+    check: 'Diagonales del marco de abajo iguales (±2 mm).',
+    error: 'Apretar todo antes de escuadrar: luego no hay forma de enderezarlo.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Travesaño central', dur: 7,
+  cam: { t: [0, 0.10, 0], d: [0.5, 0.9, 0.9], r: 0.40 },
+  add: ['trav_c', 'esc_c'], stagger: 1.6,
+  labels: [{ p: 'trav_c', o: [0, 0.03, 0.06], t: 'Travesaño central 340 mm', s: 'de aquí cuelgan las placas de los motores', when: 1.6 }],
+  dims: [{ a: [D.L / 2, yTopB, D.ZP + 0.02], b: [0, yTopB, D.ZP + 0.02], off: [0, 0.03, 0.03], text: '250 mm', when: 2.0 }],
+  txt: { que: 'Pongan el travesaño central de 340 mm a la mitad de los largueros, con 2 escuadras en cada lado.',
+    porque: 'Ahí se sujetan las placas pivotantes de los 2 motores.',
+    herr: 'Llaves Allen, flexómetro.',
+    check: 'Queda a 250 mm de cada extremo y sus escuadras asientan planas.',
+    error: 'No dejar tuercas en la ranura de abajo del travesaño: ahí se atornillan los soportes del pivote.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Rodajas en las esquinas', dur: 8,
+  cam: { t: [0.05, 0.07, 0.05], d: [1, 0.3, 0.75], r: 0.40 },
+  add: [['cast_FL', 'cast_FR', 'cast_BL', 'cast_BR']], addStart: 0.3,
+  labels: [{ p: 'cast_FR', o: [0.02, 0.06, 0.03], t: 'Rodaja twin de nylon 50 mm', s: '20 kg c/u · carga ~4.7 kg · de espiga', when: 2.0 }],
+  dims: [{ a: [D.CX, 0, D.CZ + 0.03], b: [D.CX, D.H0, D.CZ + 0.03], off: [0.05, 0, 0.04], text: '9 cm', when: 2.4 }],
+  txt: { que: 'Atornillen los 4 bloques impresos debajo de las esquinas y metan la espiga de cada rodaja en su bloque hasta que el arillo truene.',
+    porque: 'Son de espiga con arillo, no de placa: el bloque impreso tiene el barreno. Su alto (9 cm) fija la altura del marco.',
+    herr: 'Llave Allen, tornillos M6.',
+    check: 'Paren la base en un piso plano: las 4 rodajas tocan el piso y la base no baila al empujar una esquina.',
+    error: 'Medir la rodaja con catálogo y no la real: midan espiga y alto al recibirlas.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Placas pivotantes de la suspensión', dur: 8,
+  cam: { t: [0.03, 0.06, -0.16], d: [0.55, 0.32, -1], r: 0.18 },
+  add: ['susp_L', 'susp_R'], stagger: 1.4,
+  labels: [{ p: 'susp_L', o: [-0.06, 0.015, -0.01], t: 'Pivote: tornillo M8 + 2 × 608ZZ', s: 'tuerca de seguridad', when: 2.0 },
+    { p: 'susp_L', o: [0.07, -0.02, -0.025], t: 'Tornillo guía M8 y tuerca de precarga', when: 3.0 }],
+  txt: { que: 'Armen cada placa pivotante: 2 baleros 608ZZ a presión en sus huecos y el tornillo M8 de pivote atravesando, con rondanas y tuerca de seguridad.',
+    porque: 'La placa deja que la rueda suba y baje con el piso, y el resorte la empuja contra él.',
+    herr: 'Llaves de 13 mm para M8, prensa para meter los baleros.',
+    check: 'La placa gira suave, sin juego.',
+    error: 'Meter el balero a golpes chuecos: se daña y la placa queda con juego.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Motores M0601: izquierdo y derecho', dur: 8,
+  cam: { t: [0.02, 0.07, 0], d: [-1, 0.42, 0.18], r: 0.34 },
+  add: ['mot_L', 'mot_R'], stagger: 1.6,
+  labels: [{ p: 'mot_L', o: [0, 0.07, -0.02], t: 'M0601 izquierdo · FIT1042', s: 'rueda 102 mm · 18 V · RS485', when: 1.8 },
+    { p: 'mot_R', o: [0, 0.07, 0.02], t: 'M0601 derecho · FIT1038', s: '~8.7 kg por rueda (aguanta 10)', when: 3.4 }],
+  dims: [{ a: [D.WX, 0, -D.WZ - 0.03], b: [D.WX, 0.102, -D.WZ - 0.03], off: [0, 0, -0.03], text: 'Ø 102 mm', when: 4.0 }],
+  txt: { que: 'Atornillen cada M0601 a su placa. El izquierdo (FIT1042) va del lado izquierdo viendo el carrito desde atrás hacia el frente, y el derecho (FIT1038) del derecho.',
+    porque: 'Cada uno trae su driver y su encoder; si se cruzan, una rueda gira al revés.',
+    herr: 'Desarmador o Allen para los barrenos M2.5 del motor.',
+    check: 'Las 2 ruedas y las 4 rodajas tocan el piso al mismo tiempo.',
+    error: 'Montar dos del mismo lado: una rueda giraría al revés de lo esperado y no embona igual.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Resortes y precarga de 85 N', dur: 9,
+  cam: { t: [D.WX, 0.06, 0.18], d: [0.55, 0.22, 1], r: 0.12 },
+  add: ['spring_L', 'spring_R'], stagger: 0.3,
+  mech: (t, m) => { m.spring = lerp(0.075 / 0.047, 1, segE(t, 2.6, 5.4)); },
+  labels: [{ p: 'spring_R', o: [0.03, 0.035, 0.01], t: 'Resorte de compresión', s: 'alambre 2 mm · Ø20 · k ≈ 3 N/mm · ~9 espiras', when: 1.4 },
+    { p: 'susp_R', o: [0.07, -0.028, 0.02], t: 'Tuerca de precarga', s: 'se aprieta con la base parada en el piso', when: 3.0 }],
+  dims: [{ a: [D.WX + 0.012, 0.043, 0.198], b: [D.WX + 0.012, 0.090, 0.198], off: [0.02, 0, 0.01], text: '75 → 47 mm (−28 mm ≈ 85 N)', when: 5.4 }],
+  txt: { que: 'Monten el tornillo guía M8 de cada resorte, el resorte y su tuerca. Con la base parada en el piso, aprieten la tuerca hasta que el resorte quede 28 mm más corto que su largo libre (de 75 a 47 mm).',
+    porque: 'Esa compresión da ~85 N en la rueda: no patina al arrancar y las rodajas no se levantan. El resorte va en la vertical del eje de la rueda.',
+    herr: 'Vernier y llaves de 13 mm.',
+    check: 'Resortes comprimidos 28 mm, medidos con vernier.',
+    error: 'Demasiada precarga levanta las rodajas y el carrito se mece; muy poca y las ruedas patinan al arrancar.' } });
+S({ ch: 2, et: 'Etapa 7', title: 'Batería al centro, bien sujeta', dur: 8,
+  cam: { t: [0, 0.18, 0], d: [0.75, 0.85, 0.9], r: 0.42 },
+  add: ['bat_cradle', 'bat', 'bat_hold'], stagger: 1.4,
+  labels: [{ p: 'bat', o: [0.02, 0.09, 0.03], t: 'Batería BR-1224', s: '12 V · 24 Ah · 8.3 kg · bornes hacia atrás', when: 2.0 },
+    { p: 'bat_hold', o: [0.1, 0.02, 0], t: 'Barra y 2 varillas roscadas M6', s: 'sin juego', when: 3.6 }],
+  txt: { que: 'Coloquen la batería al centro y lo más abajo posible, con los bornes hacia donde irá la bandeja. Sujétenla con las escuadras impresas y las 2 varillas roscadas M6 con tuerca. Tapen los bornes con cinta de aislar.',
+    porque: '8.3 kg sueltos en un frenazo rompen algo. Abajo y al centro, baja el centro de gravedad.',
+    herr: 'Llaves, cinta de aislar.',
+    check: 'La batería no se mueve aunque sacudan la base; empujada a mano, la base rueda derecho unos 3 m.',
+    error: 'Conectar algo en esta etapa: los bornes se quedan tapados hasta la Etapa 11.' } });
+
+// ====================================================== CAPÍTULO 3 — ETAPA 8 — ESTRUCTURA
+S({ ch: 3, et: 'Etapa 8', title: 'Tuercas y marco superior', dur: 9,
+  cam: { t: [0, 0.6, 0], d: [0.9, 0.62, 1.05], r: 0.78 },
+  add: [['larg_tL', 'larg_tR', 'trav_tF', 'trav_tB'], ['nut_tL', 'nut_tR', 'nut_tF', 'nut_tB'], 'esc_t'], stagger: 1.7, addDur: 1.5,
+  labels: [{ p: 'larg_tR', o: [0, 0.04, 0.02], t: 'Marco superior al ras de la punta', s: '2 × 440 mm + 2 × 340 mm', when: 1.6 },
+    { p: 'nut_tF', o: [0.02, -0.03, 0.15], t: 'Tuercas antes de cerrar', s: '+2–3 extra para torre, empujador y paneles', when: 3.4 }],
+  dims: [{ a: [D.XP + 0.016, 0, D.ZP + 0.016], b: [D.XP + 0.016, D.HT, D.ZP + 0.016], off: [0.07, 0, 0.07], text: '≈ 1.04 m (guía: ~1.03)', when: 4.0 }],
+  txt: { que: 'Igual que abajo: primero las tuercas en todas las ranuras que se van a cerrar, con 2–3 extra donde irán la torre, el empujador, la bandeja y los paneles. Luego 2 largueros y 2 travesaños arriba, al ras de la punta de los postes, con 2 escuadras por unión, apretadas a medias.',
+    porque: 'Se cierra el cubo de aluminio; si se tuerce al empujar una esquina de arriba, la torre se va a trabar.',
+    herr: 'Llaves Allen, tornillos M6 × 16.',
+    check: 'Todas las escuadras asientan y los tornillos están a medias, listos para escuadrar.',
+    error: 'Apretar de más el tornillo M6 en una pieza impresa: se raja. Firme, pero sin forzar.' } });
+S({ ch: 3, et: 'Etapa 8', title: 'Plomo, escuadra y diagonales de arriba', dur: 8,
+  cam: { t: [0.05, 0.55, 0.05], d: [1, 0.55, 0.85], r: 0.75 },
+  show: ['tool_level'],
+  dims: [{ a: [D.L / 2, D.HT + 0.004, -D.W / 2], b: [-D.L / 2, D.HT + 0.004, D.W / 2], text: '≈ 640 mm', when: 2.2, grow: [2.2, 3.6], cls: 'hot', labAt: 0.25 },
+    { a: [D.L / 2, D.HT + 0.008, D.W / 2], b: [-D.L / 2, D.HT + 0.008, -D.W / 2], text: '≈ 640 mm', when: 3.8, grow: [3.8, 5.2], cls: 'hot', labAt: 0.75 }],
+  labels: [{ p: 'tool_level', o: [0.03, 0.1, 0.02], t: 'Nivel de burbuja en 2 caras', s: 'cada poste vertical', when: 0.8 }],
+  txt: { que: 'Con el nivel de burbuja pegado a cada poste revisen que esté vertical en sus 2 caras, y con la escuadra metálica los 90° de cada esquina de arriba. Las diagonales de arriba, iguales (±2 mm). Midan el alto en las 4 esquinas y aprieten firme.',
+    porque: 'Un poste fuera de plomo tuerce la torre y el elevador se traba.',
+    herr: 'Nivel de burbuja, escuadra metálica, flexómetro.',
+    check: 'Al empujar una esquina de arriba con la mano, la estructura no se tuerce visiblemente; mismo alto en las 4 esquinas.',
+    error: 'Si queda floja, agreguen una escuadra más por fuera en las esquinas de arriba; no la armen "así".' } });
+S({ ch: 3, et: 'Etapa 8', title: 'Columnas de la torre', dur: 11,
+  cam: { t: [0.10, 0.56, 0.0], d: [1, 0.42, 0.75], r: 0.68 },
+  add: [['col_FL', 'col_FR'], ['col_BL', 'col_BR'], ['trav_sc', 'trav_emp'], ['esc_tw', 'placas']], stagger: 1.7, addDur: 1.6,
+  labels: [{ p: 'col_FR', o: [0.02, 0.30, 0.03], t: 'Columnas delanteras · 890 mm', s: 'guías delanteras y soportes del elevador', when: 1.6, until: 5.0 },
+    { p: 'col_BR', o: [0.0, 0.22, 0.03], t: 'Columnas traseras · 890 mm', s: 'sobre el travesaño central: guías traseras y empujador', when: 3.2, until: 7.0 },
+    { p: 'trav_sc', o: [0, 0.03, 0.12], t: 'Travesaño superior central · 340 mm', when: 4.8 },
+    { p: 'trav_emp', o: [0, -0.02, 0.05], t: 'Travesaño del empujador · 198 mm', s: 'de aquí cuelgan las varillas y el NEMA', when: 5.2 },
+    { p: 'placas', o: [0.22, -0.40, 0.11], t: 'Placas de unión impresas', s: 'atornilladas a tuercas en las ranuras', when: 7.0 }],
+  dims: [{ a: [D.COLXF + 0.016, D.H0 + D.PF, D.COLZC], b: [D.COLXF + 0.016, D.HT - D.PF, D.COLZC], off: [0.06, 0, 0], text: '890 mm', when: 2.4 },
+    { a: [D.COLXF - 0.015, 0.70, -0.099], b: [D.COLXF - 0.015, 0.70, 0.099], off: [0, 0, 0], text: '19.8 cm (fixture: 18)', when: 3.0 }],
+  txt: { que: 'Antes de colocarlas, metan tuercas en las ranuras de las columnas y en las del travesaño central y de los marcos donde van a ir. Deslicen de lado las 4 columnas de 890 mm entre el marco de abajo y el de arriba: 2 junto a los postes delanteros y 2 sobre el travesaño central. Arriba, el travesaño superior central; entre las columnas traseras, el travesaño del empujador. Todo con placas de unión impresas, a medias.',
+    porque: 'Las guías, los husillos y el empujador necesitan algo firme a qué atornillarse en toda su altura. Las columnas forman una jaula alrededor de la torre (propuesta: no viene en la lista de cortes original).',
+    herr: 'Llaves Allen, nivel de burbuja, escuadra metálica, flexómetro.',
+    check: 'Las 4 columnas a plomo y entre las caras interiores de cada par hay 19.8 cm a lo largo de toda la altura.',
+    error: 'Olvidar las tuercas en las ranuras antes de deslizar las columnas: después no entran sin desarmar.' } });
+
+// ====================================================== CAPÍTULO 4 — ETAPA 9 — ELEVADOR
+const camTower = r => ({ t: [0.15, 0.6, 0.02], d: [0.85, 0.42, 1], r });
+S({ ch: 4, et: 'Etapa 9', title: 'Guías en L: el hueco de 22.0 × 19.0 cm', dur: 8,
+  cam: { t: [0.133, 0.62, 0], d: [0.55, 0.85, 1], r: 0.44 },
+  add: [['guide_BL', 'guide_BR'], ['guide_FL', 'guide_FR']], stagger: 1.4,
+  labels: [{ p: 'guide_BR', o: [0, 0.27, 0.02], t: 'Guías traseras', s: 'siguen hasta ~90 cm', when: 2.4 }, { p: 'guide_FR', o: [0, 0.23, 0.02], t: 'Guías delanteras', s: 'terminan en el borde de la ventana (81.8 cm)', when: 2.9 }],
+  dims: [{ a: [D.COLX0, D.GTF, -D.COLZ - 0.004], b: [D.COLX1, D.GTF, -D.COLZ - 0.004], off: [0, 0, -0.05], text: '220 mm', when: 3.4 },
+    { a: [D.COLX1 + 0.004, D.GTF, -D.COLZ], b: [D.COLX1 + 0.004, D.GTF, D.COLZ], off: [0.05, 0, 0], text: '190 mm', when: 3.7 }],
+  txt: { que: 'Atornillen las 4 guías en L a las columnas de la torre, en las esquinas del hueco de 22.0 × 19.0 cm: las traseras con su pestaña a la cara frontal de la columna, las delanteras a la cara interior (tornillo avellanado).',
+    porque: 'El fixture mide 21 × 18 cm: quedan 5 mm por lado. Con 3 mm se acuñaba al bajar.',
+    herr: 'Llaves Allen, tuercas M6, flexómetro.',
+    check: 'Las 4 guías a plomo y el hueco medido en arriba y abajo.',
+    error: 'Atornillar las guías sin probar el hueco: si roza, el fixture se atora a media pila.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'Prueba del hueco con un fixture', dur: 8,
+  cam: { t: [0.133, 0.6, 0], d: [0.6, 0.45, 1], r: 0.42 },
+  mech: (t, m) => { const y = 0.82 - 0.40 * Math.sin(Math.PI * seg(t, 0.6, 7.2)); m.fx[0] = { x: D.XC, y, z: 0, rz: 0 }; },
+  focus: ['fx0'],
+  labels: [{ p: 'fx0', o: [0, 0.09, 0], t: 'Fixture de prueba', s: '21 × 18 cm en un hueco de 22 × 19', when: 0.8 }],
+  txt: { que: 'Suban y bajen a mano un fixture por todo el hueco.',
+    porque: 'Si a mano se traba, con motor se va a trabar peor.',
+    herr: 'Un fixture impreso con sus costados.',
+    check: 'Un fixture sube y baja a mano por el hueco sin rozar.',
+    error: 'Si roza, aflojen la guía y muévanla; no lijen el fixture.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'NEMA 17 y coples', dur: 8,
+  cam: { t: [0.183, 0.28, 0.05], d: [0.35, 0.45, 1], r: 0.22 },
+  add: [['brk_lo_L', 'brk_lo_R'], ['nema_L', 'nema_R'], ['cople_L', 'cople_R']], stagger: 1.5,
+  labels: [{ p: 'nema_R', o: [0.03, -0.01, 0.03], t: 'NEMA 17 · eje hacia arriba', s: 'un A4988 por motor (1.0 A)', when: 2.2 },
+    { p: 'cople_R', o: [0.02, 0.01, 0.02], t: 'Cople flexible 5 → 8 mm', s: 'prisionero sobre la cara plana del eje', when: 3.8 }],
+  txt: { que: 'Atornillen cada soporte inferior a la cara trasera de la columna delantera y del poste, y los 2 NEMA 17 en sus soportes con el eje hacia arriba. Pongan un cople en cada eje y aprieten su prisionero sobre la parte plana.',
+    porque: 'El eje tiene forma de D: sobre la cara plana el cople no se patina.',
+    herr: 'Llaves Allen chicas.',
+    check: 'El cople no gira sobre el eje aunque lo fuercen con los dedos.',
+    error: 'Prisionero del cople sobre la parte redonda del eje: se patina y la plataforma se desnivela.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'KFL08 de abajo, husillos y KFL08 de arriba', dur: 10,
+  cam: { t: [0.183, 0.6, 0.12], d: [0.55, 0.18, 1], r: 0.42 },
+  add: [['kflLo_L', 'kflLo_R'], { ids: ['screw_L', 'screw_R', 'nutsc_L', 'nutsc_R'], from: [0, 0.75, 0] }, ['brk_up_L', 'brk_up_R', 'kflUp_L', 'kflUp_R']], stagger: 1.8, addDur: 1.6, plat: 0.70,
+  mech: (t, m) => { m.plat = 0.70; m.screwX = 18 * seg(t, 6.5, 9.5); },
+  labels: [{ p: 'kflLo_R', o: [0.03, 0.0, 0.02], t: 'KFL08 inferior', s: 'prisioneros todavía sin apretar', when: 1.4 },
+    { p: 'screw_R', o: [0.0, 0.05, 0.02], t: 'Husillo TR8 · 60 cm', s: 'avance 2 mm (confirmar 1 entrada)', when: 3.2 },
+    { p: 'kflUp_R', o: [0.02, 0.02, 0.02], t: 'KFL08 superior', s: 'solo guía', when: 5.2 }],
+  dims: [{ a: [D.SX, 0.336, D.SZ + 0.03], b: [D.SX, 0.866, D.SZ + 0.03], off: [0, 0, 0.05], text: '≈ 52.7 cm útiles', when: 6.0 }],
+  txt: { que: 'Atornillen una KFL08 justo arriba de cada cople, sin apretar sus prisioneros. Pasen cada husillo por su chumacera, métanlo en el cople y pongan la chumacera de arriba. Giren cada husillo con los dedos.',
+    porque: 'Debe girar suave y sin cabecear (que la punta no dibuje un círculo). Si cabecea, motor y chumaceras no están en línea.',
+    herr: 'Llaves Allen, los dedos.',
+    check: 'Los 2 husillos giran sin cabecear.',
+    error: 'Motor y chumaceras desalineados: el motor vibra, se calienta y pierde pasos.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'Varillas lisas y SC8UU', dur: 7,
+  cam: { t: [0.183, 0.6, 0.1], d: [0.6, 0.2, 1], r: 0.40 },
+  add: [{ ids: ['rod_L', 'rod_R'], from: [0, 0.75, 0] }, ['sc_L', 'sc_R']], stagger: 1.6,
+  mech: (t, m) => { m.plat = 0.70; },
+  labels: [{ p: 'rod_R', o: [0, 0.12, 0.02], t: 'Varilla lisa 8 mm × 60 cm', when: 1.6 }, { p: 'sc_R', o: [0.02, 0.03, 0.02], t: 'SC8UU', s: '2 por varilla', when: 3.0 }],
+  txt: { que: 'Monten las 2 varillas lisas en sus soportes, con 2 SC8UU en cada una.',
+    porque: 'Los husillos suben la plataforma; las varillas la guían para que no se ladee ni gire.',
+    herr: 'Llaves Allen, trapo y aceite ligero.',
+    check: 'Los SC8UU deslizan sin juego por toda la varilla.',
+    error: 'Varillas sucias o secas: límpienlas y pónganles una gota de aceite.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'Plataforma y recorrido completo', dur: 10,
+  cam: camTower(0.52),
+  add: ['plat'], addStart: 0.3,
+  mech: (t, m) => { m.plat = 0.70 - 0.30 * Math.sin(Math.PI * seg(t, 2.2, 9.0)); },
+  labels: [{ p: 'plat', o: [0, 0.03, 0], t: 'Plataforma 21 × 18 cm', s: '2 brazos con tuerca de latón y SC8UU', when: 1.4 }],
+  dims: [{ a: [D.COLX0 - 0.01, D.LEVEL(6), -0.12], b: [D.COLX0 - 0.01, D.UNL0, -0.12], off: [-0.04, 0, 0], text: '40.7 → 83.2 cm', when: 2.2 }],
+  txt: { que: 'Atornillen las tuercas de latón y los SC8UU a los brazos de la plataforma. Bajen la plataforma girando los 2 husillos a mano, parejos, hasta que se vea su recorrido completo.',
+    porque: 'La carrera de trabajo va de 40.7 cm (pila llena al cargar) a 83.2 cm (descargar el último).',
+    herr: 'Los dedos en los coples; grasa ligera o PTFE.',
+    check: 'Girando un cople con los dedos, la plataforma recorre toda la carrera sin trabarse.',
+    error: 'Husillos secos: chillan y el motor se queda corto de fuerza.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'Prisioneros de las KFL08 inferiores', dur: 8,
+  cam: { t: [D.SX, 0.33, D.SZ], d: [0.65, 0.32, 1], r: 0.10 },
+  focus: ['kflLo_L', 'kflLo_R'],
+  mech: (t, m) => { m.plat = 0.60; },
+  labels: [{ p: 'kflLo_R', o: [0.0, 0.012, 0.0], t: 'KFL08 inferior · prisioneros apretados', s: 'carga ~22 N por husillo', when: 0.6, cls: 'hot' },
+    { p: 'nema_R', o: [0.03, 0.0, 0.0], t: 'Eje del NEMA 17', s: 'aguanta ~10 N axiales: no carga peso', when: 2.4 }],
+  dims: [{ a: [D.SX - 0.016, 0.45, D.SZ], b: [D.SX - 0.016, 0.34, D.SZ], text: 'peso de la pila', when: 1.0, arrow: true, cls: 'hot' }],
+  txt: { que: 'Ahora sí, aprieten los 2 prisioneros de cada KFL08 inferior contra el husillo.',
+    porque: 'Así el peso de la pila (~22 N por tornillo) se apoya en la chumacera y no en el eje del motor, que solo aguanta ~10 N. El cople flexible no debe cargar peso.',
+    herr: 'Llave Allen chica.',
+    check: 'Prisioneros de las chumaceras de abajo apretados.',
+    error: 'Olvidarlos: el peso queda en el eje del motor y en el cople.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'Lubricar y nivelar a mano', dur: 9,
+  cam: { t: [D.XC, 0.62, 0], d: [0.15, 0.35, 1], r: 0.30 },
+  mech: (t, m) => { m.plat = 0.62; const k = 1 - segE(t, 2.2, 6.5); m.tilt = 0.035 * k; m.screwL = 30 * segE(t, 2.2, 6.5); },
+  labels: [{ p: 'screw_L', o: [0, 0.05, -0.02], t: 'Giren solo este husillo', s: 'con su motor desconectado', when: 1.8 }],
+  dims: [{ a: [D.XC, 0.62, -0.09], b: [D.XC, 0.62, 0.09], off: [0, 0.03, 0], text: 'diferencia < 1 mm', when: 6.8, mount: 'plat' }],
+  txt: { que: 'Lubricante seco de PTFE o una capa muy delgada de grasa ligera en la rosca. Midan la altura de la plataforma en sus 4 esquinas y, si un lado está más alto, giren solo ese husillo hasta que la diferencia sea menor a 1 mm.',
+    porque: 'Se hace una vez: después los 2 motores reciben los mismos pasos (STEP, DIR y EN compartidos) y se mueven juntos.',
+    herr: 'Lubricante seco de PTFE, flexómetro.',
+    check: 'Plataforma nivelada: diferencia menor a 1 mm entre esquinas.',
+    error: 'Grasa de más: el husillo apenas se autobloquea y la plataforma se escurre con la vibración.' } });
+S({ ch: 4, et: 'Etapa 9', title: 'Finales de carrera y prueba de autobloqueo', dur: 10,
+  cam: camTower(0.55),
+  add: [['lsw_L', 'lsw_R']],
+  mech: (t, m) => {
+    m.plat = t < 4 ? lerp(0.62, D.LSLO, segE(t, 1.4, 3.6)) : lerp(D.LSLO, 0.45, segE(t, 4.0, 5.5));
+    if (t > 5.8) { const n = Math.min(6, Math.floor((t - 5.8) / 0.35) + 1); pileSet(m, [...Array(n).keys()], m.plat); }
+  },
+  labels: [{ p: 'lsw_R', o: [0.02, 0.01, 0.03], t: 'Final de carrera (NC)', s: 'home: plataforma a 39.2 cm', when: 2.4 },
+    { at: [D.XC, 0.92, 0.12], t: 'Con ~3 kg y sin energía: no baja', s: 'husillo de 1 entrada (autoblocante)', when: 7.5, cls: 'hot' }],
+  dims: [{ a: [D.COLX0 - 0.01, 0, -0.12], b: [D.COLX0 - 0.01, D.LSLO, -0.12], off: [-0.05, 0, 0], text: '39.2 cm', when: 3.4 }],
+  txt: { que: 'Atornillen un final de carrera abajo de cada husillo, para que su palanca se presione cuando la plataforma llegue a 39.2 cm. Luego suban la plataforma a la mitad, pónganle 6 fixtures (~3 kg) y suéltenla.',
+    porque: 'El home de cada lado da el cero del elevador; si uno toca y el otro no, la plataforma está desnivelada y el ESP32 lo reporta.',
+    herr: 'Desarmador, cables, 6 fixtures o 3 kg de peso.',
+    check: 'Con 3 kg encima, la plataforma no baja sola.',
+    error: 'Si baja sola, el husillo es de 4 entradas: no sirve para la demo.' } });
+
+// ====================================================== CAPÍTULO 5 — ETAPA 10 — EMPUJADOR Y UÑA
+const camPush = r => ({ t: [0.0, 0.88, 0.0], d: [0.55, 0.65, 1], r });
+S({ ch: 5, et: 'Etapa 10', title: 'Varillas, carro, placa y cremallera', dur: 9,
+  cam: { t: [-0.06, 0.86, 0.0], d: [0.3, 0.45, 1], r: 0.30 },
+  add: [['pframe', 'pframe_r'], ['prod_L', 'prod_R'], 'sled'], stagger: 1.6,
+  labels: [{ p: 'prod_R', o: [-0.08, 0.0, 0.0], t: 'Varillas 8 mm × 30 cm', s: 'horizontales, atrás → ventana', when: 2.2 },
+    { p: 'pframe', o: [0.0, 0.03, 0.06], t: 'Soportes colgados del travesaño del empujador', when: 1.4 },
+    { at: [0.004, D.PY1, 0.075], t: 'Placa empujadora 15 × 3 cm', s: 'empuja el fixture, nunca la ECU', when: 4.0 },
+    { at: [-0.20, 0.898, 0.0], t: 'Cremallera 30 cm', s: '2 tramos de 15 cm unidos con M3', when: 4.6 }],
+  dims: [{ a: [0.012, D.BELT, 0.08], b: [0.012, D.PY0, 0.08], off: [0, 0, 0.03], text: '0.6 cm', when: 5.0, labAt: 0.5 }, { a: [0.012, D.BELT, 0.08], b: [0.012, D.PY1, 0.08], off: [0, 0, 0.075], text: '3.6 cm sobre la banda', when: 5.3 }],
+  txt: { que: 'Atornillen los soportes delanteros de las varillas y del NEMA al travesaño del empujador, y los traseros al travesaño superior trasero. Monten las 2 varillas de 30 cm, horizontales. Atornillen la placa empujadora al carro y el carro a los 2 SC8UU. Unan los 2 tramos de la cremallera con tornillos M3, cuidando que los dientes sigan parejos.',
+    porque: 'La placa debe quedar entre 0.6 y 3.6 cm arriba de la superficie de la banda: así toca la barra trasera del fixture de arriba y nunca el de abajo.',
+    herr: 'Llaves Allen, tornillos M3.',
+    check: 'La placa empuja la barra trasera del fixture de arriba sin tocar el de abajo.',
+    error: 'Placa muy baja: arrastra el fixture de abajo al descargar.' } });
+S({ ch: 5, et: 'Etapa 10', title: 'NEMA 17 y piñón', dur: 8,
+  cam: { t: [-0.017, 0.905, 0.02], d: [0.35, 0.35, 1], r: 0.12 },
+  add: ['pnema', 'pinion'], stagger: 1.6,
+  labels: [{ p: 'pinion', o: [0, 0.03, 0.0], t: 'Piñón m1.5 · 20 dientes · Ø30', s: 'prisionero M3 sobre la cara plana', when: 2.0 }],
+  txt: { que: 'Pongan el piñón en el eje del NEMA 17 con su prisionero M3 sobre la cara plana. Acerquen el motor a la cremallera hasta que engrane con un poquito de juego.',
+    porque: 'Ni flojo (salta) ni apretado (se traba).',
+    herr: 'Llave Allen chica.',
+    check: 'El piñón engrana con la cremallera sin trabarse en los 30 cm.',
+    error: 'Piñón muy apretado contra la cremallera: el motor pierde pasos y se oye un "tac-tac".' } });
+S({ ch: 5, et: 'Etapa 10', title: 'Prueba a mano: 25 cm de carrera', dur: 9,
+  cam: { t: [0.1, 0.86, 0.0], d: [0.45, 0.6, 1], r: 0.38 },
+  mech: (t, m) => { m.push = D.P0 + D.STROKE * Math.sin(Math.PI * seg(t, 1.0, 8.0)); },
+  labels: [{ p: 'pframe_r', o: [0.0, -0.12, 0.08], t: 'Final de carrera (home)', s: 'atrás', when: 1.0 }],
+  dims: [{ a: [D.P0, D.PY0, -0.11], b: [D.P0 + D.STROKE, D.PY0, -0.11], off: [0, -0.02, 0], text: '250 mm', when: 3.0 }],
+  txt: { que: 'Giren el piñón con los dedos: el carro debe recorrer 25 cm sin trabarse y la placa debe asomarse por la ventana al final.',
+    porque: 'Con 25 cm el fixture sale completo hacia la estación de descarga.',
+    herr: 'Los dedos.',
+    check: 'El carro recorre los 25 cm a mano sin trabarse.',
+    error: 'Si a mano se traba, con el motor se traba peor: revisen varillas paralelas y la unión de la cremallera.' } });
+S({ ch: 5, et: 'Etapa 10', title: 'La uña: MG90S y pin de 10 × 10 mm', dur: 8,
+  cam: { t: [0.03, 0.88, -0.01], d: [0.4, 0.45, -1], r: 0.10 },
+  add: ['servo', 'horn', 'pin'], stagger: 1.2,
+  mech: (t, m) => { m.pin = 0.6 * Math.sin(Math.PI * seg(t, 4.5, 7.5)); },
+  labels: [{ p: 'servo', o: [0, 0.02, -0.01], t: 'MG90S de 180°', s: 'GPIO 5 · 5 V del XL4005', when: 1.6 }, { p: 'pin', o: [0.0, 0.03, 0], t: 'Pin 10 × 10 mm', s: 'baja a la ranura del fixture', when: 3.0 }],
+  txt: { que: 'Atornillen el MG90S a su soporte en el carro. Pongan su brazo con el pin sin apretar del todo.',
+    porque: 'Los ángulos exactos de "arriba" y "abajo" se ajustan con el programa en la Etapa 12.',
+    herr: 'Desarmador fino, tornillos M3.',
+    check: 'El pin sube y baja sin rozar el carro.',
+    error: 'Ajustar el brazo a la fuerza con la mano: se rompen los engranes del servo.' } });
+S({ ch: 5, et: 'Etapa 10', title: 'Prueba a mano de la uña', dur: 12,
+  cam: { t: [0.16, 0.86, 0.0], d: [0.22, 0.42, 1], r: 0.27 },
+  mech: (t, m) => { loadCycle(m, Math.min(8.7, Math.max(0, t - 0.4) * 0.95), 0, 0); m.plat = D.LOAD0; if (t < 3.8) m.fx[0].x = 0.13 + D.FL / 2; },
+  focus: ['pin', 'fx0'],
+  labels: [{ p: 'pin', o: [0.0, 0.035, 0.0], t: 'La uña baja a la ranura', s: '28 × 16 mm', when: 3.9 },
+    { at: [0.26, 0.95, 0.10], t: 'El fixture queda centrado', s: '~5 mm libres atrás y adelante', when: 9.6 }],
+  dims: [{ a: [D.PANX, D.BELT + 0.075, 0.095], b: [0.34, D.BELT + 0.075, 0.095], off: [0, 0.02, 0], text: '~9 cm afuera', when: 1.0 },
+    { a: [0.034, D.BELT + 0.075, -0.095], b: [0.134, D.BELT + 0.075, -0.095], off: [0, 0.02, 0], text: 'jala ~10 cm', when: 4.6 }],
+  txt: { que: 'Con la plataforma a la altura de carga (82.7 cm), pongan un fixture como si la banda lo hubiera dejado: ~9 cm salido por la ventana. Adelanten el carro hasta que el pin quede sobre la ranura, bájenlo y jalen el carro hacia atrás.',
+    porque: 'La banda empuja por fricción y se detiene antes; la uña jala los ~10 cm que faltan.',
+    herr: 'Los dedos y un fixture de prueba.',
+    check: 'Jalado a mano, el fixture queda centrado en la torre (holgura de ~5 mm atrás y adelante).',
+    error: 'El pin no entra a la ranura: recalibren el ángulo "abajo" y la posición de espera del empujador.' } });
+
+// ====================================================== CAPÍTULO 6 — ETAPAS 11 Y 13 — ELECTRÓNICA
+const TRAY_IDS = ['tray', 'perf', 'boost', 'xl4005', 'relay', 'fuses', 'trayCab'];
+const onTable = id => { const p = PARTS.get(id); return { pos: p.home.clone().add(TABLE_OFF), q: new THREE.Quaternion() }; };
+const camTable = r => ({ t: [-0.1785 + TABLE_OFF.x, 0.735, TABLE_OFF.z - 0.01], d: [0.3, 1, 0.62], r });
+S({ ch: 6, et: 'Etapa 11', title: 'Placa principal en la mesa', dur: 9, cam: camTable(0.16),
+  show: ['mesa'], add: [{ ids: ['tray'], pose: onTable }, { ids: ['perf'], pose: onTable }], stagger: 1.4,
+  labels: [{ p: 'perf', o: [0.02, 0.03, -0.02], t: 'ESP32 en tira header hembra', when: 2.2 }, { p: 'perf', o: [-0.035, 0.03, -0.06], t: '3 A4988 · 100 µF c/u', s: 'VDD a 3.3 V', when: 2.8 },
+    { p: 'perf', o: [0.025, 0.02, -0.075], t: 'MAX485 · convertidor · PCF8574', when: 3.4 }, { p: 'perf', o: [0.045, 0.02, 0.03], t: 'Borneras KF301', when: 4.0 }],
+  txt: { que: 'Dibujen primero en papel dónde va cada cosa. Suelden tira header hembra para el ESP32 y cada módulo, borneras KF301 en las orillas y un capacitor de 100 µF junto a cada A4988 (pata larga al +).',
+    porque: 'Con headers, un driver quemado se cambia en segundos. Todo se arma fuera del carrito, donde es fácil medir.',
+    herr: 'Cautín de 40–60 W, soldadura 60/40, flux, thermofit, multímetro.',
+    check: 'Todas las tierras unidas: hay continuidad entre batería − y GND del ESP32.',
+    error: 'Puentes de soldadura entre pines vecinos: revísenlos con lupa y con la prueba de continuidad.' } });
+S({ ch: 6, et: 'Etapa 11', title: 'Ajustar voltajes antes de conectar nada', dur: 9, cam: camTable(0.17),
+  show: ['mesa'], add: [{ ids: ['boost', 'xl4005'], pose: onTable }],
+  labels: [{ p: 'boost', o: [0, 0.035, 0], t: 'Elevador 400 W → 18.0 V', s: 'sin carga · corriente al máximo', when: 1.8, cls: 'hot' },
+    { p: 'xl4005', o: [0, 0.02, 0], t: 'XL4005 → 5.0–5.1 V', when: 2.6, cls: 'hot' },
+    { p: 'perf', o: [-0.035, 0.03, -0.06], t: 'Vref de cada A4988', s: '0.80 V con R100 · 0.54 V con R068 → 1.0 A', when: 3.4, cls: 'hot' }],
+  txt: { que: 'Conecten 12 V a cada módulo y, sin nada a la salida, giren su potenciómetro hasta leer 5.0–5.1 V en el XL4005 y 18.0 V en el elevador. Ajusten el Vref de los 3 A4988 sin motor conectado.',
+    porque: 'La mayoría de las piezas se queman por un voltaje equivocado. Marquen cada módulo con su voltaje en cinta.',
+    herr: 'Multímetro y desarmador fino (de plástico para el Vref).',
+    check: 'XL4005 en 5.0–5.1 V y elevador en 18.0 V, medidos.',
+    error: 'Conectar o desconectar un motor a pasos con el driver encendido: quema el A4988.' } });
+S({ ch: 6, et: 'Etapa 11', title: 'Fusibles, relé y prueba de humo', dur: 9, cam: camTable(0.17),
+  show: ['mesa'], add: [{ ids: ['relay', 'fuses'], pose: onTable }, { ids: ['trayCab'], pose: onTable }], stagger: 1.6,
+  labels: [{ p: 'fuses', o: [0, 0.02, -0.01], t: 'Fusible 15 A · rama principal', s: '10 A · rama auxiliar (Jetson y lógica)', when: 1.6 },
+    { p: 'relay', o: [0, 0.035, 0], t: 'Relé T90 30 A', s: 'el paro (NC) le corta la alimentación', when: 2.4 },
+    { p: 'trayCab', o: [0, 0.04, 0.05], t: 'Rojo 12 V · Naranja 18 V · Negro GND', when: 3.4 }],
+  txt: { que: 'Del lado de la batería, XT60 hembra; del lado del carrito, el macho a 2 portafusibles: 15 A para motores y steppers, 10 A para Jetson y lógica (con el KCD1). El relé se alimenta pasando por el contacto NC del paro. Prueba de humo sin ESP32 ni motores.',
+    porque: 'Si alguien aprieta el paro, el relé se suelta y corta motores y steppers aunque el programa esté colgado.',
+    herr: 'Cautín, XT60, terminales de ojillo, multímetro.',
+    check: 'El paro corta el relé y deja 0 V en la rama de motores; nada se calienta en 2 minutos.',
+    error: 'Conectar al revés (+ con −): quema el ESP32 o el módulo al instante. Midan antes de conectar.' } });
+S({ ch: 6, et: 'Etapa 13', title: 'La bandeja al carrito', dur: 9,
+  cam: { t: [-0.16, 0.25, 0.1], d: [-0.85, 0.75, 0.75], r: 0.42 },
+  add: [{ ids: TRAY_IDS, pose: 'home' }, 'kcd1'], stagger: 2.8, addDur: 2.4,
+  labels: [{ p: 'tray', o: [0, 0.05, 0], t: 'Bandeja con separadores M3', s: 'nada toca el aluminio', when: 3.0 }, { p: 'kcd1', o: [-0.01, 0.03, 0.02], t: 'Interruptor KCD1', s: 'accesible desde afuera', when: 4.0 }],
+  txt: { que: 'Con el XT60 desconectado, atornillen la bandeja y sobre ella la placa, el elevador, el relé y el XL4005 con separadores M3. Pongan portafusibles, KCD1 y paro donde se alcancen desde afuera.',
+    porque: 'Lo que ya funcionó en la mesa solo se pasa al carrito; cualquier falla nueva es del montaje.',
+    herr: 'Separadores M3, desarmador, cinchos.',
+    check: 'Con el XT60 desconectado, el multímetro en continuidad entre + y − no pita (no hay corto).',
+    error: 'Dejar la placa tocando el aluminio: un corto en cuanto el carrito vibra.' } });
+S({ ch: 6, et: 'Etapa 13', title: 'Sensores: 4 VL53L0X y QTR-8A', dur: 9,
+  cam: { t: [0.05, 0.50, 0.02], d: [1, 0.32, 0.85], r: 0.74 },
+  add: ['vl_front', ['vl_sideL', 'vl_sideR'], 'vl_pile', 'qtr'], stagger: 1.2,
+  mech: (t, m) => { m.cones = t > 1.0; },
+  labels: [{ p: 'vl_front', o: [0.02, 0.03, 0], t: 'VL53L0X frontal', s: '~15 cm del piso · frena a < 40 cm', when: 1.2 },
+    { p: 'vl_sideR', o: [0, 0.03, 0.02], t: 'VL53L0X lateral (×2)', when: 2.4 }, { p: 'vl_pile', o: [0, 0.03, 0], t: 'VL53L0X de la pila', s: 'detecta presencia (±25 mm)', when: 3.6 },
+    { p: 'qtr', o: [0.02, 0.03, 0.03], t: 'QTR-8A de respaldo', s: '3–5 mm del piso · a 3.3 V', when: 4.8 }],
+  txt: { que: 'Monten 3 VL53L0X de obstáculos a ~15 cm del piso (frente y los 2 lados) y 1 arriba de la torre mirando hacia abajo, sobre la esquina trasera de un costado. La barra QTR-8A va debajo del frente, a 3–5 mm del piso.',
+    porque: 'Los 3 de abajo frenan el carrito sin esperar al Jetson; el de arriba confirma que hay un fixture en la pila.',
+    herr: 'Desarmador, tornillos M3, soportes impresos.',
+    check: 'Los 4 VL53L0X responden en 0x30–0x33 y miden bien a 10, 30 y 60 cm.',
+    error: 'Cables de señal pegados a los de potencia: los VL53L0X y el RS485 fallan "al azar".' } });
+S({ ch: 6, et: 'Etapa 13', title: 'Jetson, cámara y paro de emergencia', dur: 8,
+  cam: { t: [-0.04, 1.02, 0.02], d: [-0.5, 0.9, 0.8], r: 0.36 },
+  add: [['jet_plate'], ['jetson'], ['camera', 'estop']], stagger: 1.2,
+  labels: [{ p: 'jetson', o: [0, 0.04, 0], t: 'Jetson Orin Nano Super', s: 'plug 5.5 × 2.5 mm · centro = +', when: 2.0 }, { p: 'estop', o: [0, 0.05, 0], t: 'Paro LAY37', s: 'arriba, en una esquina de atrás', when: 3.2 },
+    { p: 'camera', o: [0, 0.04, 0], t: 'Cámara', s: 'QR y ArUco', when: 3.8 }],
+  txt: { que: 'Atornillen el Jetson arriba. Antes de enchufarle el plug, midan con el multímetro que el centro sea el +. Conecten la cámara y el USB al ESP32.',
+    porque: 'El paro queda al alcance de la mano en cualquier momento del ciclo.',
+    herr: 'Multímetro, desarmador.',
+    check: 'El paro detiene ruedas, elevador y empujador al instante y la plataforma se queda donde estaba.',
+    error: 'Plug del Jetson con la polaridad al revés: se daña el Jetson. Midan siempre antes.' } });
+S({ ch: 6, et: 'Etapa 13', title: 'Cableado por colores', dur: 10,
+  cam: { t: [-0.02, 0.46, 0.02], d: [0.85, 0.45, 1], r: 0.66 },
+  add: [['cab_bat', 'cab_batN'], ['cab_18_L', 'cab_18_R', 'cab_485_L', 'cab_485_R'], ['cab_nema_L', 'cab_nema_R', 'cab_pnema', 'cab_lsw_L', 'cab_lsw_R'], ['cab_servo', 'cab_i2c', 'cab_i2cF', 'cab_qtr'], ['cab_jet', 'cab_stop', 'cab_usb']], stagger: 1.0, addDur: 1.0,
+  labels: [{ p: 'cab_18_R', o: [0, 0.02, 0], t: 'Naranja 18 V → M0601', s: 'rojo 12 V · negro GND', when: 2.0 }, { p: 'cab_485_L', o: [0, 0.03, 0], t: 'Verde: RS485', when: 2.6 },
+    { p: 'cab_nema_R', o: [0.03, 0.03, 0], t: 'Azul: motores a pasos', when: 3.4 }, { p: 'cab_i2c', o: [0, 0.05, 0], t: 'Amarillo: I²C', when: 4.2 },
+    { p: 'cab_servo', o: [0.02, 0.02, 0], t: 'Servo: curva floja de ~30 cm', when: 5.0 }, { p: 'cab_qtr', o: [0.05, 0.0, 0], t: 'Morado: QTR-8A · Blanco: finales y USB', when: 5.6 }],
+  txt: { que: 'Potencia (14 AWG) por un lado y señal (22 AWG) por otro, un cincho cada ~10 cm. Cada NEMA a su propio A4988, finales de carrera como NC, y cada cable etiquetado en sus dos puntas.',
+    porque: 'Un cable flojo o rozando algo que se mueve es la falla más común el día de la demo.',
+    herr: 'Cinchos, etiquetas, multímetro.',
+    check: 'Ningún cable roza la plataforma, el empujador ni las ruedas en todo su recorrido.',
+    error: 'Cable del servo sin curva floja: se jala en los 25 cm de recorrido.' } });
+S({ ch: 6, et: 'Etapa 16', title: 'Panel frontal de MDF con la ventana', dur: 9,
+  cam: { t: [0.25, 0.72, 0.0], d: [1, 0.28, 0.42], r: 0.45 },
+  add: ['panel'],
+  labels: [{ p: 'panel', o: [0.01, -0.22, 0.12], t: 'Panel MDF 3 mm', s: 'es el tope de la pila · costados abiertos', when: 2.0 }],
+  dims: [{ a: [D.PANX + 0.004, D.WIN1 + 0.004, -D.WINZ], b: [D.PANX + 0.004, D.WIN1 + 0.004, D.WINZ], off: [0, 0.03, 0], text: '24 cm', when: 2.4 },
+    { a: [D.PANX + 0.004, D.WIN0, D.WINZ + 0.004], b: [D.PANX + 0.004, D.WIN1, D.WINZ + 0.004], off: [0, 0, 0.04], text: '9.7 cm', when: 2.7 },
+    { a: [D.PANX + 0.004, 0, -0.16], b: [D.PANX + 0.004, D.WIN0, -0.16], off: [0, 0, -0.04], text: '81.8 cm (banda − 1.2 cm)', when: 3.2 }],
+  txt: { que: 'Corten el MDF con caladora a la medida del frente. Marquen la ventana, barrenen sus 4 esquinas y córtenla; lijen y pinten. Se atornilla con tuercas en las ranuras. En la guía este paso va al final (Etapa 16), porque estorba para trabajar.',
+    porque: 'Debajo de la ventana, la pared frontal es el tope que retiene los fixtures de abajo: solo sale el de arriba.',
+    herr: 'Caladora, taladro, lija, pintura en aerosol.',
+    check: 'Las pruebas finales se hacen con el panel puesto.',
+    error: 'Probar siempre sin el panel: con el panel puesto algo puede rozar.' } });
+
+// ====================================================== CAPÍTULO 7 — FUNCIONAMIENTO
+const OP = { keepFx: true, dimOld: false };
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'Acople en la banda', dur: 9,
+  cam: { t: [0.25, 0.55, 0.0], d: [0.75, 0.6, 1], r: 0.95 },
+  mech: (t, m) => { m.station = 'belt'; m.cart.x = lerp(-1.1, 0, segE(t, 0.3, 4.5)); m.plat = D.LOAD0; m.fx = Array(6).fill(null); m.fx[0] = { x: 0.88 + D.FL / 2 - m.cart.x, y: D.BELT, z: 0, rz: 0 }; },
+  labels: [{ at: [0.05, 0.03, 0.30], t: 'Embudo', s: 'centra el frente del carrito', when: 4.6 }, { at: [0.35, 0.52, 0.30], t: 'ArUco', s: 'el Jetson verifica la posición', when: 5.2 },
+    { at: [0.6, D.BELT + 0.04, 0.1], t: 'Guías laterales de la banda', s: '2–3 mm por lado', when: 5.8 }],
+  txt: { que: 'El carrito llega por waypoints, el embudo lo centra y el Jetson confirma con el ArUco. Hace home del elevador y del empujador y deja la plataforma a 82.7 cm: 3 mm debajo de la banda.',
+    porque: 'Siempre se carga a la misma altura: el tope de la pila queda 3 mm abajo y el chaflán de 3 mm ayuda a que el fixture no se atore.',
+    herr: 'Programa del ESP32 y del Jetson (Etapa 14).',
+    check: 'La ventana queda frente a la banda, centrada (±5 mm) y a menos de 1 cm.',
+    error: 'Banda sin guías laterales: el fixture llega chueco y choca con las guías de la torre.' } });
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'Carga: la banda, la uña y un nivel abajo', dur: 13,
+  cam: { t: [0.17, 0.83, 0.0], d: [0.28, 0.42, 1], r: 0.36 },
+  mech: (t, m) => { m.station = 'belt'; m.fx = Array(6).fill(null); loadCycle(m, t, 0, 0, 1.08); },
+  focus: ['pin', 'plat', 'sled'],
+  labels: [{ p: 'fx0', o: [0.06, 0.09, 0], t: 'La banda empuja por fricción', s: 'lo deja ~9 cm afuera', when: 2.4, until: 4.6 },
+    { p: 'pin', o: [0.0, 0.04, 0.0], t: 'La uña baja a la ranura', s: 'y el empujador jala ~10 cm a 25 mm/s', when: 4.0, until: 9.4 },
+    { p: 'plat', o: [-0.04, -0.03, -0.1], t: 'Baja un nivel: 7.0 cm', s: '10 mm/s (7 s en el real)', when: 9.6 }],
+  dims: [{ a: [D.PANX, D.BELT + 0.075, 0.095], b: [0.34, D.BELT + 0.075, 0.095], off: [0, 0.02, 0], text: '~9 cm afuera', when: 3.4, until: 4.6 }],
+  txt: { que: 'Aviso de "listo": la banda empuja el fixture hasta donde alcanza. La uña baja, el empujador lo jala hasta el fondo, avanza 2 mm para aflojar, sube la uña y regresa a home. El VL53L0X confirma, la cámara lee el QR y la plataforma baja un nivel.',
+    porque: 'Una banda empuja por fricción y se detiene cuando ~43 % del peso sigue sobre ella; por eso hace falta la uña.',
+    herr: '—',
+    check: 'El VL53L0X de la pila confirma el fixture (±25 mm) y la cámara lee el QR.',
+    error: 'El fixture se atora al entrar: revisen guías de la banda, chaflán y altura de carga (banda − 3 mm).' } });
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'Cargar hasta 6', dur: 16,
+  cam: { t: [0.13, 0.62, 0.0], d: [0.8, 0.35, 1], r: 0.55 },
+  mech: (t, m) => {
+    m.station = 'belt'; m.fx = Array(6).fill(null);
+    const per = 2.9, k = per / 11.2;
+    if (t >= 5 * per) { m.plat = D.LEVEL(6); pileSet(m, [0, 1, 2, 3, 4, 5], m.plat); return; }
+    const n = 1 + Math.floor(t / per), tl = t - (n - 1) * per;
+    loadCycle(m, tl, n, n, k); pileSet(m, [...Array(n).keys()], m.plat);
+  },
+  labels: [{ p: 'plat', o: [0.0, -0.03, -0.13], t: 'Pila llena: plataforma a 40.7 cm', s: '6 × 7.0 cm', when: 14.6 }, { at: [D.XC, 0.95, 0.12], t: 'Orden LIFO', s: 'sale primero el último que entró', when: 15.0 }],
+  txt: { que: 'El ciclo se repite: cada fixture entra a la misma altura y la pila baja 7.0 cm. Al llegar a 6 (o si se acabó el lote), termina la carga.',
+    porque: 'La carga queda entre 40 y 83 cm y la batería abajo: el centro de gravedad queda bajo (~39 cm con la pila llena).',
+    herr: '—',
+    check: 'n = 6 o se acabó el lote; cada fixture confirmado por el sensor.',
+    error: 'Programar todo de una vez y probarlo junto: cuando falla no se sabe qué fue. Suban 1 → 6 cargas.' } });
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'Viaje a la estación de descarga', dur: 11,
+  cam: { t: [-0.35, 0.45, 0.0], d: [0.45, 0.55, 1.15], r: 1.15 },
+  mech: (t, m) => {
+    m.fx = Array(6).fill(null); m.plat = D.LEVEL(6); pileSet(m, [0, 1, 2, 3, 4, 5], m.plat); m.cones = true;
+    if (t < 4.5) { m.station = 'belt'; m.cart.x = lerp(0, -1.4, segE(t, 0.4, 4.4)); }
+    else { m.station = 'ramp'; m.cart.x = lerp(-1.4, 0, segE(t, 5.0, 10.0)); }
+  },
+  labels: [{ at: [-0.6, 0.95, 0.2], t: '0.35 m/s máx · 0.4 m/s²', s: 'waypoints + odometría', when: 1.2, until: 5.0 }, { at: [-0.9, 0.25, 0.3], t: 'Detección reactiva de obstáculos', s: '3 VL53L0X: frena a < 40 cm', when: 2.0, until: 5.0 },
+    { at: [0.5, 0.95, 0.2], t: 'Estación de descarga', s: 'mesa a 83 cm · rampa de 14 rodillos', when: 6.0 }],
+  txt: { que: 'El carrito sale de la banda y navega por waypoints. El ESP32 cuenta las vueltas de los M0601 a 50 Hz para la odometría y frena solo si un VL53L0X ve algo a menos de 40 cm. En la estación, el embudo y el ArUco lo centran otra vez.',
+    porque: 'Con 6 fixtures el pico de par sigue dentro del límite de los motores.',
+    herr: '—',
+    check: 'Llega a la estación con un error menor a lo que corrige el embudo.',
+    error: 'Desconectar el USB del Jetson y que siga andando: el watchdog debe detener las ruedas en menos de 1 s.' } });
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'Descarga: home y subir al nivel de la ventana', dur: 9,
+  cam: { t: [0.18, 0.72, 0.0], d: [0.75, 0.4, 1], r: 0.42 },
+  mech: (t, m) => {
+    m.station = 'ramp'; m.fx = Array(6).fill(null);
+    m.plat = t < 3 ? lerp(D.LEVEL(6), D.LSLO, segE(t, 0.5, 2.5)) : lerp(D.LSLO, D.UNLV(6), segE(t, 3.2, 7.5));
+    pileSet(m, [0, 1, 2, 3, 4, 5], m.plat);
+  },
+  labels: [{ p: 'lsw_R', o: [0.03, 0.0, 0.03], t: 'Home al llegar', s: '1.7 cm hasta el final de carrera (~2 s)', when: 1.6, until: 6.0 },
+    { p: 'fx5', o: [0.02, 0.08, 0], t: 'El de arriba queda en la ventana', s: 'base 2 mm sobre la banda', when: 7.6 }],
+  dims: [{ a: [D.PANX + 0.01, D.WIN0, -0.12], b: [D.PANX + 0.01, D.UNL0, -0.12], off: [0.03, 0, 0], text: '1.4 cm', when: 7.8 }],
+  txt: { que: 'Al llegar, el elevador hace home (así se corrige si la plataforma se escurrió al rodar). Luego sube, por pasos contados, hasta que el fixture de arriba quede en la ventana: su base 2 mm sobre la banda y 1.4 cm sobre el borde.',
+    porque: 'El borde de la ventana queda a la altura del fixture de abajo: ese topa con la pared frontal y no se arrastra.',
+    herr: '—',
+    check: 'El VL53L0X confirma que el fixture está en la ventana.',
+    error: 'Plataforma a mala altura o placa muy baja: se arrastra el de abajo.' } });
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'El empujador saca el de arriba', dur: 9,
+  cam: { t: [0.62, 0.72, 0.0], d: [0.5, 0.55, 1], r: 0.78 },
+  mech: (t, m) => { m.station = 'ramp'; m.fx = Array(6).fill(null); pileSet(m, [0, 1, 2, 3, 4], D.UNLV(6)); unloadCycle(m, t, 6, 5, 0, 1.4); },
+  focus: ['sled', 'fx5'],
+  labels: [{ p: 'sled', o: [0.13, 0.0, 0.08], t: 'Empujador: 25 cm a 80 mm/s', when: 1.0, until: 5.2 }, { p: 'fx5', o: [0, 0.09, 0], t: 'Rueda por la rampa', s: '14 rodillos · 1.4 m · 4°', when: 5.4 }],
+  txt: { que: 'El empujador avanza 25 cm y regresa a home. El fixture sale por la ventana, pasa por el primer rodillo (en la orilla, como nariz redonda) y rueda hasta el tope.',
+    porque: 'Al rodar, deja libre la entrada para el siguiente; sin rodillos los fixtures se empujarían en fila y se atorarían.',
+    herr: '—',
+    check: 'El VL53L0X confirma que la ventana quedó vacía; n = n − 1.',
+    error: 'Rampa con poca inclinación: el fixture se queda frente a la ventana y el siguiente choca con él.' } });
+S({ ...OP, ch: 7, et: 'Funcionamiento', title: 'Repetir hasta vaciar la torre', dur: 16,
+  cam: { t: [0.75, 0.62, 0.0], d: [0.45, 0.6, 1], r: 0.95 },
+  mech: (t, m) => {
+    m.station = 'ramp'; m.fx = Array(6).fill(null);
+    const per = 3.0, k = per / 6.4, lift = 0.7;
+    const j = Math.min(5, 1 + Math.floor(t / (per + lift)));       // 1..5 → fixture 5 − j
+    const tl = t - (j - 1) * (per + lift);
+    const done = t >= 5 * (per + lift);
+    const nLeft = done ? 0 : 6 - j;                                   // en la pila antes de este ciclo
+    rampSet(m, [5, 4, 3, 2, 1, 0].slice(0, done ? 6 : j));
+    if (!done) {
+      if (tl < lift) { m.plat = lerp(D.UNLV(nLeft + 1), D.UNLV(nLeft), segE(tl, 0, lift)); pileSet(m, [...Array(nLeft).keys()], m.plat); m.push = D.P0; }
+      else { pileSet(m, [...Array(nLeft - 1).keys()], D.UNLV(nLeft)); unloadCycle(m, tl - lift, nLeft, nLeft - 1, j, k); }
+    } else { m.plat = D.UNLV(1); m.push = D.P0; }
+  },
+  labels: [{ at: [0.9, 0.95, 0.15], t: 'Los 6 caben en la rampa', s: 'sin encimarse', when: 15.0 }, { p: 'plat', o: [0, 0.03, -0.12], t: 'Torre vacía: n = 0', when: 15.4 }],
+  txt: { que: 'La plataforma sube otro nivel y el empujador saca el siguiente, hasta que la torre queda vacía. Después, el carrito regresa a la banda.',
+    porque: 'Cada fixture se identificó por su QR al entrar, así que el orden inverso no importa para el inventario.',
+    herr: '—',
+    check: 'Caben los 6 fixtures en la rampa sin encimarse.',
+    error: 'Primer rodillo más alto que la base del fixture: el empujador lo empuja contra un escalón.' } });
+
+// ============================================================ HERRAMIENTAS Y AYUDAS VISUALES
+addPart('tool_level', 'sta', 'Nivel de burbuja', b => {
+  b.bb(D.XP + 0.016, D.XP + 0.036, 0.46, 0.78, D.ZP - 0.012, D.ZP + 0.012, 'yellow');
+  b.bb(D.XP + 0.036, D.XP + 0.038, 0.60, 0.64, D.ZP - 0.006, D.ZP + 0.006, 'green');
+}, { noCheck: true });
+const cones = new THREE.Group(); cartRoot.add(cones);
+{
+  const mat = new THREE.MeshBasicMaterial({ color: 0x16a34a, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
+  const mk = (apex, dir, len) => {
+    const r = len * Math.tan(THREE.MathUtils.degToRad(12.5));
+    const g = new THREE.ConeGeometry(r, len, 24, 1, true); g.translate(0, -len / 2, 0);
+    const c = new THREE.Mesh(g, mat); c.position.set(...apex);
+    c.quaternion.setFromUnitVectors(V3(0, -1, 0), V3(...dir).normalize()); cones.add(c);
+  };
+  mk([0.2465, 0.150, 0], [1, 0, 0], 0.40);
+  mk([-0.150, 0.150, 0.2016], [0, 0, 1], 0.40);
+  mk([-0.150, 0.150, -0.2016], [0, 0, -1], 0.40);
+  mk([0.040, 0.951, 0.078], [0, -1, 0], 0.12);
+}
+
+// ============================================================ PISTAS (cuándo entra y a dónde va cada pieza)
+let TOTAL = 0;
+STEPS.forEach((st, i) => {
+  st.i = i; st.start = TOTAL; TOTAL += st.dur;
+  st.add.forEach((e, k) => {
+    const en = typeof e === 'string' ? { ids: [e] } : Array.isArray(e) ? { ids: e } : e;
+    const t0 = st.addStart + k * st.stagger;
+    en.ids.forEach((id, j) => {
+      const p = PARTS.get(id); if (!p) { console.warn('Falta la pieza', id); return; }
+      const pose = !en.pose || en.pose === 'home' ? 'home' : en.pose(id);
+      p.track.push({ s: i, pose, t0: t0 + (en.ids.length > 6 ? j * 0.025 : 0), td: st.addDur, from: en.from ? V3(...en.from) : null });
+    });
+  });
+  for (const id of st.show || []) { const p = PARTS.get(id); (p.onlySet ||= new Set()).add(i); }
+  st.focusSet = new Set(st.focus || []);
+  st.labelObjs = st.labels.map(l => Object.assign(makeLabel(l.t, l.s, l.cls), { spec: l }));
+  st.dimObjs = st.dims.map(d => Object.assign(makeDim(d.a, d.b, d.off, d.text, { mount: d.mount, cls: d.cls, labAt: d.labAt }), { spec: d }));
+});
+for (const p of PARTS.values()) if (!p.explode) p.explode = defaultExplode(p);
+for (const [k, key] of [['st_belt', 'belt'], ['st_stripes', 'belt'], ['st_ramp', 'ramp'], ['st_rollers', 'ramp']]) PARTS.get(k).station = key;
+// flechas de una punta (sin la otra)
+for (const st of STEPS) st.dimObjs.forEach(d => { if (d.spec.arrow) d.g.children.filter(c => c.isMesh)[0].visible = false; });
+
+// estado mecánico por defecto y al inicio de cada paso
+const M0 = () => ({ plat: D.LOAD0, tilt: 0, push: D.P0, pin: 0, screwX: 0, screwL: 0, spring: 1, belt: 0, cart: { x: 0, z: 0 }, fx: Array(6).fill(null), station: null, cones: false });
+const cloneM = m => ({ ...m, cart: { ...m.cart }, fx: m.fx.map(f => f && { ...f }) });
+const START = [];
+{
+  let m = M0();
+  for (const st of STEPS) {
+    const s0 = cloneM(m);
+    if (!st.keepFx) s0.fx = Array(6).fill(null);
+    s0.station = null; s0.cones = false; s0.screwX = 0; s0.tilt = 0;
+    START.push(s0);
+    const e = cloneM(s0); if (st.mech) st.mech(st.dur, e);
+    m = e;
+  }
+}
+function mechAt(i, t) { const m = cloneM(START[i]); if (STEPS[i].mech) STEPS[i].mech(t, m); return m; }
+
+// ============================================================ MONTAJES (piezas que se mueven)
+const _m = new THREE.Matrix4(), _a = new THREE.Matrix4(), _b = new THREE.Matrix4();
+const T4 = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
+function mountMatrix(p, m) {
+  const M = new THREE.Matrix4();
+  const hp = p.home;
+  switch (p.mount) {
+    case 'plat': {
+      M.makeTranslation(0, m.plat - D.LOAD0, 0);
+      if (m.tilt) M.multiply(T4(D.XC, D.LOAD0, 0)).multiply(new THREE.Matrix4().makeRotationX(m.tilt)).multiply(T4(-D.XC, -D.LOAD0, 0));
+      break;
+    }
+    case 'push': M.makeTranslation(m.push - D.P0, 0, 0); break;
+    case 'pin': M.makeTranslation(m.push - D.P0, -m.pin * PIN_TRAVEL, 0); break;
+    case 'horn': M.makeTranslation(m.push - D.P0, 0, 0).multiply(T4(hp.x, hp.y, hp.z)).multiply(new THREE.Matrix4().makeRotationZ(-m.pin * 0.9)).multiply(T4(-hp.x, -hp.y, -hp.z)); break;
+    case 'pinion': M.multiply(T4(hp.x, hp.y, hp.z)).multiply(new THREE.Matrix4().makeRotationZ(-(m.push - D.P0) / 0.015)).multiply(T4(-hp.x, -hp.y, -hp.z)); break;
+    case 'screw': {
+      const ang = (m.plat - 0.6) * 900 + m.screwX + (hp.z < 0 ? m.screwL : 0);
+      M.multiply(T4(hp.x, hp.y, hp.z)).multiply(new THREE.Matrix4().makeRotationY(ang)).multiply(T4(-hp.x, -hp.y, -hp.z));
+      break;
+    }
+    case 'wheel': M.multiply(T4(hp.x, hp.y, hp.z)).multiply(new THREE.Matrix4().makeRotationZ(-m.cart.x / D.WR)).multiply(T4(-hp.x, -hp.y, -hp.z)); break;
+    case 'spring': M.multiply(T4(hp.x, hp.y, hp.z)).multiply(new THREE.Matrix4().makeScale(1, m.spring, 1)).multiply(T4(-hp.x, -hp.y, -hp.z)); break;
+    case 'belt': M.makeTranslation(-((m.belt % 0.09) + 0.09) % 0.09, 0, 0); break;
+  }
+  return M;
+}
+const _pos = V3(), _q = new THREE.Quaternion(), _s = V3();
+function homePose(p, m, explodeAmt) {
+  const M = mountMatrix(p, m).multiply(T4(p.home.x, p.home.y, p.home.z));
+  const pos = V3(), q = new THREE.Quaternion(), s = V3();
+  M.decompose(pos, q, s);
+  const amt = p.out != null ? p.out : explodeAmt;
+  if (amt > 0) pos.addScaledVector(p.explode, amt * (p.out != null ? 1.9 : 1));
+  return { pos, q, s };
+}
+
+// ============================================================ EVALUAR UN INSTANTE
+const ui = { labels: true, dims: true, explode: new URLSearchParams(location.search).get("e") === "1", transp: false, explodeAmt: 0, playing: false, speed: 1, T: 0, userCam: false, step: -1 };
+function stepAt(T) {
+  for (let i = STEPS.length - 1; i >= 0; i--) if (T >= STEPS[i].start) return i;
+  return 0;
+}
+function applyAt(T, dt = 0) {
+  const i = stepAt(T), st = STEPS[i], t = Math.min(st.dur, T - st.start);
+  const m = mechAt(i, t);
+  cartRoot.position.set(m.cart.x, 0, m.cart.z);
+  cones.visible = !!m.cones;
+  const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 260), phone = isPhone();
+  for (const p of PARTS.values()) evalPart(p, st, t, m, pulse);
+  partsDirty = false;
+  // etiquetas y cotas
+  for (const s of STEPS) {
+    const cur = s === st;
+    s.labelObjs.forEach(o => {
+      let w0 = o.spec.when ?? 0.8, w1 = o.spec.until ?? 1e9;
+      if (o.spec.cls === 'inv' && st.ch === 0 && phone) {           // en celular, el inventario se nombra de a poco
+        const k = s.labelObjs.indexOf(o), n = s.labelObjs.length, slot = (s.dur - 1.2) / n;
+        w0 = 0.6 + k * slot; w1 = k === n - 1 ? 1e9 : w0 + slot * 2.2;
+      }
+      const on = cur && ui.labels && !revealNames.length && t >= w0 && t < w1;
+      if (!on) { o.visible = false; return; }
+      if (o.spec.p) { const p = PARTS.get(o.spec.p); p.group.getWorldPosition(o.position); if (o.spec.o) o.position.add(V3(...o.spec.o)); }
+      else o.position.set(...o.spec.at);
+      o.visible = true;
+      o.element.style.opacity = clamp01((t - w0) / 0.4);
+    });
+    s.dimObjs.forEach(d => {
+      const on = cur && ui.dims && !revealNames.length && t >= (d.spec.when ?? 0.8) && t < (d.spec.until ?? 1e9);
+      d.g.visible = on; d.lab.visible = on; if (!on) return;
+      d.g.matrixAutoUpdate = false;
+      d.g.matrix.copy(d.mount === 'plat' ? mountMatrix({ mount: 'plat', home: V3() }, m) : new THREE.Matrix4());
+      if (d.spec.grow) {
+        const g = seg(t, ...d.spec.grow), P = d.geo.attributes.position;
+        const B = d.A2.clone().lerp(d.B2, Math.max(0.001, g));
+        P.setXYZ(1, B.x, B.y, B.z); P.needsUpdate = true;
+        d.lab.position.copy(d.A2).lerp(B, d.spec.labAt ?? 0.5); d.lab.element.style.opacity = g > 0.98 ? 1 : 0;
+        d.g.children.filter(c => c.isMesh)[1].visible = g > 0.98;
+      }
+    });
+  }
+  return { i, t, m };
+}
+function evalPart(p, st, t, m, pulse) {
+  const i = st.i;
+  let mode = 'hidden', pose = null;
+  if (p.inv) {
+    if (st.ch === 0) {
+      const e = p.track[0]; const prog = (e && i === 0) ? clamp01((t - e.t0) / e.td) : 1;
+      const hp = homePose(p, m, 0);
+      pose = { pos: hp.pos.clone().addScaledVector(p.from, 1 - ease(prog)), q: hp.q, s: hp.s };
+      mode = p.inv === st.inv ? (i === 0 && prog < 1 ? 'new' : 'focus') : 'old';
+      if (prog <= 0) mode = 'hidden';
+    }
+  } else if (p.fixIndex !== undefined) {
+    const f = m.fx[p.fixIndex];
+    if (f) { pose = { pos: V3(f.x, f.y, f.z), q: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, f.rz || 0)), s: V3(1, 1, 1) }; mode = st.focusSet.has(p.id) ? 'focus' : (st.ch < 7 ? 'new' : 'normal'); }
+  } else if (p.station) {
+    if (m.station === p.station) { pose = homePose(p, m, 0); mode = 'normal'; }
+  } else if (p.onlySet && !p.track.length) {
+    if (p.onlySet.has(i)) { pose = homePose(p, m, 0); mode = 'normal'; }
+  } else {
+    let k = -1;
+    for (let j = 0; j < p.track.length; j++) if (p.track[j].s <= i) k = j;
+    if (k >= 0 && (!p.onlySet || p.onlySet.has(i))) {
+      const e = p.track[k];
+      const resolve = en => en.pose === 'home' ? homePose(p, m, ui.explodeAmt) : { pos: en.pose.pos.clone(), q: en.pose.q.clone(), s: V3(1, 1, 1) };
+      const target = resolve(e);
+      if (e.s === i) {
+        const prog = ease(clamp01((t - e.t0) / e.td));
+        let from;
+        if (k > 0) from = resolve(p.track[k - 1]);
+        else {
+          const off = e.from || (e.pose === 'home' ? p.explode : V3(0, 0.3, 0));
+          from = { pos: target.pos.clone().add(off), q: target.q.clone(), s: target.s.clone() };
+        }
+        if (k === 0 && t < e.t0) mode = 'hidden';
+        else mode = 'new';
+        pose = { pos: from.pos.clone().lerp(target.pos, prog), q: from.q.clone().slerp(target.q, prog), s: from.s.clone().lerp(target.s, prog) };
+      } else {
+        pose = target;
+        mode = st.focusSet.has(p.id) ? 'focus' : (st.dimOld ? 'old' : 'normal');
+      }
+    }
+  }
+  if (mode !== 'hidden' && pose) { p.group.position.copy(pose.pos); p.group.quaternion.copy(pose.q); p.group.scale.copy(pose.s); }
+  setMode(p, mode, mode === 'new' ? Math.round(pulse * 8) / 8 : 0);
+}
+
+// ============================================================ INTERFAZ
+const fmt = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+function buildUI() {
+  // capítulos
+  $('chips').innerHTML = CHAPTERS.map((c, k) => `<button class="chip" data-ch="${k}" type="button"><b>${c.n}</b><span>${c.name}</span></button>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { const s = STEPS.find(x => x.ch === +b.dataset.ch); seek(s.start + 0.001, true); });
+  // marcas de capítulo en la línea de tiempo
+  const tl = $('ticks');
+  tl.innerHTML = STEPS.map((s, k) => `<i class="${k === 0 || STEPS[k - 1].ch !== s.ch ? 'ch' : ''}" style="left:${(s.start / TOTAL * 100).toFixed(3)}%"></i>`).join('');
+  $('timeline').max = TOTAL; $('timeline').step = 0.01;
+  // leyenda
+  $('legend').innerHTML = Object.values(SUBS).map(s => `<li><i style="background:#${s.color.toString(16).padStart(6, '0')}"></i>${s.name}</li>`).join('');
+  // supuestos
+  $('supList').innerHTML = SUPUESTOS.map(([k, v]) => `<li><b>${k}.</b> ${v}</li>`).join('');
+  $('bSup').onclick = $('bSup2').onclick = () => { $('supDlg').hidden = false; ui.playing = false; syncPlay(); };
+  $('supClose').onclick = () => { $('supDlg').hidden = true; };
+  $('supDlg').onclick = e => { if (e.target === $('supDlg')) $('supDlg').hidden = true; };
+  $('bRestart').onclick = () => { $('endCard').hidden = true; seek(0, true); ui.playing = true; syncPlay(); };
+  $('bPlay').onclick = () => { if (ui.T >= TOTAL - 0.01) seek(0, true); ui.playing = !ui.playing; syncPlay(); };
+  $('bPrev').onclick = () => { const i = stepAt(ui.T); const t = ui.T - STEPS[i].start; seek(STEPS[t > 1.2 || i === 0 ? i : i - 1].start + 0.001, true); };
+  $('bNext').onclick = () => { const i = stepAt(ui.T); if (i < STEPS.length - 1) seek(STEPS[i + 1].start + 0.001, true); else seek(TOTAL, true); };
+  const tlEl = $('timeline');
+  tlEl.addEventListener('input', () => { ui.playing = false; syncPlay(); seek(+tlEl.value, false); });
+  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { ui.speed = +b.dataset.speed; document.querySelectorAll('[data-speed]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+  const tog = (id, key) => { const el = $(id); el.checked = ui[key]; el.onchange = () => { ui[key] = el.checked; partsDirty = true; poke(); }; };
+  tog('tLabels', 'labels'); tog('tDims', 'dims'); tog('tExplode', 'explode'); tog('tTransp', 'transp');
+  $('tExplode').onchange = () => {
+    ui.explode = $('tExplode').checked;
+    revealPlan = null;
+    for (const p of PARTS.values()) p.out = null;
+    partsDirty = true;
+    poke();
+  };
+  $('sheetHead').onclick = () => { const open = document.body.classList.toggle('sheet-open'); $('sheetHead').setAttribute('aria-expanded', open); setTimeout(resize, 260); };
+  addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') return;
+    if (e.code === 'Space') { e.preventDefault(); $('bPlay').click(); }
+    if (e.code === 'ArrowRight') $('bNext').click();
+    if (e.code === 'ArrowLeft') $('bPrev').click();
+    if (e.code === 'Escape') $('supDlg').hidden = true;
+  });
+}
+function syncPlay() {
+  $('bPlay').setAttribute('aria-label', ui.playing ? 'Pausa' : 'Reproducir');
+  $('bPlay').classList.toggle('playing', ui.playing);
+  poke();
+}
+function seek(T, fly) {
+  ui.T = Math.max(0, Math.min(TOTAL, T));
+  const i = stepAt(ui.T);
+  if (i !== ui.step) { showStep(i); flyTo(STEPS[i].cam, false); ui.userCam = false; }
+  $('endCard').hidden = ui.T < TOTAL - 0.005;
+  poke();
+}
+function showStep(i) {
+  ui.step = i; const st = STEPS[i];
+  $('etapa').textContent = st.et;
+  $('stepn').textContent = `Paso ${i + 1} de ${STEPS.length}`;
+  $('title').textContent = st.title;
+  $('sheetTitle').textContent = `${st.et} · ${st.title}`;
+  const T = st.txt;
+  $('t-que').textContent = T.que; $('t-porque').textContent = T.porque;
+  $('t-herr').textContent = T.herr; $('row-herr').hidden = !T.herr || T.herr === '—';
+  $('t-check').textContent = T.check; $('t-error').textContent = T.error;
+  document.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-current', +b.dataset.ch === st.ch ? 'step' : 'false'));
+  const cur = document.querySelector('.chip[aria-current="step"]'); if (cur) cur.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  $('vEtapa').textContent = st.et; $('vTitle').textContent = st.title;
+}
+
+// ============================================================ BUCLE
+let drawnEmbedP = -1;
+function resize() {
+  const w = viewEl.clientWidth, h = viewEl.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false); labelRenderer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  // El encuadre del embed depende del aspecto. Si el hueco cambia y no
+  // se vuelve a calcular, el carrito queda cortado en una esquina.
+  if (EMBED) drawnEmbedP = -1;
+  partsDirty = true;
+  poke();
+}
+new ResizeObserver(resize).observe(viewEl);
+const clock = new THREE.Clock();
+let uiTick = 0;
+let raf = 0;
+let viewPaused = false;
+let hiddenPause = document.hidden;
+let parentPause = false;
+const camSnap = new THREE.Vector3();
+const tgtSnap = new THREE.Vector3();
+function poke() {
+  if (viewPaused || raf) return;
+  raf = requestAnimationFrame(frame);
+}
+function applyPause() {
+  const next = hiddenPause || parentPause;
+  if (next === viewPaused) return;
+  viewPaused = next;
+  if (viewPaused) {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    clock.getDelta();
+    return;
+  }
+  clock.getDelta();
+  poke();
+}
+function frame() {
+  raf = 0;
+  if (viewPaused) return;
+  const dt = Math.min(clock.getDelta(), 0.1);
+  let moving = false;
+  if (ui.playing) {
+    seek(ui.T + dt * ui.speed, false);
+    if (ui.T >= TOTAL) { ui.playing = false; syncPlay(); }
+    moving = true;
+  }
+  const explodeTarget = ui.explode ? 1 : 0;
+  if (Math.abs(ui.explodeAmt - explodeTarget) >= 0.002) {
+    ui.explodeAmt += (explodeTarget - ui.explodeAmt) * Math.min(1, dt * 6);
+    if (Math.abs(ui.explodeAmt - explodeTarget) < 0.002) ui.explodeAmt = explodeTarget;
+    moving = true;
+  }
+  if (revealPlan) { stepReveal(dt); moving = true; }
+  const embedDirty = EMBED && Math.abs(embedP - drawnEmbedP) > 0.0004;
+  if (embedDirty) {
+    applyEmbed(embedP);
+    moving = true;
+  }
+  let step = { i: Math.max(ui.step, 0), t: 0 };
+  const poseChanged = moving || partsDirty;
+  if (poseChanged) step = applyAt(ui.T, dt);
+  if (embedDirty) {
+    frameEmbed(embedP);
+    drawnEmbedP = embedP;
+  }
+  if (revealPlan) placeRevealNames();
+  if (camTween.active) {
+    camTween.t += dt / camTween.dur; const k = ease(clamp01(camTween.t));
+    camera.position.lerpVectors(camTween.p0, camTween.p1, k); controls.target.lerpVectors(camTween.t0, camTween.t1, k);
+    if (camTween.t >= 1) camTween.active = false;
+    moving = true;
+  }
+  let damping = false;
+  camSnap.copy(camera.position);
+  tgtSnap.copy(controls.target);
+  applyingControls = true;
+  controls.update();
+  applyingControls = false;
+  if (controls.enabled) {
+    damping = camera.position.distanceToSquared(camSnap) > 1e-10 || controls.target.distanceToSquared(tgtSnap) > 1e-10;
+  }
+  if (poseChanged || moving || damping) {
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+    partsDirty = false;
+    if (ui.playing && (uiTick = (uiTick + 1) % 4) === 0) {
+      const { i, t } = step;
+      $('timeline').value = ui.T;
+      $('tcur').textContent = fmt(ui.T); $('ttot').textContent = fmt(TOTAL);
+      $('progbar').style.width = (ui.T / TOTAL * 100).toFixed(2) + '%';
+      $('vStepBar').style.width = (clamp01(t / STEPS[i].dur) * 100).toFixed(1) + '%';
+    }
+  }
+  if (moving || damping || camTween.active || ui.playing) poke();
+}
+
+// ============================================================ REVISIÓN DE CHOQUES (consola: __aether.checkGeometry())
+// Compara las cajas de cada primitiva en su posición final; ignora pares que encajan a propósito (nest).
+const PF_SET = new Set(PF.map(f => f.id));
+function nests(p, q) {
+  const ok = (a, b) => a.nest.some(n => n === '*' || n === b.id || (n === '*pf' && PF_SET.has(b.id)) || (n === 'fx*' && b.fixIndex !== undefined));
+  return ok(p, q) || ok(q, p);
+}
+function checkGeometry(m = M0(), tol = 0.0004) {
+  const items = [];
+  for (const p of PARTS.values()) {
+    if (p.noCheck || p.world || p.inv || !p.prims || p.station) continue;
+    let M;
+    if (p.fixIndex !== undefined) { const f = m.fx[p.fixIndex]; if (!f) continue; M = T4(f.x, f.y, f.z).multiply(new THREE.Matrix4().makeRotationZ(f.rz || 0)); }
+    else M = mountMatrix(p, m);
+    for (const b of p.prims) { const bx = b.clone().applyMatrix4(M); bx.expandByScalar(-tol); if (!bx.isEmpty()) items.push({ p, bx }); }
+  }
+  const hits = new Map();
+  for (let a = 0; a < items.length; a++) for (let c = a + 1; c < items.length; c++) {
+    const A = items[a], B = items[c];
+    if (A.p === B.p || !A.bx.intersectsBox(B.bx) || nests(A.p, B.p)) continue;
+    const I = A.bx.clone().intersect(B.bx), s = I.getSize(V3());
+    const key = [A.p.id, B.p.id].sort().join(' × ');
+    const v = s.x * s.y * s.z * 1e9;
+    if (!hits.has(key) || hits.get(key).mm3 < v) hits.set(key, { mm3: v, at: I.getCenter(V3()).toArray().map(n => +n.toFixed(3)), size: s.toArray().map(n => +(n * 1000).toFixed(1)) });
+  }
+  return [...hits.entries()].map(([k, v]) => ({ pair: k, ...v })).sort((a, b) => b.mm3 - a.mm3);
+}
+
+// ============================================================ QUIÉN ERES / INTERIOR
+const OPEN = new URLSearchParams(location.search);
+let embedP = 0;
+// Mismas ventanas que explode.js (portada). No cambia el tipo de scroll: solo
+// cuánto se separa cada grupo del carrito según el progreso que manda la portada.
+const embedBox = new THREE.Box3();
+const embedSphere = new THREE.Sphere();
+const embedCenter = new THREE.Vector3();
+function frameEmbed(p) {
+  cartRoot.updateWorldMatrix(true, true);
+  embedBox.setFromObject(cartRoot);
+  if (embedBox.isEmpty()) return;
+  embedBox.getCenter(embedCenter);
+  embedBox.getBoundingSphere(embedSphere);
+  // El radio fijo 0.78 era menor que el carrito y lo cortaba a la mitad.
+  const pad = 0.78 + 0.1 * p;
+  flyTo({
+    t: [embedCenter.x, embedCenter.y, embedCenter.z],
+    d: [0.85, 0.32, 1],
+    r: Math.max(0.2, embedSphere.radius * pad),
+  }, true);
+}
+function applyEmbed(p) {
+  const s = (a, b) => { const t = Math.min(Math.max((p - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
+  const cam = Math.max(s(0.09, 0.21), s(0.25, 0.35));
+  const compute = s(0.37, 0.47);
+  const control = s(0.5, 0.6);
+  const battery = s(0.64, 0.74);
+  const trac = s(0.77, 0.9);
+  for (const part of PARTS.values()) {
+    if (part.world || part.inv || part.station) { part.out = 0; continue; }
+    let amt = 0;
+    if (part.id === "panel" || part.id === "camera") amt = cam;
+    else if (part.id === "bat" || part.id === "bat_cradle" || part.id === "bat_hold") amt = battery;
+    else if (part.id.startsWith("cab_") || part.sub === "elec") amt = compute;
+    else if (part.sub === "emp" || part.sub === "torre") amt = control;
+    else if (part.sub === "trac") amt = trac;
+    part.out = amt;
+  }
+}
+let revealPlan = null;
+let revealNames = [];
+const REVEAL_FADE = 0.55;
+
+function nameTag(p) {
+  if (p.nameTag) return p.nameTag;
+  const el = document.createElement('div');
+  el.className = 'pname';
+  const span = document.createElement('span');
+  span.textContent = p.name;
+  el.appendChild(span);
+  const o = new CSS2DObject(el);
+  o.visible = false;
+  scene.add(o);
+  p.nameTag = o;
+  return o;
+}
+
+function hideRevealNames() {
+  for (const p of revealNames) {
+    p.fade = null;
+    if (p.nameTag) p.nameTag.visible = false;
+  }
+  revealNames = [];
+  const cap = $('revealCap');
+  if (cap) cap.hidden = true;
+}
+
+function placeRevealNames() {
+  for (const p of revealNames) {
+    const tag = p.nameTag;
+    if (!tag || !tag.visible) continue;
+    p.group.getWorldPosition(tag.position);
+  }
+}
+const REVEAL_LAYERS = [
+  { title: "El panel", test: (p) => p.id === "panel" },
+  { title: "Los cables", test: (p) => p.id.startsWith("cab_") },
+  { title: "La electrónica", test: (p) => p.sub === "elec" },
+  { title: "El empujador", test: (p) => p.sub === "emp" },
+  { title: "La torre", test: (p) => p.sub === "torre" },
+  { title: "La tracción", test: (p) => p.sub === "trac" },
+  { title: "La estructura", test: (p) => p.sub === "est" },
+];
+const REVEAL_CAM = [
+  { t: [0.28, 0.72, 0], d: [1, 0.22, 0.28], r: 0.5 },
+  { t: [0.02, 0.55, 0], d: [0.35, 0.4, 1], r: 0.85 },
+  { t: [-0.02, 0.95, 0], d: [-0.2, 0.55, 1], r: 0.7 },
+  { t: [0.02, 0.86, 0], d: [0.2, 0.35, 1], r: 0.55 },
+  { t: [0.12, 0.62, 0], d: [0.7, 0.35, 1], r: 0.7 },
+  { t: [0.04, 0.28, 0], d: [0.85, 0.25, 1], r: 0.8 },
+  { t: [0.02, 0.55, 0], d: [0.9, 0.4, 1], r: 1.15 },
+];
+
+function assembledStep() {
+  const next = STEPS.findIndex((s) => s.ch === 7);
+  return next > 0 ? next - 1 : STEPS.length - 1;
+}
+
+function showAssembled() {
+  revealPlan = null;
+  hideRevealNames();
+  ui.playing = false;
+  ui.explode = false;
+  $("tExplode").checked = false;
+  for (const p of PARTS.values()) p.out = null;
+  const st = STEPS[assembledStep()];
+  seek(st.start + st.dur - 0.04, true);
+  ui.userCam = false;
+  flyTo({ t: [0.08, 0.62, 0], d: [0.72, 0.38, 1], r: 1.05 }, false);
+  syncPlay();
+  $("vEtapa").textContent = "Lumina";
+  $("vTitle").textContent = "Así estoy armada";
+}
+
+function revealInterior() {
+  if (revealPlan) return;
+  showAssembled();
+  const step = assembledStep();
+  const used = new Set();
+  const layers = [];
+  REVEAL_LAYERS.forEach((layer, i) => {
+    const parts = [...PARTS.values()].filter((p) => {
+      if (used.has(p.id) || p.inv || p.station || p.world) return false;
+      if (!p.track.some((e) => e.s <= step)) return false;
+      return layer.test(p);
+    });
+    parts.sort((a, b) => b.home.y - a.home.y);
+    parts.forEach((p) => { used.add(p.id); p.out = 0; p.fade = 1; nameTag(p); });
+    if (parts.length) layers.push({ title: layer.title, parts, cam: REVEAL_CAM[i] });
+  });
+  if (!layers.length) return;
+  revealNames = layers.flatMap((layer) => layer.parts);
+  ui.labels = false;
+  ui.dims = false;
+  revealPlan = { layers, i: 0, t: 0 };
+  $("vEtapa").textContent = "Interior";
+  $("vTitle").textContent = layers[0].title;
+  ui.userCam = false;
+  flyTo(layers[0].cam, false);
+}
+
+function paintRevealNames() {
+  const plan = revealPlan;
+  const cap = $('revealCap');
+  if (!plan) return;
+  if (cap) { cap.hidden = false; cap.textContent = plan.layers[plan.i].title; }
+  plan.layers.forEach((layer, li) => {
+    const past = li < plan.i;
+    for (const p of layer.parts) {
+      const tag = p.nameTag;
+      const shown = (p.out || 0) > 0.15;
+      tag.visible = shown;
+      if (!shown) continue;
+      tag.element.firstChild.style.opacity = past ? '0.8' : String(Math.min(1, ((p.out || 0) - 0.15) / 0.35));
+    }
+  });
+}
+
+function stepReveal(dt) {
+  const plan = revealPlan;
+  let layer = plan.layers[plan.i];
+  plan.t += dt;
+  const span = 0.85;
+  const gap = 0.1;
+  layer.parts.forEach((p, k) => {
+    const local = plan.t - k * gap;
+    p.out = local <= 0 ? 0 : ease(Math.min(1, local / span));
+    if (p.out > 0) p.fade = 1;
+  });
+  const doneAt = span + gap * Math.max(0, layer.parts.length - 1) + 0.45;
+  if (plan.t >= doneAt) {
+    plan.i += 1;
+    plan.t = 0;
+    if (plan.i >= plan.layers.length) {
+      for (let j = 0; j < plan.layers.length - 1; j++) {
+        for (const p of plan.layers[j].parts) p.fade = REVEAL_FADE;
+      }
+      revealPlan = null;
+      ui.explode = true;
+      ui.explodeAmt = 1;
+      $("tExplode").checked = true;
+      for (const p of PARTS.values()) p.out = null;
+      const cap = $('revealCap');
+      if (cap) { cap.hidden = false; cap.textContent = 'Por dentro'; }
+      for (const p of revealNames) if (p.nameTag) p.nameTag.visible = true;
+      $("vTitle").textContent = "Por dentro";
+      return;
+    }
+    layer = plan.layers[plan.i];
+    $("vTitle").textContent = layer.title;
+    ui.userCam = false;
+    flyTo(layer.cam, false);
+  }
+  for (let j = 0; j < plan.i; j++) {
+    for (const p of plan.layers[j].parts) {
+      const cur = p.fade == null ? 1 : p.fade;
+      p.fade = cur + (REVEAL_FADE - cur) * Math.min(1, dt * 2.4);
+    }
+  }
+  paintRevealNames();
+}
+
+function listenLumina() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  const bus = typeof BroadcastChannel === "function" ? new BroadcastChannel("aether-mic") : null;
+  let owns = true;
+  if (bus) bus.postMessage("armado");
+  const rec = new SR();
+  rec.lang = "es-MX";
+  rec.continuous = true;
+  rec.interimResults = false;
+  addEventListener("pagehide", () => {
+    owns = false;
+    if (bus) bus.postMessage("robot");
+    try { rec.stop(); } catch (err) { /* ya estaba detenido */ }
+  });
+  const take = (said) => {
+    const t = said.toLowerCase();
+    if (!/\b(lumina|lumia|ilumina|luminia)\b/.test(t)) return;
+    if (/interior|adentro|por dentro/.test(t)) revealInterior();
+    else if (/qui[eé]n eres/.test(t)) showAssembled();
+  };
+  rec.onresult = (ev) => {
+    let said = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) said += " " + ev.results[i][0].transcript;
+    }
+    take(said);
+  };
+  rec.onend = () => {
+    if (!owns) return;
+    setTimeout(() => { if (owns) try { rec.start(); } catch (err) { /* el otro reconocimiento todavía no soltó el micrófono */ } }, 600);
+  };
+  setTimeout(() => { if (owns) try { rec.start(); } catch (err) { /* ya estaba escuchando */ } }, 700);
+}
+
+// ============================================================ ARRANQUE
+readTheme();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+buildUI();
+resize();
+const quiereArmada = OPEN.get("pose") === "armada" || OPEN.get("reveal") === "1";
+if (EMBED) {
+  document.documentElement.classList.add("embed");
+  ui.labels = false;
+  ui.dims = false;
+  showAssembled();
+  worldRoot.visible = false;
+  floor.visible = false;
+  grid.visible = false;
+  controls.enabled = false;
+  addEventListener("message", (ev) => {
+    if (ev.origin !== location.origin) return;
+    const d = ev.data;
+    if (!d) return;
+    if (d.type === "aether-explode" && typeof d.p === "number") {
+      embedP = d.p;
+      poke();
+      return;
+    }
+    if (d.type === "aether-pause") {
+      parentPause = !!d.paused;
+      hiddenPause = document.hidden;
+      applyPause();
+      return;
+    }
+  });
+} else if (quiereArmada) showAssembled();
+else {
+  seek(0, false);
+  flyTo(STEPS[0].cam, true);
+  syncPlay();
+}
+document.body.classList.add('ready');
+if (!EMBED && !quiereArmada && !matchMedia('(prefers-reduced-motion: reduce)').matches) { ui.playing = true; syncPlay(); }
+if (!EMBED && OPEN.get("reveal") === "1") setTimeout(revealInterior, 900);
+if (!EMBED) listenLumina();
+document.addEventListener("visibilitychange", () => {
+  hiddenPause = document.hidden;
+  applyPause();
+});
+poke();
+window.__aether = { STEPS, PARTS, D, applyAt, seek, ui, TOTAL: () => TOTAL, mechAt, homePose, camera, controls, renderer, scene, cartRoot, checkGeometry, M0, pileSet, START, finishCam: () => flyTo(STEPS[ui.step].cam, true), showAssembled, revealInterior };
+
+</script>

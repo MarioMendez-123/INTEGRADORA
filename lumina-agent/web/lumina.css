@@ -1,0 +1,459 @@
+/*
+  Lumina — estilos. Paleta "OLED sci-fi": fondo casi negro, acento cian con un
+  segundo tono azul eléctrico para el resplandor de dos capas. Para retintar
+  todo (cara, glow, indicadores) basta cambiar los tokens de :root — el motor
+  de expresiones en lumina.js solo usa var(--accent/--positive/--warn/--text-muted).
+
+  La cara NO tiene contorno de "cabeza" a propósito: con uno se sentía como un
+  ícono de app; sin él, ojos y boca ocupan el viewport y se lee como presencia.
+*/
+
+:root {
+  --bg: #05070a;
+  --bg2: #0a0f16;
+  --text-primary: #edeff3;
+  --text-muted: rgba(136, 145, 160, 0.62);
+
+  --accent: #00f3ff;
+  --accent-2: #0066ff; /* segundo tono del glow */
+  --positive: #5fa779;
+  --warn: #e0a64a;
+
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden; /* todo cabe en una sola pantalla a propósito */
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 50% 30%, var(--bg2), var(--bg) 70%);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+/* ---------- fondo: campo de nodos + viñeta ---------- */
+
+#field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(ellipse at 50% 40%, rgba(5, 7, 10, 0.55) 0%, var(--bg) 78%);
+  pointer-events: none;
+}
+
+/* ---------- pantalla de la cara ---------- */
+
+.face-screen {
+  position: relative;
+  z-index: 2;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  text-align: center;
+  padding: var(--space-6);
+  overflow: hidden;
+}
+
+/* Recibe el parallax del mouse como transform ESTÁTICO derivado de
+   --parallax-x/--parallax-y (lumina.js solo escribe las custom properties). */
+.face-stage {
+  position: relative;
+  width: min(92vw, 86vh);
+  transform:
+    perspective(900px) rotateY(calc(var(--parallax-x, 0) * 5deg))
+    rotateX(calc(var(--parallax-y, 0) * -4deg))
+    translate(calc(var(--parallax-x, 0) * 8px), calc(var(--parallax-y, 0) * 6px));
+  transition: transform 150ms ease-out;
+}
+
+/* Respiración de reposo, siempre activa. */
+.face-breathe {
+  animation: face-idle-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes face-idle-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.08);
+  }
+}
+
+/* Resplandor ambiental de fondo; --face-accent lo fija setFaceExpression()
+   en #face-screen y llega aquí (y al SVG) por herencia. */
+.face-ambient {
+  position: absolute;
+  inset: -15%;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 42%, var(--face-accent) 0%, transparent 60%);
+  opacity: 0.16;
+  filter: blur(60px);
+  transition:
+    opacity 400ms ease,
+    background 300ms ease;
+}
+
+.face-svg {
+  width: 100%;
+  height: auto;
+  --face-accent: var(--accent);
+  overflow: visible;
+  transition: transform 200ms ease;
+}
+
+/* Mancha de luz difusa detrás de ojos/boca — solo se enciende al escuchar. */
+.face-glow {
+  fill: var(--face-accent);
+  opacity: 0;
+  filter: blur(50px);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 300ms ease;
+}
+
+.face-glow.face-glow--active {
+  opacity: 0.32;
+  animation: glow-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.06);
+  }
+}
+
+/* Ondas concéntricas de "escuchando": dos anillos extra desfasados. */
+.face-glow--ripple {
+  animation: none;
+}
+
+.face-glow--ripple.face-glow--active {
+  animation: glow-ripple 2.4s ease-out infinite;
+}
+
+#listening-ring-2.face-glow--active {
+  animation-delay: 0.8s;
+}
+
+#listening-ring-3.face-glow--active {
+  animation-delay: 1.6s;
+}
+
+@keyframes glow-ripple {
+  0% {
+    opacity: 0.32;
+    transform: scale(0.85);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* Glow apilado en dos tonos; sube con --talk-glow, que lumina.js actualiza
+   cada frame según la energía de la boca al hablar (nunca 0 plano en reposo). */
+.face-eye,
+.face-mouth {
+  fill: none;
+  stroke: var(--face-accent);
+  stroke-width: 22;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter:
+    drop-shadow(0 0 calc(14px + var(--talk-glow, 0) * 20px) var(--face-accent))
+    drop-shadow(0 0 calc(30px + var(--talk-glow, 0) * 34px) var(--accent-2, var(--face-accent)));
+  transition: stroke 200ms ease;
+}
+
+/* "pensando": el arco de ojo gira + pulso rápido. lumina.js limpia el
+   transform inline del parpadeo mientras esta clase está puesta. */
+.face-eye--spin {
+  animation:
+    eye-spin 1.3s linear infinite,
+    eye-pulse-fast 0.55s ease-in-out infinite;
+}
+
+@keyframes eye-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes eye-pulse-fast {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 14px var(--face-accent))
+      drop-shadow(0 0 30px var(--accent-2, var(--face-accent)));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 26px var(--face-accent))
+      drop-shadow(0 0 46px var(--accent-2, var(--face-accent)));
+  }
+}
+
+/* El parpadeo anima scaleY sobre el propio ojo; transform-box: fill-box hace
+   que el origen sea el centro de CADA ojo y no el del <svg>. */
+.face-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.face-brow {
+  fill: none;
+  stroke: var(--face-accent);
+  stroke-width: 16;
+  stroke-linecap: round;
+  opacity: 0;
+  transition:
+    opacity 150ms ease,
+    stroke 200ms ease;
+}
+
+.face-brow.face-brow--visible {
+  opacity: 0.85;
+}
+
+/* cx/cy de la pupila no llevan transición CSS: lumina.js las anima con su
+   propio easing cada frame. */
+.face-pupil {
+  fill: var(--face-accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 14px var(--face-accent));
+  transition: opacity 150ms ease;
+}
+
+.face-pupil.face-pupil--visible {
+  opacity: 1;
+}
+
+.face-dots {
+  fill: var(--face-accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 16px var(--face-accent));
+  transition: opacity 150ms ease;
+}
+
+.face-dots.face-dots--visible {
+  opacity: 0.9;
+  animation: dots-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes dots-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* "activando" / "error": todo el rostro pulsa de escala. */
+.face-svg.face--pulse {
+  animation: face-scale-pulse 500ms ease-in-out infinite;
+}
+
+@keyframes face-scale-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+/* "confundido": ladeo sutil. */
+.face-svg.face--tilt {
+  transform: rotate(-5deg);
+}
+
+/* ---------- indicador de estado en texto ---------- */
+
+.status-indicator {
+  position: absolute;
+  bottom: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--face-accent);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 300ms ease,
+    color 200ms ease;
+}
+
+.status-indicator.status-indicator--visible {
+  opacity: 0.6;
+}
+
+/* ---------- punto de estado de voz ---------- */
+
+.voice-status-dot {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 5;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+  transition:
+    background 200ms ease,
+    opacity 200ms ease;
+}
+
+.voice-status-dot--listening {
+  background: var(--positive);
+  opacity: 0.85;
+  box-shadow: 0 0 8px 1px rgba(95, 167, 121, 0.7);
+  animation: voice-blink 1.4s ease-in-out infinite;
+}
+
+.voice-status-dot--attention {
+  background: var(--warn);
+  opacity: 0.9;
+  box-shadow: 0 0 8px 1px rgba(224, 166, 74, 0.6);
+}
+
+@keyframes voice-blink {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ---------- pantalla de espera (arranque) ---------- */
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #000;
+  transition: opacity 700ms ease;
+}
+
+.boot-screen.boot-screen--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Método manual de respaldo, deliberadamente invisible. */
+.boot-hidden-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 96px;
+  height: 96px;
+  border: none;
+  background: transparent;
+  opacity: 0;
+  cursor: default;
+  outline: none;
+}
+
+/* Un solo pulso de luz al encender. */
+.boot-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 21;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9) 0%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-flash.boot-flash--active {
+  animation: boot-flash-pulse 550ms ease-out forwards;
+}
+
+@keyframes boot-flash-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  35% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@media (max-width: 640px) {
+  .face-stage {
+    width: 94vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face-glow.face-glow--active,
+  .face-glow--ripple.face-glow--active,
+  .face-dots.face-dots--visible,
+  .face-svg.face--pulse,
+  .face-breathe,
+  .face-eye--spin,
+  .voice-status-dot--listening {
+    animation: none;
+    opacity: 0.8;
+  }
+  /* El parallax es un transform estático, no una @keyframes: se anula aparte. */
+  .face-stage {
+    transform: none;
+  }
+  .boot-flash.boot-flash--active {
+    animation: none;
+    opacity: 0;
+  }
+}

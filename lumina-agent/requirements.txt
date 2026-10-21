@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+# solo para test_lumina.py:
+pytest
+httpx

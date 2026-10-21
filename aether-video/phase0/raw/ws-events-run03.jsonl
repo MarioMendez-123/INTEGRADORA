@@ -1,0 +1,102 @@
+{"receivedAt":1790640054157,"from":"lumina","type":"wake","sentAt":1790640054092}
+{"receivedAt":1790640055353,"from":"lumina","type":"script-start","sentAt":1790640055060}
+{"receivedAt":1790640055377,"from":"lumina","type":"line-request","sentAt":1790640055073,"i":1,"text":"Buenas tardes."}
+{"receivedAt":1790640058362,"from":"lumina","type":"line-start","sentAt":1790640058351,"i":1,"text":"Buenas tardes."}
+{"receivedAt":1790640059573,"from":"lumina","type":"line-end","sentAt":1790640059568,"i":1,"text":"Buenas tardes."}
+{"receivedAt":1790640059576,"from":"lumina","type":"line-request","sentAt":1790640059569,"i":2,"text":"Mi nombre es Aether."}
+{"receivedAt":1790640060769,"from":"lumina","type":"line-start","sentAt":1790640060753,"i":2,"text":"Mi nombre es Aether."}
+{"receivedAt":1790640062205,"from":"lumina","type":"line-end","sentAt":1790640062202,"i":2,"text":"Mi nombre es Aether."}
+{"receivedAt":1790640062226,"from":"lumina","type":"line-request","sentAt":1790640062202,"i":3,"text":"Soy un sistema autónomo de inventario."}
+{"receivedAt":1790640063553,"from":"lumina","type":"line-start","sentAt":1790640063551,"i":3,"text":"Soy un sistema autónomo de inventario."}
+{"receivedAt":1790640065899,"from":"lumina","type":"line-end","sentAt":1790640065895,"i":3,"text":"Soy un sistema autónomo de inventario."}
+{"receivedAt":1790640065908,"from":"lumina","type":"line-request","sentAt":1790640065896,"i":4,"text":"Yo observo."}
+{"receivedAt":1790640067363,"from":"lumina","type":"line-start","sentAt":1790640067357,"i":4,"text":"Yo observo."}
+{"receivedAt":1790640068407,"from":"lumina","type":"line-end","sentAt":1790640068392,"i":4,"text":"Yo observo."}
+{"receivedAt":1790640068434,"from":"lumina","type":"line-request","sentAt":1790640068393,"i":5,"text":"Eso es lo primero que hago."}
+{"receivedAt":1790640069952,"from":"lumina","type":"line-start","sentAt":1790640069951,"i":5,"text":"Eso es lo primero que hago."}
+{"receivedAt":1790640071827,"from":"lumina","type":"line-end","sentAt":1790640071825,"i":5,"text":"Eso es lo primero que hago."}
+{"receivedAt":1790640071852,"from":"lumina","type":"line-request","sentAt":1790640071851,"i":6,"text":"Una imagen aparece."}
+{"receivedAt":1790640073201,"from":"lumina","type":"line-start","sentAt":1790640073199,"i":6,"text":"Una imagen aparece."}
+{"receivedAt":1790640074612,"from":"lumina","type":"line-end","sentAt":1790640074601,"i":6,"text":"Una imagen aparece."}
+{"receivedAt":1790640075444,"from":"lumina","type":"line-request","sentAt":1790640075441,"i":7,"text":"Encuentro algo."}
+{"receivedAt":1790640076644,"from":"lumina","type":"line-start","sentAt":1790640076642,"i":7,"text":"Encuentro algo."}
+{"receivedAt":1790640077799,"from":"lumina","type":"line-end","sentAt":1790640077797,"i":7,"text":"Encuentro algo."}
+{"receivedAt":1790640078609,"from":"lumina","type":"line-request","sentAt":1790640078607,"i":8,"text":"Intento identificarlo."}
+{"receivedAt":1790640079787,"from":"lumina","type":"line-start","sentAt":1790640079785,"i":8,"text":"Intento identificarlo."}
+{"receivedAt":1790640081432,"from":"lumina","type":"line-end","sentAt":1790640081426,"i":8,"text":"Intento identificarlo."}
+{"receivedAt":1790640082733,"from":"lumina","type":"line-request","sentAt":1790640082729,"i":9,"text":"Pero encontrar algo no significa entenderlo."}
+{"receivedAt":1790640084092,"from":"lumina","type":"line-start","sentAt":1790640084091,"i":9,"text":"Pero encontrar algo no significa entenderlo."}
+{"receivedAt":1790640086613,"from":"lumina","type":"line-end","sentAt":1790640086611,"i":9,"text":"Pero encontrar algo no significa entenderlo."}
+{"receivedAt":1790640086616,"from":"lumina","type":"line-request","sentAt":1790640086612,"i":10,"text":"Una cámara puede detectar un objeto."}
+{"receivedAt":1790640088016,"from":"lumina","type":"line-start","sentAt":1790640088011,"i":10,"text":"Una cámara puede detectar un objeto."}
+{"receivedAt":1790640090196,"from":"lumina","type":"line-end","sentAt":1790640090194,"i":10,"text":"Una cámara puede detectar un objeto."}
+{"receivedAt":1790640090206,"from":"lumina","type":"line-request","sentAt":1790640090194,"i":11,"text":"Pero detectar no significa saber qué es."}
+{"receivedAt":1790640091643,"from":"lumina","type":"line-start","sentAt":1790640091642,"i":11,"text":"Pero detectar no significa saber qué es."}
+{"receivedAt":1790640094078,"from":"lumina","type":"line-end","sentAt":1790640094074,"i":11,"text":"Pero detectar no significa saber qué es."}
+{"receivedAt":1790640095281,"from":"lumina","type":"line-request","sentAt":1790640095280,"i":12,"text":"Y saber qué es no significa necesariamente saber dónde está."}
+{"receivedAt":1790640096775,"from":"lumina","type":"line-start","sentAt":1790640096768,"i":12,"text":"Y saber qué es no significa necesariamente saber dónde está."}
+{"receivedAt":1790640100776,"from":"lumina","type":"line-end","sentAt":1790640100773,"i":12,"text":"Y saber qué es no significa necesariamente saber dónde está."}
+{"receivedAt":1790640102099,"from":"lumina","type":"line-request","sentAt":1790640102087,"i":13,"text":"Mucho menos significa saber si esa información es confiable."}
+{"receivedAt":1790640104631,"from":"lumina","type":"line-start","sentAt":1790640104617,"i":13,"text":"Mucho menos significa saber si esa información es confiable."}
+{"receivedAt":1790640108031,"from":"lumina","type":"line-end","sentAt":1790640108026,"i":13,"text":"Mucho menos significa saber si esa información es confiable."}
+{"receivedAt":1790640110073,"from":"lumina","type":"line-request","sentAt":1790640110069,"i":14,"text":"Por eso, mi proceso no termina cuando encuentro algo."}
+{"receivedAt":1790640112731,"from":"lumina","type":"line-start","sentAt":1790640112717,"i":14,"text":"Por eso, mi proceso no termina cuando encuentro algo."}
+{"receivedAt":1790640115843,"from":"lumina","type":"line-end","sentAt":1790640115841,"i":14,"text":"Por eso, mi proceso no termina cuando encuentro algo."}
+{"receivedAt":1790640115878,"from":"lumina","type":"line-request","sentAt":1790640115876,"i":15,"text":"Percibir."}
+{"receivedAt":1790640117675,"from":"lumina","type":"line-start","sentAt":1790640117662,"i":15,"text":"Percibir."}
+{"receivedAt":1790640118793,"from":"lumina","type":"line-end","sentAt":1790640118792,"i":15,"text":"Percibir."}
+{"receivedAt":1790640119308,"from":"lumina","type":"line-request","sentAt":1790640119306,"i":16,"text":"Identificar."}
+{"receivedAt":1790640121263,"from":"lumina","type":"line-start","sentAt":1790640121261,"i":16,"text":"Identificar."}
+{"receivedAt":1790640122563,"from":"lumina","type":"line-end","sentAt":1790640122543,"i":16,"text":"Identificar."}
+{"receivedAt":1790640123059,"from":"lumina","type":"line-request","sentAt":1790640123053,"i":17,"text":"Verificar."}
+{"receivedAt":1790640124494,"from":"lumina","type":"line-start","sentAt":1790640124483,"i":17,"text":"Verificar."}
+{"receivedAt":1790640125640,"from":"lumina","type":"line-end","sentAt":1790640125526,"i":17,"text":"Verificar."}
+{"receivedAt":1790640126031,"from":"lumina","type":"line-request","sentAt":1790640126029,"i":18,"text":"Localizar."}
+{"receivedAt":1790640127497,"from":"lumina","type":"line-start","sentAt":1790640127497,"i":18,"text":"Localizar."}
+{"receivedAt":1790640128575,"from":"lumina","type":"line-end","sentAt":1790640128573,"i":18,"text":"Localizar."}
+{"receivedAt":1790640129097,"from":"lumina","type":"line-request","sentAt":1790640129091,"i":19,"text":"Registrar."}
+{"receivedAt":1790640130663,"from":"lumina","type":"line-start","sentAt":1790640130659,"i":19,"text":"Registrar."}
+{"receivedAt":1790640131692,"from":"lumina","type":"line-end","sentAt":1790640131689,"i":19,"text":"Registrar."}
+{"receivedAt":1790640132723,"from":"lumina","type":"line-request","sentAt":1790640132713,"i":20,"text":"Ese es el proceso que permite transformar una imagen en información."}
+{"receivedAt":1790640134429,"from":"lumina","type":"line-start","sentAt":1790640134425,"i":20,"text":"Ese es el proceso que permite transformar una imagen en información."}
+{"receivedAt":1790640138539,"from":"lumina","type":"line-end","sentAt":1790640138538,"i":20,"text":"Ese es el proceso que permite transformar una imagen en información."}
+{"receivedAt":1790640140046,"from":"lumina","type":"line-request","sentAt":1790640140040,"i":21,"text":"Para hacerlo, necesito diferentes sistemas trabajando juntos."}
+{"receivedAt":1790640142041,"from":"lumina","type":"line-start","sentAt":1790640142039,"i":21,"text":"Para hacerlo, necesito diferentes sistemas trabajando juntos."}
+{"receivedAt":1790640145723,"from":"lumina","type":"line-end","sentAt":1790640145721,"i":21,"text":"Para hacerlo, necesito diferentes sistemas trabajando juntos."}
+{"receivedAt":1790640146933,"from":"lumina","type":"line-request","sentAt":1790640146924,"i":22,"text":"Un sistema de percepción, para observar mi entorno."}
+{"receivedAt":1790640148387,"from":"lumina","type":"line-start","sentAt":1790640148380,"i":22,"text":"Un sistema de percepción, para observar mi entorno."}
+{"receivedAt":1790640151550,"from":"lumina","type":"line-end","sentAt":1790640151545,"i":22,"text":"Un sistema de percepción, para observar mi entorno."}
+{"receivedAt":1790640152560,"from":"lumina","type":"line-request","sentAt":1790640152550,"i":23,"text":"Un sistema de computación, para procesar e interpretar lo que observo."}
+{"receivedAt":1790640154376,"from":"lumina","type":"line-start","sentAt":1790640154372,"i":23,"text":"Un sistema de computación, para procesar e interpretar lo que observo."}
+{"receivedAt":1790640158575,"from":"lumina","type":"line-end","sentAt":1790640158569,"i":23,"text":"Un sistema de computación, para procesar e interpretar lo que observo."}
+{"receivedAt":1790640159585,"from":"lumina","type":"line-request","sentAt":1790640159577,"i":24,"text":"Un sistema de comunicación, para convertir esa información en datos útiles."}
+{"receivedAt":1790640161938,"from":"lumina","type":"line-start","sentAt":1790640161919,"i":24,"text":"Un sistema de comunicación, para convertir esa información en datos útiles."}
+{"receivedAt":1790640166311,"from":"lumina","type":"line-end","sentAt":1790640166307,"i":24,"text":"Un sistema de comunicación, para convertir esa información en datos útiles."}
+{"receivedAt":1790640167317,"from":"lumina","type":"line-request","sentAt":1790640167311,"i":25,"text":"Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."}
+{"receivedAt":1790640169055,"from":"lumina","type":"line-start","sentAt":1790640169053,"i":25,"text":"Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."}
+{"receivedAt":1790640174044,"from":"lumina","type":"line-end","sentAt":1790640174036,"i":25,"text":"Y un sistema de movilidad, para llevar esa capacidad de percepción hasta donde sea necesaria."}
+{"receivedAt":1790640175542,"from":"lumina","type":"line-request","sentAt":1790640175539,"i":26,"text":"No soy solamente una cámara."}
+{"receivedAt":1790640176919,"from":"lumina","type":"line-start","sentAt":1790640176911,"i":26,"text":"No soy solamente una cámara."}
+{"receivedAt":1790640178604,"from":"lumina","type":"line-end","sentAt":1790640178600,"i":26,"text":"No soy solamente una cámara."}
+{"receivedAt":1790640179516,"from":"lumina","type":"line-request","sentAt":1790640179512,"i":27,"text":"No soy solamente un robot."}
+{"receivedAt":1790640181470,"from":"lumina","type":"line-start","sentAt":1790640181468,"i":27,"text":"No soy solamente un robot."}
+{"receivedAt":1790640183141,"from":"lumina","type":"line-end","sentAt":1790640183139,"i":27,"text":"No soy solamente un robot."}
+{"receivedAt":1790640184350,"from":"lumina","type":"line-request","sentAt":1790640184348,"i":28,"text":"Soy la integración de estos sistemas para resolver un problema."}
+{"receivedAt":1790640185792,"from":"lumina","type":"line-start","sentAt":1790640185775,"i":28,"text":"Soy la integración de estos sistemas para resolver un problema."}
+{"receivedAt":1790640189130,"from":"lumina","type":"line-end","sentAt":1790640189092,"i":28,"text":"Soy la integración de estos sistemas para resolver un problema."}
+{"receivedAt":1790640190737,"from":"lumina","type":"line-request","sentAt":1790640190733,"i":29,"text":"¿Quieren ver cómo funciono?"}
+{"receivedAt":1790640192267,"from":"lumina","type":"line-start","sentAt":1790640192259,"i":29,"text":"¿Quieren ver cómo funciono?"}
+{"receivedAt":1790640193776,"from":"lumina","type":"line-end","sentAt":1790640193770,"i":29,"text":"¿Quieren ver cómo funciono?"}
+{"receivedAt":1790640193792,"from":"lumina","type":"await-lumina","sentAt":1790640193787}
+{"receivedAt":1790640197672,"from":"lumina","type":"heard-lumina","sentAt":1790640197670,"source":"voz"}
+{"receivedAt":1790640197690,"from":"lumina","type":"line-request","sentAt":1790640197672,"i":30,"text":"Dígame, señor."}
+{"receivedAt":1790640198971,"from":"lumina","type":"line-start","sentAt":1790640198969,"i":30,"text":"Dígame, señor."}
+{"receivedAt":1790640200106,"from":"lumina","type":"line-end","sentAt":1790640200102,"i":30,"text":"Dígame, señor."}
+{"receivedAt":1790640204118,"from":"lumina","type":"line-request","sentAt":1790640204112,"i":31,"text":"En un momento."}
+{"receivedAt":1790640205513,"from":"lumina","type":"line-start","sentAt":1790640205508,"i":31,"text":"En un momento."}
+{"receivedAt":1790640206545,"from":"lumina","type":"line-end","sentAt":1790640206542,"i":31,"text":"En un momento."}
+{"receivedAt":1790640207351,"from":"lumina","type":"line-request","sentAt":1790640207347,"i":32,"text":"Esto es lo que soy capaz de ver ahora mismo."}
+{"receivedAt":1790640208761,"from":"lumina","type":"line-start","sentAt":1790640208754,"i":32,"text":"Esto es lo que soy capaz de ver ahora mismo."}
+{"receivedAt":1790640211457,"from":"lumina","type":"line-end","sentAt":1790640211450,"i":32,"text":"Esto es lo que soy capaz de ver ahora mismo."}
+{"receivedAt":1790640211469,"from":"lumina","type":"camera-on","sentAt":1790640211466}
+{"receivedAt":1790644052844,"from":"lumina","type":"wake","sentAt":1790644052069}

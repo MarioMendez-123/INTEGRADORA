@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Aether Robot</title>
+    <title>Lumina</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Schibsted+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
-    <link rel="stylesheet" href="/robot.css" />
+    <link rel="stylesheet" href="/robot.css?v=6" />
   </head>
   <body class="robot-body">
     <!--
@@ -104,6 +104,20 @@
          ver robot.css sobre por qué se quitó face-bg (el círculo hacía que
          esto se sintiera como un ícono de app, no como presencia real). -->
     <main class="face-screen" id="face-screen">
+      <!-- Fila superior (DISENO.md 7.1): reloj + fecha real a la
+           izquierda, estado de voz (píldora + punto, ver
+           updateStatusIndicator en robot.js) a la derecha. -->
+      <div class="face-topbar">
+        <div class="face-clock" id="face-clock" aria-hidden="true">
+          <span class="face-clock-time" id="face-clock-time">00:00</span>
+          <span class="face-clock-date" id="face-clock-date"></span>
+        </div>
+        <p class="status-pill" id="status-indicator" aria-live="polite">
+          <span class="voice-status-dot" id="voice-status-dot" title="Reconocimiento de voz: inactivo" aria-hidden="true"></span>
+          <span id="status-indicator-text"></span>
+        </p>
+      </div>
+
       <!-- face-ambient se queda FUERA de face-stage a propósito: su
            inset:-15% se calcula relativo al elemento que lo contiene, y
            necesita seguir siendo #face-screen (pantalla completa) para
@@ -153,26 +167,18 @@
         </div>
       </div>
 
-      <!-- Indicador de estado — texto discreto, monospaced, SOLO visible
-           durante escuchando/pensando/hablando (nunca en reposo/cámara):
-           robot.js lo decide leyendo el mismo estado ya honesto que gobierna
-           la cara (conversationSubState / talking / currentExpression), no
-           un estado nuevo inventado aparte — ver updateStatusIndicator(). -->
-      <p class="status-indicator" id="status-indicator" aria-live="polite"></p>
+      <!-- Subtítulos (DISENO.md 7.1/10.3): lo último que se dijo/escuchó,
+           palabra por palabra al ritmo real de la voz — ver
+           showCaption()/onboundary en robot.js. Se desvanece solo. -->
+      <p class="face-captions" id="face-captions" aria-live="polite"></p>
+      <div class="essay-status" id="essay-status" hidden>
+        <span id="essay-status-text">Escribiendo el ensayo…</span>
+        <span class="essay-bar" aria-hidden="true"></span>
+      </div>
 
-      <!-- Punto de estado mínimo — el único rastro visible del
-           reconocimiento de voz por default. Gris = inactivo, verde
-           parpadeante = escuchando de verdad ahora mismo, ámbar = algo
-           necesita atención (permiso denegado, sin soporte, error). El
-           texto completo (permiso, transcripción, errores) va a
-           console.log/warn — ver robot.js. title da un tooltip nativo al
-           pasar el mouse, sin agregar texto permanente en pantalla. -->
-      <span
-        class="voice-status-dot"
-        id="voice-status-dot"
-        title="Reconocimiento de voz: inactivo"
-        aria-hidden="true"
-      ></span>
+      <!-- Sugerencia rotativa: comandos de voz reales que esta página
+           reconoce de verdad (ver handleVoiceCommand) — nunca inventados. -->
+      <p class="face-suggestion" id="face-suggestion" aria-hidden="true"></p>
 
       <!-- Botón de respaldo — discreto a propósito (esquina, opacidad baja
            hasta hover/focus): sigue siendo necesario si la voz falla o el
@@ -196,7 +202,7 @@
         <p id="camera-screen-connecting-text">Estableciendo conexión…</p>
       </div>
 
-      <span class="camera-screen-label">AETHER · PERCEPCIÓN · ROBOT MÓVIL</span>
+      <span class="camera-screen-label">Percepción del robot móvil</span>
 
       <div class="detections-log" id="detections-log" aria-live="polite">
         <p class="detections-log-empty" id="detections-log-empty">Sin detecciones todavía…</p>
@@ -208,7 +214,14 @@
       </button>
     </section>
 
+    <!-- Pantalla de llamada (Remotion Player, /call-screen.js): sustituye a
+         la cara mientras Lumina llama — marcando, contestó, no contestó. Solo
+         aparece si hay una llamada real disparada (ver placeCall en robot.js). -->
+    <div class="call-screen" id="call-screen" hidden></div>
+
+    <script src="/perf.js"></script>
     <script src="/node-field.js"></script>
-    <script src="/robot.js"></script>
+    <script src="/call-screen.js"></script>
+    <script src="/robot.js?v=10"></script>
   </body>
 </html>

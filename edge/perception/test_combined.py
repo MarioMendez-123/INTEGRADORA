@@ -46,12 +46,13 @@ from ultralytics import YOLO
 # Permite importar edge/logging_config.py e inventory_engine sin importar
 # desde dónde se corra este script (directamente o dentro de edge/).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from inventory_engine.observations.observation import Observation
 from logging_config import setup_logging
+from model_weights import resolve_yolo_weights
 
 CAMERA_INDEX = 0
-MODEL_NAME = "yolov8n.pt"
 ARUCO_DICTIONARY = cv2.aruco.DICT_4X4_50
 WINDOW_NAME = "Aether — pipeline combinado (presiona 'q' para salir)"
 OUTPUT_PATH = Path(__file__).resolve().parent / "observations_output.json"
@@ -61,8 +62,9 @@ def main() -> None:
     setup_logging()
     logger = logging.getLogger(__name__)
 
-    model = YOLO(MODEL_NAME)
-    logger.info("Modelo YOLO '%s' cargado correctamente.", MODEL_NAME)
+    model_name = resolve_yolo_weights()
+    model = YOLO(model_name)
+    logger.info("Modelo YOLO '%s' cargado correctamente.", model_name)
 
     aruco_dictionary = cv2.aruco.getPredefinedDictionary(ARUCO_DICTIONARY)
     aruco_detector = cv2.aruco.ArucoDetector(aruco_dictionary, cv2.aruco.DetectorParameters())

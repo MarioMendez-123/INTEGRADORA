@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lumina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="lumina.css" />
+  </head>
+  <body>
+    <!-- Fondo decorativo: campo de nodos 3D (lumina-field.js). Opcional: si lo
+         quitas, quita también este <canvas> y el <script> del final. -->
+    <canvas id="field" aria-hidden="true"></canvas>
+    <div class="veil" aria-hidden="true"></div>
+
+    <!-- Pantalla de espera: negra hasta oír "Lumina" o hasta pulsar el botón
+         invisible de la esquina superior izquierda (respaldo manual). -->
+    <div class="boot-screen" id="boot-screen" aria-hidden="true">
+      <button type="button" class="boot-hidden-btn" id="boot-hidden-btn" aria-hidden="true" tabindex="-1"></button>
+    </div>
+    <div class="boot-flash" id="boot-flash" aria-hidden="true"></div>
+
+    <!-- La cara: sin contorno de "cabeza", ojos y boca flotan sobre el fondo.
+         face-stage (parallax) > face-breathe (respiración) > face-svg
+         (pulse/tilt): tres niveles porque tres transforms distintos en un
+         mismo nodo se pisarían entre sí. face-ambient queda FUERA de
+         face-stage para poder ser un resplandor de pantalla completa. -->
+    <main class="face-screen" id="face-screen">
+      <div class="face-ambient" aria-hidden="true"></div>
+
+      <div class="face-stage" id="face-stage">
+        <div class="face-breathe">
+          <svg
+            class="face-svg"
+            id="face-svg"
+            viewBox="0 0 1000 600"
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label="Estado de Lumina"
+          >
+            <ellipse class="face-glow" id="listening-ring" cx="500" cy="300" rx="430" ry="270"></ellipse>
+            <ellipse class="face-glow face-glow--ripple" id="listening-ring-2" cx="500" cy="300" rx="430" ry="270"></ellipse>
+            <ellipse class="face-glow face-glow--ripple" id="listening-ring-3" cx="500" cy="300" rx="430" ry="270"></ellipse>
+            <path class="face-brow" id="brow-left"></path>
+            <path class="face-brow" id="brow-right"></path>
+            <path class="face-eye" id="eye-left"></path>
+            <path class="face-eye" id="eye-right"></path>
+            <circle class="face-pupil" id="pupil-left" r="16"></circle>
+            <circle class="face-pupil" id="pupil-right" r="16"></circle>
+            <path class="face-mouth" id="face-mouth"></path>
+            <g class="face-dots" id="thinking-dots">
+              <circle cx="440" cy="120" r="15"></circle>
+              <circle cx="500" cy="92" r="15"></circle>
+              <circle cx="560" cy="120" r="15"></circle>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Texto de estado: solo visible escuchando / pensando / hablando. -->
+      <p class="status-indicator" id="status-indicator" aria-live="polite"></p>
+
+      <!-- Punto de estado de voz: gris = inactivo, verde parpadeante =
+           escuchando de verdad, ámbar = necesita atención. -->
+      <span class="voice-status-dot" id="voice-status-dot" title="Reconocimiento de voz: inactivo" aria-hidden="true"></span>
+    </main>
+
+    <script src="lumina-field.js"></script>
+    <script src="lumina.js?v=2"></script>
+  </body>
+</html>

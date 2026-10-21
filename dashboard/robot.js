@@ -106,6 +106,26 @@ let shouldKeepListening = true;
 // más abajo) — distingue ese apagado intencional del "end" normal del
 // navegador, que si debe reiniciar el reconocimiento solo.
 let recognitionPausedForSpeech = false;
+// La pestaña del carrito (armado.html) pide el micrófono por este canal.
+// Mientras lo tiene, esta cara no lo vuelve a arrancar: Chrome solo deja
+// un reconocimiento a la vez y si no se pelean hasta cancelarse.
+let micYielded = false;
+const micBus = typeof BroadcastChannel === "function" ? new BroadcastChannel("aether-mic") : null;
+if (micBus) {
+  micBus.onmessage = (event) => {
+    if (event.data === "armado") {
+      micYielded = true;
+      try {
+        recognition.stop();
+      } catch {
+        // Ya estaba detenido.
+      }
+    } else if (event.data === "robot") {
+      micYielded = false;
+      resumeRecognitionAfterSpeech();
+    }
+  };
+}
 
 /** Apaga el reconocimiento de voz justo antes de que Lumina hable. Bug real
  * reportado (revisando logs de una conversación de prueba): el micrófono
@@ -128,6 +148,7 @@ function pauseRecognitionForSpeech() {
 function resumeRecognitionAfterSpeech() {
   if (!recognition) return;
   recognitionPausedForSpeech = false;
+  if (micYielded) return; // el carrito tiene el micrófono
   if (!shouldKeepListening) return; // permiso denegado u otro error fatal — no reintentar
   try {
     recognition.start();
@@ -660,32 +681,56 @@ function livelinessFrame() {
 }
 requestAnimationFrame(livelinessFrame);
 
-// Se lee cada frame en vez de engancharse a cada sitio que cambia
-// conversationSubState/talking (son varios, ver enterConversationMode,
-// startTalkingAnimation, etc.) — más simple y no se puede "olvidar" un
-// call site nuevo más adelante. Solo toca el DOM cuando el texto
-// realmente cambia, para no generar reflow en cada uno de los 60fps.
+// Vocabulario completo de DISENO.md 7.1 (Dormida/En espera/Te escucho/
+// Pensando…/Hablando/Buscando con la cámara/Micrófono bloqueado) — antes
+// solo cubría 3 de los 7 estados y en mayúsculas (la sección 6 de
+// DISENO.md prohíbe mayúsculas en etiquetas). Se lee cada frame en vez de
+// engancharse a cada sitio que cambia conversationSubState/talking (son
+// varios) — más simple y no se puede "olvidar" un call site nuevo más
+// adelante. Solo toca el DOM cuando el texto realmente cambia.
+const statusIndicatorTextEl = document.getElementById("status-indicator-text");
 let lastStatusLabel = null;
 function updateStatusIndicator() {
   let label = "";
-  if (mode === "conversation") {
-    if (talking) {
-      label = "HABLANDO...";
-    } else if (conversationSubState === "thinking") {
-      label = "PENSANDO...";
-    } else if (conversationSubState === "listening" && currentExpression === "escuchando") {
-      // Solo si currentExpression es realmente 'escuchando' (no
-      // 'inactivo') — restingExpression() ya decide eso según si el
-      // reconocimiento de voz existe de verdad (ver honestidad explícita
-      // ahí); mostrar "ESCUCHANDO..." sin esa comprobación mentiría en los
-      // casos sin soporte de voz o con permiso denegado.
-      label = "ESCUCHANDO...";
-    }
+  if (callState === "calling") {
+    label = "Llamando por teléfono…";
+  } else if (callState === "called") {
+    label = "Llamada en curso";
+  } else if (callState === "failed") {
+    label = "La llamada falló";
+  } else if (mode === "boot" || mode === "boot-awaiting-command" || mode === "script") {
+    label = "Dormida";
+  } else if (mode === "camera") {
+    label = "Buscando con la cámara";
+  } else if (voiceStatusDotEl.classList.contains("voice-status-dot--attention")) {
+    // Mismo estado que ya gobierna el punto (ver setAttentionIndicator) —
+    // no se inventa un flag nuevo aparte, una sola fuente de verdad.
+    label = "Micrófono bloqueado";
+  } else if (talking) {
+    label = "Hablando";
+  } else if (essayWorking) {
+    label = "Escribiendo el ensayo…";
+  } else if (conversationSubState === "thinking") {
+    label = "Pensando…";
+  } else if (conversationSubState === "listening") {
+    // 'escuchando' vs 'inactivo' ya lo decide restingExpression() según si
+    // el reconocimiento de voz existe de verdad — mostrar "Te escucho" sin
+    // esa comprobación mentiría en los casos sin soporte de voz.
+    label = currentExpression === "escuchando" ? "Te escucho" : "En espera";
   }
+  // El punto de la llamada pisa el de reconocimiento de voz mientras dura
+  // (unos segundos) — mismo punto, un estado más urgente que mostrar. Solo
+  // AGREGA --attention en fallo, nunca la quita (podría ser mic denegado,
+  // ver setAttentionIndicator, un estado que no expira solo).
+  voiceStatusDotEl.classList.toggle("voice-status-dot--calling", callState === "calling" || callState === "called");
+  if (callState === "failed") voiceStatusDotEl.classList.add("voice-status-dot--attention");
+  if (essayWorking) thinkingDotsEl.classList.add("face-dots--visible");
+
   if (label === lastStatusLabel) return;
   lastStatusLabel = label;
-  statusIndicatorEl.textContent = label;
-  statusIndicatorEl.classList.toggle("status-indicator--visible", label !== "");
+  statusIndicatorTextEl.textContent = label;
+  voiceStatusDotEl.title = `Reconocimiento de voz: ${label.toLowerCase()}`;
+  statusIndicatorEl.classList.toggle("status-pill--visible", label !== "");
 }
 
 /**
@@ -883,15 +928,19 @@ function activateRobot() {
   if (mode === "camera") return;
   cancelPendingConversation();
   mode = "camera";
+  emitShowEvent("camera-on");
   setFaceExpression("activando");
+  faceScreenEl.classList.add("face-screen--leaving"); // fundido+encoge (robot.css) antes de ocultar de raíz
   setTimeout(() => {
     faceScreenEl.hidden = true;
+    faceScreenEl.classList.remove("face-screen--leaving");
     cameraScreen.hidden = false;
     cameraActive = true;
     cameraRetryCount = 0;
     cameraStreamImg.hidden = true;
     attemptCameraConnection();
     startDetectionsPolling();
+    requestAnimationFrame(() => cameraScreen.classList.add("camera-screen--visible")); // frame aparte: forzar el estado inicial (opacity 0) antes de animar
   }, 650); // deja ver la animación de "activando" antes de cambiar de pantalla
 }
 
@@ -901,8 +950,11 @@ function deactivateRobot() {
   clearTimeout(cameraRetryTimer);
   cameraStreamImg.removeAttribute("src");
   cameraStreamImg.hidden = true;
-  cameraScreen.hidden = true;
-  faceScreenEl.hidden = false;
+  cameraScreen.classList.remove("camera-screen--visible"); // fundido de salida (300ms, robot.css)
+  setTimeout(() => {
+    cameraScreen.hidden = true;
+    faceScreenEl.hidden = false;
+  }, 300);
   stopDetectionsPolling();
   enterConversationMode();
 }
@@ -926,8 +978,17 @@ cameraStreamImg.addEventListener("error", () => {
     "No se pudo conectar con la cámara. Verifica que backend/main.py esté corriendo.";
 });
 
-activateBtn.addEventListener("click", activateRobot);
-deactivateBtn.addEventListener("click", deactivateRobot);
+// Clic corto y discreto en los dos botones reales de la interfaz — mismo
+// tono "neutral" que ya usa playExpressionSound para cambios sin carga
+// emocional, no un sonido de clic nuevo aparte.
+activateBtn.addEventListener("click", () => {
+  playTone({ freqStart: 420, duration: 0.08, gain: 0.04 });
+  activateRobot();
+});
+deactivateBtn.addEventListener("click", () => {
+  playTone({ freqStart: 420, duration: 0.08, gain: 0.04 });
+  deactivateRobot();
+});
 
 // ============================================================================
 // PANTALLA DE ESPERA (arranque) + GUION DE PRESENTACIÓN
@@ -952,6 +1013,44 @@ deactivateBtn.addEventListener("click", deactivateRobot);
 // no tiene relación con este guion y sigue funcionando igual que antes).
 // ============================================================================
 
+// ---------------------------------------------------------------------
+// Canal hacia el video de la presentación (aether-video/player), que corre
+// en OTRO equipo. robot.js solo PUBLICA hechos de su propio ciclo real
+// (encendido, inicio/fin de cada frase del guion, "Lumina" escuchado) por
+// WebSocket al backend (/show/ws, backend/main.py), que los reenvía al
+// reproductor. El video se ancla a estos eventos, nunca a segundos fijos.
+// Sin backend o sin nadie escuchando, no pasa nada: Lumina funciona igual.
+// Único mensaje que ACEPTA de vuelta: {type:"wake"} (respaldo del clicker
+// del expositor si el reconocimiento no entiende "Lumina", ver
+// waitForLumina más abajo).
+// ---------------------------------------------------------------------
+let showSocket = null;
+
+function connectShowChannel() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  showSocket = new WebSocket(`${proto}://${location.host}/show/ws`);
+  showSocket.onmessage = (message) => {
+    let data = null;
+    try {
+      data = JSON.parse(message.data);
+    } catch {
+      return;
+    }
+    if (data.type === "wake") resolveLuminaWait("clicker");
+  };
+  showSocket.onclose = () => setTimeout(connectShowChannel, 2000);
+}
+
+function emitShowEvent(type, data = {}) {
+  if (!showSocket || showSocket.readyState !== WebSocket.OPEN) return;
+  showSocket.send(JSON.stringify({ from: "lumina", type, sentAt: Date.now(), ...data }));
+}
+
+connectShowChannel();
+// Latido: el video distingue "Lumina está lenta" (sigue llegando) de "el
+// enlace se cayó" (deja de llegar) y solo en el segundo caso avanza solo.
+setInterval(() => emitShowEvent("alive"), 1000);
+
 const bootScreenEl = document.getElementById("boot-screen");
 const bootFlashEl = document.getElementById("boot-flash");
 const bootHiddenBtn = document.getElementById("boot-hidden-btn");
@@ -964,6 +1063,7 @@ let presentationStarted = false; // evita doble activación del guion
  * ('activando'), que ya reproduce el sonido de encendido de dos notas —
  * no se agrega ningún sonido ni animación nueva por separado. */
 function playPowerOnAnimation(onComplete) {
+  emitShowEvent("wake");
   bootFlashEl.classList.add("boot-flash--active");
   setTimeout(() => {
     setFaceExpression("activando");
@@ -995,7 +1095,7 @@ function greetBootWake() {
  * encendida (ver greetBootWake), así que esto solo arranca el guion, sin
  * otra animación de encendido encima. */
 function startPresentationFromVoice(transcript) {
-  if (mode !== "boot-awaiting-command" || presentationStarted) return;
+  if (presentationStarted) return;
   if (!/\biniciar\b/i.test(transcript) || !/\bpresentaci[oó]n\b/i.test(transcript)) return;
   presentationStarted = true;
   runPresentationScript();
@@ -1102,60 +1202,65 @@ const PRESENTATION_SCRIPT = [
     pause: 1.5,
     mood: "neutral",
   },
-  { speaker: "aether", text: "¿Quieren ver cómo funciono?", pause: 58, mood: "sorprendido" },
+  { speaker: "aether", text: "¿Quieren ver cómo funciono?", pause: 0, mood: "sorprendido" },
 
+  // Bloque del expositor: ya NO se cronometra (antes: pausa de 58 s + 12.3 s
+  // de pausas de estas líneas, y "Dígame, señor." salía por temporizador aunque
+  // el expositor siguiera hablando). Ahora el guion espera a oír "Lumina"
+  // (waitFor, ver runPresentationScript) — un expositor más lento o más rápido
+  // no rompe nada. Las líneas quedan como referencia del texto, sin pausa.
   { speaker: "expositor", text: "Ahora sí.", pause: 0 },
-  { speaker: "expositor", text: "Vamos a abrirlo.", pause: 0.8 },
+  { speaker: "expositor", text: "Vamos a abrirlo.", pause: 0 },
   {
     speaker: "expositor",
     text: "Cuando Aether dice que percibe, se refiere a algo concreto: un modelo de detección de objetos llamado YOLO.",
-    pause: 1.3,
+    pause: 0,
   },
-  { speaker: "expositor", text: "Cuando dice que identifica, no está adivinando.", pause: 0.6 },
+  { speaker: "expositor", text: "Cuando dice que identifica, no está adivinando.", pause: 0 },
   {
     speaker: "expositor",
     text: "Lee códigos de barras y códigos QR directamente sobre cada objeto que detecta, para saber exactamente qué producto es.",
-    pause: 1.3,
+    pause: 0,
   },
   {
     speaker: "expositor",
     text: "Y cuando dice que verifica su ubicación, lo hace con unos marcadores especiales llamados ArUco.",
-    pause: 0.7,
+    pause: 0,
   },
   {
     speaker: "expositor",
     text: "Es importante ser precisos: esto no es navegación autónoma todavía.",
-    pause: 0.6,
+    pause: 0,
   },
-  { speaker: "expositor", text: "Es una capa de verificación de posición.", pause: 0.6 },
+  { speaker: "expositor", text: "Es una capa de verificación de posición.", pause: 0 },
   {
     speaker: "expositor",
     text: "Aether confirma dónde está, pero todavía no decide por sí solo cómo recorrer un almacén completo.",
-    pause: 1.4,
+    pause: 0,
   },
   {
     speaker: "expositor",
     text: "Toda esa información está diseñada para procesarse sobre un Jetson Orin Nano Super: un sistema de cómputo en el borde, pensado para ejecutar modelos de inteligencia artificial directamente en el robot.",
-    pause: 1.3,
+    pause: 0,
   },
   {
     speaker: "expositor",
     text: "Y una vez que Aether decide qué vio, esa información no se queda suelta.",
-    pause: 0.7,
+    pause: 0,
   },
   {
     speaker: "expositor",
     text: "Se organiza en un motor de inventario propio, que separa cuidadosamente lo que se observó de lo que se declara como inventario real.",
-    pause: 1.5,
+    pause: 0,
   },
   {
     speaker: "expositor",
     text: "Así evitamos confundir una observación parcial con una certeza de inventario.",
-    pause: 1.5,
+    pause: 0,
   },
   { speaker: "expositor", text: "Pero no queremos quedarnos en una explicación.", pause: 0 },
   { speaker: "expositor", text: "Queremos que lo vean funcionando.", pause: 0 },
-  { speaker: "expositor", text: "Aether.", pause: 0 },
+  { speaker: "expositor", text: "Lumina.", pause: 0, waitFor: "lumina" },
 
   { speaker: "aether", text: "Dígame, señor.", pause: 4, mood: "neutral" },
 
@@ -1221,8 +1326,41 @@ const PRESENTATION_SCRIPT = [
   { speaker: "expositor", text: "Esto es Aether.", pause: 0 },
 ];
 
-function speakScripted(text) {
-  return new Promise((resolve) => speak(text, { onend: resolve }));
+/** `i` = número de frase de Aether en el guion (1..32, mismo orden que
+ * lumina_audio/guion.json). line-start se emite cuando el audio REALMENTE
+ * empieza (onplaying/onstart), no cuando se pide — entre ambos hay ~1-2 s de
+ * ElevenLabs (medido en aether-video/phase0). */
+function speakScripted(text, i) {
+  emitShowEvent("line-request", { i, text });
+  return new Promise((resolve) =>
+    speak(text, {
+      onstart: () => emitShowEvent("line-start", { i, text }),
+      onend: () => {
+        emitShowEvent("line-end", { i, text });
+        resolve();
+      },
+    }),
+  );
+}
+
+// Espera de "Lumina" dentro del guion (segmentos con waitFor). Se resuelve
+// desde handleVoiceCommand (voz) o desde el canal del video ({type:"wake"},
+// clicker del expositor como respaldo).
+let luminaWaitResolve = null;
+
+function waitForLumina() {
+  emitShowEvent("await-lumina");
+  return new Promise((resolve) => {
+    luminaWaitResolve = resolve;
+  });
+}
+
+function resolveLuminaWait(source) {
+  if (!luminaWaitResolve) return;
+  const resolve = luminaWaitResolve;
+  luminaWaitResolve = null;
+  emitShowEvent("heard-lumina", { source });
+  resolve();
 }
 
 function waitSeconds(seconds) {
@@ -1239,6 +1377,8 @@ function waitSeconds(seconds) {
  * detente" para salir, gobernado por el propio activateRobot()/mode). */
 async function runPresentationScript() {
   mode = "script";
+  emitShowEvent("script-start");
+  let lineIndex = 0;
   for (const segment of PRESENTATION_SCRIPT) {
     if (segment.speaker === "cue") {
       // Sin archivo de música disponible en el proyecto — no se fabrica
@@ -1249,13 +1389,15 @@ async function runPresentationScript() {
     }
     if (segment.speaker === "aether") {
       setFaceExpression(segment.mood || "neutral");
-      await speakScripted(segment.text);
+      await speakScripted(segment.text, ++lineIndex);
       if (segment.cueAfter === "activateCamera") activateRobot();
       if (segment.pause) await waitSeconds(segment.pause);
       continue;
     }
     // 'expositor': nunca se sintetiza — lo dice la persona en vivo. Solo
-    // se honra la misma pausa del guion antes de seguir.
+    // se honra la misma pausa del guion antes de seguir, o se espera a
+    // oír la palabra indicada (waitFor).
+    if (segment.waitFor === "lumina") await waitForLumina();
     if (segment.pause) await waitSeconds(segment.pause);
   }
 }
@@ -1283,6 +1425,10 @@ function cancelPendingConversation() {
     pendingAskController = null;
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (elevenAudio) {
+    elevenAudio.pause();
+    stopTalkingAnimation();
+  }
   // Por si se cambia a Modo Cámara mientras Lumina está a media oración: el
   // cancel() de arriba debería disparar el onerror ("interrupted") de la
   // utterance y reanudar el reconocimiento por ese camino, pero no hay que
@@ -1505,9 +1651,173 @@ function currentBaseMouthShape() {
   return cfg ? cfg.mouth : "flat";
 }
 
+// ---------- Subtítulos (DISENO.md 7.1/10.3) ----------
+// Palabra por palabra, al ritmo estimado de 13 caracteres/segundo que pide
+// el documento cuando no hay timing real de audio (ElevenLabs no expone
+// boundaries — ver honestidad en "ANIMACIÓN CONTINUA" arriba sobre por qué
+// tampoco hay AnalyserNode). Se desvanecen solas 8s después de terminar.
+const captionsEl = document.getElementById("face-captions");
+const essayStatusEl = document.getElementById("essay-status");
+const essayStatusTextEl = document.getElementById("essay-status-text");
+let essayWorking = false;
+let essayPoll = 0;
+let essayWarned = false;
+let essaySawBusy = false;
+
+function setEssayWorking(on) {
+  essayWorking = on;
+  faceScreenEl.classList.toggle("face-screen--essay", on);
+  essayStatusEl.hidden = !on;
+  if (!on) {
+    essayWarned = false;
+    essayStatusEl.classList.remove("essay-status--finishing");
+    if (essayStatusTextEl) essayStatusTextEl.textContent = "Escribiendo el ensayo…";
+    const cfg = EXPRESSIONS[currentExpression];
+    thinkingDotsEl.classList.toggle("face-dots--visible", !!(cfg && cfg.dots));
+  }
+}
+
+function warnEssayPaste() {
+  if (essayWarned) return;
+  essayWarned = true;
+  essayStatusEl.classList.add("essay-status--finishing");
+  if (essayStatusTextEl) essayStatusTextEl.textContent = "Ya casi. Voy a pegarlo en el documento.";
+  const done = () => {
+    fetch("/robot/essay/ready", { method: "POST" }).catch(() => {});
+  };
+  speak("Ya casi termino. Voy a pegar el ensayo en el documento. No muevas el mouse.", { onend: done });
+  setTimeout(done, 8000);
+}
+
+function applyEssayStatus(data) {
+  if (!data || (data.busy !== true && data.busy !== false)) return;
+  if (essayStatusTextEl && data.text && data.phase !== "finishing") {
+    essayStatusTextEl.textContent = data.text;
+  }
+  if (data.phase === "finishing") warnEssayPaste();
+  if (data.busy) {
+    essaySawBusy = true;
+    setEssayWorking(true);
+    return;
+  }
+  if (essayPoll) {
+    clearInterval(essayPoll);
+    essayPoll = 0;
+  }
+  if (essaySawBusy && (data.phase === "done" || data.phase === "failed")) {
+    setEssayWorking(true);
+    if (essayStatusTextEl && data.text) essayStatusTextEl.textContent = data.text;
+    return;
+  }
+  setEssayWorking(false);
+}
+
+function syncEssayStatus() {
+  return fetch("/robot/essay", { cache: "no-store" })
+    .then((response) => (response.ok ? response.json() : null))
+    .then((data) => {
+      if (!data) return;
+      applyEssayStatus(data);
+      if (data.busy && !essayPoll) startEssayWatch();
+    })
+    .catch(() => {});
+}
+
+function startEssayWatch() {
+  setEssayWorking(true);
+  if (essayPoll) return;
+  const tick = async () => {
+    try {
+      const response = await fetch("/robot/essay", { cache: "no-store" });
+      if (!response.ok) return;
+      applyEssayStatus(await response.json());
+    } catch {
+      /* el aviso sigue; un fallo de red no lo apaga */
+    }
+  };
+  tick();
+  essayPoll = setInterval(tick, 1000);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") syncEssayStatus();
+});
+syncEssayStatus();
+const CAPTION_CHARS_PER_SEC = 13;
+let captionRevealTimer = null;
+let captionHideTimer = null;
+
+function showCaption(text) {
+  clearTimeout(captionRevealTimer);
+  clearTimeout(captionHideTimer);
+  const words = text.split(/\s+/).filter(Boolean);
+  captionsEl.innerHTML = words.map((w) => `<span class="cap-word">${w}</span>`).join(" ");
+  captionsEl.classList.add("face-captions--visible");
+  const spans = captionsEl.querySelectorAll(".cap-word");
+  let i = 0;
+  const revealNext = () => {
+    if (i >= spans.length) return;
+    spans[i].classList.add("cap-word--said");
+    const delay = Math.max(90, (spans[i].textContent.length / CAPTION_CHARS_PER_SEC) * 1000);
+    i++;
+    captionRevealTimer = setTimeout(revealNext, delay);
+  };
+  revealNext();
+}
+
+function hideCaptionSoon() {
+  captionHideTimer = setTimeout(() => captionsEl.classList.remove("face-captions--visible"), 8000);
+}
+
 /** Dice `text` en voz alta con la mejor voz en español disponible (ver
  * selección arriba) y un timbre cálido, no robótico. */
-function speak(text, { onend } = {}) {
+let elevenAudio = null;
+
+/** Voz de ElevenLabs vía POST /robot/tts; si falla (sin key, sin red, etc.)
+ * cae a speechSynthesis. La boca sigue siendo procedural (ver nota arriba):
+ * ahora que hay un <audio> real sería posible un AnalyserNode, pendiente. */
+async function speak(text, { onend, onstart } = {}) {
+  showCaption(text);
+  pauseRecognitionForSpeech();
+  // 'playing' puede dispararse más de una vez (re-buffer, medido en la
+  // Fase 0) — onstart solo la primera.
+  let started = false;
+  const startedOnce = () => {
+    if (started) return;
+    started = true;
+    if (onstart) onstart();
+  };
+  try {
+    const response = await fetch("/robot/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!response.ok) throw new Error(`tts ${response.status}`);
+    const url = URL.createObjectURL(await response.blob());
+    if (elevenAudio) elevenAudio.pause();
+    const audio = (elevenAudio = new Audio(url));
+    const done = () => {
+      URL.revokeObjectURL(url);
+      stopTalkingAnimation();
+      resumeRecognitionAfterSpeech();
+      hideCaptionSoon();
+      if (onend) onend();
+    };
+    audio.onplaying = () => {
+      startedOnce();
+      startTalkingAnimation();
+    };
+    audio.onended = done;
+    audio.onerror = done;
+    await audio.play();
+  } catch (err) {
+    console.warn("Aether: ElevenLabs no disponible, uso voz del navegador.", err);
+    speakBrowser(text, { onend, onstart: startedOnce });
+  }
+}
+
+function speakBrowser(text, { onend, onstart } = {}) {
   if (!("speechSynthesis" in window)) {
     console.warn("Aether: speechSynthesis no está disponible en este navegador.");
     if (onend) onend();
@@ -1525,7 +1835,10 @@ function speak(text, { onend } = {}) {
 
   if (selectedVoice) utterance.voice = selectedVoice;
 
-  utterance.onstart = () => startTalkingAnimation();
+  utterance.onstart = () => {
+    if (onstart) onstart();
+    startTalkingAnimation();
+  };
   // onboundary: único timing real de habla que el navegador entrega para
   // speechSynthesis — ver "ANIMACIÓN CONTINUA" arriba sobre por qué no hay
   // forma de ir más allá de esto (no existe AnalyserNode posible sobre
@@ -1536,12 +1849,14 @@ function speak(text, { onend } = {}) {
   utterance.onend = () => {
     stopTalkingAnimation();
     resumeRecognitionAfterSpeech();
+    hideCaptionSoon();
     if (onend) onend();
   };
   utterance.onerror = (event) => {
     console.warn("Aether: error de síntesis de voz.", event);
     stopTalkingAnimation();
     resumeRecognitionAfterSpeech();
+    hideCaptionSoon();
     if (onend) onend();
   };
 
@@ -1559,6 +1874,7 @@ async function askLumina(question) {
   pendingAskController = new AbortController();
 
   let answer;
+  let working = "";
   try {
     const response = await fetch("/robot/ask", {
       method: "POST",
@@ -1572,6 +1888,7 @@ async function askLumina(question) {
     }
     const data = await response.json();
     answer = data.answer;
+    working = data.working || "";
   } catch (err) {
     pendingAskController = null;
     if (err.name === "AbortError") return; // cancelado a propósito (ver cancelPendingConversation)
@@ -1588,6 +1905,7 @@ async function askLumina(question) {
   }
   pendingAskController = null;
 
+  if (working === "essay") startEssayWatch();
   if (mode !== "conversation") return; // cambiaron a Modo Cámara mientras Ollama pensaba
   console.log(`Aether · Lumina responde: "${answer}"`);
   setFaceExpression(chooseExpressionForAnswer(answer));
@@ -1616,6 +1934,172 @@ function togglePresentationMode() {
   if (mode === "conversation" && conversationSubState === "listening") {
     setFaceExpression(restingExpression());
   }
+}
+
+// "Lumina, llámame" — llamada de voz real vía Zavu (POST /robot/call,
+// backend/main.py). 503 si backend/.env no tiene ZAVUDEV_API_KEY/
+// LUMINA_CALL_TO configurados — no se finge una llamada que no salió.
+const CALL_PATTERN = /\bll[aá]mame\b/i;
+
+function heardCallCommand(transcript) {
+  return LUMINA_PATTERN.test(transcript) && CALL_PATTERN.test(transcript);
+}
+
+// "Lumina, llama a mamá" / "Lumina, llama a Ivonne y dile que ya voy" — solo
+// contactos de backend/contactos.json: aquí se manda el NOMBRE, nunca un
+// número; si no está en la lista, el backend responde 404 y no marca nada.
+const CALL_CONTACT_PATTERN = /\bll[aá]ma(?:le)?\s+(?:a|al|a la)\s+(.+)$/i;
+// Cualquier forma de "llamar" que el reconocedor suele transcribir.
+const CALL_VERB_PATTERN = /\b(ll[aá]ma(?:le|r)?|llam[oó]|llamada|m[aá]rca(?:le|r)?|comun[ií]ca(?:me)?|h[aá]bla(?:le)?)\b/i;
+const MESSAGE_SPLIT = /\s+y\s+(?:dile|d[ií]gale|av[ií]sale)\s+(?:que\s+)?/i;
+
+// Nombres de la agenda (GET /robot/contacts: solo nombres, nunca números).
+// Con ellos se reconoce "llama daniela", "llamada a daniela álvarez", etc.
+let contactNames = [];
+const plainText = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+function refreshContactNames() {
+  fetch("/robot/contacts")
+    .then((r) => (r.ok ? r.json() : { names: [] }))
+    .then((d) => {
+      // Los más largos primero: "daniela alvarez" gana a "daniela".
+      contactNames = (d.names || []).sort((a, b) => b.length - a.length);
+    })
+    .catch(() => {});
+}
+refreshContactNames();
+setInterval(refreshContactNames, 60000);
+
+function heardCallContact(transcript) {
+  if (!LUMINA_PATTERN.test(transcript)) return null;
+  const [head, tail = ""] = transcript.split(MESSAGE_SPLIT);
+  const message = tail.replace(/[.!?]+$/, "").trim();
+  // 1) Verbo de llamar + un nombre que SÍ está en la agenda, en cualquier orden.
+  if (CALL_VERB_PATTERN.test(head)) {
+    const plainHead = plainText(head);
+    const known = contactNames.find((n) => new RegExp(`(^|[^a-z])${plainText(n).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`).test(plainHead));
+    if (known) return { name: known, message };
+  }
+  // 2) "llama a X" explícito aunque X no esté: el backend dirá que no está en la agenda.
+  const m = CALL_CONTACT_PATTERN.exec(head);
+  if (!m) return null;
+  const name = m[1].replace(/^mis?\s+/i, "").replace(/[.,!?¡¿]+/g, "").trim();
+  return name ? { name, message } : null;
+}
+
+// Estado real de la llamada — leído por updateStatusIndicator (prioridad
+// más alta que escuchando/pensando/hablando). La pantalla de llamada
+// (Remotion Player, /call-screen.js → window.LuminaCall) sustituye a la cara
+// mientras dura: marcando → contestó / no contestó / falló.
+let callState = null; // null | "calling" | "called" | "failed"
+
+const CALL_POLL_MS = 1500;
+const CALL_MAX_WAIT_MS = 120000;
+const callPause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Muestra la pantalla de llamada; si /call-screen.js no cargó, quedan los subtítulos. */
+function openCallScreen(title, message) {
+  if (!window.LuminaCall) {
+    showCaption(`Llamando a ${title}…`);
+    return;
+  }
+  faceScreenEl.hidden = true;
+  window.LuminaCall.start(title, message);
+}
+
+function setCallScreen(state, detail) {
+  if (window.LuminaCall) window.LuminaCall.set(state, detail);
+  else {
+    showCaption(detail || { answered: "Contestó.", no_answer: "No contestó.", failed: "No pude llamar." }[state] || "");
+    hideCaptionSoon();
+  }
+}
+
+/** Cierra la pantalla de llamada tras `ms` y devuelve la cara. */
+function closeCallScreen(ms) {
+  setTimeout(() => {
+    window.LuminaCall?.end();
+    setTimeout(() => {
+      faceScreenEl.hidden = false;
+      callState = null;
+      if (mode === "conversation" && conversationSubState === "listening") {
+        setFaceExpression(restingExpression());
+      }
+    }, 700);
+  }, ms);
+}
+
+/** Sin contacto: "llámame" (LUMINA_CALL_TO). Con contacto: un nombre de
+ * backend/contactos.json y, opcional, el mensaje que se le dicta. La
+ * pantalla sigue el estado REAL que reporta Zavu (GET /robot/call/<id>):
+ * sent = marcando/sonando, delivered = contestó y escuchó el mensaje,
+ * failed + timeout = no contestó. Zavu no avisa el instante exacto en que
+ * contestan: "contestó" se confirma al entregarse el mensaje. */
+async function placeCall(contact = null, message = "") {
+  if (callState) return; // ya hay una llamada en curso en pantalla
+  callState = "calling";
+  const title = contact
+    ? contact
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
+    : "Tu teléfono";
+  openCallScreen(title, message);
+  let messageId = null;
+  try {
+    const response = await fetch(
+      "/robot/call",
+      contact
+        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contact, message }) }
+        : { method: "POST" },
+    );
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      const err = new Error(data?.detail || `error ${response.status}`);
+      err.status = response.status;
+      throw err;
+    }
+    messageId = data?.messageId;
+  } catch (err) {
+    console.warn("Aether: no se pudo llamar por Zavu.", err);
+    callState = "failed";
+    setCallScreen(
+      "failed",
+      err.status === 404
+        ? "No está en mis contactos."
+        : err.status === 429
+          ? "Ya hice varias llamadas seguidas; espera unos minutos."
+          : "Zavu no respondió.",
+    );
+    closeCallScreen(5000);
+    return;
+  }
+  const started = Date.now();
+  while (messageId && Date.now() - started < CALL_MAX_WAIT_MS) {
+    await callPause(CALL_POLL_MS);
+    let status;
+    try {
+      status = await (await fetch(`/robot/call/${messageId}`)).json();
+    } catch {
+      continue; // un tropiezo de red no termina la llamada
+    }
+    if (status.status === "delivered" || status.status === "read") {
+      callState = "called";
+      setCallScreen("answered");
+      closeCallScreen(6000);
+      return;
+    }
+    if (status.status === "failed") {
+      callState = "failed";
+      const code = status.errorCode || "";
+      if (/timeout|no.?answer|busy/i.test(code)) setCallScreen("no_answer", /busy/i.test(code) ? "Estaba ocupado." : "");
+      else setCallScreen("failed", /^RISK_/i.test(code) ? "Zavu bloqueó la llamada por su contenido." : `Zavu: ${code || "error"}`);
+      closeCallScreen(5000);
+      return;
+    }
+  }
+  callState = "failed";
+  setCallScreen("failed", "Zavu no confirmó la llamada.");
+  closeCallScreen(5000);
 }
 
 // ============================================================================
@@ -1684,7 +2168,9 @@ const voiceStatusDotEl = document.getElementById("voice-status-dot");
 // texto, y por separado una palabra de inicio/paro en cualquier parte del
 // mismo texto. No importa el orden ni qué tan lejos estén una de otra
 // dentro de la frase escuchada.
-const LUMINA_PATTERN = /\b(lumina|ilumina|luminia)\b/i;
+// "lumia" es una transcripción real observada en consola ("lumia.") para
+// "Lumina" — sin ella la palabra clave simplemente no se reconocía.
+const LUMINA_PATTERN = /\b(lumina|ilumina|luminia|lumia)\b/i;
 const START_WORD_PATTERN =
   /\b(inicia|inicio|iniciar|enciende|encendido|arranca|arranque|empieza|comienza|activa|prende)\b/i;
 // Bug real reportado ("no funcionan todas las preguntas"): "para" y "alto"
@@ -1698,6 +2184,8 @@ const START_WORD_PATTERN =
 const STOP_WORD_PATTERN = /\b(det[eé]n|detente|apaga|termina)\b/i;
 
 function heardStartCommand(transcript) {
+  // "Lumina, iniciar presentación" es el guion, no la cámara.
+  if (/\bpresentaci[oó]n\b/i.test(transcript)) return false;
   return LUMINA_PATTERN.test(transcript) && START_WORD_PATTERN.test(transcript);
 }
 
@@ -1741,6 +2229,9 @@ function heardExpressionCommand(transcript) {
 // combinado como una sola frase — así sobrevive la fragmentación sin
 // importar en cuántos pedazos la parta el navegador.
 const VOICE_COMMAND_DEBOUNCE_MS = 600;
+// "Lumina, llama a Pedro… y dile que…": al dictar el mensaje la gente hace
+// pausas más largas que 600 ms, y la llamada salía con el mensaje cortado.
+const CALL_COMMAND_DEBOUNCE_MS = 2000;
 let pendingTranscriptBuffer = "";
 let voiceCommandDebounceTimer = null;
 
@@ -1749,12 +2240,13 @@ function queueVoiceFragment(transcript) {
     ? `${pendingTranscriptBuffer} ${transcript}`
     : transcript;
   clearTimeout(voiceCommandDebounceTimer);
+  const wait = heardCallContact(pendingTranscriptBuffer) ? CALL_COMMAND_DEBOUNCE_MS : VOICE_COMMAND_DEBOUNCE_MS;
   voiceCommandDebounceTimer = setTimeout(() => {
     const combined = pendingTranscriptBuffer;
     pendingTranscriptBuffer = "";
     console.log(`Aether · escuchado (${mode}): "${combined}"`);
     handleVoiceCommand(combined);
-  }, VOICE_COMMAND_DEBOUNCE_MS);
+  }, wait);
 }
 
 /** Un solo lugar que decide qué hacer con una frase YA FINALIZADA (ver el
@@ -1774,14 +2266,46 @@ function handleVoiceCommand(transcript) {
   // el guion, ningún otro comando de voz (ni preguntas a Ollama) debe
   // procesarse.
   if (mode === "boot") {
-    if (LUMINA_PATTERN.test(transcript)) greetBootWake();
-    return;
+    if (!LUMINA_PATTERN.test(transcript)) return;
+    const rest = transcript
+      .replace(LUMINA_PATTERN, " ")
+      .replace(/[¿?¡!.,;:]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    greetBootWake();
+    // "Lumina" sola solo enciende. Si la misma frase ya trae el pedido
+    // ("enséñanos quién eres"), no se tira: se sigue abajo.
+    if (!rest) return;
+  }
+  // "Lumina" (te oí) — DISENO.md 9.2: 660→880 Hz, 0.12s. Único aviso
+  // sonoro de que la palabra clave se reconoció, separado del sonido por
+  // categoría de expresión (playExpressionSound), que solo suena si la
+  // expresión de la cara realmente cambia.
+  if (mode !== "script" && LUMINA_PATTERN.test(transcript)) {
+    playTone({ freqStart: 660, freqEnd: 880, duration: 0.12, gain: 0.05 });
   }
   if (mode === "boot-awaiting-command") {
+    if (/\biniciar\b/i.test(transcript) && /\bpresentaci[oó]n\b/i.test(transcript)) {
+      startPresentationFromVoice(transcript);
+      return;
+    }
+    // Cualquier otro comando real ("llámame", "inicia", una pregunta) no
+    // debe perderse solo porque no se dijo el guion de presentación — el
+    // guion es opcional, no un paso obligatorio para usar a Lumina. Entra
+    // a conversación normal y sigue procesando esta misma frase abajo.
+    enterConversationMode();
+  }
+  if (mode === "script") {
+    // Guion en curso — el micrófono no lo interrumpe, salvo para la única
+    // espera explícita del guion ("Lumina" del expositor, ver waitForLumina).
+    if (LUMINA_PATTERN.test(transcript)) resolveLuminaWait("voz");
+    return;
+  }
+
+  if (/\biniciar\b/i.test(transcript) && /\bpresentaci[oó]n\b/i.test(transcript)) {
     startPresentationFromVoice(transcript);
     return;
   }
-  if (mode === "script") return; // guion en curso — el micrófono no debe interrumpirlo
 
   if (heardStartCommand(transcript)) {
     activateRobot();
@@ -1796,6 +2320,17 @@ function handleVoiceCommand(transcript) {
   // A partir de aquí, Modo Conversación.
   if (heardPresentationCommand(transcript)) {
     togglePresentationMode();
+    return;
+  }
+
+  const callTarget = heardCallContact(transcript);
+  if (callTarget) {
+    placeCall(callTarget.name, callTarget.message);
+    return;
+  }
+
+  if (heardCallCommand(transcript)) {
+    placeCall();
     return;
   }
 
@@ -1925,7 +2460,7 @@ if (SpeechRecognitionImpl) {
   // resumeRecognitionAfterSpeech() cuando la utterance termine, nunca antes.
   recognition.addEventListener("end", () => {
     setListeningIndicator(false);
-    if (recognitionPausedForSpeech) return;
+    if (recognitionPausedForSpeech || micYielded) return;
     if (shouldKeepListening) {
       try {
         recognition.start();
@@ -1936,7 +2471,7 @@ if (SpeechRecognitionImpl) {
   });
 
   try {
-    recognition.start();
+    if (!micYielded) recognition.start();
   } catch (err) {
     setAttentionIndicator("no se pudo iniciar el reconocimiento");
     console.warn("Aether · no se pudo iniciar el reconocimiento de voz.", err);
@@ -1979,3 +2514,54 @@ if (!prefersReducedMotion && hasFinePointer) {
     faceStageEl.style.setProperty("--parallax-y", relY.toFixed(3));
   });
 }
+
+// ============================================================================
+// Reloj + fecha real (DISENO.md 7.1, fila superior izquierda) — hora del
+// sistema del navegador, nada simulado.
+// ============================================================================
+const clockTimeEl = document.getElementById("face-clock-time");
+const clockDateEl = document.getElementById("face-clock-date");
+function tickClock() {
+  const now = new Date();
+  clockTimeEl.textContent = now.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+  clockDateEl.textContent = now.toLocaleDateString("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+}
+tickClock();
+setInterval(tickClock, 15000);
+
+// ============================================================================
+// Sugerencia rotativa (DISENO.md 7.1/10.3) — comandos de voz REALES que
+// handleVoiceCommand ya reconoce, nunca inventados. Cada 7s, solo mientras
+// la cara está de verdad en reposo (conversando, escuchando, pestaña
+// visible) — no en Modo Cámara ni mientras Lumina piensa/habla.
+// ============================================================================
+const suggestionEl = document.getElementById("face-suggestion");
+const SUGGESTIONS = [
+  "Di «Lumina, inicia» para ver con la cámara",
+  "Di «Lumina, llámame» y te llamo por teléfono",
+  "Di «Lumina, llama a …» para llamar a un contacto",
+  "Di «Lumina, presentación» para el modo presentación",
+  "Pregúntame lo que quieras",
+];
+let suggestionIndex = 0;
+function rotateSuggestion() {
+  const shouldShow =
+    mode === "conversation" && conversationSubState === "listening" && document.visibilityState === "visible";
+  if (!shouldShow) {
+    suggestionEl.classList.remove("face-suggestion--visible");
+    return;
+  }
+  suggestionEl.classList.remove("face-suggestion--visible");
+  setTimeout(() => {
+    if (mode !== "conversation" || conversationSubState !== "listening") return; // cambió mientras esperaba el fundido
+    suggestionEl.textContent = SUGGESTIONS[suggestionIndex % SUGGESTIONS.length];
+    suggestionIndex++;
+    suggestionEl.classList.add("face-suggestion--visible");
+  }, 300);
+}
+setInterval(rotateSuggestion, 7000);
+rotateSuggestion();
