@@ -22,7 +22,11 @@
 # en el Jetson; las versiones exactas que funcionen irán en
 # docs/jetson/SETUP_JETSON.md.
 
-numpy<2
+# ultralytics pide numpy>=1.23.0 y el del sistema (Ubuntu 22.04) es 1.21.5, que pip
+# da por bueno con `numpy<2` porque el venv ve los paquetes del sistema. Con este
+# rango pip instala un numpy 1.26.x DENTRO del venv, sin tocar el del sistema.
+# Hay que comprobar que cv2 (compilado con el numpy viejo) sigue importando.
+numpy>=1.23,<2
 
 # backend/main.py
 fastapi
