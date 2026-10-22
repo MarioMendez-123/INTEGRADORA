@@ -376,3 +376,62 @@ los FPS al alargar la exposición automática.
   después de repetir las mediciones con buena luz.
 - Al repetir, anotar también el modo de energía (`nvpmodel`), la resolución y el
   formato (YUYV o MJPG) usados.
+
+---
+
+## Sesión 4 — 2026-10-21 — `libcusparseLt` instalada y corrección de `requirements-jetson.txt`
+
+**Quién ejecutó qué:** Mario corrió los comandos en el Jetson y reportó el resultado.
+Claude revisó las dependencias en la laptop.
+
+### `libcusparseLt 0.6.2.3` en el Jetson (reportado por Mario)
+
+| Comprobación | Resultado reportado |
+|---|---|
+| Descarga | 12 869 440 bytes; sha256 `b081a82a…79811`, igual al calculado en la laptop |
+| `file` de la librería | ELF 64-bit LSB shared object, ARM aarch64 |
+| Copia | a `/usr/local/cuda/lib64` (`libcusparseLt.so` → `.so.0` → `.so.0.6.2.3`) y `ldconfig` |
+| `ldconfig -p` | lista `libcusparseLt.so.0` en `/usr/local/cuda/targets/aarch64-linux/lib/` |
+| `ctypes.CDLL('libcusparseLt.so.0')` | imprime "carga OK" |
+
+**Solo se probó que la librería se carga, no que PyTorch funcione con ella.**
+
+**No confirmado** (Mario dejó vacíos esos campos al reportar): que la cabecera
+`cusparseLt.h` esté en `/usr/local/cuda/include`, y que `git pull` en el Jetson haya
+quedado en `7a93a88`. Se vuelven a comprobar en el primer bloque de comandos de la
+sesión.
+
+### Hallazgo: `ultralytics-thop` arrastraba `torch`
+
+Con `pip install --dry-run --report` para Linux aarch64, Python 3.10, `cp310`
+(resolvedor real de pip, contra PyPI), `requirements-jetson.txt` traía `torch`
+2.14.1 de PyPI, sin el soporte de GPU de NVIDIA, a través de `ultralytics-thop`.
+Con el orden previsto (requisitos primero, PyTorch de NVIDIA después) habría
+pisado esa instalación. **Corregido:** `ultralytics-thop` salió del archivo y se
+instala aparte con `pip install --no-deps ultralytics ultralytics-thop`.
+
+Resultado tras la corrección (verificado con el mismo `--dry-run`): 43 paquetes,
+**ninguno `torch`, `torchvision` ni `opencv`**, y `numpy` 1.26.4 (menor que 2). Se
+cuela `nvidia-ml-py`, que son los enlaces de Python de NVML, no el entorno de CUDA.
+
+Limitación: pip evaluó los marcadores de entorno del equipo donde corrió (Windows),
+así que no muestra dependencias que solo aplican en Linux (por ejemplo `uvloop`, que
+trae `uvicorn[standard]`). Ninguna de esas es `torch` ni `opencv`; la lista real
+puede diferir un poco. Aparte, el venv usa `--system-site-packages`: `numpy` del
+sistema podría quedar sombreado por el de 1.26.4 del venv, así que se comprueba
+`import cv2` después de instalar.
+
+### Decisiones
+
+- La IP `192.168.100.19`, `mario@mario-desktop` y `mario-desktop.local` se dejan en
+  la documentación (decisión de Mario).
+
+### Estado final
+
+| | Estado |
+|---|---|
+| `libcusparseLt 0.6.2.3` instalada y carga | **Reportado por Mario** |
+| Cabecera `cusparseLt.h` y `git pull` a `7a93a88` | **NO confirmado** |
+| `requirements-jetson.txt` sin `torch`, `numpy` 2 ni `opencv-python` | **Verificado** con `pip --dry-run` (con la limitación de arriba) |
+| Venv, instalación de requisitos, PyTorch | **Pendiente** |
+| PyTorch funciona con esta `libcusparseLt` | **NO verificado** |
