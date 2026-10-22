@@ -360,3 +360,19 @@ un `scp`), el Jetson no tiene esos archivos.
 1. Instalar `libcusparseLt` y verificar que `libcusparseLt.so.0` carga.
 2. Aprobar y comitear el cambio de `CameraPublisher`; subir la rama al Jetson.
 3. Crear el venv, instalar `requirements-jetson.txt`, y solo entonces torch y torchvision.
+
+### Pendiente de repetir: FPS, exposición y calidad de imagen (nota de Mario)
+
+Las pruebas de cámara de la sesión 3 se hicieron en un **cuarto oscuro** y con la
+**cámara sin acomodar** en su posición final. Por eso los ~15 fps que se vieron y
+la exposición **no son representativos**: con poca luz muchas cámaras USB bajan
+los FPS al alargar la exposición automática.
+
+- **Pendiente de repetir** con buena luz y la cámara en su posición final: FPS,
+  exposición y calidad de imagen. Hasta entonces, ninguno de esos tres datos se
+  usa para los umbrales `[PENDIENTE]` de `criterios_aceptacion.md`.
+- **Decisión:** el cambio de `CameraPublisher` NO incluye control de exposición ni
+  de framerate dinámico (`exposure_dynamic_framerate`). Se decidirá, si hace falta,
+  después de repetir las mediciones con buena luz.
+- Al repetir, anotar también el modo de energía (`nvpmodel`), la resolución y el
+  formato (YUYV o MJPG) usados.
