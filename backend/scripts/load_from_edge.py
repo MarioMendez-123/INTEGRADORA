@@ -16,7 +16,7 @@ Se corre a mano, después de correr aggregate_observations.py en edge/.
 import json
 import logging
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Permite importar backend/logging_config.py y backend/db sin importar desde
@@ -44,7 +44,7 @@ def main() -> None:
     with DECLARED_INVENTORY_PATH.open(encoding="utf-8") as f:
         entries = json.load(f)
 
-    recorded_at = datetime.now(UTC).isoformat()
+    recorded_at = datetime.now(timezone.utc).isoformat()
 
     session = SessionLocal()
     try:

@@ -24,7 +24,7 @@ import json
 import os
 import shutil
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 PERCEPTION_DIR = Path(__file__).resolve().parent
@@ -138,7 +138,7 @@ def publish_if_better(
     report = {
         "classes": names,
         "map50": map50,
-        "trained_at": datetime.now(UTC).isoformat(),
+        "trained_at": datetime.now(timezone.utc).isoformat(),
     }
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return True

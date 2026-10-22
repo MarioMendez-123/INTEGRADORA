@@ -21,7 +21,7 @@ import json
 import os
 import re
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -176,7 +176,7 @@ def _images_in(split_dir: Path) -> list[Path]:
 
 
 def _iso(timestamp: float) -> str:
-    return datetime.fromtimestamp(timestamp, UTC).isoformat()
+    return datetime.fromtimestamp(timestamp, timezone.utc).isoformat()
 
 
 def _read_report() -> dict | None:

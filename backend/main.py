@@ -19,7 +19,7 @@ import urllib.error
 import urllib.request
 from collections import deque
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import Cookie, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
@@ -397,7 +397,7 @@ def _make_perception_processor():
 
             _notify_perception_observation_sinks(
                 {
-                    "timestamp": datetime.now(UTC).isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "detected_class": class_name,
                     "code_data": data,
                     "code_read": bool(codes),

@@ -17,7 +17,7 @@ de agregación+carga, para poder probarse sin cámara ni base de datos reales
 import logging
 import threading
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ class InventoryRefreshLoop:
         if not observations:
             logger.info("Auto-refresh: sin detecciones nuevas en esta ventana, se omite el ciclo.")
             with self._lock:
-                self._last_run_at = datetime.now(UTC).isoformat()
+                self._last_run_at = datetime.now(timezone.utc).isoformat()
                 self._last_run_observation_count = 0
             return
 
@@ -132,7 +132,7 @@ class InventoryRefreshLoop:
             return
 
         with self._lock:
-            self._last_run_at = datetime.now(UTC).isoformat()
+            self._last_run_at = datetime.now(timezone.utc).isoformat()
             self._last_run_observation_count = len(observations)
             self._last_error = None
         logger.info("Auto-refresh: %d observaciones procesadas.", len(observations))

@@ -36,7 +36,7 @@ import json
 import logging
 import sys
 from dataclasses import asdict
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import cv2
@@ -165,7 +165,7 @@ def main() -> None:
 
                 observations.append(
                     Observation(
-                        timestamp=datetime.now(UTC).isoformat(),
+                        timestamp=datetime.now(timezone.utc).isoformat(),
                         detected_class=class_name,
                         code_data=data,
                         code_read=bool(codes),
