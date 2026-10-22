@@ -435,3 +435,25 @@ sistema podría quedar sombreado por el de 1.26.4 del venv, así que se comprueb
 | `requirements-jetson.txt` sin `torch`, `numpy` 2 ni `opencv-python` | **Verificado** con `pip --dry-run` (con la limitación de arriba) |
 | Venv, instalación de requisitos, PyTorch | **Pendiente** |
 | PyTorch funciona con esta `libcusparseLt` | **NO verificado** |
+
+### Bloque 1 en el Jetson: pull, cabecera y venv (reportado por Mario)
+
+Salida pegada por Mario (corrida dentro de `tmux`, copia en `~/bloque1.txt` del Jetson):
+
+| Comprobación | Resultado |
+|---|---|
+| `git pull` | Fast-forward `c0c9924..7a93a88`, 6 archivos nuevos; `git log --oneline -1` → `7a93a88` |
+| `/usr/local/cuda/include/cusparseLt.h` | existe, 16 823 bytes |
+| `backend/requirements-jetson.txt` | existe, 1 372 bytes (**versión anterior a la corrección de `ultralytics-thop`**; la corregida está en `81cc730`, subido después) |
+| Venv `~/aether/backend/.venv` (`--system-site-packages`) | creado; `python` en `.venv/bin/python`, Python 3.10.12; `pip` 22.0.2 desde el propio venv |
+| `import gpiod` | `ModuleNotFoundError: No module named 'gpiod'` (como debe ser) |
+| `cv2` y `numpy` | `4.8.0` y `1.21.5` (los del sistema) |
+| `import torch` | `ModuleNotFoundError: No module named 'torch'` (como debe ser) |
+
+Observación: el `numpy` del sistema es 1.21.5. `matplotlib`, que está en la lista,
+pide numpy 1.23 o superior, así que `pip` instalará un `numpy` 1.26.x dentro del
+venv que tapará al del sistema. `cv2` 4.8.0 se compiló contra un `numpy` más viejo;
+dentro de la serie 1.x suele funcionar, pero **no verificado**: se comprueba
+`import cv2` y una operación con arreglos justo después de instalar.
+
+Todavía **no** se instaló nada con `pip` en el venv.
