@@ -622,3 +622,19 @@ para no abrir GPIO) quedan como propuesta, a decidir por Mario.
 | Ningún botón mueve algo físico con `gpiod` ausente | **Leído en el código y reproducido en la laptop**; en el Jetson solo se verificó `import gpiod` |
 | Cámara forzada a V4L2, MJPG 640x480 | **Pendiente** (esperando el log) |
 | SSH sin contraseña y arranque remoto con tmux | **Pendiente** |
+
+### Jetson alcanza el backend de la laptop, y borrador de ADR 0011 (2026-10-21)
+
+- **Reportado por Mario:** desde el Jetson, `curl http://192.168.100.14:8000/health` devolvió
+  `{"status":"ok"}` (laptop por WiFi, Jetson por cable, misma red `192.168.100.x`). Antes dio
+  timeout porque el backend no estaba corriendo en la laptop.
+- **Borrador de ADR 0011** (`docs/architecture/decisions/0011-reparto-de-roles-y-agentes.md`):
+  reparto de roles (laptop: backend, base de datos, LLM y lógica de Lumina; Jetson: cámara,
+  YOLO e interfaces; Pi 4: interfaz de la celda, su cámara y su visión), contrato de agentes
+  reutilizando lo que ya existe en `main.py`, y lista de deuda documental. **Estado: borrador,
+  NO decidido. No se escribió código.**
+- **Hallazgo que condiciona el reparto (leído en el código):** todas las páginas usan rutas
+  relativas al mismo servidor, y `PublicGuard` solo permite CORS desde `localhost:8000` y los
+  dominios públicos. `robot.html` usa `SpeechRecognition` del navegador, que puede no funcionar
+  desde `http://192.168.x.x` (origen no seguro): **por verificar** abriendo
+  `http://192.168.100.14:8000/robot.html` en el navegador del Jetson.
