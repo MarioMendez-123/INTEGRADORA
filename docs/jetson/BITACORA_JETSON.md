@@ -457,3 +457,34 @@ dentro de la serie 1.x suele funcionar, pero **no verificado**: se comprueba
 `import cv2` y una operación con arreglos justo después de instalar.
 
 Todavía **no** se instaló nada con `pip` en el venv.
+
+### Bloque 2 en el Jetson: instalación de `requirements-jetson.txt` (reportado por Mario)
+
+`git pull` previo: Fast-forward `7a93a88..76e975c`, 3 archivos, 67 inserciones y 3
+borrados; `git log --oneline -1` → `76e975c`; líneas activas con `thop`: 0.
+
+| Comprobación | Resultado reportado |
+|---|---|
+| `pip install -r requirements-jetson.txt` | "Successfully installed", **26 paquetes** (entre ellos fastapi 0.159.1, uvicorn 0.54.0, sqlalchemy 2.0.55, pydantic 2.14.1, polars 2.0.0, pyzbar 0.1.9, psutil 7.2.2, uvloop 0.23.0) |
+| Líneas con `error` o `building wheel` en el log | 0 |
+| `pip list` filtrado | solo `numpy 1.21.5`; sin torch, torchvision, opencv, ultralytics ni gpiod |
+| `numpy` | 1.21.5, del **sistema** (`/usr/lib/python3/dist-packages`) |
+| `cv2` | 4.8.0 (`/usr/lib/python3.10/dist-packages/cv2`); `cvtColor` OK `(4, 4) uint8`; `aruco` True |
+| `pyzbar`, imports del backend | OK |
+
+**Corrección de una predicción de Claude:** se había dicho que el venv traería un
+`numpy` 1.26.4. **Fue incorrecto**: pip dio por satisfecho `numpy<2` con el 1.21.5 del
+sistema (el venv usa `--system-site-packages`). Por la misma razón se instalaron 26
+paquetes y no los 43 de la simulación: el resto ya los traía el sistema. Esa
+simulación se hizo con un entorno vacío y por eso sobreestimó.
+
+**Hallazgo:** `ultralytics` (última versión en PyPI al 2026-10-21: 8.4.183) pide
+`numpy>=1.23.0`, y el del sistema es 1.21.5, así que no alcanza. El torch de NVIDIA
+`2.5.0a0 nv24.08` (rueda de 807 MB) y torchvision `0.20.0a0+afc54f7` no piden versión de
+`numpy`; torch declara `filelock`, `typing-extensions>=4.8.0`, `networkx`, `jinja2`,
+`fsspec` y `sympy==1.13.1`. Metadatos leídos con peticiones parciales, sin bajar las
+ruedas. Corrección: `requirements-jetson.txt` ahora pide `numpy>=1.23,<2`, que instala un
+1.26.x dentro del venv sin tocar el del sistema (commit local, **sin subir**).
+
+**No verificado:** que `cv2` 4.8.0, compilado con el `numpy` viejo, importe con el 1.26.x
+del venv; se comprueba justo después de subir `numpy`.
