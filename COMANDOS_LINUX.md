@@ -71,7 +71,7 @@ python3 -m venv --system-site-packages .venv      # si falla: falta python3-venv
 source .venv/bin/activate
 pip install -r requirements-jetson.txt
 # torch y torchvision de NVIDIA: pasos en docs/jetson/SETUP_JETSON.md (pendiente)
-pip install --no-deps ultralytics
+pip install --no-deps ultralytics ultralytics-thop   # thop declara torch: solo con --no-deps
 pip list 2>/dev/null | grep -iE "^(torch|torchvision|numpy|opencv|ultralytics)"
 ```
 

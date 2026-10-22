@@ -8,7 +8,11 @@
 #   2. Este archivo.
 #   3. torch y torchvision de NVIDIA para tu JetPack. Comprobar
 #      torch.cuda.is_available() == True ANTES del paso 4.
-#   4. pip install --no-deps ultralytics  (nunca sin --no-deps).
+#   4. pip install --no-deps ultralytics ultralytics-thop  (nunca sin --no-deps).
+#      ultralytics-thop NO está en este archivo a propósito: declara `torch` como
+#      dependencia y pip lo bajaría de PyPI (build sin GPU de NVIDIA) al instalar
+#      este archivo. Comprobado con `pip install --dry-run` para Linux aarch64,
+#      Python 3.10: sin él, esta lista no trae torch.
 #
 # Prohibido en el Jetson: opencv-python / opencv-contrib-python por pip, y
 # cualquier paquete que traiga numpy 2.x.
@@ -37,4 +41,5 @@ requests
 psutil
 polars
 nvidia-ml-py
-ultralytics-thop
+# (ultralytics-thop también es dependencia de ultralytics, pero arrastra torch:
+#  se instala aparte con --no-deps, ver el paso 4 de arriba.)
