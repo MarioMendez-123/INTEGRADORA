@@ -525,3 +525,100 @@ repetir con buena luz y la cámara en su posición final (ver nota anterior).
    sistema no los trae).
 2. Probar YOLO con una imagen de archivo, en el Jetson, sin cámara.
 3. Arrancar el backend en el Jetson (puerto 8001).
+
+---
+
+## Sesión 5 — 2026-10-21 — Backend en el Jetson y qué puede mover físicamente la celda
+
+**Quién ejecutó qué:** Mario corrió el backend y las pruebas en el Jetson y reportó el
+resultado. Claude leyó el código de `backend/cell_line.py`, `backend/cell_hmi.py` y
+`backend/main.py` y repitió la lógica en la laptop con las **clases reales**, sin `gpiod`.
+
+### Backend en el Jetson (reportado por Mario)
+
+`uvicorn` corre en el puerto 8001 por cable (`192.168.100.19`) y se ve desde el navegador
+de la laptop.
+
+| Comprobación | Resultado reportado |
+|---|---|
+| `/health` | ok |
+| `/line/cell/status` | `source: "celda"`, `running: true`, `state: "DETENIDA"`, `reason: "Cámara apagada"`, `sources: {vision_linea: false, plc: false}` |
+| `/inventory` | `[]` |
+| Dashboard, visión de línea | transmite, pero con resolución **2304x1536**: no estaban definidas las variables de V4L2. Coincide con el cuadro de 1536x2304 de la prueba de OpenCV por defecto |
+| Panel de la celda | alarma "Enlace PLC perdido" (esperada: no hay PLC), "Salidas: Sin pines", sesión `admin`/`admin` abierta |
+| No se usó | `/line/cell/run` ni la percepción |
+
+Siguiente de Mario: reiniciar con `LINE_VISION_CAMERA_BACKEND=v4l2`, `FOURCC=MJPG`,
+`WIDTH=640`, `HEIGHT=480` (y lo mismo con `PERCEPTION_`) y pasar el log. **Pendiente.**
+
+### Qué significan los estados (leído en `cell_line.py`)
+
+- **`running`** es un interruptor interno de "ciclos permitidos". Arranca en `True` al iniciar
+  el servidor (`self._running = True`). No dice que algo se esté moviendo.
+- **`state`** se calcula aparte: si `running` es falso → `DETENIDA` ("Paro solicitado por el
+  operador"); si no, y la cámara de línea no ha juzgado ningún cuadro en los últimos 2 s
+  (`VISION_VIVA_S`) → `DETENIDA` ("Cámara apagada"); si no → `OPERANDO`.
+- **`source: "celda"`** solo indica que los datos salen de `cell_line.py` y no del
+  simulador. **No prueba que haya hardware conectado.**
+- **`sources.plc`** en realidad es `salidas.abiertas`: si el chip GPIO se abrió. Con `gpiod`
+  ausente es siempre `false`.
+
+### ¿Pueden ARRANQUE o PARO mover algo físico? (lectura del código)
+
+- **Ninguno de los dos mueve nada por sí mismo.** `POST /line/cell/run` solo llama
+  `celda.set_running(on)`. ARRANQUE cambia el interruptor; PARO lo apaga, cancela el ciclo en
+  curso y pide `salidas.apagar()`.
+- **El único camino a un pin** es `celda.ver(juicio)` → `_correr()` → `salidas.poner(...)`,
+  disparado por la **cámara** de visión de línea (5 cuadros estables de PASS o FAIL) y no por
+  un botón.
+- **Todo pin pasa por `Salidas.poner()`**, que sin `gpiod` devuelve `False` sin tocar nada
+  (`Salidas._abrir()` sale en el `ImportError` y `abiertas` queda en `False`).
+- **Verificado en la laptop** (Windows, sin `gpiod`, clases reales): `running` arranca en
+  `True`; el `snapshot` sin cámara da `True / DETENIDA / "Cámara apagada" / plc false`,
+  idéntico a lo reportado en el Jetson; `poner()` sobre los dos pines devuelve `False`; tras PARO
+  `running=False`, tras ARRANQUE `running=True` (y sigue `DETENIDA` por la cámara); un ciclo FAIL
+  termina como `fallo_actuacion` y uno PASS como `pulso_no_enviado`.
+- **En el Jetson solo se comprobó** que `import gpiod` falla dentro del venv.
+
+**Botones del panel de la celda, con el código actual y `gpiod` ausente:** todos son seguros
+en el sentido físico (ninguno puede mover un relé ni energizar un pin). ARRANQUE y PARO solo
+cambian el interruptor; "Reconocer alarmas" y cerrar sesión no tocan nada; "Borrar histórico"
+(solo `admin`) no mueve nada pero **borra** el registro de alarmas. Esta seguridad depende de
+que `gpiod` siga ausente; antes de cada arranque del backend se comprueba
+`python -c "import gpiod"` (debe fallar).
+
+**No verificado:** que ningún otro proceso del Jetson toque los pines; el comportamiento con
+`gpiod` instalado.
+
+### Hallazgos a atender antes de conectar cableado real
+
+1. **Credenciales `admin`/`admin` escritas en el código** (`cell_hmi.py`: `_USERS`, con un
+   comentario que la llama "cuenta fija de laboratorio"). El repo es público y el backend
+   escucha en `0.0.0.0`: cualquiera en la red puede iniciar sesión y usar ARRANQUE, PARO y
+   "Borrar histórico". `GET /line/cell/status` no pide sesión. Sin variable de entorno para
+   cambiarla.
+2. **Sin interruptor para impedir abrir GPIO.** La única protección es que `gpiod` no esté
+   instalado. `cell_line.py` abre las líneas 8 y 9 de `/dev/gpiochip0` **al importarse**, y
+   esos números son **BCM de Raspberry Pi**: en el Jetson serían otras líneas del SoC. No
+   instalar `gpiod` en el Jetson.
+3. **Los contadores cuentan decisiones aunque no se actúe.** Sin `gpiod`, un FAIL sube
+   `inspected` y `fail` con acción `fallo_actuacion`, y un PASS sube `inspected` con
+   `pulso_no_enviado`. Hoy no pasa porque sin `parts.pt` la cámara siempre juzga
+   `SIN_PIEZA` (`parts.pt` no está en el repo), pero si se copia, el panel contaría piezas sin
+   que nada físico ocurra.
+4. **Las dos cámaras usan `/dev/video0`** (mismo índice por defecto). Percepción y visión de
+   línea no deben abrirse a la vez.
+
+Nada de esto se cambió. Los arreglos (credenciales por variable de entorno, un interruptor
+para no abrir GPIO) quedan como propuesta, a decidir por Mario.
+
+### Estado final
+
+| | Estado |
+|---|---|
+| El backend corre en el Jetson, `/health`, `/line/cell/status`, `/inventory` | **Reportado por Mario** |
+| La resolución sube a 2304x1536 sin variables de V4L2 | **Reportado por Mario** |
+| Qué significa `running: true` con `DETENIDA` y `source: "celda"` | **Leído en el código y reproducido en la laptop** |
+| Ningún botón mueve algo físico con `gpiod` ausente | **Leído en el código y reproducido en la laptop**; en el Jetson solo se verificó `import gpiod` |
+| Cámara forzada a V4L2, MJPG 640x480 | **Pendiente** (esperando el log) |
+| SSH sin contraseña y arranque remoto con tmux | **Pendiente** |
