@@ -43,10 +43,34 @@ class CameraPublisher:
     genérico tenga que conocerlos.
     """
 
-    def __init__(self, camera_index: int, make_processor, label: str):
+    def __init__(
+        self,
+        camera_index: int,
+        make_processor,
+        label: str,
+        *,
+        backend: str | None = None,
+        fourcc: str | None = None,
+        width: int | None = None,
+        height: int | None = None,
+    ):
+        # backend / fourcc / width / height son OPCIONALES y, sin definirlas,
+        # la cámara se abre exactamente como siempre: cv2.VideoCapture(índice),
+        # sin tocar nada más. Existen para equipos Linux (Jetson, Raspberry),
+        # donde sin backend explícito OpenCV puede abrir la cámara USB por
+        # GStreamer y entregar un frame que no es un modo real de la cámara.
+        # backend: nombre sin el prefijo CAP_ de OpenCV, p. ej. "v4l2".
+        # fourcc: 4 caracteres, p. ej. "MJPG" o "YUYV".
+        if fourcc is not None and len(fourcc) != 4:
+            raise ValueError(f"fourcc debe tener exactamente 4 caracteres (ej. 'MJPG'), no '{fourcc}'.")
+
         self._camera_index = camera_index
         self._make_processor = make_processor
         self._label = label
+        self._backend = backend
+        self._fourcc = fourcc
+        self._width = width
+        self._height = height
 
         self._lock = threading.Lock()
         self._condition = threading.Condition(self._lock)
@@ -120,12 +144,42 @@ class CameraPublisher:
     def _start_locked(self) -> None:
         import cv2
 
-        cap = cv2.VideoCapture(self._camera_index)
+        if self._backend is None:
+            cap = cv2.VideoCapture(self._camera_index)
+        else:
+            backend_const = getattr(cv2, f"CAP_{self._backend.upper()}", None)
+            if not isinstance(backend_const, int):
+                raise RuntimeError(
+                    f"Backend de cámara desconocido: '{self._backend}' "
+                    "(se espera el nombre de OpenCV sin el prefijo CAP_, ej. 'v4l2')."
+                )
+            cap = cv2.VideoCapture(self._camera_index, backend_const)
         if not cap.isOpened():
             cap.release()
             raise RuntimeError(
                 f"No se pudo abrir la cámara (índice {self._camera_index}). "
                 "Verifica que esté conectada y no esté en uso por otra aplicación."
+            )
+
+        # El FOURCC va ANTES del tamaño: con muchas cámaras USB el formato
+        # decide qué tamaños y FPS ofrece el driver.
+        if self._fourcc is not None:
+            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*self._fourcc))
+        if self._width is not None:
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, self._width)
+        if self._height is not None:
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self._height)
+        if self._fourcc is not None or self._width is not None or self._height is not None:
+            backend_name = getattr(cap, "getBackendName", lambda: "?")()
+            logger.info(
+                "Publicador '%s': pedido fourcc=%s %sx%s; backend real=%s, el driver reporta %dx%d.",
+                self._label,
+                self._fourcc,
+                self._width,
+                self._height,
+                backend_name,
+                int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
             )
 
         processor = self._make_processor()  # imports pesados propios, una sola vez

@@ -263,6 +263,33 @@ def get_inventory_history():
 PERCEPTION_CAMERA_INDEX = int(os.environ.get("PERCEPTION_CAMERA_INDEX", "0"))
 LINE_VISION_CAMERA_INDEX = int(os.environ.get("LINE_VISION_CAMERA_INDEX", "0"))
 
+
+def _camera_options(prefix: str) -> dict:
+    """Opciones OPCIONALES de captura de <PREFIX>_CAMERA_BACKEND / _FOURCC /
+    _WIDTH / _HEIGHT (prefix: PERCEPTION o LINE_VISION). Sin definirlas, el
+    dict sale con todo en None y la cámara se abre como siempre (Windows no
+    cambia). En Linux (Jetson, Raspberry) sirven para forzar V4L2 y un modo
+    real de la cámara, p. ej.:
+        PERCEPTION_CAMERA_BACKEND=v4l2 PERCEPTION_CAMERA_FOURCC=MJPG
+        PERCEPTION_CAMERA_WIDTH=640 PERCEPTION_CAMERA_HEIGHT=480"""
+
+    def entero(nombre: str) -> int | None:
+        valor = os.environ.get(nombre, "").strip()
+        if not valor:
+            return None
+        try:
+            return int(valor)
+        except ValueError:
+            raise RuntimeError(f"{nombre} debe ser un número entero, no '{valor}'.") from None
+
+    return {
+        "backend": os.environ.get(f"{prefix}_CAMERA_BACKEND", "").strip() or None,
+        "fourcc": os.environ.get(f"{prefix}_CAMERA_FOURCC", "").strip() or None,
+        "width": entero(f"{prefix}_CAMERA_WIDTH"),
+        "height": entero(f"{prefix}_CAMERA_HEIGHT"),
+    }
+
+
 # Dos modelos, cada uno cargado una sola vez y solo cuando una cámara arranca.
 # El del entorno (yolov8n) sigue nombrando persona, silla y lo demás.
 # parts.pt solo dice si eso es una pieza registrada. No se sustituyen.
@@ -473,11 +500,13 @@ _perception_publisher = CameraPublisher(
     camera_index=PERCEPTION_CAMERA_INDEX,
     make_processor=_make_perception_processor,
     label="perception",
+    **_camera_options("PERCEPTION"),
 )
 _line_vision_publisher = CameraPublisher(
     camera_index=LINE_VISION_CAMERA_INDEX,
     make_processor=_make_line_vision_processor,
     label="line-vision",
+    **_camera_options("LINE_VISION"),
 )
 
 

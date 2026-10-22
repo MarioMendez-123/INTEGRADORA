@@ -125,3 +125,86 @@ def test_stream_frames_entrega_multipart_jpeg(fake_cv2):
         assert chunk.endswith(b"\r\n")
     finally:
         publisher.unsubscribe()
+
+
+def _cv2_de_prueba():
+    """cv2 de mentira cuya cámara abre siempre y recuerda cada llamada a
+    set() — para probar CÓMO se abre la cámara (backend, FOURCC, tamaño)."""
+    cap = MagicMock()
+    cap.isOpened.return_value = True
+    cap.read.return_value = (True, np.zeros((4, 4, 3), dtype="uint8"))
+    cap.get.return_value = 640
+    cap.getBackendName.return_value = "V4L2"
+
+    fake_module = MagicMock()
+    fake_module.VideoCapture.return_value = cap
+    fake_module.imencode.return_value = (True, np.array([1, 2, 3], dtype="uint8"))
+    fake_module.CAP_V4L2 = 200
+    fake_module.CAP_PROP_FOURCC = 6
+    fake_module.CAP_PROP_FRAME_WIDTH = 3
+    fake_module.CAP_PROP_FRAME_HEIGHT = 4
+    fake_module.VideoWriter_fourcc.side_effect = lambda *letras: "".join(letras)
+    return fake_module, cap
+
+
+def test_sin_opciones_la_camara_se_abre_como_siempre():
+    """Windows no debe cambiar: sin backend/FOURCC/tamaño, solo
+    cv2.VideoCapture(índice) y ninguna llamada a set()."""
+    fake_module, cap = _cv2_de_prueba()
+    with patch.dict(sys.modules, {"cv2": fake_module}):
+        publisher = CameraPublisher(camera_index=0, make_processor=_noop_processor, label="test")
+        publisher.subscribe()
+        publisher.unsubscribe()
+
+    llamada = fake_module.VideoCapture.call_args_list[0]
+    assert llamada.args == (0,)
+    assert llamada.kwargs == {}
+    cap.set.assert_not_called()
+
+
+def test_backend_v4l2_se_pasa_a_videocapture():
+    fake_module, _cap = _cv2_de_prueba()
+    with patch.dict(sys.modules, {"cv2": fake_module}):
+        publisher = CameraPublisher(
+            camera_index=0, make_processor=_noop_processor, label="test", backend="v4l2"
+        )
+        publisher.subscribe()
+        publisher.unsubscribe()
+
+    assert fake_module.VideoCapture.call_args_list[0].args == (0, 200)
+
+
+def test_fourcc_se_fija_antes_que_el_tamano():
+    fake_module, cap = _cv2_de_prueba()
+    with patch.dict(sys.modules, {"cv2": fake_module}):
+        publisher = CameraPublisher(
+            camera_index=0,
+            make_processor=_noop_processor,
+            label="test",
+            backend="v4l2",
+            fourcc="MJPG",
+            width=640,
+            height=480,
+        )
+        publisher.subscribe()
+        publisher.unsubscribe()
+
+    assert [c.args for c in cap.set.call_args_list] == [(6, "MJPG"), (3, 640), (4, 480)]
+
+
+def test_backend_desconocido_da_error_claro_y_no_deja_clientes_colgados():
+    fake_module, _cap = _cv2_de_prueba()
+    del fake_module.CAP_NOPE  # el MagicMock inventaría el atributo; así no existe
+    with patch.dict(sys.modules, {"cv2": fake_module}):
+        publisher = CameraPublisher(
+            camera_index=0, make_processor=_noop_processor, label="test", backend="nope"
+        )
+        with pytest.raises(RuntimeError, match="Backend de cámara desconocido"):
+            publisher.subscribe()
+
+    assert publisher._subscriber_count == 0
+
+
+def test_fourcc_con_longitud_distinta_de_cuatro_se_rechaza_al_construir():
+    with pytest.raises(ValueError, match="4 caracteres"):
+        CameraPublisher(camera_index=0, make_processor=_noop_processor, label="test", fourcc="MJP")
