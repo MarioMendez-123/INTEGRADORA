@@ -246,3 +246,117 @@ este Jetson.
    librerías CUDA, nodo y formatos de la cámara.
 2. Instalar torch y torchvision de NVIDIA, verificar `torch.cuda.is_available()`.
 3. Probar la cámara con `CAP_V4L2` y arrancar el backend en el puerto 8001.
+
+---
+
+## Sesión 3 — 2026-10-21 — Paquetes base, cámara y `libcusparseLt` (sin instalar PyTorch todavía)
+
+**Quién ejecutó qué:** Mario corrió los comandos en el Jetson, dentro de `tmux`, y
+reportó el resultado. Claude, en la laptop, investigó en la documentación de
+NVIDIA, preparó un cambio de código y revisó `requirements-jetson.txt`. Lo marcado
+"reportado" viene de lo que contó Mario; el detalle de las salidas no se pegó en
+el chat y por eso aquí no se transcribe.
+
+### Instalado en el Jetson (reportado)
+
+`sudo apt-get install -s` salió limpio (solo paquetes de Python, nada de NVIDIA) y
+después Mario instaló `python3-pip` y `python3-venv`.
+
+| Comprobación | Resultado reportado |
+|---|---|
+| Python | 3.10.12, sin cambio de versión (solo parches de Ubuntu) |
+| pip | 22.0.2, de `/usr/lib/python3/dist-packages` |
+| `python3 -m venv --system-site-packages` | crea bien un entorno de prueba |
+| `/etc/nv_tegra_release` | sigue en R36 REVISION 4.7 |
+| `/usr/local` | sigue con `cuda-12.6`; nada de GPU se movió |
+
+### Cámara (reportado, sin detalle pegado)
+
+Mario reporta la cámara como verificada. Hallazgo: **sin backend explícito,
+OpenCV abre la cámara por GStreamer y entrega un frame de 1536x2304, que no es un
+modo real de la cámara** (la cámara ofrece 640x480 y menores en YUYV). Esto es
+exactamente lo que `CameraPublisher` hace hoy, porque llama
+`cv2.VideoCapture(índice)` sin backend. No se registran aquí los formatos MJPG, los
+FPS ni el nodo de captura porque no se pegaron las salidas; si se quieren dejar
+en la bitácora, hay que pegarlas.
+
+### Cambio de código propuesto, sin comitear (espera aprobación de Mario)
+
+Variables de entorno opcionales para forzar V4L2 y un modo real de la cámara:
+`PERCEPTION_CAMERA_BACKEND` / `_FOURCC` / `_WIDTH` / `_HEIGHT` y las equivalentes
+`LINE_VISION_CAMERA_*`. Sin definirlas, la cámara se abre exactamente como antes
+(`cv2.VideoCapture(índice)`, sin ninguna llamada a `set()`), así que Windows no cambia.
+Archivos: `backend/camera_publisher.py`, `backend/main.py`,
+`tests/backend/test_camera_publisher.py`.
+
+Verificado en la laptop (Python 3.11.9):
+
+| Chequeo | Antes | Después |
+|---|---|---|
+| `pytest` backend | 2 fallan, 95 pasan | 2 fallan, 100 pasan (5 pruebas nuevas, las mismas 2 fallas de `/robot/ask`) |
+| `pytest` `test_camera_publisher.py` | 4 pasan | 9 pasan |
+| `pytest` edge | 7 pasan | 7 pasan |
+| `ruff` | `main.py`: 6 avisos previos | los mismos 6; `camera_publisher.py` limpio |
+
+No verificado: que el cambio funcione con la cámara real del Jetson.
+
+### `libcusparseLt` para CUDA 12.6: investigación (no instalada)
+
+PyTorch de NVIDIA posterior a 24.06 necesita `libcusparseLt.so.0`.
+
+- **El script que cita la documentación de NVIDIA no sirve para CUDA 12.6.** Su
+  contenido (commit `5c6af2b` de `pytorch/pytorch`, `install_cusparselt.sh`) solo
+  tiene ramas para CUDA 12.1 a 12.4 (versión 0.5.2.1, arquitectura `sbsa`) y 11.8.
+  Con `CUDA_VERSION=12.6` no entra a ninguna rama y falla.
+- **Notas de versión oficiales** (docs.nvidia.com/cuda/cusparselt/release_notes.html):
+  v0.6.2 "Introduced Orin support (SM 8.7)"; v0.7.0 "requires CUDA 12.8 or above";
+  v0.8.x compatible con CUDA 12.9 y 13.0; v0.9.0 "Support for the Jetson platform
+  has been discontinued". Por eso, con CUDA 12.6 en Orin, solo sirven 0.6.2.3 o
+  0.6.3.2.
+- **Archivos oficiales para Jetson** (`.../redist/libcusparse_lt/linux-aarch64/`,
+  distinto de `linux-sbsa`): `0.6.2.3` (12 869 440 bytes) y `0.6.3.2` (19 000 276
+  bytes), ambos HTTP 200 desde la laptop. Se descargó el `0.6.2.3` y se comprobó
+  que contiene `lib/libcusparseLt.so.0`, `.so.0.6.2.3`, `.so` e
+  `include/cusparseLt.h`, y que el `.so` es **ELF 64-bit, ARM aarch64**.
+  sha256 del `.tar.xz` descargado, solo como referencia para comparar (NVIDIA no
+  publica uno): `b081a82a884754fd7ab1f53aa9cd1a943d782b87268c3657991c287af3179811`.
+- **Elegida:** `0.6.2.3`. **Respaldo:** `0.6.3.2`.
+- **No encontré** una instrucción oficial literal para JetPack 6 con CUDA 12.6; la
+  página de descargas de NVIDIA no mostró comandos. El procedimiento (extraer y
+  copiar a `/usr/local/cuda`) es el mismo del script oficial, con el archivo elegido
+  por las notas de versión. **No verificado** que PyTorch cargue con esta versión.
+
+### `requirements-jetson.txt` y `gpiod`
+
+Verificado: el archivo no menciona `gpiod` ni nada de GPIO, y revisando el árbol
+completo de dependencias de sus 14 entradas (58 paquetes, con los metadatos de la
+laptop) ninguna dependencia lleva `gpio` en el nombre. Limitaciones: 11 paquetes
+sin metadatos en la laptop no se pudieron expandir (dependencias de torch y
+marcadores condicionales que no aplican al Jetson), y el árbol en Linux aarch64
+podría diferir un poco. Aparte: un venv con `--system-site-packages` **sí ve** un
+`gpiod` instalado en el Python del sistema; por eso se comprueba aparte con
+`python -c "import gpiod"` dentro del venv.
+
+### Aviso de coordinación
+
+El Jetson clonó `jetson-setup` en `c0c9924`. `requirements-jetson.txt` y
+`COMANDOS_LINUX.md` están en `700c3d1`, que **no se ha subido**. Hasta el push (o
+un `scp`), el Jetson no tiene esos archivos.
+
+### Estado final
+
+| | Estado |
+|---|---|
+| `python3-pip` y `python3-venv` instalados, sistema sin cambios de NVIDIA | **Reportado por Mario** |
+| La cámara abre por GStreamer con un frame de 1536x2304 si no se fuerza V4L2 | **Reportado por Mario** |
+| Cambio de `CameraPublisher` con variables de entorno | **Probado en laptop** con doble de `cv2`; **NO** con la cámara real; **sin comitear** |
+| Elección de `libcusparseLt 0.6.2.3` | Basada en notas oficiales y binario ELF aarch64; **NO instalada ni probada** |
+| `requirements-jetson.txt` sin dependencias de GPIO | **Verificado** con el árbol de dependencias (con las limitaciones de arriba) |
+| PyTorch con CUDA | **NO instalado** |
+| El backend arranca en el Jetson | **NO verificado** |
+
+### Siguiente
+
+1. Instalar `libcusparseLt` y verificar que `libcusparseLt.so.0` carga.
+2. Aprobar y comitear el cambio de `CameraPublisher`; subir la rama al Jetson.
+3. Crear el venv, instalar `requirements-jetson.txt`, y solo entonces torch y torchvision.
