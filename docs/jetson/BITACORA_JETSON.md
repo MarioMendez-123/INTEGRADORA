@@ -488,3 +488,40 @@ ruedas. Corrección: `requirements-jetson.txt` ahora pide `numpy>=1.23,<2`, que 
 
 **No verificado:** que `cv2` 4.8.0, compilado con el `numpy` viejo, importe con el 1.26.x
 del venv; se comprueba justo después de subir `numpy`.
+
+### Bloque 2b y 3 en el Jetson: `numpy` nuevo y PyTorch de NVIDIA (reportado por Mario)
+
+Primero se subió `numpy` dentro del venv (`pip install "numpy>=1.23,<2"`) y después se
+instalaron torch y torchvision con las ruedas de NVIDIA y de Ultralytics.
+
+| Comprobación | Resultado reportado |
+|---|---|
+| Versiones | `torch 2.5.0a0+872d972e41.nv24.08`, `torchvision 0.20.0a0+afc54f7`, `numpy 1.26.4` |
+| `torch.cuda.is_available()` | `True`; dispositivo Orin; `torch.version.cuda` = 12.6 |
+| Operación en GPU | matmul 512x512, resultado finito: OK |
+| ¿pip cambió torch por el de PyPI? | No: conserva el sufijo `nv` |
+| Avisos "Can't uninstall" de `numpy`, `mpmath`, `sympy` | son paquetes del **sistema** (pip no los toca desde el venv); según Mario no afectan |
+| `pip check` | solo marca `pynacl` sin `cffi` (paquete del sistema, irrelevante) |
+
+**Hallazgo (Mario):** la rueda `jp/v61` funcionó en **L4T 36.4.7 con CUDA 12.6** en este
+equipo. Mario la describe como una rueda para CUDA 12.4; **no verifiqué con qué versión de
+CUDA se compiló** y la salida reportada de `torch.version.cuda` dice 12.6, así que esa
+mención del 12.4 no se confirmó.
+
+**Límite de la prueba:** solo se probó **una operación simple de GPU**. **NO** se probó con
+YOLO, ni con memoria bajo carga, ni durante periodos largos. El hilo del foro de NVIDIA
+sobre L4T 36.4.7 y los errores de memoria de CUDA (ver sesión 2) sigue sin comprobarse en
+condiciones de carga.
+
+Contexto de la prueba de la cámara: las medidas de FPS y exposición siguen pendientes de
+repetir con buena luz y la cámara en su posición final (ver nota anterior).
+
+### Siguiente
+
+1. `ultralytics` con `--no-deps` y `YOLO_AUTOINSTALL=False`. Verificado en el código de
+   `ultralytics` (8.4.137): `AUTOINSTALL = env_bool("YOLO_AUTOINSTALL", True)` y la
+   instalación automática solo corre `if install and AUTOINSTALL`. Sin esa variable
+   intentaría instalar `opencv-python` al no verlo con metadatos de pip (el `cv2` del
+   sistema no los trae).
+2. Probar YOLO con una imagen de archivo, en el Jetson, sin cámara.
+3. Arrancar el backend en el Jetson (puerto 8001).
