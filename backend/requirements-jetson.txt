@@ -1,0 +1,40 @@
+# Dependencias del backend en el Jetson Orin Nano (JetPack 6, Python 3.10,
+# aarch64). NO se instala con `pip install -r requirements.txt`: ese archivo
+# trae opencv-contrib-python (pisaría el cv2 del sistema) y ultralytics con sus
+# dependencias (arrastraría torch de CPU en lugar del de NVIDIA).
+#
+# Orden obligatorio (comandos exactos en COMANDOS_LINUX.md):
+#   1. venv con --system-site-packages (para ver el cv2 4.8.0 del sistema).
+#   2. Este archivo.
+#   3. torch y torchvision de NVIDIA para tu JetPack. Comprobar
+#      torch.cuda.is_available() == True ANTES del paso 4.
+#   4. pip install --no-deps ultralytics  (nunca sin --no-deps).
+#
+# Prohibido en el Jetson: opencv-python / opencv-contrib-python por pip, y
+# cualquier paquete que traiga numpy 2.x.
+#
+# Estado: lista armada a partir de los imports del backend y de las
+# dependencias declaradas por ultralytics 8.4.137. NO se ha instalado todavía
+# en el Jetson; las versiones exactas que funcionen irán en
+# docs/jetson/SETUP_JETSON.md.
+
+numpy<2
+
+# backend/main.py
+fastapi
+uvicorn[standard]
+sqlalchemy
+python-dotenv
+pyzbar          # además requiere libzbar0 por apt
+pillow
+
+# Dependencias de ultralytics (se instala aparte con --no-deps).
+# Se excluyen a propósito: opencv-python, torch y torchvision (van de NVIDIA).
+filelock
+matplotlib
+pyyaml
+requests
+psutil
+polars
+nvidia-ml-py
+ultralytics-thop

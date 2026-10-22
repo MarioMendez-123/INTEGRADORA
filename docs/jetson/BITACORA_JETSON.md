@@ -122,3 +122,127 @@ desactualizado) y en una tarea de reconciliación:
 - Usuario del Jetson (`whoami`), solo para la parte de SSH.
 - En la Raspberry: no instalar `gpiod` y comprobar `sources.plc: false` en
   `/line/cell/status` antes de cualquier prueba.
+
+---
+
+## Sesión 2 — 2026-10-21 — Jetson: reconocimiento del sistema y la cámara (solo lectura)
+
+**Quién ejecutó qué:** Mario corrió los comandos en `mario@mario-desktop` y pegó
+las salidas; Claude trabajó en la laptop y solo analizó lo pegado. Claude no
+ejecutó nada en el Jetson. Todo lo marcado "reportado" viene de esas salidas
+pegadas y no se volvió a comprobar.
+
+### Problema de conexión: desconexiones de SSH
+
+Las sesiones SSH se cortaban mientras el Jetson tenía **WiFi y cable Ethernet
+activos a la vez en la misma red**. Mario dejó solo el cable (`192.168.100.19`)
+y apagó el WiFi.
+
+- Causa **no diagnosticada**. Hipótesis sin comprobar: con dos interfaces en la
+  misma subred el equipo tiene dos IP, y la ruta o el nombre `mario-desktop.local`
+  pueden saltar de una a otra a mitad de sesión.
+- Estabilidad después del cambio: **no verificada en uso prolongado**.
+- Mitigación para lo largo: `tmux` en el Jetson (ver `COMANDOS_LINUX.md`), para
+  que un corte de SSH no mate el backend.
+
+### Repo en el Jetson
+
+Clonado en `~/aether`, rama `jetson-setup`, commit `c0c9924` (reportado por
+Mario). Comando usado: `git clone --branch jetson-setup --single-branch
+https://github.com/MarioMendez-123/INTEGRADORA.git aether`.
+
+### Estado del sistema (reportado)
+
+| Dato | Valor |
+|---|---|
+| JetPack / L4T | JetPack 6, L4T R36 REVISION 4.7 (GCID 42132812, 2025-09-18) |
+| SO / arquitectura | Ubuntu 22.04, aarch64 |
+| Python | 3.10.12 |
+| OpenCV (sistema) | 4.8.0; `hasattr(cv2.aruco, 'ArucoDetector')` = True |
+| PyTorch | **No instalado** (`ModuleNotFoundError`) |
+| RAM | 7.4 GiB totales, 6.0 libres; swap 3.7 GiB |
+| Disco | `/dev/mmcblk0p1`, 47 G, 23 G libres |
+| Energía | Modo actual 25W (ID 1). Disponibles: 0 = 15W, 1 = 25W, 2 = MAXN_SUPER, 3 = 7W |
+| Usuario | `mario`; grupos: adm cdrom sudo audio dip video plugdev render i2c lpadmin gdm sambashare weston-launch **gpio** |
+
+**Para la Fase C:** toda medición de FPS debe anotar el modo de `nvpmodel`
+(hoy 25W, no MAXN_SUPER). No se cambió el modo.
+
+**GPIO:** el usuario está en el grupo `gpio`. `backend/cell_line.py` hace
+`import gpiod` al cargarse y, si el módulo existe, configura como salidas los
+GPIO 8 y 9 de `/dev/gpiochip0`. En el Jetson **no** se instala `gpiod`, y antes
+de arrancar el backend se comprueba que `python3 -c "import gpiod"` falle. No
+se toca nada de GPIO hasta que el equipo confirme qué está cableado en la celda.
+
+### Cámara (reportado)
+
+- Una sola cámara USB (UVC): "1080P Pro Stream", bus `usb-3610000.usb-2.3`, en
+  `/dev/video0` y `/dev/video1`. Permisos `crw-rw----+ root video`; el usuario
+  está en `video`.
+- `lsusb` la muestra como Logitech CrystalCam (046d:0894).
+- Formatos de `/dev/video0`: YUYV y MJPG. YUYV listado: 640x480, 320x180,
+  176x144, 160x120 y 160x90, hasta 30 fps. **El listado quedó cortado**: no se
+  vieron las resoluciones de MJPG.
+- `/dev/media0` es el controlador CSI de la placa (Tegra Video Input Device),
+  no una cámara. No hay cámara CSI conectada.
+
+**No confirmado todavía:** que `/dev/video1` sea solo metadatos; que "1080P Pro
+Stream" y la CrystalCam sean el mismo dispositivo; que el driver sea
+`uvcvideo`; qué backend elige `cv2.VideoCapture(0)` por defecto (V4L2 o
+GStreamer); las resoluciones de MJPG. Los comandos para confirmarlo están en
+`COMANDOS_LINUX.md`, sección Cámara.
+
+### PyTorch: lo que se encontró (nada instalado)
+
+Verificado desde la laptop el 2026-10-21 con `curl -I`: estas URLs **existen**
+(HTTP 200). Eso solo prueba que el archivo está publicado, no que funcione en
+este Jetson.
+
+- NVIDIA: `https://developer.download.nvidia.com/compute/redist/jp/v61/pytorch/torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl`
+- Ultralytics (assets): `torch-2.5.0a0+872d972e41.nv24.08-cp310-cp310-linux_aarch64.whl`,
+  `torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl`,
+  `torch-2.10.0-cp310-cp310-linux_aarch64.whl`,
+  `torchvision-0.25.0-cp310-cp310-linux_aarch64.whl`, todas bajo
+  `https://github.com/ultralytics/assets/releases/download/v0.0.0/`.
+
+**No verificado:**
+
+- La página de instalación de NVIDIA para Jetson no lista ruedas de JetPack 6
+  (solo ejemplos de JetPack 5); la rueda `v61` salió de un hilo del foro, donde
+  un usuario la reporta funcionando en JetPack 6.2.2 con CUDA 12.6.
+- Cuál JetPack corresponde a L4T 36.4.7: las fuentes se contradicen. La versión
+  real sale de `apt-cache policy nvidia-jetpack` en el equipo.
+- Un hilo del foro de NVIDIA reporta, en L4T 36.4.7, el error "unable to
+  allocate CUDA0 buffer" tras actualizar paquetes de Ubuntu. Es un resumen del
+  hilo, no documentación oficial, y no se comprobó en este equipo. Si
+  `torch.cuda.is_available()` falla o hay errores de memoria CUDA, esta es la
+  primera pista.
+- `libcusparseLt` (necesaria para torch 24.06 o posterior según NVIDIA): no se
+  sabe si ya está en el sistema.
+
+### Archivos nuevos de esta sesión
+
+- `backend/requirements-jetson.txt`: dependencias del backend para el Jetson,
+  sin opencv ni torch, con `numpy<2`. Armada con los imports del backend y las
+  dependencias declaradas por ultralytics 8.4.137. **Sin instalar todavía.**
+- `COMANDOS_LINUX.md`: comandos de SSH, arranque con `tmux` y verificación.
+
+### Estado final
+
+| | Estado |
+|---|---|
+| Sistema, versiones, RAM, disco, modos de energía | **Reportado por Mario** (salidas reales) |
+| Hay una cámara USB UVC y ninguna CSI | **Reportado**, falta confirmar driver y nodo de captura |
+| Repo clonado en el Jetson | **Reportado** |
+| SSH estable con solo el cable | **NO verificado** (pocas horas de uso) |
+| PyTorch con CUDA | **NO instalado** |
+| El backend arranca en el Jetson | **NO verificado** |
+| La cámara abre con OpenCV | **NO verificado** |
+| `requirements-jetson.txt` instala sin conflictos | **NO verificado** |
+
+### Siguiente
+
+1. Comprobaciones de solo lectura: `gpiod`, versión exacta de JetPack,
+   librerías CUDA, nodo y formatos de la cámara.
+2. Instalar torch y torchvision de NVIDIA, verificar `torch.cuda.is_available()`.
+3. Probar la cámara con `CAP_V4L2` y arrancar el backend en el puerto 8001.
