@@ -39,6 +39,11 @@ Desde 2026-10-21 se trabaja con hardware real. Lo que ya se sabe:
   `lumina_desktop.py`, que usa `ctypes.windll`, `os.startfile` y rutas de Windows.
 - **[código]** `robot.html` usa `SpeechRecognition` del navegador (`robot.js`), y
   `URLS_Y_COMANDOS.md` dice que hay que abrirla en Chrome o Edge.
+- **[reportado]** En el Jetson **no abre ningún navegador de los que trae Ubuntu**: Chromium
+  (snap 155.0.8059.84) falla con `snap-confine is packaged without necessary permissions … required
+  permitted capability cap_dac_override not found`, y Firefox (snap) tampoco abre; el mismo día
+  `snap changes` muestra que se instaló y se quitó el snap de Firefox. Kernel 5.15.148-tegra,
+  Ubuntu 22.04, L4T 36.4.7. No se modificó `snapd`. Detalle en la bitácora.
 - **[código]** `backend/cell_line.py` hace `import gpiod` al cargarse y, si existe, abre las
   líneas 8 y 9 (BCM de Raspberry Pi) de `/dev/gpiochip0`.
 
@@ -101,9 +106,45 @@ dos lecturas, y cambian el trabajo:
 | Trabajo | Mayor: proxy (incluye WebSocket) o cambios en las páginas | Menor: solo URLs de arranque |
 
 **Recomendación:** empezar por **B** y pasar a **A** solo si la voz de Lumina no funciona desde
-otro origen. La prueba es barata y se puede hacer ya: abrir `http://192.168.100.14:8000/robot.html`
-en el navegador del Jetson e intentar hablar. Falta saber **qué navegador usa el Jetson**: la
-página pide Chrome o Edge y Firefox no tiene `SpeechRecognition`.
+otro origen. La prueba de "otro origen" ya no necesita el Jetson: abrir
+`http://192.168.100.14:8000/robot.html` en el Chrome de la **laptop** usando esa IP (y no
+`localhost`) basta para ver si el navegador permite el micrófono desde un origen que no es seguro.
+Y como el Jetson hoy **no tiene navegador que funcione**, la lectura **B** también depende de la
+sección siguiente.
+
+## Cómo mostrar las interfaces en el Jetson sin depender de snaps [propuesta, por decidir]
+
+**Por qué hay que resolverlo.** Ubuntu 22.04 entrega Chromium y Firefox solo como snap, y los
+snap no arrancan en este Jetson. Dos fuentes externas describen un problema con el mismo mensaje:
+desde `snapd` 2.70 los snap dependen de capacidades de archivo guardadas en la imagen SquashFS, y
+el kernel de Jetson no trae `CONFIG_SQUASHFS_XATTR` ni AppArmor
+([JetsonHacks](https://jetsonhacks.com/2025/07/12/why-chromium-suddenly-broke-on-jetson-orin-and-how-to-bring-it-back/),
+[hilo del foro de NVIDIA](https://forums.developer.nvidia.com/t/jetpack6-2-2-snap-issue-is-back/359806)).
+**[por verificar]** que sea la causa en este equipo: ese hilo trata JetPack 6.2.2 (L4T r36.5) y no
+menciona 36.4.7. Los comandos de solo lectura para comprobarlo están en la bitácora. `DISPLAY`
+vacío (el comando se corrió por SSH) es un problema aparte, porque una aplicación gráfica necesita
+la sesión del escritorio; el error de `snap-confine` aparece antes y no depende de eso.
+
+**La voz es un riesgo aparte.** `robot.html` usa `SpeechRecognition` del navegador. Fuentes de
+terceros indican que Chrome manda el audio a servidores de Google, que Chromium y otros
+navegadores basados en él suelen no traerlo funcionando porque no incluyen las claves de Google, y
+que Firefox lo trae desactivado por defecto. **[por verificar en este equipo]**. Consecuencia:
+aunque se logre un navegador en el Jetson, la voz de Lumina podría no funcionar ahí, y no se asume
+que sí.
+
+| # | Opción | Toca el Jetson | Voz de Lumina | Costo y riesgo |
+|---|---|---|---|---|
+| 1 | **Pantalla fuera del Jetson**: las páginas se abren en el Chrome de la laptop (o de cualquier equipo con Chrome); el Jetson solo corre el agente y la cámara | No | Funciona en Chrome de escritorio **[por verificar]** | El Jetson no muestra nada propio; depende de la laptop |
+| 2 | Chromium por **Flatpak** (Flathub, `org.chromium.Chromium`), sin snap | Sí, con `sudo` (instalar Flatpak y reiniciar) | Probablemente sin voz **[por verificar]** | Agrega Flatpak y un repositorio de terceros; el sandbox pide funciones del kernel **[por verificar]** |
+| 3 | Chromium `.deb` del PPA comunitario `ppa:xtradeb/apps` (arm64) | Sí, con `sudo` | Igual que 2 | Repositorio de terceros no oficial |
+| 4 | Firefox `.deb` del repositorio de Mozilla | Sí, con `sudo` | Sin voz | **[por verificar]** que haya paquete para arm64 |
+| 5 | **Arreglar snap**: reinstalar `snapd` (según el foro, temporal), bajar o fijar su versión, o reconstruir el kernel con AppArmor y `SQUASHFS_XATTR` (lo que indica el personal de NVIDIA) | Sí, delicado | n/a | Alto costo; reconstruir el kernel es un proyecto aparte. **No recomendada** |
+| 6 | **Voz fuera del navegador** (reconocimiento en la laptop o en el Jetson) y una pantalla ligera | Código nuevo | Resuelve la voz | Decisión futura, no ahora |
+
+**Recomendación:** la opción **1** por ahora. No toca el Jetson, desbloquea el resto del trabajo y
+sirve para probar `robot.html` y la voz con el Chrome de la laptop. Solo si hace falta una pantalla
+propia en el Jetson se evalúan las opciones 2 o 3, probadas primero en un entorno desechable.
+**No se toca `snapd`.** La opción 6 se decide cuando se sepa si la voz del navegador alcanza.
 
 ## Consecuencias
 
@@ -159,7 +200,9 @@ Cada fase termina con una prueba en el hardware y se anota en `docs/jetson/BITAC
 ## Preguntas abiertas para Mario
 
 1. ¿"Interfaces" son las **páginas** y se sirven como en la lectura **B** (recomendada) o **A**?
-2. ¿Qué navegador usa el Jetson y funciona la voz de Lumina desde otro origen?
+2. ¿El Jetson tendrá pantalla, micrófono y bocina propios? Hoy no abre ningún navegador. ¿Qué
+   opción de la sección de navegadores prefieres, y funciona la voz de Lumina desde otro origen
+   (prueba con el Chrome de la laptop)?
 3. ¿La Pi tiene pantalla propia para la interfaz de la celda, o se opera desde otro equipo?
 4. ¿Las `Observation` las **pide la laptop** (propuesta) o las envía el Jetson?
 5. ¿Dónde viven `cell_line.py` y `cell_hmi.py`: en la Pi (propuesta, sin GPIO por ahora) o en la

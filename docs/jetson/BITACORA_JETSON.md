@@ -638,3 +638,50 @@ para no abrir GPIO) quedan como propuesta, a decidir por Mario.
   dominios públicos. `robot.html` usa `SpeechRecognition` del navegador, que puede no funcionar
   desde `http://192.168.x.x` (origen no seguro): **por verificar** abriendo
   `http://192.168.100.14:8000/robot.html` en el navegador del Jetson.
+
+### PROBLEMA ABIERTO: ningún navegador abre en el Jetson (reportado por Mario, 2026-10-21)
+
+- **Chromium** (snap 155.0.8059.84): `snap run chromium` falla con
+  `snap-confine is packaged without necessary permissions and cannot continue; required permitted
+  capability cap_dac_override not found`.
+- **Firefox** (snap) tampoco abre. `snap changes` muestra que **el mismo día se instaló y se quitó**
+  el snap de Firefox.
+- `DISPLAY` estaba vacío porque el comando se corrió **por SSH**. Es un problema distinto: una
+  aplicación gráfica necesita la sesión del escritorio. El error de `snap-confine` sale antes y no
+  depende de eso.
+- Kernel `5.15.148-tegra`, Ubuntu 22.04, L4T 36.4.7. **No se reinstaló ni se modificó `snapd`.**
+
+**Causa probable, según fuentes externas (NO verificada en este equipo):** desde `snapd` 2.70 los
+snap dependen de capacidades de archivo guardadas en la imagen SquashFS, y el kernel de Jetson no
+trae `CONFIG_SQUASHFS_XATTR` ni AppArmor. Fuentes:
+[JetsonHacks](https://jetsonhacks.com/2025/07/12/why-chromium-suddenly-broke-on-jetson-orin-and-how-to-bring-it-back/)
+y el [hilo del foro de NVIDIA](https://forums.developer.nvidia.com/t/jetpack6-2-2-snap-issue-is-back/359806).
+El hilo trata JetPack 6.2.2 (L4T r36.5) y **no menciona 36.4.7**; el mensaje de error es el mismo.
+
+**Soluciones que mencionan esas fuentes, NO aplicadas:** reinstalar `snapd` (según el foro,
+temporal), revertir o fijar `snapd` (`snap revert`, `snap refresh --hold`) o bajarlo a la 2.68.5,
+instalar Chromium por Flatpak, o reconstruir el kernel con AppArmor y `SQUASHFS_XATTR` (lo que
+indica el personal de NVIDIA). Cada una cambia el sistema; no se aplica ninguna sin decisión.
+
+**Para confirmar la causa sin cambiar nada** (solo lectura, en el Jetson):
+
+```bash
+snap version
+ls -l /usr/lib/snapd/snap-confine
+getcap /usr/lib/snapd/snap-confine
+(zcat /proc/config.gz 2>/dev/null || cat /boot/config-$(uname -r)) | grep -E "CONFIG_SQUASHFS_XATTR|CONFIG_SECURITY_APPARMOR"
+snap changes | tail -8
+```
+
+### Riesgo para Lumina
+
+`robot.html` usa `SpeechRecognition` del navegador (`dashboard/robot.js`). Sin navegador en el
+Jetson no hay voz ahí. Y aunque se instale uno sin snap, fuentes de terceros indican que Chrome
+manda el audio a servidores de Google, que Chromium y otros navegadores basados en él suelen no
+traerlo funcionando por falta de claves de Google, y que Firefox lo trae desactivado. **No
+verificado en este equipo.** El borrador de ADR 0011 recoge las opciones (pantalla fuera del
+Jetson, Flatpak, PPA, Firefox de Mozilla, arreglar snap, voz fuera del navegador) y recomienda,
+por ahora, usar el Chrome de la laptop como pantalla sin tocar el Jetson.
+
+**Estado:** abierto. **NO verificado:** la causa en este equipo; que la voz funcione desde un origen
+distinto de `localhost`; que Flatpak o el PPA funcionen en este kernel.
