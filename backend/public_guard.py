@@ -51,7 +51,7 @@ CSP = (
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
     "font-src 'self' https://fonts.gstatic.com; "
     "img-src 'self' data: blob:; "
-    "media-src 'self'; "
+    "media-src 'self' blob: data:; "
     "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; "
     "frame-src 'self'; "
     "frame-ancestors 'self'; "

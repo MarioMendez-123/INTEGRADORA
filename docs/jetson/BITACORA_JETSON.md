@@ -790,3 +790,20 @@ costo: 4/25 falsos positivos (antes 1/25). **faster-whisper NO se midió** (inst
 
 **Error mío corregido:** `scripts/probar_voz.py` imprimía siempre «memoria del proceso: 0.0 MB» en Windows (el handle se truncaba);
 corregido y con prueba. Las cifras de memoria del script entregado antes no valen.
+
+---
+
+## Sesión 10 — 2026-10-23 — Audio de Lumina bloqueado por `media-src 'self'`
+
+**[REPORTADO por Mario, Firefox del Jetson]** CSP bloqueó `blob:` (robot.js:1832, MP3 de ElevenLabs) y `data:audio/mp3` (call-screen.js),
+y luego «ElevenLabs no disponible, uso voz del navegador».
+
+**Causa (comprobada leyendo el código):** `media-src 'self'` estaba en el encabezado (`backend/public_guard.py`) y en el `<meta>` de
+`dashboard/index.html`; `robot.html` y `celda.html` no tienen `<meta>`. `data:audio/mp3` es un MP3 mudo que trae el reproductor
+Remotion empaquetado en `call-screen.js`. El `fetch("/robot/tts")` NO falló (si no, no habría `blob:`): el servidor devolvió audio y la
+CSP impidió reproducirlo; el `DOMException` es consecuencia de la CSP, no de ElevenLabs.
+
+**Corrección:** `media-src 'self' blob: data:` en ambos sitios. Nada más cambió (`script-src`, `connect-src`, `img-src` iguales).
+Prueba nueva (`test_media_src_permite_el_audio_de_elevenlabs…`): encabezado y meta coinciden y ni `blob:` ni `data:` aparecen en `script-src`/`connect-src`.
+**NO verificado:** en el navegador real (recargar con Ctrl+F5 tras reiniciar el servidor); que la clave de ElevenLabs sea válida y tenga
+créditos (no llamé a ElevenLabs desde aquí); si hay otra causa tras quitar la CSP.

@@ -736,3 +736,21 @@ def test_forzar_publico_por_entorno(client, monkeypatch):
     assert client.get("/line/vision/stream").status_code == 403
     monkeypatch.setenv("AETHER_PUBLIC_MODE", "local")
     assert client.post("/line/cell/run", json={"on": False}).status_code == 401
+
+
+def _directivas(politica: str) -> dict:
+    return {p.split()[0]: p.split()[1:] for p in (x.strip() for x in politica.split(";")) if p}
+
+
+def test_media_src_permite_el_audio_de_elevenlabs_y_solo_eso_en_encabezado_y_meta(monkeypatch):
+    """robot.js reproduce el MP3 de /robot/tts como blob: y el reproductor de la llamada trae un MP3 data:.
+    Con `media-src 'self'` Firefox los bloquea. Encabezado y <meta> deben coincidir, sin tocar script-src."""
+    monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL", raising=False)
+    monkeypatch.delenv("AETHER_LINE_AGENT_URL", raising=False)
+    respuesta = TestClient(main.app).get("/")
+    encabezado, meta = _directivas(respuesta.headers["content-security-policy"]), _directivas(_meta_csp(respuesta.text))
+    for politica in (encabezado, meta):
+        assert politica["media-src"] == ["'self'", "blob:", "data:"]
+        assert "blob:" not in politica["script-src"] and "data:" not in politica["script-src"]
+        assert politica["connect-src"][0] == "'self'" and "blob:" not in politica["connect-src"]
+    assert encabezado["script-src"] == ["'self'", "https://cdn.jsdelivr.net"] and meta["script-src"] == ["'self'"]
