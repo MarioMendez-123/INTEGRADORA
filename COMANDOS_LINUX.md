@@ -192,6 +192,31 @@ Tardanza de la decisión ≈ `LINE_ESTABLES` × (`LINE_ANALISIS_CADA_S` + lo que
 espera de 3 s del pistón si es FAIL. Medir en la Pi y ajustar. Si el CPU sigue alto, bajar los FPS de la
 cámara o `LINE_ANALISIS_CADA_S` a 1.0.
 
+## 8. Agente de percepción del Jetson (rama `jetson-agente`; sin verificar en el Jetson)
+
+El Jetson abre **su** cámara y sirve su video; a la laptop solo le manda observaciones JSON. Guía completa y qué
+corre dónde: `docs/guia_arranque.md`. Variables: `docs/variables_entorno.md`. Contratos: `contracts/agents_api.md`.
+
+```bash
+# Una vez: configuración (edita AETHER_LAPTOP_URL con la IP de la laptop)
+cp ~/aether/scripts/jetson/aether-agent.env.example ~/.aether-agent.env && nano ~/.aether-agent.env
+
+# Arrancar (tmux 'agente'; se niega con un mensaje claro si falta la cámara, el entorno o si gpiod está instalado)
+bash ~/aether/scripts/jetson/iniciar-agente.sh
+
+# Medir: FPS de la cámara, de entrega, ms de inferencia, CPU/RAM del agente y cola hacia la laptop
+python3 ~/aether/scripts/probar_agente.py http://localhost:8001 --segundos 15
+
+# Ver la página de la laptop (dentro de un terminal de la sesión VNC)
+bash ~/aether/scripts/ver-aether.sh robot.html
+
+# Detener
+bash ~/aether/scripts/jetson/detener-agente.sh
+```
+
+`curl -s localhost:8001/health` y `curl -s localhost:8001/status` dan el estado. Si `iniciar-agente.sh` dice que
+`gpiod` está instalado, **no sigas**: la regla de seguridad sigue vigente hasta que el equipo confirme el cableado.
+
 ## Precauciones
 
 - **No instalar `gpiod` de Python** ni activar nada de GPIO hasta que el equipo confirme qué está

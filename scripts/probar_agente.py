@@ -19,6 +19,7 @@ import urllib.error
 import urllib.request
 
 OBJETIVO_FPS = 30.0
+TOLERANCIA = 0.97  # 29.1 FPS cuenta como 30: contar cuadros en una ventana de 10 s no da cifras exactas
 
 
 def get_json(url: str, timeout: float = 5.0) -> dict:
@@ -79,8 +80,8 @@ def main() -> int:
     if cuadros == 0:
         print("\nVEREDICTO: NO entrega video.")
         return 1
-    if fps_recibidos >= OBJETIVO_FPS:
-        print(f"\nVEREDICTO: {fps_recibidos:.1f} FPS recibidos, alcanza el objetivo de diseño ({OBJETIVO_FPS:.0f}).")
+    if fps_recibidos >= OBJETIVO_FPS * TOLERANCIA:
+        print(f"\nVEREDICTO: {fps_recibidos:.1f} FPS recibidos, alcanza el objetivo de diseño ({OBJETIVO_FPS:.0f}, con tolerancia de 3 %).")
     else:
         print(
             f"\nVEREDICTO: {fps_recibidos:.1f} FPS recibidos, por DEBAJO del objetivo de diseño ({OBJETIVO_FPS:.0f}). "

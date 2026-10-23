@@ -722,3 +722,28 @@ todos los sistemas, y solo el análisis se limita por intervalo.
 de la versión de OpenCV de la Pi lea el ONNX (aquí se probó con OpenCV 5.0; el de Bookworm es 4.6); la
 cámara V4L2 de la Pi; GPIO y pulsos (siguen sin `python3-libgpiod`, ver ADR 0011 sobre el cableado).
 **Primera prueba en la Pi:** correr el agente, mirar `top` y `curl /line/cell/status` con una pieza delante.
+
+---
+
+## Sesión 7 — 2026-10-22 — Cámara en su equipo, micrófono de la laptop y arranque simple (construido y probado solo en la laptop)
+
+**Qué se hizo** (rama `jetson-agente`; ADR 0012 propuesta; contratos en `contracts/agents_api.md`):
+`backend/aether_agent.py` (agente del Jetson: su cámara, percepción, `/stream`, `/status`, observaciones JSON con ID
+hacia la laptop); percepción extraída de `main.py` a `perception_pipeline.py`; entrega idempotente y cola con reintento;
+`/config/agents` + CSP `img-src` ampliada solo con los agentes configurados; servicio de voz de la laptop
+(`backend/voice/`, solo texto, aviso, interruptor, anti-eco) y oyente en `robot.js`; `iniciar_aether.ps1`,
+`scripts/jetson/*.sh`, `scripts/ver-aether.sh`; la celda de la Pi con el mismo patrón y sin GPIO.
+
+**Comprobado (salida real, en la laptop):**
+
+- `tests/backend`: 264 pruebas, 262 pasan; fallan las 2 de Lumina de siempre (`test_main.py`).
+- Prueba de humo del agente con la **cámara web de la laptop y YOLO en CPU** durante 10 s, medida con
+  `scripts/probar_agente.py`: cámara 30.0 FPS, entrega 30.0 FPS, 300 cuadros recibidos en 10.0 s, inferencia 47 ms la
+  última y 56.7 ms en promedio, CPU del agente 314–419 % de un núcleo (YOLO en CPU; **no representa al Jetson**). La
+  cámara no vio ningún objeto: 0 observaciones, así que el envío se probó con dobles, no con detecciones reales.
+- `iniciar_aether.ps1 -SoloComprobar` corrió y detectó que `backend\.env` no trae `CELDA_HMI_CLAVE`.
+
+**NO verificado:** nada en el Jetson ni en la Pi; los FPS del Jetson (el objetivo de 30 es de diseño); Firefox mostrando
+el video del agente; el micrófono real, Vosk y el español de Mario; que Windows muestre la notificación; la regla de
+firewall solo Privado. Procedimientos para verificarlo: `docs/auditoria/TRAZABILIDAD.md`, sección 2.
+

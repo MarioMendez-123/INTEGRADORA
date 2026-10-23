@@ -51,7 +51,7 @@ class VoiceSettings:
         if engine == "vosk" and not model:
             raise ConfigError(
                 "AETHER_VOICE_MODEL debe apuntar a la carpeta del modelo de Vosk en español "
-                "(vosk-model-small-es). Ver COMANDOS_LINUX.md/guía de voz para descargarlo."
+                "(vosk-model-small-es). Ver docs/guia_arranque.md, sección 1.4."
             )
         return cls(
             server=server,

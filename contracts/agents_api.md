@@ -113,3 +113,7 @@ Mismo patrón: la Pi sirve su video y su `celda.html`; la laptop solo recibe dat
 - `GET /status` con `role: "cell"` (campos de la sección 1; `inference` describe el detector ONNX).
 - `POST /line/cell/events` (laptop): `{"v":1,"source":"pi","events":[{"v":1,"event_id":"…","timestamp":"…","pieza":12,"juicio":"FAIL","accion":"expulsada"}]}`.
   Mismas reglas de idempotencia, tamaño y red local. Solo se anotan: **no activa nada** ni cambia GPIO.
+- `GET /line/cell/events/recent?limit=20` (laptop): los últimos eventos anotados, más recientes primero (solo red local).
+- La Pi sirve el video en `GET /stream` (contrato) y en `GET /line/vision/stream` (la ruta que ya usa `celda.html`).
+- `event_id` de la celda: `<AETHER_AGENT_ID>-<sello de 8 hex del arranque>-<número de pieza>`; el sello evita que la
+  numeración de piezas, que reinicia con el proceso, repita un ID.

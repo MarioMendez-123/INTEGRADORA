@@ -1,5 +1,8 @@
 # Aether — URLs y comandos
 
+> **Atajo (rama `jetson-agente`):** `.\iniciar_aether.ps1` hace las comprobaciones y arranca el servidor (y la voz). Guía:
+> `docs/guia_arranque.md`. Lo de abajo sigue vigente como respaldo manual.
+
 Todo corre en esta laptop. Desde **otro equipo de la misma red**, cambia
 `localhost` por la IP de esta laptop (la ves con `ipconfig`, "Dirección IPv4")
 y permite Python en el firewall de Windows (red privada).
@@ -31,7 +34,7 @@ cd backend
 |---|---|
 | http://localhost:8000/ | Dashboard (inicio) |
 | http://localhost:8000/inventory.html | Inventario declarado e historial |
-| http://localhost:8000/celda.html | Celda de manufactura (estado simulado) |
+| http://localhost:8000/celda.html | Celda de manufactura (los pulsos solo salen si hay GPIO; sin GPIO la pieza queda como «pulso no enviado») |
 | http://localhost:8000/robot.html | **Lumina**: cara, voz, cámara y llamadas (abrir en Chrome o Edge) |
 | http://localhost:8000/docs | Documentación interactiva de la API (la genera FastAPI) |
 
@@ -57,6 +60,10 @@ cd backend
 | POST | http://localhost:8000/robot/call | Llamada de voz con Zavu (**gasta saldo**, máx. 3 cada 10 min) | `ZAVUDEV_API_KEY` en `backend/.env` |
 | GET | http://localhost:8000/robot/call/{id} | Estado de una llamada | Zavu |
 | WebSocket | ws://localhost:8000/show/ws | Canal de eventos Lumina → video en vivo | — |
+| WebSocket | ws://localhost:8000/voice/ws?role=listener | Texto del micrófono de la laptop hacia las páginas de Lumina (solo red local) | Servicio de voz (`python -m voice.service`) |
+| POST | http://localhost:8000/perception/observations | Observaciones que manda el agente del Jetson (solo red local, idempotente) | `contracts/agents_api.md` |
+| POST | http://localhost:8000/line/cell/events | Eventos de pieza que manda la Pi (solo se anotan) | `contracts/agents_api.md` |
+| GET | http://localhost:8000/config/agents | Direcciones del video de los agentes, para las páginas | — |
 
 **No funciona todavía:** `GET /robot/calendar` responde 503 porque faltan las
 credenciales de Google Calendar.
