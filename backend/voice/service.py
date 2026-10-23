@@ -181,7 +181,20 @@ def _setup_logging() -> None:
     root.addHandler(console)
 
 
+def _load_env() -> None:
+    """Comparte backend/.env con el servidor (AETHER_VOICE_* viven ahí). Si no hay python-dotenv, solo el entorno."""
+    try:
+        from pathlib import Path
+
+        from dotenv import load_dotenv
+
+        load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+    except ImportError:
+        pass
+
+
 def main() -> int:
+    _load_env()
     _setup_logging()
     enable_ansi()
     try:
