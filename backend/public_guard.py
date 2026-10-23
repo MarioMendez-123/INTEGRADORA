@@ -151,18 +151,15 @@ def _too_many(ip: str) -> bool:
 
 
 def csp_value() -> str:
-    """La CSP de siempre, más (solo en <img>) los orígenes de los agentes configurados.
-    Un valor de configuración inválido no tumba las respuestas: se queda la CSP base."""
+    """La CSP de siempre, más (solo en img-src) los orígenes de los agentes configurados. La lista se lee en cada
+    petición, no al importar. Un valor de configuración inválido no tumba las respuestas: se queda la CSP base."""
     try:
-        from agent_config import agent_origins
+        from agent_config import add_img_origins, agent_origins
 
-        origins = agent_origins()
+        return add_img_origins(CSP, agent_origins())
     except Exception:
         logger.warning("AETHER_*_AGENT_URL inválida; la CSP no se amplía.")
         return CSP
-    if not origins:
-        return CSP
-    return CSP.replace("img-src 'self' data: blob:", "img-src 'self' data: blob: " + " ".join(origins), 1)
 
 
 def security_headers(restricted: bool, https: bool) -> list[tuple[bytes, bytes]]:

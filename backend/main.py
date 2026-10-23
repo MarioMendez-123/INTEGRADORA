@@ -24,11 +24,11 @@ from pathlib import Path
 
 from fastapi import Cookie, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import JSONResponse, RedirectResponse, Response, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from agent_config import line_agent_url, perception_agent_url
+from agent_config import extend_meta_csp, line_agent_url, perception_agent_url
 from agent_routes import create_router as create_agent_router
 from cell_line import celda
 from cell_routes import router as cell_router
@@ -110,6 +110,14 @@ async def _unhandled(request, exc: Exception):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/", include_in_schema=False)
+@app.get("/index.html", include_in_schema=False)
+def index():
+    """index.html con su <meta> de CSP al día con los agentes configurados (ver agent_config.extend_meta_csp).
+    Sin agente configurado devuelve el archivo tal cual."""
+    return HTMLResponse(extend_meta_csp((DASHBOARD_DIR / "index.html").read_text(encoding="utf-8")))
 
 
 @app.get("/inventory")

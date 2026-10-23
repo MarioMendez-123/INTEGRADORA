@@ -14,6 +14,7 @@ toca ninguna línea de backend/main.py para lograr esto.
 """
 
 import json
+import re
 import sys
 import urllib.error
 from pathlib import Path
@@ -291,6 +292,74 @@ def test_csp_de_main_se_amplia_con_el_agente(client, monkeypatch):
     assert "http://10.4.5.103:8001" in client.get("/health").headers["content-security-policy"]
     monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL")
     assert "10.4.5.103" not in client.get("/health").headers["content-security-policy"]
+
+
+def _img_src(politica: str) -> set:
+    return set(re.search(r"img-src ([^;\"]*)", politica).group(1).split())
+
+
+def _meta_csp(html: str):
+    m = re.search(r'<meta\s+http-equiv="Content-Security-Policy"\s+content="([^"]*)"', html, re.S | re.I)
+    return m.group(1) if m else None
+
+
+@pytest.mark.parametrize("configurado", ["http://mario-desktop.local:8001", "http://10.4.5.103:8001"])
+@pytest.mark.parametrize("ip_cliente", ["10.4.5.103", "10.4.5.110"])  # el mismo equipo del agente / otro equipo
+def test_el_origen_que_entrega_config_agents_esta_en_el_img_src_del_encabezado_y_del_meta(monkeypatch, configurado, ip_cliente):
+    """Reproduce el fallo visto en el Jetson: index.html trae su PROPIO <meta> de CSP y el navegador aplica la
+    política más estricta de las dos. El origen que /config/agents entrega debe estar en el img-src de AMBAS."""
+    import agent_config
+
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", configurado)
+    monkeypatch.setattr(agent_config, "_resolve", lambda host: frozenset({"10.4.5.103"}))
+    c = TestClient(main.app, client=(ip_cliente, 50000))
+
+    url = c.get("/config/agents").json()["perception"]["stream_url"]
+    origen = url.rsplit("/stream", 1)[0]
+    esperado = "http://127.0.0.1:8001" if ip_cliente == "10.4.5.103" else configurado
+    assert origen == esperado
+
+    solo_estos = {"'self'", "data:", "blob:", configurado, "http://127.0.0.1:8001"}
+    for ruta in ("/", "/index.html", "/celda.html", "/robot.html"):
+        respuesta = c.get(ruta)
+        en_encabezado = _img_src(respuesta.headers["content-security-policy"])
+        assert origen in en_encabezado, f"{ruta}: {origen} no está en el encabezado {en_encabezado}"
+        assert en_encabezado == solo_estos  # exactamente esos orígenes: sin comodines ni extras
+        meta = _meta_csp(respuesta.text)
+        if ruta in ("/", "/index.html"):
+            assert meta is not None, "index.html debe seguir trayendo su <meta> de CSP"
+        if meta is not None:
+            assert origen in _img_src(meta), f"{ruta}: {origen} no está en el img-src del <meta>"
+            assert _img_src(meta) == solo_estos
+
+
+def test_sin_agente_index_y_la_csp_son_identicos_a_los_de_antes(monkeypatch):
+    monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL", raising=False)
+    monkeypatch.delenv("AETHER_LINE_AGENT_URL", raising=False)
+    c = TestClient(main.app)
+    original = (main.DASHBOARD_DIR / "index.html").read_text(encoding="utf-8")
+    respuesta = c.get("/")
+    assert respuesta.text == original
+    assert respuesta.headers["content-security-policy"] == __import__("public_guard").CSP
+    assert _img_src(_meta_csp(respuesta.text)) == {"'self'", "data:", "blob:"}
+
+
+def test_index_con_agente_invalido_se_sirve_sin_cambios(monkeypatch):
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "esto no es una url")
+    respuesta = TestClient(main.app).get("/")
+    assert respuesta.status_code == 200
+    assert respuesta.text == (main.DASHBOARD_DIR / "index.html").read_text(encoding="utf-8")
+
+
+def test_la_lista_de_origenes_se_lee_en_cada_peticion_no_al_importar(monkeypatch):
+    c = TestClient(main.app)
+    monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL", raising=False)
+    assert "10.4.5.103" not in c.get("/").headers["content-security-policy"]
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "http://10.4.5.103:8001")
+    assert "http://10.4.5.103:8001" in c.get("/").headers["content-security-policy"]
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "http://10.4.5.104:8002")
+    assert "10.4.5.103" not in c.get("/").headers["content-security-policy"]
+    assert "http://10.4.5.104:8002" in _meta_csp(c.get("/").text)
 
 
 def _fake_ollama_response(content: str) -> MagicMock:

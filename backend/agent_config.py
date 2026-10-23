@@ -4,12 +4,13 @@ Sin agente configurado todo queda en None y las páginas usan la cámara local, 
 """
 
 import ipaddress
+import re
 import socket
 import time
 from urllib.parse import urlparse
 
 from agent_contracts import AgentsConfig, StreamConfig
-from settings import env_url
+from settings import ConfigError, env_url
 
 PERCEPTION_VAR = "AETHER_PERCEPTION_AGENT_URL"
 LINE_VAR = "AETHER_LINE_AGENT_URL"
@@ -24,20 +25,45 @@ def line_agent_url() -> str:
 
 
 def agent_origins() -> list[str]:
-    """Orígenes que la CSP debe permitir para <img>: cada agente configurado y su equivalente en loopback
-    (la sustitución por equipo de más abajo)."""
+    """Orígenes desde los que /config/agents puede mandar a una página a cargar video, y NADA más: el agente tal
+    como está configurado (IP o nombre) y su variante en 127.0.0.1 con el mismo puerto (la sustitución cuando
+    quien pregunta es el mismo equipo del agente). Sin comodines y sin 'localhost', que nunca se entrega."""
     origins: list[str] = []
     for base in (perception_agent_url(), line_agent_url()):
         if not base:
             continue
         parsed = urlparse(base)
         port = f":{parsed.port}" if parsed.port else ""
-        for host in (parsed.hostname, "127.0.0.1", "localhost"):
+        for host in (parsed.hostname, "127.0.0.1"):
             host = f"[{host}]" if host and ":" in host else host
             origin = f"{parsed.scheme}://{host}{port}"
             if origin not in origins:
                 origins.append(origin)
     return origins
+
+
+IMG_SRC_BASE = "img-src 'self' data: blob:"
+_META_CSP = re.compile(r'(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")', re.IGNORECASE)
+
+
+def add_img_origins(policy: str, origins: list[str]) -> str:
+    """Agrega los orígenes de los agentes a la directiva img-src de una política (encabezado o <meta>). Solo ahí."""
+    if not origins:
+        return policy
+    return policy.replace(IMG_SRC_BASE, IMG_SRC_BASE + " " + " ".join(origins), 1)
+
+
+def extend_meta_csp(html: str) -> str:
+    """index.html trae su PROPIA etiqueta <meta http-equiv="Content-Security-Policy">. El navegador aplica a la vez
+    esa política y la del encabezado HTTP, y manda la más estricta: si el <meta> no lleva los mismos orígenes, el
+    video del agente se bloquea aunque el encabezado lo permita. Aquí se le pone la misma lista exacta."""
+    try:
+        origins = agent_origins()
+    except ConfigError:
+        return html
+    if not origins:
+        return html
+    return _META_CSP.sub(lambda m: m.group(1) + add_img_origins(m.group(2), origins) + m.group(3), html)
 
 
 _RESOLVED: dict[str, tuple[float, frozenset]] = {}

@@ -136,8 +136,8 @@ def test_csp_se_amplia_solo_en_img_y_solo_con_agentes(monkeypatch):
     assert public_guard.csp_value() == public_guard.CSP
     monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "http://10.4.5.103:8001")
     csp = public_guard.csp_value()
-    assert "img-src 'self' data: blob: http://10.4.5.103:8001 http://127.0.0.1:8001 http://localhost:8001;" in csp
-    assert csp.replace(" http://10.4.5.103:8001 http://127.0.0.1:8001 http://localhost:8001", "") == public_guard.CSP
+    assert "img-src 'self' data: blob: http://10.4.5.103:8001 http://127.0.0.1:8001;" in csp
+    assert csp.replace(" http://10.4.5.103:8001 http://127.0.0.1:8001", "") == public_guard.CSP
     assert "connect-src 'self' https://fonts" in csp  # connect-src NO se toca
 
 
