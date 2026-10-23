@@ -989,16 +989,26 @@ cameraStreamImg.addEventListener("load", () => {
   cameraStreamImg.hidden = false;
 });
 
+const CAMERA_LOCAL_ERROR = "No se pudo conectar con la cámara. Verifica que backend/main.py esté corriendo.";
+
 cameraStreamImg.addEventListener("error", () => {
   if (!cameraActive) return;
+  // Bloqueo de la política de seguridad (CSP) vs cámara/agente no disponible: ver stream-errors.js.
+  if (window.AetherStreamErrors && window.AetherStreamErrors.isBlocked(cameraUrl)) {
+    clearTimeout(cameraRetryTimer);
+    cameraConnectingEl.hidden = false;
+    cameraConnectingText.textContent = window.AetherStreamErrors.message(cameraUrl, CAMERA_LOCAL_ERROR);
+    return;
+  }
   if (cameraRetryCount < MAX_RETRIES) {
     cameraRetryCount += 1;
     showCameraConnecting();
     cameraRetryTimer = setTimeout(attemptCameraConnection, RETRY_DELAY_MS);
     return;
   }
-  cameraConnectingText.textContent =
-    "No se pudo conectar con la cámara. Verifica que backend/main.py esté corriendo.";
+  cameraConnectingText.textContent = window.AetherStreamErrors
+    ? window.AetherStreamErrors.message(cameraUrl, CAMERA_LOCAL_ERROR)
+    : CAMERA_LOCAL_ERROR;
 });
 
 // Clic corto y discreto en los dos botones reales de la interfaz — mismo

@@ -49,6 +49,12 @@ let streaming = false;
 let retryCount = 0;
 let retryTimer = null;
 
+// Distingue "el navegador lo bloqueó (CSP)" de "cámara o agente no disponible": ver stream-errors.js. Si ese archivo no
+// cargó, se usa el texto de siempre.
+function errorMessage() {
+  return window.AetherStreamErrors ? window.AetherStreamErrors.message(startUrl, ERROR_TEXT) : ERROR_TEXT;
+}
+
 function showConnecting() {
   placeholderText.hidden = true;
   loadingEl.hidden = false;
@@ -95,7 +101,7 @@ function stopStream({ error = false } = {}) {
   streamImg.hidden = true;
   loadingEl.hidden = true;
   placeholderText.hidden = false;
-  placeholderText.textContent = error ? ERROR_TEXT : DEFAULT_TEXT;
+  placeholderText.textContent = error ? errorMessage() : DEFAULT_TEXT;
   label.textContent = "CAM_01 · SIN SEÑAL";
   label.classList.remove("camera-label--live");
   startBtn.hidden = false;
@@ -134,6 +140,11 @@ streamImg.addEventListener("load", () => {
 // veces — abrir la cámara del lado del backend puede tardar.
 streamImg.addEventListener("error", () => {
   if (!streaming) return;
+  // Un bloqueo de la política de seguridad no se arregla reintentando: se avisa de inmediato.
+  if (window.AetherStreamErrors && window.AetherStreamErrors.isBlocked(startUrl)) {
+    stopStream({ error: true });
+    return;
+  }
   if (retryCount < MAX_RETRIES) {
     retryCount += 1;
     showConnecting();

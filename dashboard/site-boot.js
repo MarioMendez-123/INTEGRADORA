@@ -4,7 +4,7 @@
  */
 (function () {
   if (window.AETHER_PUBLIC) return;
-  ["/camera-stream.js", "/line-vision.js"].forEach((src) => {
+  ["/stream-errors.js", "/camera-stream.js?v=2", "/line-vision.js?v=2"].forEach((src) => {
     const script = document.createElement("script");
     script.src = src;
     document.body.appendChild(script);

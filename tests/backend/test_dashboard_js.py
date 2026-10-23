@@ -24,3 +24,12 @@ def test_javascript_del_dashboard(script, argumento):
     r = subprocess.run([NODE, str(RAIZ / script), argumento], capture_output=True, text=True, timeout=90, cwd=RAIZ, encoding="utf-8")
     assert r.returncode == 0, r.stdout + r.stderr
     assert "✘" not in r.stdout and r.stdout.count("✔") >= 5
+
+
+def test_las_paginas_cargan_el_explicador_de_errores_de_video():
+    """stream-errors.js distingue «bloqueado por la política de seguridad» de «cámara no disponible»: tiene que cargarse."""
+    dashboard = RAIZ / "dashboard"
+    assert (dashboard / "stream-errors.js").is_file()
+    assert "/stream-errors.js" in (dashboard / "celda.html").read_text(encoding="utf-8")
+    assert "/stream-errors.js" in (dashboard / "robot.html").read_text(encoding="utf-8")
+    assert "/stream-errors.js" in (dashboard / "site-boot.js").read_text(encoding="utf-8")  # index.html lo carga por aquí

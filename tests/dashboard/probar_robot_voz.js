@@ -2,6 +2,7 @@
 // Uso:  node tests/dashboard/probar_robot_voz.js dashboard/robot.js     (sale con código 1 si algo falla)
 const fs = require('fs'), vm = require('vm');
 const codigo = fs.readFileSync(process.argv[2], 'utf8');
+const erroresJs = fs.readFileSync(require('path').join(require('path').dirname(process.argv[2]), 'stream-errors.js'), 'utf8');
 
 function crear({ search, conReconocimiento }) {
   const registro = { sockets: [], logs: [], fetches: [], reconocimientoIniciado: 0 };
@@ -21,7 +22,18 @@ function crear({ search, conReconocimiento }) {
     constructor() { this.start = () => { registro.reconocimientoIniciado++; }; this.stop = () => {}; }
     addEventListener() {}
   }
-  const doc = stub();
+  const especiales = {};
+  const escuchas = {};
+  const elemento = () => ({ hidden: true, textContent: '', src: '', handlers: {}, classList: { add() {}, remove() {}, toggle() {} },
+    addEventListener(ev, fn) { (this.handlers[ev] ||= []).push(fn); }, removeAttribute(n) { if (n === 'src') this.src = ''; } });
+  for (const id of ['robot-camera-stream', 'camera-screen-connecting', 'camera-screen-connecting-text']) especiales[id] = elemento();
+  registro.especiales = especiales; registro.escuchas = escuchas;
+  const doc = new Proxy(function () {}, {
+    get: (t, k) => (k === 'getElementById' ? (id) => especiales[id] || stub()
+      : k === 'addEventListener' ? (ev, fn) => { (escuchas[ev] ||= []).push(fn); }
+      : k === Symbol.toPrimitive ? () => '' : k === 'then' ? undefined : stub()),
+    apply: () => stub(), construct: () => stub(), set: () => true,
+  });
   const ctx = {
     console: { log: (...a) => registro.logs.push(a.join(' ')), warn: (...a) => registro.logs.push('WARN ' + a.join(' ')), error: (...a) => registro.logs.push('ERROR ' + a.join(' ')) },
     document: doc, WebSocket: WS, URLSearchParams, setTimeout, clearTimeout, setInterval: () => 0, clearInterval: () => {},
@@ -31,7 +43,7 @@ function crear({ search, conReconocimiento }) {
     navigator: { permissions: { query: () => Promise.reject(new Error('x')) }, mediaDevices: undefined },
     matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }),
     Date, Math, JSON, Promise, Error, RegExp, Map, Set, Array, Object, String, Number, Boolean, parseInt, parseFloat, isNaN,
-    location: { search, protocol: 'http:', host: 'laptop:8000', hostname: 'laptop', href: 'http://laptop:8000/robot.html' },
+    location: { search, protocol: 'http:', host: 'laptop:8000', hostname: 'laptop', href: 'http://laptop:8000/robot.html', origin: 'http://laptop:8000' }, URL,
     speechSynthesis: { cancel() {}, speak() {}, getVoices: () => [], addEventListener() {} },
     prefersReducedMotion: false, addEventListener() {}, removeEventListener() {}, localStorage: { getItem: () => null, setItem() {} },
   };
@@ -43,7 +55,7 @@ function crear({ search, conReconocimiento }) {
 
 async function caso(nombre, opciones, comprobar) {
   const { ctx, registro } = crear(opciones);
-  try { vm.runInContext(codigo, ctx, { filename: 'robot.js' }); }
+  try { vm.runInContext(erroresJs, ctx, { filename: 'stream-errors.js' }); vm.runInContext(codigo, ctx, { filename: 'robot.js' }); }
   catch (e) { console.log(`✘ ${nombre}: robot.js lanzó ${e.message}`); process.exitCode = 1; return; }
   try { await comprobar(ctx, registro); console.log(`✔ ${nombre}`); }
   catch (e) { console.log(`✘ ${nombre}: ${e.message}`); process.exitCode = 1; }
@@ -94,6 +106,28 @@ const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
   await caso('la cámara usa /perception/stream mientras /config/agents no diga otra cosa', { search: '', conReconocimiento: true }, async (ctx, r) => {
     ok(r.fetches.some((u) => u.includes('/config/agents')), 'no pidió /config/agents');
     ok(vm.runInContext('cameraUrl', ctx) === '/perception/stream', 'cameraUrl cambió sin configuración');
+  });
+
+  await caso('cámara del robot: bloqueo de la CSP -> mensaje de bloqueo, sin reintentos', { search: '', conReconocimiento: true }, async (ctx, r) => {
+    vm.runInContext('cameraActive = true; cameraUrl = "http://127.0.0.1:8001/stream";', ctx);
+    (r.escuchas.securitypolicyviolation || []).forEach((fn) => fn({ blockedURI: 'http://127.0.0.1:8001/stream', violatedDirective: "img-src 'self' data: blob:" }));
+    r.especiales['robot-camera-stream'].handlers.error[0]();
+    const t = r.especiales['camera-screen-connecting-text'].textContent;
+    ok(t.includes('política de seguridad') && t.includes('NO por la cámara'), 'texto: ' + t);
+    ok(vm.runInContext('cameraRetryCount', ctx) === 0, 'no debe reintentar ante un bloqueo');
+  });
+
+  await caso('cámara del robot: agente que no responde -> dice agente y /health', { search: '', conReconocimiento: true }, async (ctx, r) => {
+    vm.runInContext('cameraActive = true; cameraUrl = "http://127.0.0.1:8001/stream"; cameraRetryCount = MAX_RETRIES;', ctx);
+    r.especiales['robot-camera-stream'].handlers.error[0]();
+    const t = r.especiales['camera-screen-connecting-text'].textContent;
+    ok(t.includes('el agente no responde') && t.includes('/health') && !t.includes('política'), 'texto: ' + t);
+  });
+
+  await caso('cámara del robot: cámara local que falla -> el texto de siempre', { search: '', conReconocimiento: true }, async (ctx, r) => {
+    vm.runInContext('cameraActive = true; cameraRetryCount = MAX_RETRIES;', ctx);
+    r.especiales['robot-camera-stream'].handlers.error[0]();
+    ok(r.especiales['camera-screen-connecting-text'].textContent === 'No se pudo conectar con la cámara. Verifica que backend/main.py esté corriendo.', 'texto cambió');
   });
   process.exit(process.exitCode || 0);
 })();
