@@ -255,7 +255,14 @@ class PerceptionProcessor:
 def engine_for(model, predict_kwargs: dict | None = None) -> PerceptionEngine:
     """Arma pyzbar y ArUco reales alrededor de un modelo YOLO ya cargado."""
     import cv2
-    from pyzbar.pyzbar import decode
+
+    try:
+        from pyzbar.pyzbar import decode
+    except (ImportError, OSError) as exc:  # sin la biblioteca zbar del sistema no hay lectura de códigos, pero sí video y YOLO
+        logger.warning("pyzbar no está disponible (%s): se detecta y se dibuja, pero no se leen códigos.", exc)
+
+        def decode(crop):
+            return []
 
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
     detector = cv2.aruco.ArucoDetector(dictionary, cv2.aruco.DetectorParameters())

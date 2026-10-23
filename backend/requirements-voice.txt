@@ -1,0 +1,16 @@
+# Servicio de voz de la laptop (backend/voice). NO forma parte de requirements.txt a propósito:
+# solo hace falta en la laptop donde corre el micrófono, nunca en el Jetson ni en la Pi.
+#
+# Se instala a mano, en el entorno del backend de la laptop:
+#   backend\.venv\Scripts\python.exe -m pip install -r backend\requirements-voice.txt
+#
+# sounddevice  captura del micrófono (PortAudio viene dentro de la rueda de Windows).
+# vosk         reconocedor local en español (motor por defecto). Además necesita un MODELO aparte
+#              (vosk-model-small-es, https://alphacephei.com/vosk/models); este paquete no lo trae.
+#
+# Alternativa más precisa y más pesada (solo si probar_voz.py muestra que hace falta):
+#   backend\.venv\Scripts\python.exe -m pip install faster-whisper     y   AETHER_VOICE_ENGINE=whisper
+#
+# websockets (cliente del enlace) ya viene con uvicorn[standard] de requirements.txt.
+sounddevice
+vosk
