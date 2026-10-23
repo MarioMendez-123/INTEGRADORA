@@ -37,7 +37,7 @@ def ajustes(**cambios):
         agent_id="jetson", laptop_url="http://10.4.5.52:8000", capture="always", detect_mode="sync",
         detect_max_hz=10.0, detect_every_n=1, camera_index=0, camera_options={}, weights="yolov8n.pt",
         yolo_imgsz=None, yolo_device="", yolo_half=False, jpeg_quality=80, outbox_max=100, outbox_batch=50,
-        outbox_timeout_s=1.0,
+        outbox_timeout_s=1.0, outbox_interval_s=0.0,
     )
     base.update(cambios)
     return AgentSettings(**base)

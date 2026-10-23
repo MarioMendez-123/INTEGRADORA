@@ -123,3 +123,36 @@ def test_la_laptop_se_cae_y_vuelve_sin_perder_lo_encolado():
     finally:
         o.stop()
     assert o.dropped_total == 0
+
+
+def test_el_intervalo_junta_las_observaciones_en_pocos_posts():
+    """Detecciones continuas (una cada ~20 ms): sin intervalo salía casi un POST por observación; con intervalo se juntan."""
+    def correr(intervalo):
+        laptop = Laptop([])
+        o = EventOutbox(url="http://laptop/x", build_body=lambda lote: {"events": lote}, send=laptop,
+                        batch_size=50, flush_interval_s=intervalo)
+        o.start()
+        try:
+            for n in range(30):
+                o.put(ev(n))
+                time.sleep(0.02)
+            assert esperar(lambda: o.sent_total == 30, timeout=6)
+        finally:
+            o.stop()
+        return len(laptop.recibido)
+
+    sin_intervalo, con_intervalo = correr(0.0), correr(0.3)
+    assert con_intervalo <= 4, con_intervalo       # ~0.6 s de detecciones en 2 o 3 lotes
+    assert sin_intervalo >= 3 * con_intervalo, (sin_intervalo, con_intervalo)  # y antes eran muchos más
+
+
+def test_un_lote_lleno_sale_sin_esperar_el_intervalo():
+    laptop = Laptop([])
+    o = EventOutbox(url="http://laptop/x", build_body=lambda lote: {"events": lote}, send=laptop, batch_size=5, flush_interval_s=5.0)
+    for n in range(5):
+        o.put(ev(n))
+    o.start()
+    try:
+        assert esperar(lambda: o.sent_total == 5, timeout=2)  # no espera los 5 s
+    finally:
+        o.stop()

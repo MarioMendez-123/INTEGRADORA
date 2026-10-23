@@ -40,6 +40,7 @@ definirlas el comportamiento es el de siempre.
 | `AETHER_JPEG_QUALITY` | 30–100 | `80` | |
 | `AETHER_OUTBOX_MAX` | 10–100000 | `1000` | Cola local de observaciones; al llenarse se descartan las más viejas |
 | `AETHER_OUTBOX_BATCH` / `AETHER_OUTBOX_TIMEOUT_S` | 1–100 / 0.5–30 | `50` / `3` | |
+| `AETHER_OUTBOX_INTERVAL_S` | 0–10 | `1` | Junta las observaciones de ese tiempo en un solo envío (antes salía casi un POST por observación). Retraso máximo de entrega = este valor; `0` = enviar de inmediato |
 
 ## Celda de la Pi (`backend/celda_agent.py`)
 

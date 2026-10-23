@@ -61,6 +61,7 @@ class AgentSettings:
     outbox_max: int
     outbox_batch: int
     outbox_timeout_s: float
+    outbox_interval_s: float = 1.0
 
     @classmethod
     def from_env(cls) -> "AgentSettings":
@@ -92,6 +93,7 @@ class AgentSettings:
             outbox_max=env_int("AETHER_OUTBOX_MAX", 1000, minimo=10, maximo=100000),
             outbox_batch=env_int("AETHER_OUTBOX_BATCH", 50, minimo=1, maximo=100),
             outbox_timeout_s=env_float("AETHER_OUTBOX_TIMEOUT_S", 3.0, minimo=0.5, maximo=30.0),
+            outbox_interval_s=env_float("AETHER_OUTBOX_INTERVAL_S", 1.0, minimo=0.0, maximo=10.0),
         )
 
 
@@ -113,6 +115,7 @@ def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=N
             max_size=settings.outbox_max,
             batch_size=settings.outbox_batch,
             timeout_s=settings.outbox_timeout_s,
+            flush_interval_s=settings.outbox_interval_s,
         )
 
     def emit(observation: dict) -> None:

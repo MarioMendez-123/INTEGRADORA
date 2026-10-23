@@ -35,11 +35,13 @@ class EventOutbox:
 
     Una respuesta 2xx saca el lote de la cola. 4xx (salvo 408/429) significa que el lote es inválido: se
     descarta y se cuenta, porque reintentarlo para siempre bloquearía la cola. 5xx, 408, 429 o error de red
-    se reintentan con backoff exponencial (de 1 s hasta 30 s).
+    se reintentan con backoff exponencial (de 1 s hasta 30 s). flush_interval_s > 0 junta las observaciones que
+    lleguen en ese tiempo en un solo POST (el retraso máximo de entrega es ese intervalo).
     """
 
     def __init__(self, url: str | None, build_body, max_size: int = 1000, batch_size: int = 50,
-                 timeout_s: float = 3.0, send=http_post_json, sleep=time.sleep, backoff_max_s: float = 30.0):
+                 timeout_s: float = 3.0, send=http_post_json, sleep=time.sleep, backoff_max_s: float = 30.0,
+                 flush_interval_s: float = 0.0):
         self.url = url
         self._build_body = build_body
         self._queue: deque = deque()
@@ -49,6 +51,7 @@ class EventOutbox:
         self._send = send
         self._sleep = sleep
         self._backoff_max = backoff_max_s
+        self._interval = flush_interval_s
         self._lock = threading.Lock()
         self._wake = threading.Event()
         self._stop = threading.Event()
@@ -129,6 +132,10 @@ class EventOutbox:
             if not len(self):
                 self._wake.wait(timeout=1.0)
                 self._wake.clear()
+                # Junta un lote: sin esta espera, cada observación que llega despierta al hilo y sale en su propio
+                # POST (~10 peticiones por segundo con detecciones continuas). Si ya hay un lote lleno, sale ya.
+                if self._interval and 0 < len(self) < self._batch and self._stop.wait(self._interval):
+                    break
                 continue
             if self.flush_once():
                 continue

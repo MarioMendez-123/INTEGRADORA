@@ -747,3 +747,25 @@ hacia la laptop); percepción extraída de `main.py` a `perception_pipeline.py`;
 el video del agente; el micrófono real, Vosk y el español de Mario; que Windows muestre la notificación; la regla de
 firewall solo Privado. Procedimientos para verificarlo: `docs/auditoria/TRAZABILIDAD.md`, sección 2.
 
+---
+
+## Sesión 8 — 2026-10-23 — Primera prueba real del agente en el Jetson: la CSP bloqueaba el video
+
+**[REPORTADO por Mario, primera prueba en el Jetson; no repetida por mí]** El agente del Jetson funcionó: `/status` dio
+`camera.fps_camera` 29.0, `fps_delivery` 29.1, 640x480, inferencia asíncrona `ms_avg` 68.0 y `laptop.reachable` verdadero;
+`/stream` respondió 200 en `127.0.0.1:8001`. Pero la cámara **no se mostró** en la página servida por la laptop:
+Firefox del Jetson bloqueó el `<img>` por `img-src 'self' data: blob:`.
+
+**Causa (comprobada en esta laptop con el servidor real):** el encabezado `Content-Security-Policy` del servidor SÍ traía
+`img-src … http://mario-desktop.local:8001 http://127.0.0.1:8001`, pero `dashboard/index.html` trae su PROPIA etiqueta
+`<meta http-equiv="Content-Security-Policy">` con `img-src 'self' data: blob:`. El navegador aplica las dos políticas a la
+vez y gana la más estricta. Ninguna de las dos hipótesis de la lista (solo el nombre configurado; lista armada al importar)
+era la causa: la lista se arma en cada petición e incluye la variante `127.0.0.1`. `celda.html` y `robot.html` no tienen ese
+`<meta>`; solo `index.html`.
+
+**Corrección:** el servidor entrega `index.html` con la misma lista exacta de orígenes en su `<meta>` (`/` y `/index.html`;
+sin agente configurado el archivo sale idéntico). `localhost` se quitó de la lista: `/config/agents` nunca lo entrega.
+Los tres scripts de video distinguen ahora «bloqueado por la política de seguridad» de «cámara o agente no disponible»
+(`dashboard/stream-errors.js`). Las pruebas nuevas **fallan con el código anterior y pasan con el nuevo**.
+**NO verificado:** en un navegador real; falta repetir la prueba en el Jetson (hay que recargar con Ctrl+F5).
+
