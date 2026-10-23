@@ -88,3 +88,7 @@ docs/architecture/decisions/sdasd.py
 
 # Configuracion local del agente del Jetson (puede llevar direcciones de la red); la plantilla es scripts/jetson/aether-agent.env.example
 .aether-agent.env
+
+# Grabaciones de prueba de voz (scripts/grabar_pruebas.py): son AUDIO, nunca se versionan
+pruebas_voz/
+pruebas_voz_sintetica/

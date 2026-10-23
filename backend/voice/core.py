@@ -58,6 +58,7 @@ class VoiceCore:
         self.state = initial_state
         self.discarded_segments = 0
         self.transcripts = 0
+        self._cerradas: list[str] = []  # frases que el propio motor cerró dentro de feed()
 
     # ------------------------------------------------------------------ estado
 
@@ -83,7 +84,7 @@ class VoiceCore:
     # ------------------------------------------------------------------ audio
 
     def feed(self, pcm: bytes) -> None:
-        text = None
+        textos: list[str] = []
         with self._lock:
             if self.state != ACTIVE:
                 return
@@ -95,25 +96,29 @@ class VoiceCore:
                 if not self._in_speech:
                     self._in_speech = True
                     for block in self._pre_roll:
-                        self._engine.accept(block)
+                        self._dar(block)
                         self._segment_bytes += len(block)
                     self._pre_roll.clear()
                     self._pre_roll_size = 0
                 self._last_voice = now
-                self._engine.accept(pcm)
+                self._dar(pcm)
                 self._segment_bytes += len(pcm)
             elif self._in_speech:
-                self._engine.accept(pcm)
+                self._dar(pcm)
                 self._segment_bytes += len(pcm)
             else:
                 self._remember(pcm)
             if self._in_speech and (now - self._last_voice >= self._hangover or self._segment_bytes >= self._max_segment_bytes):
-                text = self._close_segment()
-        if text and not self.speaking and self.state == ACTIVE:  # si Lumina empezó a hablar mientras se decodificaba, se tira
-            self.transcripts += 1
-            self._on_transcript(text)
-        elif text:
-            self.discarded_segments += 1
+                cerrada = self._close_segment()
+                if cerrada:
+                    self._cerradas.append(cerrada)
+            textos, self._cerradas = self._cerradas, []
+        for texto in textos:
+            if not self.speaking and self.state == ACTIVE:  # si Lumina empezó a hablar mientras se decodificaba, se tira
+                self.transcripts += 1
+                self._on_transcript(texto)
+            else:
+                self.discarded_segments += 1
 
     # ------------------------------------------------------------------ internos (con el candado tomado)
 
@@ -122,6 +127,13 @@ class VoiceCore:
         self._pre_roll_size += len(pcm)
         while self._pre_roll_size > self._pre_roll_bytes and len(self._pre_roll) > 1:
             self._pre_roll_size -= len(self._pre_roll.popleft())
+
+    def _dar(self, pcm: bytes) -> None:
+        """Entrega audio al motor. Si el motor cierra una frase por su cuenta (Vosk, por su detector de fin de frase),
+        el texto sale ya, sin esperar a que el umbral de energía note el silencio."""
+        texto = self._engine.accept(pcm)
+        if texto:
+            self._cerradas.append(texto)
 
     def _close_segment(self) -> str:
         self._in_speech = False

@@ -92,6 +92,11 @@ Prueba la lista de IP de `~/.aether-host` (o las tres conocidas), y abre Firefox
 - **Aviso:** línea de estado persistente en su ventana + notificación de Windows al activar, pausar y apagar.
 - **Apagar sin reiniciar todo:** tecla `p` (pausa y **suelta** el micrófono: el icono de micrófono de Windows se apaga) o
   `q`; o arrancar con `AETHER_VOICE_START=off`.
+- **«Lumina» no se reconoce o hay mucho ruido:** tecla `w` en la ventana de voz = despertar a Lumina sin hablar (manda la palabra
+  de activación como texto; sirve cuando el ruido hace que el reconocedor no entienda). Además el servicio corrige lo que Vosk
+  escribe en lugar de «Lumina» (`lubina`, `nómina`, `luz mina`…) cuando la frase EMPIEZA así: `docs/auditoria/PALABRA_CLAVE.md` explica
+  por qué, cuánto acierta y su riesgo. Con ruido de conversaciones el problema NO es la palabra sino el reconocimiento: ahí ayuda
+  más un micrófono de diadema cerca de la boca que cualquier ajuste de software.
 - **Anti-eco:** mientras Lumina habla, la página avisa y el servicio ignora el audio hasta 0.8 s después.
 - Una página con reconocimiento propio (Chrome) lo sigue usando como siempre. Para forzar el micrófono de la laptop en
   ella: `robot.html?voz=servicio`. Un solo origen de voz por página.

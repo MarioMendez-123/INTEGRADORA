@@ -4,7 +4,7 @@ Micrófono -> detección de voz -> reconocedor local en español -> SOLO el text
 que lo reenvía a las páginas de Lumina. No necesita ninguna página abierta en la laptop. El audio no se guarda en
 disco, no se escribe en logs y no sale de este proceso.
 
-Teclas en esta consola:  p = pausar/reanudar (pausar SUELTA el micrófono)   q = salir
+Teclas en esta consola:  p = pausar/reanudar (pausar SUELTA el micrófono)   w = despertar a Lumina sin hablar   q = salir
 Variables: docs/variables_entorno.md (AETHER_VOICE_*).
 """
 
@@ -22,6 +22,7 @@ from voice.core import ACTIVE, OFF, PAUSED, EnergyVad, VoiceCore
 from voice.engine import EngineUnavailable, create_engine
 from voice.hublink import HubLink
 from voice.notify import notify_windows
+from voice.wake import normalizar_activacion
 
 logger = logging.getLogger("voice")
 
@@ -39,6 +40,8 @@ class VoiceSettings:
     vad_threshold: float
     log_text: bool
     notify: bool
+    wake_fuzzy: bool = True
+    whisper_prompt: str = ""
 
     @classmethod
     def from_env(cls) -> "VoiceSettings":
@@ -63,6 +66,8 @@ class VoiceSettings:
             vad_threshold=env_float("AETHER_VOICE_VAD_THRESHOLD", 500.0, minimo=1.0, maximo=20000.0),
             log_text=env_bool("AETHER_VOICE_LOG_TEXT", False),
             notify=env_bool("AETHER_VOICE_NOTIFY", True),
+            wake_fuzzy=env_bool("AETHER_VOICE_WAKE_FUZZY", True),
+            whisper_prompt=env_str("AETHER_VOICE_WHISPER_PROMPT"),
         )
 
 
@@ -94,6 +99,11 @@ class VoiceService:
     # ------------------------------------------------------------------ eventos
 
     def _on_transcript(self, text: str) -> None:
+        if self.settings.wake_fuzzy:
+            corregido = normalizar_activacion(text)
+            if corregido != text:
+                logger.info("Palabra de activación corregida (voice/wake.py)")  # sin el texto: puede ser una frase privada
+                text = corregido
         self._link.send({"v": 1, "type": "transcript", "text": text[:500], "t": datetime.now(timezone.utc).isoformat()})
         logger.info("Frase enviada (%d caracteres)%s", len(text), f": {text}" if self.settings.log_text else "")
 
@@ -134,6 +144,10 @@ class VoiceService:
             self._quit = True
         elif key == "p":
             self.core.set_state(PAUSED if self.core.state == ACTIVE else ACTIVE)
+        elif key == "w" and self.core.state == ACTIVE:
+            # Despertar sin hablar: con ruido el reconocedor puede no entender «Lumina»; esto manda la palabra de
+            # activación como si se hubiera dicho. Es solo texto, igual que lo que reconoce el micrófono.
+            self._on_transcript("lumina")
         block = self._source.read() if self.core.state == ACTIVE else None
         if block is not None:
             self.core.feed(block)
@@ -199,7 +213,7 @@ def main() -> int:
     enable_ansi()
     try:
         settings = VoiceSettings.from_env()
-        engine = create_engine(settings.engine, settings.model)
+        engine = create_engine(settings.engine, settings.model, whisper_prompt=settings.whisper_prompt or None)
         source = SoundDeviceSource(settings.device or None)
     except (ConfigError, EngineUnavailable, MicUnavailable) as exc:
         print(f"No puedo arrancar el servicio de voz: {exc}")

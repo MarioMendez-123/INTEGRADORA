@@ -769,3 +769,24 @@ Los tres scripts de video distinguen ahora «bloqueado por la política de segur
 (`dashboard/stream-errors.js`). Las pruebas nuevas **fallan con el código anterior y pasan con el nuevo**.
 **NO verificado:** en un navegador real; falta repetir la prueba en el Jetson (hay que recargar con Ctrl+F5).
 
+
+---
+
+## Sesión 9 — 2026-10-23 — «Lumina» no se detecta con Vosk
+
+**[REPORTADO por Mario]** Vosk (`vosk-model-small-es-0.42`) llega a `robot.js`, pero escribe «nómina», «luz mina», «lumínica»,
+«luminoso», «mina»; `LUMINA_PATTERN` (`dashboard/robot.js:2206`, coincidencia exacta de palabra) nunca coincide.
+
+**Causa (comprobada con el modelo real):** «lumina», «lumia» y «luminia» no están en el vocabulario del modelo; Vosk no puede escribirlas.
+Detalle, comparación de las tres opciones y cifras: `docs/auditoria/PALABRA_CLAVE.md`.
+
+**Cambios:** reescritura tolerante al inicio de la frase en el servicio de voz (`backend/voice/wake.py`, se apaga con
+`AETHER_VOICE_WAKE_FUZZY=0`); el texto sale cuando Vosk cierra la frase, no al terminar el umbral de energía; tecla `w` para despertar a
+Lumina a mano; `AETHER_VOICE_WHISPER_PROMPT` opcional; scripts `grabar_pruebas.py`, `comparar_motores.py`, `voz_sintetica.ps1`.
+`robot.js` no cambió.
+
+**Medido (voz SINTÉTICA de Windows, una sola voz, ruido simulado):** en silencio 0/30 → 28–30/30; con murmullo +10 dB 2 → 11 de 30;
+costo: 4/25 falsos positivos (antes 1/25). **faster-whisper NO se midió** (instalarlo lo decide Mario). Nada con la voz ni el ruido reales.
+
+**Error mío corregido:** `scripts/probar_voz.py` imprimía siempre «memoria del proceso: 0.0 MB» en Windows (el handle se truncaba);
+corregido y con prueba. Las cifras de memoria del script entregado antes no valen.

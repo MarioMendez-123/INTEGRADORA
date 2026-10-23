@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 
 LABELS = {"active": "MICRÓFONO ACTIVO", "paused": "MICRÓFONO PAUSADO", "off": "MICRÓFONO APAGADO"}
-HELP = "[p] pausar/reanudar   [q] salir"
+HELP = "[p] pausar/reanudar   [w] despertar a Lumina   [q] salir"
 
 
 def render_status(state: str, now: datetime, detail: str = "") -> str:

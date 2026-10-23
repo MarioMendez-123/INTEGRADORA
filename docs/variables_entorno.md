@@ -68,6 +68,8 @@ definirlas el comportamiento es el de siempre.
 | `AETHER_VOICE_ECHO_TAIL_S` | 0–10 | `0.8` | Silencio tras hablar Lumina (anti-eco) |
 | `AETHER_VOICE_LOG_TEXT` | bool | `0` | `1` escribe el texto en `backend/logs/voice.log`; **el audio nunca se escribe** |
 | `AETHER_VOICE_NOTIFY` | bool | `1` | Notificación de Windows al activar/pausar/apagar |
+| `AETHER_VOICE_WAKE_FUZZY` | bool | `1` | Si la frase EMPIEZA con algo que suena a «Lumina» («lubina», «nómina», «luz mina», «lumínica»…), se reescribe como «lumina» antes de mandarla a las páginas. El modelo de Vosk no tiene «lumina» en su vocabulario. Riesgo de falsos positivos medido en `docs/auditoria/PALABRA_CLAVE.md`; `0` lo apaga |
+| `AETHER_VOICE_WHISPER_PROMPT` | texto | vacío | Solo con `AETHER_VOICE_ENGINE=whisper`. Orienta a Whisper (p. ej. `Lumina.`). **Opt-in y sin medir**: con ruido o silencio Whisper puede escribir el prompt como si lo hubiera oído |
 
 ## Presupuesto de recursos (RNF-02) — **valores de DISEÑO, no medidos**
 

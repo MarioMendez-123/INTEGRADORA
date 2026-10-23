@@ -26,7 +26,8 @@ from voice.engine import EngineUnavailable, SAMPLE_RATE, create_engine  # noqa: 
 
 
 def rss_mb() -> float | None:
-    """Memoria residente del proceso (MB). Sin dependencias: ctypes en Windows, resource en Linux."""
+    """Memoria residente del proceso (MB). Sin dependencias: ctypes en Windows, resource en Linux. None si no se pudo
+    leer (NO 0: un cero se confundiría con una medición)."""
     try:
         if sys.platform == "win32":
             import ctypes
@@ -39,9 +40,14 @@ def rss_mb() -> float | None:
                             ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t), ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
                             ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
 
+            kernel32, psapi = ctypes.WinDLL("kernel32"), ctypes.WinDLL("psapi")
+            kernel32.GetCurrentProcess.restype = wintypes.HANDLE  # sin esto el pseudo-handle -1 se trunca a 32 bits y la llamada falla
+            psapi.GetProcessMemoryInfo.argtypes = [wintypes.HANDLE, ctypes.POINTER(Contadores), wintypes.DWORD]
+            psapi.GetProcessMemoryInfo.restype = wintypes.BOOL
             c = Contadores()
             c.cb = ctypes.sizeof(c)
-            ctypes.windll.psapi.GetProcessMemoryInfo(ctypes.windll.kernel32.GetCurrentProcess(), ctypes.byref(c), c.cb)
+            if not psapi.GetProcessMemoryInfo(kernel32.GetCurrentProcess(), ctypes.byref(c), c.cb):
+                return None
             return round(c.WorkingSetSize / 1_048_576, 1)
         import resource
 
