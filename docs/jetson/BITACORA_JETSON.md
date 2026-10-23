@@ -685,3 +685,40 @@ por ahora, usar el Chrome de la laptop como pantalla sin tocar el Jetson.
 
 **Estado:** abierto. **NO verificado:** la causa en este equipo; que la voz funcione desde un origen
 distinto de `localhost`; que Flatpak o el PPA funcionen en este kernel.
+
+---
+
+## Sesión 6 — 2026-10-22 — Agente de la celda para la Raspberry Pi 4 (construido y medido solo en la laptop)
+
+**Quién ejecutó qué:** Claude Code, en la laptop Windows. **No se tocó la Raspberry.** Todas las cifras son de
+la laptop (cámara web, Python 3.11, OpenCV 5.0), no de la Pi.
+
+**Qué se hizo.** `backend/celda_agent.py`: la celda sola (cámara, visión, pulsos, alarmas, `celda.html`), sin
+importar `main.py`. Para eso se sacaron de `main.py`, sin cambiar su comportamiento, las rutas de la celda
+(`backend/cell_routes.py`) y las opciones de cámara (`camera_options`, en `camera_publisher.py`). El
+modelo corre en ONNX con `cv2.dnn` (`backend/line_model.py`), sin torch. Un análisis cada
+`LINE_ANALISIS_CADA_S` (0.5 s por defecto), un solo modelo (`parts`) en vez de dos, y la cámara se abre al
+arrancar y se reabre sola si se cae (antes la celda solo operaba mientras alguien tenía el video abierto).
+Guía en `COMANDOS_LINUX.md`, sección 7.
+
+**Comprobado (salida real):**
+
+- Mismo juicio PASS/FAIL que `parts.pt` con ultralytics en **19/19** fotos del dataset; IoU de la caja
+  principal: media 0.994, mínima 0.983. El dataset solo tiene fotos de piezas registradas: **no se probó con
+  fotos de objetos que no son pieza**, así que el FAIL real sigue sin medirse con este modelo.
+- Carga de CPU, 8 s con la cámara de la laptop, sin nadie viendo el video: pipeline actual de `main.py`
+  (dos modelos YOLO en cada frame) **381 % de un núcleo, ~6 análisis/s**; agente nuevo **18 %, 2 análisis/s**.
+- El agente arrancó, abrió la cámara solo, `/health` dio `ok`, `/line/cell/status` dio `OPERANDO` con
+  `vision_linea: true` sin ningún cliente de video, y `/line/vision/stream` entregó video.
+- Pruebas: `tests/backend` 105 pasan y 2 fallan (las dos de Lumina en `test_main.py`, ya fallaban antes de
+  este cambio). Una prueba comprueba que importar el agente no carga `main`, Lumina, sqlalchemy, torch ni
+  ultralytics.
+
+**Un hallazgo que cambió el diseño.** Con DirectShow (Windows), `cap.grab()` no espera al siguiente frame:
+daba 1.5 millones de vueltas por segundo y ocupaba un núcleo completo. Se usa `read()`, que sí bloquea en
+todos los sistemas, y solo el análisis se limita por intervalo.
+
+**NO verificado:** nada en la Raspberry. Cuánto tarda un análisis en la Pi 4 y qué CPU usa; que `cv2.dnn`
+de la versión de OpenCV de la Pi lea el ONNX (aquí se probó con OpenCV 5.0; el de Bookworm es 4.6); la
+cámara V4L2 de la Pi; GPIO y pulsos (siguen sin `python3-libgpiod`, ver ADR 0011 sobre el cableado).
+**Primera prueba en la Pi:** correr el agente, mirar `top` y `curl /line/cell/status` con una pieza delante.

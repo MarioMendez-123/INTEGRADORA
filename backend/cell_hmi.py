@@ -11,6 +11,7 @@ del sistema. El paro de emergencia no pasa por aquí.
 
 import hashlib
 import hmac
+import os
 import secrets
 import threading
 import time
@@ -18,10 +19,10 @@ from datetime import datetime
 
 _LOCK = threading.Lock()
 _SECRET = secrets.token_bytes(32)
-# ponytail: una cuenta fija de laboratorio. Directorio real si esto sale de la laptop.
-_USERS = {
-    "admin": ("admin", "admin"),
-}
+# Una sola cuenta, rol admin. La contraseña NO está en el código (el repositorio es
+# público): CELDA_HMI_CLAVE. Sin ella nadie puede iniciar sesión y la celda no
+# acepta mandos. Usuario: CELDA_HMI_USUARIO (por defecto "admin").
+# ponytail: una cuenta; directorio real si esto sale del laboratorio.
 
 _SPECS = {
     "plc": {
@@ -160,16 +161,22 @@ def can_clear(role):
     return role == "admin"
 
 
+def clave_configurada():
+    return bool(os.environ.get("CELDA_HMI_CLAVE"))
+
+
 def login(user, password):
-    rec = _USERS.get(user)
-    if not rec:
+    clave = os.environ.get("CELDA_HMI_CLAVE")
+    if not clave:
         return None
-    got = hashlib.sha256(password.encode()).digest()
-    want = hashlib.sha256(rec[0].encode()).digest()
-    if not hmac.compare_digest(got, want):
+    usuario = os.environ.get("CELDA_HMI_USUARIO", "admin")
+    # Se comparan los dos aunque el usuario ya falle, para no dar pistas por tiempo.
+    ok_user = hmac.compare_digest(hashlib.sha256(user.encode()).digest(), hashlib.sha256(usuario.encode()).digest())
+    ok_pass = hmac.compare_digest(hashlib.sha256(password.encode()).digest(), hashlib.sha256(clave.encode()).digest())
+    if not (ok_user and ok_pass):
         return None
     exp = int(time.time()) + 8 * 3600
-    payload = f"{user}|{rec[1]}|{exp}"
+    payload = f"{user}|admin|{exp}"
     sig = hmac.new(_SECRET, payload.encode(), hashlib.sha256).hexdigest()
     return f"{payload}|{sig}"
 

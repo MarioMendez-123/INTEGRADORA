@@ -8,7 +8,7 @@ Cada bloque dice si está **verificado** (Mario lo corrió y reportó el resulta
 
 > **Todo se controla desde la laptop.** Ni el Jetson ni la Raspberry se operan por su cuenta. Los
 > agentes no llevan autenticación: solo para la red local de trabajo, **nunca expuestos a internet**.
-> La cuenta `admin`/`admin` de la celda es de laboratorio: no dejarla expuesta en la red de la universidad.
+> La cuenta de la HMI de la celda ya no trae contraseña en el código: se define con `CELDA_HMI_CLAVE` (y `CELDA_HMI_USUARIO`, por defecto `admin`). Sin la variable nadie inicia sesión.
 
 ## Datos del Jetson
 
@@ -134,6 +134,63 @@ curl -s http://localhost:8001/line/cell/status  # "plc": false en "sources"
 
 No abrir Percepción y Visión de línea a la vez: usan la misma `/dev/video0`. Detener: `Ctrl+C` dentro de la
 sesión, y `tmux kill-session -t trabajo` si ya no se necesita.
+
+## 7. Raspberry Pi 4: solo la celda (sin verificar en la Pi)
+
+`backend/celda_agent.py` es la celda sola: cámara, visión, pulsos, alarmas y `celda.html`. No carga Lumina,
+base de datos, torch ni ultralytics (hay una prueba que lo comprueba). Nada de esta sección se ha corrido
+todavía en la Pi; lo que sí se midió en la laptop está en la bitácora. Requiere Python 3.10 o más
+(Raspberry Pi OS Bookworm, 64 bits).
+
+**Una vez, en la laptop** (el modelo se exporta aquí; la Pi no tiene torch). Reexportar cada vez que se
+reentrene `parts.pt`:
+
+```powershell
+edge\.venv\Scripts\python.exe -m pip install onnx
+$env:YOLO_AUTOINSTALL = "False"
+edge\.venv\Scripts\python.exe -c "from ultralytics import YOLO; YOLO('edge/perception/weights/parts.pt').export(format='onnx', imgsz=320, opset=12)"
+ssh <usuario>@<ip-pi> "mkdir -p ~/aether/edge/perception/weights"
+scp edge\perception\weights\parts.onnx <usuario>@<ip-pi>:~/aether/edge/perception/weights/
+```
+
+**Una vez, en la Pi** (solo se baja `backend/`, `dashboard/` y `classes.txt`, y solo hay código en `main` o en
+la rama donde se haya subido este cambio):
+
+```bash
+sudo apt install -y git python3-venv python3-opencv python3-numpy
+git clone --depth 1 --filter=blob:none --sparse <url-del-repo> ~/aether && cd ~/aether
+git sparse-checkout set backend dashboard edge/perception/parts
+python3 -m venv --system-site-packages ~/celda-venv
+~/celda-venv/bin/pip install -r backend/requirements-pi.txt
+```
+
+**Arrancar** (dentro de `tmux`, como en el Jetson). Cámara por V4L2, MJPG 640x480 por defecto:
+
+```bash
+cd ~/aether/backend && ~/celda-venv/bin/python -m uvicorn celda_agent:app --host 0.0.0.0 --port 8000
+curl -s localhost:8000/health   # {"status":"ok","error":null}; si falla, "error" dice por qué
+```
+
+La página se abre desde la laptop en `http://<ip-pi>:8000/celda.html`. La celda opera aunque nadie abra el video.
+Sin `python3-libgpiod` el log dice "sin GPIO: los pulsos NO se envían" y `sources.plc` queda en `false`: la
+pieza se anota y no se finge que algo se movió. **No instalar `python3-libgpiod` hasta confirmar el cableado**
+(GPIO 8 pistón, 9 banda hacia el LOGO, ver ADR 0011); después, `sudo apt install python3-libgpiod` y
+usuario en el grupo `gpio`.
+
+**Ajustes** (variables de entorno antes del `uvicorn`):
+
+| Variable | Por defecto | Para qué |
+|---|---|---|
+| `LINE_ANALISIS_CADA_S` | `0.5` | Pausa entre análisis (0.1 a 1.0). Más alta, menos CPU y más tardanza. |
+| `LINE_ESTABLES` | `5` | Análisis seguidos con el mismo juicio antes de actuar. **No bajar de 3 sin probar:** un FAIL falso dispara el pistón. |
+| `LINE_CV_THREADS` | `3` | Hilos de OpenCV; deja un núcleo libre. |
+| `LINE_IMGSZ` | `320` | Debe coincidir con el `imgsz` de la exportación. |
+| `CELDA_HMI_CLAVE` | *(sin valor)* | Contraseña de la HMI. Obligatoria para Arranque/Paro. No ponerla en el repo ni en el chat. |
+| `LINE_MODEL` | `edge/perception/weights/parts.onnx` | Otra ruta del modelo. |
+
+Tardanza de la decisión ≈ `LINE_ESTABLES` × (`LINE_ANALISIS_CADA_S` + lo que tarde un análisis), y después la
+espera de 3 s del pistón si es FAIL. Medir en la Pi y ajustar. Si el CPU sigue alto, bajar los FPS de la
+cámara o `LINE_ANALISIS_CADA_S` a 1.0.
 
 ## Precauciones
 

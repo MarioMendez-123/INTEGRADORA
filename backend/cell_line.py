@@ -265,6 +265,7 @@ def celda_desde_entorno():
         piston_encendido=float(os.environ.get("LINE_PISTON_ON_S", "1")),
         piston_regreso=float(os.environ.get("LINE_PISTON_REGRESO_S", "2")),
         pulso_banda=float(os.environ.get("LINE_BANDA_ON_S", "0.5")),
+        estables=int(os.environ.get("LINE_ESTABLES", ESTABLES)),
     )
 
 

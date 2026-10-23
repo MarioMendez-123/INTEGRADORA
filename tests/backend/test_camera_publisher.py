@@ -208,3 +208,46 @@ def test_backend_desconocido_da_error_claro_y_no_deja_clientes_colgados():
 def test_fourcc_con_longitud_distinta_de_cuatro_se_rechaza_al_construir():
     with pytest.raises(ValueError, match="4 caracteres"):
         CameraPublisher(camera_index=0, make_processor=_noop_processor, label="test", fourcc="MJP")
+
+
+def test_min_interval_analiza_un_frame_de_cada_varios_y_sigue_leyendo_todos():
+    """Con min_interval la cámara se sigue leyendo frame a frame (así el búfer del
+    driver no se llena de frames viejos), pero solo se analiza y codifica uno por
+    intervalo."""
+    import time
+
+    cuentas = {"lecturas": 0, "procesados": 0}
+
+    class CamaraLenta:
+        def isOpened(self):
+            return True
+
+        def read(self):
+            time.sleep(0.01)  # un frame cada ~10 ms, como una cámara
+            cuentas["lecturas"] += 1
+            return True, np.zeros((4, 4, 3), dtype="uint8")
+
+        def release(self):
+            pass
+
+    fake_module = MagicMock()
+    fake_module.VideoCapture.return_value = CamaraLenta()
+    fake_module.imencode.return_value = (True, np.array([1, 2, 3], dtype="uint8"))
+
+    def procesador():
+        def process(frame):
+            cuentas["procesados"] += 1
+
+        return process
+
+    with patch.dict(sys.modules, {"cv2": fake_module}):
+        publisher = CameraPublisher(camera_index=0, make_processor=procesador, label="test", min_interval=0.2)
+        publisher.subscribe()
+        try:
+            time.sleep(0.9)
+            assert publisher.is_running()
+        finally:
+            publisher.unsubscribe()
+
+    assert cuentas["lecturas"] > 30, "todos los frames se siguen leyendo"
+    assert 2 <= cuentas["procesados"] <= 6, "solo un frame por intervalo se analiza"

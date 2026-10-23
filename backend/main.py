@@ -28,9 +28,9 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response, Streamin
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-import cell_hmi
 from cell_line import celda
-from camera_publisher import CameraPublisher
+from cell_routes import router as cell_router
+from camera_publisher import CameraPublisher, camera_options as _camera_options
 from dataset_store import (
     CONFIANZA_MINIMA,
     CORTE_INTERNO,
@@ -83,6 +83,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(cell_router)
 
 
 @app.exception_handler(Exception)
@@ -262,32 +263,6 @@ def get_inventory_history():
 
 PERCEPTION_CAMERA_INDEX = int(os.environ.get("PERCEPTION_CAMERA_INDEX", "0"))
 LINE_VISION_CAMERA_INDEX = int(os.environ.get("LINE_VISION_CAMERA_INDEX", "0"))
-
-
-def _camera_options(prefix: str) -> dict:
-    """Opciones OPCIONALES de captura de <PREFIX>_CAMERA_BACKEND / _FOURCC /
-    _WIDTH / _HEIGHT (prefix: PERCEPTION o LINE_VISION). Sin definirlas, el
-    dict sale con todo en None y la cámara se abre como siempre (Windows no
-    cambia). En Linux (Jetson, Raspberry) sirven para forzar V4L2 y un modo
-    real de la cámara, p. ej.:
-        PERCEPTION_CAMERA_BACKEND=v4l2 PERCEPTION_CAMERA_FOURCC=MJPG
-        PERCEPTION_CAMERA_WIDTH=640 PERCEPTION_CAMERA_HEIGHT=480"""
-
-    def entero(nombre: str) -> int | None:
-        valor = os.environ.get(nombre, "").strip()
-        if not valor:
-            return None
-        try:
-            return int(valor)
-        except ValueError:
-            raise RuntimeError(f"{nombre} debe ser un número entero, no '{valor}'.") from None
-
-    return {
-        "backend": os.environ.get(f"{prefix}_CAMERA_BACKEND", "").strip() or None,
-        "fourcc": os.environ.get(f"{prefix}_CAMERA_FOURCC", "").strip() or None,
-        "width": entero(f"{prefix}_CAMERA_WIDTH"),
-        "height": entero(f"{prefix}_CAMERA_HEIGHT"),
-    }
 
 
 # Dos modelos, cada uno cargado una sola vez y solo cuando una cámara arranca.
@@ -710,81 +685,6 @@ def line_vision_stream():
             _line_vision_publisher.unsubscribe()
 
     return StreamingResponse(generate(), media_type="multipart/x-mixed-replace; boundary=frame")
-
-
-# ============================================================================
-# GET /line/cell/status — piezas reales de la cámara de línea.
-# Los pulsos salen en cell_line.py. Sin GPIO la pieza se anota y no se finge
-# que el pistón o la banda se movieron.
-# ============================================================================
-
-
-class CellRunBody(BaseModel):
-    on: bool
-
-
-class CellLoginBody(BaseModel):
-    user: str
-    password: str
-
-
-def _cell_payload() -> dict:
-    snap = celda.snapshot()
-    snap["alarms"] = cell_hmi.observe(snap)
-    return snap
-
-
-def _cell_who(token: str | None) -> dict:
-    who = cell_hmi.read_token(token)
-    if not who:
-        raise HTTPException(status_code=401, detail="hace falta iniciar sesión en la celda")
-    return who
-
-
-@app.get("/line/cell/status")
-def line_cell_status():
-    return _cell_payload()
-
-
-@app.post("/line/cell/session")
-def line_cell_login(body: CellLoginBody, response: Response):
-    token = cell_hmi.login(body.user, body.password)
-    if not token:
-        raise HTTPException(status_code=401, detail="cuenta rechazada")
-    response.set_cookie("celda_session", token, httponly=True, samesite="lax", path="/")
-    return cell_hmi.read_token(token)
-
-
-@app.get("/line/cell/session")
-def line_cell_session(celda_session: str | None = Cookie(default=None)):
-    return _cell_who(celda_session)
-
-
-@app.delete("/line/cell/session")
-def line_cell_logout(response: Response):
-    response.delete_cookie("celda_session", path="/")
-    return {"ok": True}
-
-
-@app.post("/line/cell/run")
-def line_cell_run(body: CellRunBody, celda_session: str | None = Cookie(default=None)):
-    _cell_who(celda_session)
-    celda.set_running(body.on)
-    return _cell_payload()
-
-
-@app.post("/line/cell/alarms/ack")
-def line_cell_ack(celda_session: str | None = Cookie(default=None)):
-    _cell_who(celda_session)
-    return {"alarms": cell_hmi.ack()}
-
-
-@app.post("/line/cell/alarms/clear")
-def line_cell_clear(celda_session: str | None = Cookie(default=None)):
-    who = _cell_who(celda_session)
-    if not cell_hmi.can_clear(who["role"]):
-        raise HTTPException(status_code=403, detail="solo ingeniería borra el histórico")
-    return {"alarms": cell_hmi.clear()}
 
 
 # ============================================================================

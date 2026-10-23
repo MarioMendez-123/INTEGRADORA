@@ -41,10 +41,18 @@ def test_la_primera_lectura_no_dispara_lo_que_ya_estaba():
     assert alarms[0]["event"] is True
 
 
-def test_solo_admin_entra_y_borra_el_historico():
+def test_solo_admin_entra_y_borra_el_historico(monkeypatch):
+    monkeypatch.setenv("CELDA_HMI_CLAVE", "clave-de-prueba")
     assert cell_hmi.can_clear("operador") is False
     assert cell_hmi.can_clear("admin") is True
     assert cell_hmi.login("admin", "no") is None
-    assert cell_hmi.login("operador", "celda-op") is None
-    token = cell_hmi.login("admin", "admin")
+    assert cell_hmi.login("operador", "clave-de-prueba") is None
+    token = cell_hmi.login("admin", "clave-de-prueba")
     assert cell_hmi.read_token(token)["role"] == "admin"
+
+
+def test_sin_clave_configurada_nadie_entra(monkeypatch):
+    monkeypatch.delenv("CELDA_HMI_CLAVE", raising=False)
+    assert cell_hmi.clave_configurada() is False
+    assert cell_hmi.login("admin", "admin") is None
+    assert cell_hmi.login("admin", "") is None

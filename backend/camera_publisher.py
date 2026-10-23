@@ -22,7 +22,9 @@ en vez de depender del orden en que pytest recolecte los archivos.
 """
 
 import logging
+import os
 import threading
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +55,7 @@ class CameraPublisher:
         fourcc: str | None = None,
         width: int | None = None,
         height: int | None = None,
+        min_interval: float | None = None,
     ):
         # backend / fourcc / width / height son OPCIONALES y, sin definirlas,
         # la cámara se abre exactamente como siempre: cv2.VideoCapture(índice),
@@ -61,6 +64,10 @@ class CameraPublisher:
         # GStreamer y entregar un frame que no es un modo real de la cámara.
         # backend: nombre sin el prefijo CAP_ de OpenCV, p. ej. "v4l2".
         # fourcc: 4 caracteres, p. ej. "MJPG" o "YUYV".
+        # min_interval: segundos mínimos entre un análisis y el siguiente
+        # (contados desde que termina el anterior). Sin definirlo se procesa
+        # cada frame, como siempre. Pensado para la Raspberry Pi 4, que no
+        # aguanta analizar y codificar a la velocidad de la cámara.
         if fourcc is not None and len(fourcc) != 4:
             raise ValueError(f"fourcc debe tener exactamente 4 caracteres (ej. 'MJPG'), no '{fourcc}'.")
 
@@ -71,6 +78,7 @@ class CameraPublisher:
         self._fourcc = fourcc
         self._width = width
         self._height = height
+        self._min_interval = min_interval
 
         self._lock = threading.Lock()
         self._condition = threading.Condition(self._lock)
@@ -123,6 +131,12 @@ class CameraPublisher:
 
         thread_to_join.join(timeout=5)
         logger.info("Publicador '%s' detenido — cámara liberada.", self._label)
+
+    def is_running(self) -> bool:
+        """False si la cámara no está abierta o su hilo se detuvo solo
+        (por ejemplo, un USB que dejó de entregar frames)."""
+        thread = self._thread
+        return thread is not None and thread.is_alive()
 
     def stream_frames(self):
         """Generador MJPEG para UN cliente ya suscrito — solo lee el frame
@@ -182,7 +196,11 @@ class CameraPublisher:
                 int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
             )
 
-        processor = self._make_processor()  # imports pesados propios, una sola vez
+        try:
+            processor = self._make_processor()  # imports pesados propios, una sola vez
+        except Exception:
+            cap.release()  # sin esto, un modelo que no carga deja la cámara tomada
+            raise
         self._stop_event.clear()
         self._latest_jpeg = None
         self._thread = threading.Thread(
@@ -197,9 +215,17 @@ class CameraPublisher:
     def _run(self, cap, processor) -> None:
         import cv2
 
+        last_done = 0.0
         try:
             while not self._stop_event.is_set():
+                # read() bloquea hasta el siguiente frame. No cambiarlo por
+                # grab() para ahorrar el decodificado: en Windows (DirectShow)
+                # grab() no espera y la vuelta gira al 100 % de un núcleo.
+                # Se lee siempre, así el búfer del driver no acumula frames
+                # viejos y el que se analiza es el más reciente.
                 ret, frame = cap.read()
+                if ret and self._min_interval is not None and time.monotonic() - last_done < self._min_interval:
+                    continue
                 if not ret:
                     logger.warning(
                         "Publicador '%s': no se pudo leer un frame; cerrando.", self._label
@@ -215,5 +241,32 @@ class CameraPublisher:
                 with self._condition:
                     self._latest_jpeg = buffer.tobytes()
                     self._condition.notify_all()
+                last_done = time.monotonic()
         finally:
             cap.release()
+
+
+def camera_options(prefix: str) -> dict:
+    """Opciones OPCIONALES de captura de <PREFIX>_CAMERA_BACKEND / _FOURCC /
+    _WIDTH / _HEIGHT (prefix: PERCEPTION o LINE_VISION). Sin definirlas, el
+    dict sale con todo en None y la cámara se abre como siempre (Windows no
+    cambia). En Linux (Jetson, Raspberry) sirven para forzar V4L2 y un modo
+    real de la cámara, p. ej.:
+        PERCEPTION_CAMERA_BACKEND=v4l2 PERCEPTION_CAMERA_FOURCC=MJPG
+        PERCEPTION_CAMERA_WIDTH=640 PERCEPTION_CAMERA_HEIGHT=480"""
+
+    def entero(nombre: str) -> int | None:
+        valor = os.environ.get(nombre, "").strip()
+        if not valor:
+            return None
+        try:
+            return int(valor)
+        except ValueError:
+            raise RuntimeError(f"{nombre} debe ser un número entero, no '{valor}'.") from None
+
+    return {
+        "backend": os.environ.get(f"{prefix}_CAMERA_BACKEND", "").strip() or None,
+        "fourcc": os.environ.get(f"{prefix}_CAMERA_FOURCC", "").strip() or None,
+        "width": entero(f"{prefix}_CAMERA_WIDTH"),
+        "height": entero(f"{prefix}_CAMERA_HEIGHT"),
+    }

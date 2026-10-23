@@ -1,0 +1,8 @@
+# Raspberry Pi 4: solo la celda (backend/celda_agent.py). Ver COMANDOS_LINUX.md, sección 7.
+#
+# Se instala en un venv con --system-site-packages: OpenCV y NumPy salen de apt
+# (python3-opencv, python3-numpy), NO de pip. Prohibido en la Pi: opencv-python,
+# opencv-contrib-python, torch y ultralytics (el modelo corre en ONNX con cv2.dnn).
+# Requiere Python >= 3.10 (Raspberry Pi OS Bookworm trae 3.11).
+fastapi
+uvicorn
