@@ -148,3 +148,19 @@ def test_si_el_procesado_falla_se_registra_y_se_libera_la_camara():
             assert FakeCapture.instancias[0].released is True
         finally:
             pub.unsubscribe()
+
+
+def test_max_fps_limita_la_entrega_pero_no_la_lectura():
+    proc = Procesador()
+    FakeCapture.instancias.clear()
+    FakeCapture.fail_after = None
+    pub = AgentCameraPublisher(camera_index=0, make_processor=lambda: proc, label="t", max_fps=10)
+    with patch("cv2.VideoCapture", FakeCapture):
+        pub.subscribe()
+        try:
+            time.sleep(1.5)
+            stats = pub.stats()
+        finally:
+            pub.unsubscribe()
+    assert 6 <= len(proc.vistos) <= 18  # ~10 por segundo en 1.5 s, no ~100
+    assert stats["fps_camera"] > 3 * stats["fps_delivery"]  # la cámara se sigue leyendo a su ritmo

@@ -12,6 +12,7 @@ CameraPublisher no se modifica: la laptop sigue usando el comportamiento de siem
 
 import logging
 import threading
+import time
 
 from camera_publisher import CameraPublisher
 from perception_pipeline import FpsMeter
@@ -20,9 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 class AgentCameraPublisher(CameraPublisher):
-    def __init__(self, *args, jpeg_quality: int = 80, **kwargs):
+    def __init__(self, *args, jpeg_quality: int = 80, max_fps: float | None = None, **kwargs):
+        """max_fps limita los cuadros que se anotan y codifican por segundo (la lectura sigue al ritmo del
+        hardware, así el cuadro que se procesa es siempre el más reciente). Útil en equipos chicos como la Pi."""
         super().__init__(*args, **kwargs)
         self._jpeg_quality = jpeg_quality
+        self._min_period = 1.0 / max_fps if max_fps else 0.0
         self.read_meter = FpsMeter()
         self.delivery_meter = FpsMeter()
         self.frame_size: tuple[int, int] | None = None
@@ -71,9 +75,13 @@ class AgentCameraPublisher(CameraPublisher):
         reader_thread = threading.Thread(target=reader, name=f"camera-reader-{self._label}", daemon=True)
         reader_thread.start()
         seen = 0
+        last_published = 0.0
         params = [int(cv2.IMWRITE_JPEG_QUALITY), self._jpeg_quality]
         try:
             while not self._stop_event.is_set():
+                pause = self._min_period - (time.monotonic() - last_published)
+                if pause > 0 and self._stop_event.wait(pause):
+                    break
                 with cond:
                     while slot["seq"] == seen and not reader_done.is_set() and not self._stop_event.is_set():
                         cond.wait(timeout=0.5)
@@ -92,6 +100,7 @@ class AgentCameraPublisher(CameraPublisher):
                     self._latest_jpeg = buffer.tobytes()
                     self._condition.notify_all()
                 self.delivery_meter.tick()
+                last_published = time.monotonic()
         except Exception as exc:
             self.last_error = f"{type(exc).__name__}: {exc}"
             logger.exception("Publicador '%s': falló el procesado; cerrando.", self._label)

@@ -12,9 +12,7 @@ Solo para la red local: sin autenticación, nunca expuesto a internet. No toca G
 """
 
 import logging
-import os
 import threading
-import time
 import uuid
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -31,13 +29,13 @@ from agent_contracts import (
     InferenceStatus,
     LaptopStatus,
     Observation,
-    ResourceStatus,
 )
 from camera_publisher import camera_options
 from lan_guard import host_is_lan, lan_networks
 from logging_config import setup_logging
 from observation_outbox import EventOutbox
 from perception_pipeline import PerceptionProcessor, build_engine
+from process_usage import process_usage
 from settings import ConfigError, env_bool, env_choice, env_float, env_int, env_str, env_url
 
 logger = logging.getLogger("aether_agent")
@@ -99,22 +97,6 @@ class AgentSettings:
 
 def _clip(text: str | None, limit: int) -> str | None:
     return None if text is None else text[:limit]
-
-
-def _process_usage(previous: dict) -> ResourceStatus:
-    """RSS (de /proc en Linux) y CPU del propio proceso desde la última vez que se preguntó."""
-    rss = None
-    try:
-        with open("/proc/self/statm", encoding="ascii") as handle:
-            rss = round(int(handle.read().split()[1]) * os.sysconf("SC_PAGE_SIZE") / 1_048_576, 1)
-    except (OSError, ValueError, AttributeError, IndexError):
-        pass
-    now, cpu = time.monotonic(), sum(os.times()[:2])
-    cpu_pct = None
-    if previous.get("wall") is not None and now > previous["wall"]:
-        cpu_pct = round(100.0 * (cpu - previous["cpu"]) / (now - previous["wall"]), 1)
-    previous["wall"], previous["cpu"] = now, cpu
-    return ResourceStatus(rss_mb=rss, cpu_pct=cpu_pct)
 
 
 def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=None, outbox: EventOutbox | None = None):
@@ -246,7 +228,7 @@ def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=N
                 dropped_total=outbox.dropped_total,
                 last_error=outbox.last_error,
             ),
-            resources=_process_usage(holder["usage"]),
+            resources=process_usage(holder["usage"]),
         ).model_dump(mode="json")
 
     @app.get("/stream")
