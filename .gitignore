@@ -85,3 +85,6 @@ aether-video/**/*.mp4
 # Capturas sueltas y archivos basura
 logo_frozen_frame*.png
 docs/architecture/decisions/sdasd.py
+
+# Configuracion local del agente del Jetson (puede llevar direcciones de la red); la plantilla es scripts/jetson/aether-agent.env.example
+.aether-agent.env

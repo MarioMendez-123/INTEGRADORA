@@ -44,6 +44,8 @@ def test_bool_y_choice(monkeypatch):
         ("http://10.4.5.103:8001/", "http://10.4.5.103:8001"),
         ("https://jetson.local", "https://jetson.local"),
         ("http://[fe80::1]:8001", "http://[fe80::1]:8001"),
+        ("http://mario-desktop.local:8001", "http://mario-desktop.local:8001"),
+        ("http://Mario-Desktop.LOCAL:8001/", "http://mario-desktop.local:8001"),
     ],
 )
 def test_url_valida_se_normaliza(monkeypatch, raw, esperado):

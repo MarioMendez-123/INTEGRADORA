@@ -258,3 +258,38 @@ def test_voz_tope_de_conexiones(cliente):
         with pytest.raises(WebSocketDisconnect):
             with cliente.websocket_connect("/voice/ws?role=listener"):
                 pass
+
+
+# ------------------------------------------------------------------ el agente escrito como NOMBRE (mario-desktop.local)
+
+
+def test_agente_como_nombre_en_la_config_y_en_la_csp(cliente, monkeypatch):
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "http://mario-desktop.local:8001")
+    monkeypatch.setattr(agent_config, "_resolve", lambda host: frozenset({"10.4.5.103"}))
+    assert cliente.get("/config/agents").json()["perception"]["stream_url"] == "http://mario-desktop.local:8001/stream"
+    csp = public_guard.csp_value()
+    assert "http://mario-desktop.local:8001" in csp and "http://127.0.0.1:8001" in csp
+
+
+def test_nombre_que_apunta_a_este_mismo_equipo_sale_por_loopback(monkeypatch):
+    monkeypatch.setattr(agent_config, "_resolve", lambda host: frozenset({"10.4.5.103", "fe80::1"}))
+    base = "http://mario-desktop.local:8001"
+    assert agent_config.stream_url_for(base, "10.4.5.103") == "http://127.0.0.1:8001/stream"
+    assert agent_config.stream_url_for(base, "10.4.5.52") == "http://mario-desktop.local:8001/stream"
+    monkeypatch.setattr(agent_config, "_resolve", lambda host: frozenset())  # el nombre no resuelve
+    assert agent_config.stream_url_for(base, "10.4.5.103") == "http://mario-desktop.local:8001/stream"
+
+
+def test_resolucion_de_nombres_se_recuerda_tambien_cuando_falla(monkeypatch):
+    llamadas = []
+
+    def getaddrinfo(host, port, **kw):
+        llamadas.append(host)
+        raise OSError("no resuelve")
+
+    agent_config._RESOLVED.clear()
+    monkeypatch.setattr(agent_config.socket, "getaddrinfo", getaddrinfo)
+    for _ in range(3):
+        assert agent_config._resolve("no-existe.local") == frozenset()
+    assert llamadas == ["no-existe.local"]  # una sola espera de red, no una por petición
+    agent_config._RESOLVED.clear()

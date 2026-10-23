@@ -4,6 +4,8 @@ Sin agente configurado todo queda en None y las páginas usan la cámara local, 
 """
 
 import ipaddress
+import socket
+import time
 from urllib.parse import urlparse
 
 from agent_contracts import AgentsConfig, StreamConfig
@@ -38,12 +40,41 @@ def agent_origins() -> list[str]:
     return origins
 
 
+_RESOLVED: dict[str, tuple[float, frozenset]] = {}
+RESOLVE_TTL_S = 60.0
+
+
+def _resolve(host: str) -> frozenset:
+    """IP a las que apunta un nombre (p. ej. mario-desktop.local). Se recuerda 60 s, también si falló, para que un
+    nombre que no resuelve no haga esperar a cada petición."""
+    now = time.monotonic()
+    cached = _RESOLVED.get(host)
+    if cached and now - cached[0] < RESOLVE_TTL_S:
+        return cached[1]
+    try:
+        found = frozenset(info[4][0] for info in socket.getaddrinfo(host, None, proto=socket.IPPROTO_TCP))
+    except OSError:
+        found = frozenset()
+    _RESOLVED[host] = (now, found)
+    return found
+
+
 def _same_machine(client_host: str, agent_host: str) -> bool:
     client_host = (client_host or "").strip("[]")
     try:
-        return ipaddress.ip_address(client_host) == ipaddress.ip_address(agent_host)
+        client_ip = ipaddress.ip_address(client_host)
     except ValueError:
         return client_host.lower() == (agent_host or "").lower()
+    try:
+        return client_ip == ipaddress.ip_address(agent_host)
+    except ValueError:  # el agente está escrito como nombre: se compara con las IP a las que apunta
+        for address in _resolve(agent_host):
+            try:
+                if ipaddress.ip_address(address) == client_ip:
+                    return True
+            except ValueError:
+                continue
+        return False
 
 
 def stream_url_for(base: str, client_host: str) -> str | None:

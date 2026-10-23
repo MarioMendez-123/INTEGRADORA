@@ -12,7 +12,7 @@ definirlas el comportamiento es el de siempre.
 
 | Variable | Tipo | Defecto | Si falta | Si es inválida |
 |---|---|---|---|---|
-| `AETHER_PERCEPTION_AGENT_URL` | URL `http(s)://host:puerto` | vacía | Las páginas usan la cámara de la laptop (modo demo). El auto-refresh abre la cámara local | El servidor **no arranca** (mensaje con el nombre) |
+| `AETHER_PERCEPTION_AGENT_URL` | URL `http(s)://host:puerto`; el host puede ser **IP o nombre** (`http://10.4.5.103:8001` o `http://mario-desktop.local:8001`) | vacía | Las páginas usan la cámara de la laptop (modo demo). El auto-refresh abre la cámara local | El servidor **no arranca** (mensaje con el nombre) |
 | `AETHER_LINE_AGENT_URL` | URL | vacía | `celda.html` usa la cámara local | Igual |
 | `AETHER_LAN_CIDRS` | Redes separadas por coma (`10.4.5.0/24,192.168.55.0/24`) | rangos privados y loopback | Se aceptan agentes y voz desde cualquier red privada | El servidor no arranca |
 | `CELDA_HMI_CLAVE` | Texto (**secreto**) | — | Nadie inicia sesión: Arranque/Paro de la celda no responden | — |
@@ -26,7 +26,7 @@ definirlas el comportamiento es el de siempre.
 
 | Variable | Tipo | Defecto | Notas |
 |---|---|---|---|
-| `AETHER_LAPTOP_URL` | URL | vacía | Sin ella el agente **no manda observaciones** (solo sirve el video) |
+| `AETHER_LAPTOP_URL` | URL (IP o nombre) | vacía | Sin ella el agente **no manda observaciones** (solo sirve el video) |
 | `AETHER_AGENT_ID` | `[a-z0-9_-]{1,32}` | `jetson` | Va en cada observación como `source` |
 | `AETHER_AGENT_CAPTURE` | `always`/`on_demand` | `always` | `on_demand`: la cámara solo se abre si alguien mira el video |
 | `PERCEPTION_CAMERA_INDEX` | 0–63 | `0` | |
@@ -81,3 +81,14 @@ definirlas el comportamiento es el de siempre.
 30.0 FPS recibidos (300 cuadros en 10 s) con cámara a 30.0 FPS; inferencia 47–156 ms; CPU del agente 314–419 % de un
 núcleo (YOLO en CPU de la laptop, **no representa al Jetson con GPU**). No se detectó ningún objeto en esa prueba, así
 que no llegaron observaciones; el envío se probó con dobles.
+
+## Direcciones escritas como nombre (`mario-desktop.local`) en vez de IP
+
+Todas las variables `*_URL` aceptan un nombre de host además de una IP. La **aceptación** está probada
+(`tests/backend/test_settings.py`, `test_agent_routes.py`); que el nombre **se resuelva** depende de la red y **no está
+verificado**: `.local` usa mDNS (multicast), que Windows resuelve y Ubuntu con `avahi` publica, pero muchas redes de
+universidad lo bloquean y ya hubo cortes con `.local` en este proyecto. Prueba antes en la laptop:
+`PS> [System.Net.Dns]::GetHostAddresses('mario-desktop.local')` (hoy, con el Jetson apagado, dio «No such host is known»).
+Si no resuelve, usa la IP. El servidor recuerda 60 s lo que resuelve un nombre; si el nombre no resuelve, el video se
+pide igual por el nombre (en vez de por `127.0.0.1`), que dentro del Jetson tampoco sale a la red.
+

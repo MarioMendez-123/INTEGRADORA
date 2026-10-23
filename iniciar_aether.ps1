@@ -112,7 +112,7 @@ if ($Errores.Count -gt 0) {
     exit 1
 }
 if ($SoloComprobar) {
-    Write-Host ("Todo en orden (" + $Avisos.Count + " aviso(s)). -SoloComprobar: no arranque nada.") -ForegroundColor Green
+    Write-Host ("Todo en orden (" + $Avisos.Count + " aviso(s)). modo -SoloComprobar: no se arranco nada.") -ForegroundColor Green
     exit 0
 }
 
