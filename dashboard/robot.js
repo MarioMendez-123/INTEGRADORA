@@ -92,6 +92,18 @@
 // de reposo, y ese helper se usa desde el módulo de modos/cámara — antes
 // en el archivo que la sección de "Comando de voz".
 const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Puente de voz: el micrófono de la laptop (backend/voice/) reconoce en español y manda SOLO el texto por
+// /voice/ws. Se usa cuando el navegador no trae reconocimiento (Firefox en el Jetson) o con ?voz=servicio.
+// Un solo origen de voz a la vez: si el navegador sí lo trae, todo sigue como siempre.
+const forceVoiceBridge = new URLSearchParams(location.search).get("voz") === "servicio";
+const useVoiceBridge = !SpeechRecognitionImpl || forceVoiceBridge;
+let voiceBridgeSocket = null;
+
+/** Avisa al servicio de voz que Lumina empieza o deja de hablar (anti-eco). Sin puente, no hace nada. */
+function notifyBridgeSpeaking(value) {
+  if (!voiceBridgeSocket || voiceBridgeSocket.readyState !== WebSocket.OPEN) return;
+  voiceBridgeSocket.send(JSON.stringify({ v: 1, type: "speaking", value }));
+}
 
 // También hoisteados aquí arriba (no junto al resto de "Comando de voz",
 // más abajo): speak() necesita pausar/reanudar el reconocimiento y vive
@@ -136,6 +148,7 @@ if (micBus) {
  * (errores "interrupted" de síntesis). Se reinicia SOLO en
  * resumeRecognitionAfterSpeech(), nunca antes de que termine de hablar. */
 function pauseRecognitionForSpeech() {
+  notifyBridgeSpeaking(true);
   if (!recognition) return;
   recognitionPausedForSpeech = true;
   try {
@@ -146,6 +159,7 @@ function pauseRecognitionForSpeech() {
 }
 
 function resumeRecognitionAfterSpeech() {
+  notifyBridgeSpeaking(false);
   if (!recognition) return;
   recognitionPausedForSpeech = false;
   if (micYielded) return; // el carrito tiene el micrófono
@@ -869,7 +883,7 @@ let presentationModeActive = false;
 // micrófono se denegó (ver el "error" de recognition más abajo) — en
 // cualquiera de los dos casos, mostrar 'escuchando' sería mentir sobre
 // que algo está escuchando de verdad.
-let voiceAvailable = !!SpeechRecognitionImpl;
+let voiceAvailable = !!SpeechRecognitionImpl && !forceVoiceBridge;
 
 /** Expresión de reposo real: 'feliz' sostenida en Modo Presentación,
  * 'escuchando' si hay reconocimiento de voz real disponible, o 'inactivo'
@@ -887,6 +901,15 @@ function enterConversationMode() {
 }
 
 const CAMERA_URL = "/perception/stream";
+// Si hay un agente con la cámara (Jetson), el servidor da su dirección (GET /config/agents); si no, la local.
+let cameraUrl = CAMERA_URL;
+fetch("/config/agents", { cache: "no-store" })
+  .then((response) => (response.ok ? response.json() : null))
+  .then((config) => {
+    const url = config && config.v === 1 && config.perception && config.perception.stream_url;
+    if (typeof url === "string" && /^https?:\/\//.test(url)) cameraUrl = url;
+  })
+  .catch(() => {});
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1500;
 
@@ -911,7 +934,7 @@ function showCameraConnecting() {
 
 function attemptCameraConnection() {
   showCameraConnecting();
-  cameraStreamImg.src = `${CAMERA_URL}?retry=${cameraRetryCount}`;
+  cameraStreamImg.src = `${cameraUrl}?retry=${cameraRetryCount}`;
 }
 
 /** Transiciona de la cara (Modo Conversación) a Modo Cámara — mismo
@@ -2400,7 +2423,7 @@ async function logMicPermission() {
 
 logMicPermission();
 
-if (SpeechRecognitionImpl) {
+if (!useVoiceBridge) {
   // Se asigna a la variable ya hoisteada al inicio del archivo (no
   // `const recognition = ...` local a este bloque) — speak() necesita
   // llamar recognition.stop() desde mucho antes en el archivo, y ambos
@@ -2477,8 +2500,38 @@ if (SpeechRecognitionImpl) {
     console.warn("Aether · no se pudo iniciar el reconocimiento de voz.", err);
   }
 } else {
-  setAttentionIndicator("este navegador no soporta reconocimiento de voz");
-  console.warn("Aether · este navegador no soporta Web Speech API. Usa el botón de respaldo.");
+  startVoiceBridge();
+}
+
+/** Escucha el canal de voz de la laptop como "listener". Reintenta solo si se cae. */
+function startVoiceBridge() {
+  setAttentionIndicator("conectando con el servicio de voz de la laptop…");
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  const socket = new WebSocket(`${proto}://${location.host}/voice/ws?role=listener`);
+  voiceBridgeSocket = socket;
+  socket.onmessage = (message) => {
+    let data = null;
+    try {
+      data = JSON.parse(message.data);
+    } catch {
+      return;
+    }
+    if (!data || data.v !== 1) return;
+    if (data.type === "transcript" && typeof data.text === "string") {
+      const text = data.text.toLowerCase().trim();
+      if (text) queueVoiceFragment(text);
+    } else if (data.type === "status") {
+      voiceAvailable = data.state === "active";
+      if (voiceAvailable) setListeningIndicator(true);
+      else setAttentionIndicator(data.state === "paused" ? "micrófono pausado en la laptop" : "servicio de voz apagado");
+      if (mode === "conversation" && conversationSubState === "listening") setFaceExpression(restingExpression());
+    }
+  };
+  socket.onclose = () => {
+    voiceAvailable = false;
+    setAttentionIndicator("sin conexión con el servicio de voz de la laptop");
+    if (voiceBridgeSocket === socket) setTimeout(startVoiceBridge, 2000);
+  };
 }
 
 // ============================================================================

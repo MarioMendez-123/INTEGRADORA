@@ -230,6 +230,69 @@ def test_recent_detections_vacio_si_nadie_esta_viendo_percepcion(client):
     assert response.json() == []
 
 
+def _observation_batch(n: int, **overrides) -> dict:
+    observation = {
+        "v": 1,
+        "event_id": f"jetson-evento-{n:04d}",
+        "timestamp": "2026-10-23T15:00:01+00:00",
+        "source": "jetson",
+        "detected_class": "bottle",
+        "code_data": "QR-9",
+        "code_read": True,
+        "confidence": 0.9,
+        "location_marker_id": 3,
+    }
+    observation.update(overrides)
+    return {"v": 1, "source": "jetson", "observations": [observation]}
+
+
+def test_observacion_del_agente_llega_a_recent_detections_y_es_idempotente(client):
+    # RF-03: lo que manda el agente del Jetson alimenta el mismo panel que antes alimentaba la cámara local.
+    antes = len(client.get("/perception/recent-detections?limit=50").json())
+    assert client.post("/perception/observations", json=_observation_batch(1)).json() == {"accepted": 1, "duplicates": 0}
+    assert client.post("/perception/observations", json=_observation_batch(1)).json() == {"accepted": 0, "duplicates": 1}
+    recientes = client.get("/perception/recent-detections?limit=50").json()
+    assert len(recientes) == antes + 1
+    assert recientes[0]["code_data"] == "QR-9" and recientes[0]["location_marker_id"] == 3
+    assert "event_id" not in recientes[0]  # las claves de siempre; nada nuevo se filtra al inventario
+
+
+def test_auto_refresh_con_agente_no_abre_la_camara_de_la_laptop(monkeypatch):
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "http://10.4.5.103:8001")
+    with patch.object(main._perception_publisher, "subscribe") as subscribe, patch.object(
+        main._perception_publisher, "unsubscribe"
+    ) as unsubscribe:
+        main._refresh_begin_capture()
+        main._refresh_end_capture()
+    subscribe.assert_not_called()
+    unsubscribe.assert_not_called()
+    assert main._refresh_sink not in main._perception_observation_sinks
+
+
+def test_auto_refresh_sin_agente_sigue_usando_la_camara_local(monkeypatch):
+    monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL", raising=False)
+    with patch.object(main._perception_publisher, "subscribe") as subscribe, patch.object(
+        main._perception_publisher, "unsubscribe"
+    ) as unsubscribe:
+        main._refresh_begin_capture()
+        main._refresh_end_capture()
+    subscribe.assert_called_once()
+    unsubscribe.assert_called_once()
+
+
+def test_config_agents_sin_agente_deja_la_camara_local(client, monkeypatch):
+    monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL", raising=False)
+    monkeypatch.delenv("AETHER_LINE_AGENT_URL", raising=False)
+    assert client.get("/config/agents").json()["perception"]["stream_url"] is None
+
+
+def test_csp_de_main_se_amplia_con_el_agente(client, monkeypatch):
+    monkeypatch.setenv("AETHER_PERCEPTION_AGENT_URL", "http://10.4.5.103:8001")
+    assert "http://10.4.5.103:8001" in client.get("/health").headers["content-security-policy"]
+    monkeypatch.delenv("AETHER_PERCEPTION_AGENT_URL")
+    assert "10.4.5.103" not in client.get("/health").headers["content-security-policy"]
+
+
 def _fake_ollama_response(content: str) -> MagicMock:
     """Doble de prueba para el objeto que devuelve urllib.request.urlopen
     (un context manager con .read()) — evita depender de un Ollama real

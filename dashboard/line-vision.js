@@ -30,6 +30,18 @@ const START_URL = "/line/vision/stream";
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1500;
 
+// Dirección del agente que tiene la cámara (p. ej. el Jetson): la página la pide al servidor (GET /config/agents,
+// backend/agent_routes.py). Sin agente configurado, sin respuesta o con una respuesta rara se queda la
+// cámara local de siempre. Solo se aceptan direcciones http(s).
+let startUrl = START_URL;
+const configReady = fetch("/config/agents", { cache: "no-store" })
+  .then((response) => (response.ok ? response.json() : null))
+  .then((config) => {
+    const url = config && config.v === 1 && config.line_vision && config.line_vision.stream_url;
+    if (typeof url === "string" && /^https?:\/\//.test(url)) startUrl = url;
+  })
+  .catch(() => {});
+
 const startBtn = document.getElementById("line-vision-start");
 const stopBtn = document.getElementById("line-vision-stop");
 const fullscreenBtn = document.getElementById("line-vision-fullscreen");
@@ -65,14 +77,17 @@ function showConnecting() {
 
 function attemptConnection() {
   showConnecting();
-  streamImg.src = `${START_URL}?retry=${retryCount}`;
+  streamImg.src = `${startUrl}?retry=${retryCount}`;
 }
 
 function startStream() {
   streaming = true;
   retryCount = 0;
   streamImg.hidden = true;
-  attemptConnection();
+  showConnecting();
+  configReady.then(() => {
+    if (streaming) attemptConnection();
+  });
   startBtn.hidden = true;
   stopBtn.hidden = false;
   fullscreenBtn.hidden = false;

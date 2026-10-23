@@ -17,6 +17,7 @@ cualquiera puede mandar 127.0.0.1 y saltarse el cierre.
 """
 
 import ipaddress
+import logging
 import os
 import time
 from collections import deque
@@ -37,6 +38,8 @@ BLOCKED_PREFIXES = (
     "/dataset",
     "/spotify",
     "/show",
+    "/voice",
+    "/config",
     "/inventory/auto-refresh",
 )
 RATE_LIMIT = 120
@@ -56,6 +59,8 @@ CSP = (
     "base-uri 'self'; "
     "form-action 'none'"
 )
+
+logger = logging.getLogger(__name__)
 
 _hits: dict[str, deque] = {}
 
@@ -145,6 +150,21 @@ def _too_many(ip: str) -> bool:
     return False
 
 
+def csp_value() -> str:
+    """La CSP de siempre, más (solo en <img>) los orígenes de los agentes configurados.
+    Un valor de configuración inválido no tumba las respuestas: se queda la CSP base."""
+    try:
+        from agent_config import agent_origins
+
+        origins = agent_origins()
+    except Exception:
+        logger.warning("AETHER_*_AGENT_URL inválida; la CSP no se amplía.")
+        return CSP
+    if not origins:
+        return CSP
+    return CSP.replace("img-src 'self' data: blob:", "img-src 'self' data: blob: " + " ".join(origins), 1)
+
+
 def security_headers(restricted: bool, https: bool) -> list[tuple[bytes, bytes]]:
     camera = (
         b"camera=(), microphone=(), geolocation=()"
@@ -156,7 +176,7 @@ def security_headers(restricted: bool, https: bool) -> list[tuple[bytes, bytes]]
         (b"referrer-policy", b"strict-origin-when-cross-origin"),
         (b"x-frame-options", b"SAMEORIGIN"),
         (b"permissions-policy", camera),
-        (b"content-security-policy", CSP.encode()),
+        (b"content-security-policy", csp_value().encode()),
         (b"cross-origin-opener-policy", b"same-origin"),
     ]
     if https:

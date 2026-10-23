@@ -28,6 +28,8 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response, Streamin
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from agent_config import line_agent_url, perception_agent_url
+from agent_routes import create_router as create_agent_router
 from cell_line import celda
 from cell_routes import router as cell_router
 from camera_publisher import CameraPublisher, camera_options as _camera_options
@@ -46,7 +48,10 @@ from dataset_store import (
 from db.database import SessionLocal, init_db
 from db.models import DeclaredEntry, DeclaredEntryHistory
 from inventory_refresh import InventoryRefreshLoop
+from lan_guard import lan_networks
 from logging_config import setup_logging
+from perception_pipeline import PerceptionProcessor, engine_for
+from settings import ConfigError
 
 DASHBOARD_DIR = Path(__file__).resolve().parent.parent / "dashboard"
 
@@ -73,6 +78,12 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:  # una variable AETHER_* mal escrita debe fallar al arrancar, con el nombre de la variable
+        perception_agent_url()
+        line_agent_url()
+        lan_networks()
+    except ConfigError as exc:
+        raise RuntimeError(f"Configuración inválida: {exc}") from exc
     init_db()
     try:
         start_callback_server()
@@ -84,6 +95,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(cell_router)
+_agent_router, _ = create_agent_router(lambda observation: _notify_perception_observation_sinks(observation))
+app.include_router(_agent_router)
 
 
 @app.exception_handler(Exception)
@@ -339,76 +352,15 @@ def _get_parts_model():
 
 
 def _make_perception_processor():
-    """Arma el pipeline real de Percepción (YOLO + pyzbar + ArUco) una sola
-    vez — mismo dibujo (cajas verdes + clase, texto amarillo del código
-    leído, contorno + ID de ArUco) que edge/perception/test_combined.py.
+    """Pipeline real de Percepción (YOLO + pyzbar + ArUco) para el modo demo de la laptop.
 
-    Además de dibujar, empaqueta cada detección como una Observation (mismo
-    esquema de campos que edge/inventory_engine/observations/observation.py
-    — timestamp, detected_class, code_data, code_read, confidence,
-    location_marker_id — como dict plano, no el dataclass: este archivo no
-    debe importar de edge/, ver el comentario grande de arriba) y la manda
-    a quien esté escuchando vía _notify_perception_observation_sinks — hoy
-    solo el auto-refresh de inventario (Decisión 9), sin costo si nadie
-    está suscrito. El modelo es el del entorno, no parts.pt, para que el
-    nombre de clase siga disponible cuando se agregue la detección de
-    obstáculos."""
-    import cv2
-    from pyzbar.pyzbar import decode
-
-    model = _get_yolo_model()
-    aruco_dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-    aruco_detector = cv2.aruco.ArucoDetector(aruco_dictionary, cv2.aruco.DetectorParameters())
-
-    def process(frame):
-        aruco_corners, aruco_ids, _ = aruco_detector.detectMarkers(frame)
-        location_marker_id = int(aruco_ids.flatten()[0]) if aruco_ids is not None else None
-        if aruco_ids is not None:
-            cv2.aruco.drawDetectedMarkers(frame, aruco_corners, aruco_ids)
-
-        results = model(frame, verbose=False)
-        for box in results[0].boxes:
-            x1, y1, x2, y2 = (int(v) for v in box.xyxy[0])
-            class_name = model.names[int(box.cls[0])]
-            confidence = float(box.conf[0])
-
-            crop = frame[y1:y2, x1:x2]
-            codes = decode(crop) if crop.size > 0 else []
-            data = codes[0].data.decode("utf-8") if codes else None
-
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(
-                frame,
-                class_name,
-                (x1, y1 - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 255, 0),
-                2,
-            )
-            if data:
-                cv2.putText(
-                    frame,
-                    data,
-                    (x1, y2 + 20),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.6,
-                    (255, 255, 0),
-                    2,
-                )
-
-            _notify_perception_observation_sinks(
-                {
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "detected_class": class_name,
-                    "code_data": data,
-                    "code_read": bool(codes),
-                    "confidence": confidence,
-                    "location_marker_id": location_marker_id,
-                }
-            )
-
-    return process
+    La lógica vive en perception_pipeline.py (compartida con el agente del Jetson, aether_agent.py).
+    Aquí corre en modo "sync": analiza y dibuja cada cuadro, igual que antes. Cada detección se entrega
+    como Observation (timestamp, detected_class, code_data, code_read, confidence, location_marker_id)
+    a quien esté escuchando vía _notify_perception_observation_sinks — hoy el auto-refresh de inventario
+    (Decisión 9) y el panel de /perception/recent-detections. El modelo es el del entorno, no parts.pt."""
+    engine = engine_for(_get_yolo_model())
+    return PerceptionProcessor(engine, _notify_perception_observation_sinks, mode="sync")
 
 
 def _draw_deteccion(frame, box, nombre, color):
@@ -521,14 +473,25 @@ def _refresh_drain_observations() -> list[dict]:
     return batch
 
 
+_refresh_uses_local_camera = False
+
+
 def _refresh_begin_capture() -> None:
+    """Con un agente de percepción configurado (AETHER_PERCEPTION_AGENT_URL) las observaciones llegan por
+    POST /perception/observations y NO se abre la cámara de la laptop. Sin agente, como siempre."""
+    global _refresh_uses_local_camera
     with _perception_observation_sinks_lock:
         _perception_observation_sinks.append(_refresh_sink)
-    _perception_publisher.subscribe()
+    _refresh_uses_local_camera = not perception_agent_url()
+    if _refresh_uses_local_camera:
+        _perception_publisher.subscribe()
 
 
 def _refresh_end_capture() -> None:
-    _perception_publisher.unsubscribe()
+    global _refresh_uses_local_camera
+    if _refresh_uses_local_camera:
+        _perception_publisher.unsubscribe()
+        _refresh_uses_local_camera = False
     with _perception_observation_sinks_lock:
         if _refresh_sink in _perception_observation_sinks:
             _perception_observation_sinks.remove(_refresh_sink)
