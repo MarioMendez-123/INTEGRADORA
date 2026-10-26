@@ -38,6 +38,7 @@ Alcance de seguridad: estos endpoints no llevan autenticación. Solo son para la
   sin haberla leído de este endpoint en el equipo real.**
 - `laptop`: estado del envío de observaciones (`url` es `null` si no hay laptop configurada).
 - `resources`: memoria (RSS, solo en Linux) y CPU del propio proceso desde la última consulta (100 % = un núcleo).
+- `obstacles` (opcional; solo si el agente corre piezas + obstáculos, es decir, hay `parts.pt`): `{"count": 1, "classes": ["person"], "max_area_pct": 12.4}`. Resumen del detector general (YOLO) del último análisis; `max_area_pct` es lo que ocupa el obstáculo más grande en el cuadro (indicio de cercanía; una cámara sola no mide distancia). **Apoyo para esquivar, no sustituye a los sensores ni es inventario**: los obstáculos NO se mandan como observaciones. Con dos modelos, `inference.model` es `"parts.pt + yolov8n.pt"`.
   Es lo que permite comparar con el presupuesto de `docs/variables_entorno.md`.
 
 ### `GET /stream`

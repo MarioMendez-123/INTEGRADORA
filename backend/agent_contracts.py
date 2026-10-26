@@ -112,6 +112,14 @@ class InferenceStatus(_Estricto):
     every_n_frames: int | None = None
 
 
+class ObstacleStatus(_Estricto):
+    """Apoyo para esquivar (detector general de YOLO). NO es inventario y NO sustituye a los sensores."""
+
+    count: int = Field(ge=0)
+    classes: list[str] = Field(default_factory=list, max_length=80)
+    max_area_pct: float = Field(ge=0.0, le=100.0)
+
+
 class LaptopStatus(_Estricto):
     url: str | None = None
     reachable: bool | None = None
@@ -137,6 +145,7 @@ class AgentStatus(_Estricto):
     inference: InferenceStatus
     laptop: LaptopStatus
     resources: ResourceStatus = ResourceStatus()
+    obstacles: ObstacleStatus | None = None  # solo si el agente corre piezas + obstáculos
 
 
 # --------------------------------------------------------------------------- /config/agents

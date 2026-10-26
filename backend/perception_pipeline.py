@@ -60,11 +60,15 @@ class Detection:
     confidence: float
     code_data: str | None = None
     code_read: bool = False
+    # "object": un solo modelo, como siempre. Con dos modelos: "piece" (pieza registrada, la identidad es la
+    # clase, sin código) u "obstacle" (detector general, solo apoyo para esquivar; NO es inventario).
+    kind: str = "object"
 
 
 @dataclass
 class PerceptionResult:
     detections: list[Detection] = field(default_factory=list)
+    frame_area: int = 0
     marker_corners: object = None
     marker_ids: object = None
     location_marker_id: int | None = None
@@ -77,22 +81,37 @@ class PerceptionEngine:
     decode: función de pyzbar (recorte -> lista de códigos).
     aruco_detector: cv2.aruco.ArucoDetector (o doble).
     predict_kwargs: imgsz, device, half... que se pasan tal cual al modelo.
+    pieces_model: segundo modelo (parts.pt). Si se da, `model` pasa a ser el detector general de OBSTÁCULOS y las
+    piezas se identifican solo por su clase. Las observaciones (inventario) llevan solo las piezas; los obstáculos
+    se dibujan y se resumen en obstacles(), no se mandan a la laptop.
     """
 
-    def __init__(self, model, decode, aruco_detector, predict_kwargs: dict | None = None):
+    def __init__(self, model, decode, aruco_detector, predict_kwargs: dict | None = None,
+                 pieces_model=None, piece_conf: float = 0.5, obstacle_conf: float = 0.4):
         self._model = model
         self._decode = decode
         self._aruco = aruco_detector
         self._predict_kwargs = predict_kwargs or {}
+        self._pieces = pieces_model
+        self._piece_conf = piece_conf
+        self._obstacle_conf = obstacle_conf
+        self.has_obstacles = pieces_model is not None
 
     def analyze(self, frame) -> PerceptionResult:
         corners, ids, _ = self._aruco.detectMarkers(frame)
         marker = int(ids.flatten()[0]) if ids is not None else None
         result = PerceptionResult(marker_corners=corners, marker_ids=ids, location_marker_id=marker)
 
+        result.frame_area = int(frame.shape[0] * frame.shape[1])
+
         results = self._model(frame, verbose=False, **self._predict_kwargs)
         for box in results[0].boxes:
             x1, y1, x2, y2 = (int(v) for v in box.xyxy[0])
+            conf = float(box.conf[0])
+            if self._pieces is not None:
+                if conf >= self._obstacle_conf:
+                    result.detections.append(Detection((x1, y1, x2, y2), self._model.names[int(box.cls[0])], conf, kind="obstacle"))
+                continue
             crop = frame[y1:y2, x1:x2]
             codes = self._decode(crop) if crop.size > 0 else []
             data = codes[0].data.decode("utf-8") if codes else None
@@ -100,11 +119,17 @@ class PerceptionEngine:
                 Detection(
                     box=(x1, y1, x2, y2),
                     class_name=self._model.names[int(box.cls[0])],
-                    confidence=float(box.conf[0]),
+                    confidence=conf,
                     code_data=data,
                     code_read=bool(codes),
                 )
             )
+        if self._pieces is not None:
+            for box in self._pieces(frame, verbose=False, **self._predict_kwargs)[0].boxes:
+                conf = float(box.conf[0])
+                if conf >= self._piece_conf:
+                    x1, y1, x2, y2 = (int(v) for v in box.xyxy[0])
+                    result.detections.append(Detection((x1, y1, x2, y2), self._pieces.names[int(box.cls[0])], conf, kind="piece"))
         return result
 
     def draw(self, frame, result: PerceptionResult) -> None:
@@ -114,8 +139,10 @@ class PerceptionEngine:
             cv2.aruco.drawDetectedMarkers(frame, result.marker_corners, result.marker_ids)
         for det in result.detections:
             x1, y1, x2, y2 = det.box
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, det.class_name, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            color = (0, 140, 255) if det.kind == "obstacle" else (0, 255, 0)  # BGR: naranja para obstáculos
+            texto = f"OBSTACULO {det.class_name}" if det.kind == "obstacle" else det.class_name
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+            cv2.putText(frame, texto, (x1, max(16, y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
             if det.code_data:
                 cv2.putText(frame, det.code_data, (x1, y2 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
@@ -133,7 +160,22 @@ class PerceptionEngine:
                 "location_marker_id": result.location_marker_id,
             }
             for d in result.detections
+            if d.kind != "obstacle"
         ]
+
+    @staticmethod
+    def obstacles(result: PerceptionResult | None) -> dict | None:
+        """Resumen de los obstáculos del último análisis. None si aún no hay análisis.
+        max_area_pct es lo que ocupa el más grande en el cuadro: una cámara sola NO mide distancia, es un indicio de cercanía."""
+        if result is None:
+            return None
+        cajas = [d for d in result.detections if d.kind == "obstacle"]
+        area = max(((d.box[2] - d.box[0]) * (d.box[3] - d.box[1]) for d in cajas), default=0)
+        return {
+            "count": len(cajas),
+            "classes": sorted({d.class_name for d in cajas}),
+            "max_area_pct": round(100.0 * area / result.frame_area, 1) if result.frame_area else 0.0,
+        }
 
 
 class AsyncDetector:
@@ -221,6 +263,7 @@ class PerceptionProcessor:
         self._emit = emit
         self._detector = None
         self._last_sync_ms: float | None = None
+        self._last_sync_result = None
         if mode == "async":
             self._detector = AsyncDetector(engine.analyze, on_result=self._publish, max_hz=max_hz, name="perception-detector")
 
@@ -233,6 +276,7 @@ class PerceptionProcessor:
             t0 = time.monotonic()
             result = self.engine.analyze(frame)
             self._last_sync_ms = round((time.monotonic() - t0) * 1000.0, 1)
+            self._last_sync_result = result
             self.engine.draw(frame, result)
             self._publish(result)
             return
@@ -242,18 +286,21 @@ class PerceptionProcessor:
             self.engine.draw(frame, result)
 
     def stats(self) -> dict:
+        has = getattr(self.engine, "has_obstacles", False)
         if self._detector is not None:
             return {"mode": "async", "ms_last": self._detector.ms_last, "ms_avg": self._detector.ms_avg,
-                    "errors": self._detector.errors, "last_error": self._detector.last_error}
-        return {"mode": "sync", "ms_last": self._last_sync_ms, "ms_avg": self._last_sync_ms, "errors": 0, "last_error": None}
+                    "errors": self._detector.errors, "last_error": self._detector.last_error,
+                    "obstacles": self.engine.obstacles(self._detector.latest()) if has else None}
+        return {"mode": "sync", "ms_last": self._last_sync_ms, "ms_avg": self._last_sync_ms, "errors": 0, "last_error": None,
+                "obstacles": self.engine.obstacles(self._last_sync_result) if has else None}
 
     def close(self) -> None:
         if self._detector is not None:
             self._detector.close()
 
 
-def engine_for(model, predict_kwargs: dict | None = None) -> PerceptionEngine:
-    """Arma pyzbar y ArUco reales alrededor de un modelo YOLO ya cargado."""
+def engine_for(model, predict_kwargs: dict | None = None, **dual) -> PerceptionEngine:
+    """Arma pyzbar y ArUco reales alrededor de un modelo YOLO ya cargado. `dual`: pieces_model, piece_conf, obstacle_conf."""
     import cv2
 
     try:
@@ -266,13 +313,19 @@ def engine_for(model, predict_kwargs: dict | None = None) -> PerceptionEngine:
 
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
     detector = cv2.aruco.ArucoDetector(dictionary, cv2.aruco.DetectorParameters())
-    return PerceptionEngine(model, decode, detector, predict_kwargs)
+    return PerceptionEngine(model, decode, detector, predict_kwargs, **dual)
 
 
-def build_engine(weights: str, predict_kwargs: dict | None = None) -> PerceptionEngine:
-    """Carga YOLO y arma el motor. Solo se llama en el equipo que tiene cámara."""
+def build_engine(weights: str, predict_kwargs: dict | None = None, pieces_weights: str | None = None,
+                 piece_conf: float = 0.5, obstacle_conf: float = 0.4) -> PerceptionEngine:
+    """Carga YOLO y arma el motor. Solo se llama en el equipo que tiene cámara.
+    Con pieces_weights (parts.pt) hay dos modelos: el general para obstáculos y parts.pt para las piezas."""
     from ultralytics import YOLO
 
     model = YOLO(weights)
     logger.info("Modelo YOLO '%s' cargado.", weights)
-    return engine_for(model, predict_kwargs)
+    if pieces_weights is None:
+        return engine_for(model, predict_kwargs)
+    pieces = YOLO(pieces_weights)
+    logger.info("Modelo de piezas '%s' cargado; '%s' queda como detector de obstáculos.", pieces_weights, weights)
+    return engine_for(model, predict_kwargs, pieces_model=pieces, piece_conf=piece_conf, obstacle_conf=obstacle_conf)

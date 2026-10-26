@@ -295,3 +295,21 @@ def test_punta_a_punta_agente_real_con_camara_falsa_y_script_de_medicion(capsys)
 
     cuadros = int(re.search(r"\((\d+) cuadros en", salida).group(1))
     assert cuadros >= 20  # ~60 FPS de cámara falsa durante 2 s: llegan muchos JPEG reales
+
+
+def test_status_trae_los_obstaculos_y_el_modelo_doble():
+    class Piezas(FakeModel):
+        names = {0: "computadora3"}
+
+    def doble():
+        return PerceptionEngine(FakeModel(), lambda crop: [], FakeAruco(), pieces_model=Piezas())
+
+    s = ajustes(pieces_weights="parts.pt")
+    outbox = EventOutbox(url=None, build_body=lambda lote: lote)
+    app = create_app(s, publisher_factory=FakePublisher, engine_factory=doble, outbox=outbox)
+    with TestClient(app) as c:
+        app.state.publisher.processor(np.zeros((60, 80, 3), np.uint8))  # modo sync: analiza este cuadro
+        estado = c.get("/status").json()
+    AgentStatus.model_validate(estado)
+    assert estado["inference"]["model"] == "parts.pt + yolov8n.pt"
+    assert estado["obstacles"] == {"count": 1, "classes": ["bottle"], "max_area_pct": 6.8}  # 18x18 de 80x60

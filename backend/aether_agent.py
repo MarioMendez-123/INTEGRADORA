@@ -62,12 +62,15 @@ class AgentSettings:
     outbox_batch: int
     outbox_timeout_s: float
     outbox_interval_s: float = 1.0
+    pieces_weights: str | None = None  # parts.pt; con él, `weights` queda como detector de obstáculos
+    piece_conf: float = 0.5
+    obstacle_conf: float = 0.4
 
     @classmethod
     def from_env(cls) -> "AgentSettings":
         import re
 
-        from dataset_store import pesos_entorno
+        from dataset_store import CONFIANZA_MINIMA, pesos_entorno, pesos_piezas
 
         agent_id = env_str("AETHER_AGENT_ID", "jetson")
         if not re.fullmatch(r"[a-z0-9_-]{1,32}", agent_id):
@@ -86,6 +89,10 @@ class AgentSettings:
             camera_index=env_int("PERCEPTION_CAMERA_INDEX", 0, minimo=0, maximo=63),
             camera_options=options,
             weights=pesos_entorno(),
+            # parts.pt, si existe: las piezas se identifican por su clase y el modelo general queda para obstáculos.
+            pieces_weights=pesos_piezas() if env_bool("AETHER_PIECES", True) else None,
+            piece_conf=env_float("AETHER_PIECE_CONF", CONFIANZA_MINIMA, minimo=0.05, maximo=0.99),
+            obstacle_conf=env_float("AETHER_OBSTACLE_CONF", 0.4, minimo=0.05, maximo=0.99),
             yolo_imgsz=imgsz or None,
             yolo_device=env_str("AETHER_YOLO_DEVICE"),
             yolo_half=env_bool("AETHER_YOLO_HALF", False),
@@ -143,7 +150,9 @@ def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=N
             predict["device"] = settings.yolo_device
         if settings.yolo_half:
             predict["half"] = True
-        engine = engine_factory() if engine_factory is not None else build_engine(settings.weights, predict)
+        engine = engine_factory() if engine_factory is not None else build_engine(
+            settings.weights, predict, settings.pieces_weights, settings.piece_conf, settings.obstacle_conf
+        )
         processor = PerceptionProcessor(engine, emit, mode=settings.detect_mode, max_hz=settings.detect_max_hz)
         holder["processor"] = processor
         return processor
@@ -181,8 +190,9 @@ def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=N
                 logger.exception("La cámara no abrió; el agente sigue y reintenta.")
         threading.Thread(target=watch, name="vigilar-camara", daemon=True).start()
         logger.info(
-            "Agente '%s' listo: captura=%s, detección=%s, laptop=%s.",
+            "Agente '%s' listo: captura=%s, detección=%s, laptop=%s, piezas=%s.",
             settings.agent_id, settings.capture, settings.detect_mode, settings.laptop_url or "(sin laptop)",
+            Path(settings.pieces_weights).name if settings.pieces_weights else "NO (sin parts.pt: solo detector general, las piezas no se identifican)",
         )
         yield
         stop_watch.set()
@@ -217,7 +227,9 @@ def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=N
             error=error,
             camera=CameraStatus(**{k: stats.get(k) for k in ("open", "fps_camera", "fps_delivery", "width", "height")}),
             inference=InferenceStatus(
-                model=Path(settings.weights).name,
+                model=Path(settings.weights).name
+                if settings.pieces_weights is None
+                else f"{Path(settings.pieces_weights).name} + {Path(settings.weights).name}",
                 mode=settings.detect_mode,
                 ms_last=proc.get("ms_last"),
                 ms_avg=proc.get("ms_avg"),
@@ -232,6 +244,7 @@ def create_app(settings: AgentSettings, publisher_factory=None, engine_factory=N
                 last_error=outbox.last_error,
             ),
             resources=process_usage(holder["usage"]),
+            obstacles=proc.get("obstacles"),
         ).model_dump(mode="json")
 
     @app.get("/stream")

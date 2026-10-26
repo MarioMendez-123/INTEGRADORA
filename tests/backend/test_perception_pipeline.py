@@ -205,3 +205,52 @@ def test_detector_respeta_max_hz():
         assert 8 <= len(llamadas) <= 16  # ≈ 12 a 20 Hz con holgura; sin límite serían ~100
     finally:
         d.close()
+
+
+class ModeloPiezas(FakeModel):
+    names = {0: "computadora1", 1: "computadora2", 2: "computadora3"}
+
+
+def motor_doble(general, piezas, **kw):
+    return PerceptionEngine(FakeModel(general), no_decode, FakeAruco(ids=3), pieces_model=ModeloPiezas(piezas), **kw)
+
+
+def test_dos_modelos_la_pieza_es_inventario_y_el_obstaculo_no():
+    # general: botella al 90 % y taza al 20 % (bajo el corte de 0.4); piezas: computadora2 al 80 % y computadora1 al 30 % (bajo 0.5)
+    e = motor_doble(
+        [FakeBox([0, 0, 80, 60], 0, 0.9), FakeBox([5, 5, 9, 9], 1, 0.2)],
+        [FakeBox([10, 10, 50, 50], 1, 0.8), FakeBox([60, 60, 70, 70], 0, 0.3)],
+    )
+    r = e.analyze(FRAME)
+    assert sorted((d.kind, d.class_name) for d in r.detections) == [("obstacle", "bottle"), ("piece", "computadora2")]
+    obs = e.observations(r)
+    assert [o["detected_class"] for o in obs] == ["computadora2"]  # el obstáculo no llega al inventario
+    assert obs[0]["code_read"] is False and obs[0]["code_data"] is None and obs[0]["location_marker_id"] == 3
+    assert e.obstacles(r) == {"count": 1, "classes": ["bottle"], "max_area_pct": 25.0}  # 80x60 de 160x120
+
+
+def test_dos_modelos_cada_corte_se_configura():
+    e = motor_doble([FakeBox([0, 0, 10, 10], 0, 0.3)], [FakeBox([0, 0, 10, 10], 2, 0.3)], piece_conf=0.25, obstacle_conf=0.25)
+    r = e.analyze(FRAME)
+    assert sorted(d.kind for d in r.detections) == ["obstacle", "piece"]
+
+
+def test_dos_modelos_dibuja_y_el_procesador_resume_los_obstaculos():
+    e = motor_doble([FakeBox([0, 0, 40, 30], 0, 0.9)], [FakeBox([10, 10, 50, 50], 0, 0.9)])
+    frame = FRAME.copy()
+    e.draw(frame, e.analyze(frame))
+    assert frame.any()
+    emitidas = []
+    p = PerceptionProcessor(e, emitidas.append, mode="sync")
+    p(FRAME.copy())
+    assert [o["detected_class"] for o in emitidas] == ["computadora1"]
+    assert p.stats()["obstacles"]["count"] == 1
+
+
+def test_un_solo_modelo_no_cambia_nada():
+    e = engine([FakeBox([0, 0, 20, 20], 1, 0.5)])
+    r = e.analyze(FRAME)
+    assert r.detections[0].kind == "object" and e.observations(r)[0]["detected_class"] == "cup"
+    p = PerceptionProcessor(e, lambda o: None, mode="sync")
+    p(FRAME.copy())
+    assert p.stats()["obstacles"] is None

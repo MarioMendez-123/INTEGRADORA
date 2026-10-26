@@ -10,6 +10,8 @@ GPIO 9, relevador hacia I4 del LOGO. Avanza la banda.
   El LOGO, no este archivo, ignora el infrarrojo 5 s al ver I4.
 
 Los números 8 y 9 son GPIO BCM. Se cambian con LINE_GPIO_PISTON y LINE_GPIO_BANDA.
+LINE_RELES_ACTIVO_BAJO=1 para placas de relevadores que encienden con el pin en bajo: el "apagado" del
+programa deja el pin en alto y el pulso lo baja. Por defecto (0) el relevador enciende con el pin en alto.
 Sin /dev/gpiochip0 los pulsos no se fingen: la pieza queda como pulso no enviado.
 """
 
@@ -32,9 +34,10 @@ def _numero(nombre, defecto):
 class Salidas:
     """Dos salidas. abiertas es False cuando no hay chip GPIO."""
 
-    def __init__(self, pin_piston, pin_banda):
+    def __init__(self, pin_piston, pin_banda, activo_bajo=False):
         self.pin_piston = pin_piston
         self.pin_banda = pin_banda
+        self.activo_bajo = activo_bajo  # placa de relevadores que enciende con el pin en bajo
         self.abiertas = False
         self._req = None
         self._v1 = {}
@@ -53,10 +56,12 @@ class Salidas:
                     self.pin_piston: gpiod.LineSettings(
                         direction=gpiod.line.Direction.OUTPUT,
                         output_value=gpiod.line.Value.INACTIVE,
+                        active_low=self.activo_bajo,
                     ),
                     self.pin_banda: gpiod.LineSettings(
                         direction=gpiod.line.Direction.OUTPUT,
                         output_value=gpiod.line.Value.INACTIVE,
+                        active_low=self.activo_bajo,
                     ),
                 },
             )
@@ -68,7 +73,8 @@ class Salidas:
             chip = gpiod.Chip("/dev/gpiochip0")
             for pin in (self.pin_piston, self.pin_banda):
                 linea = chip.get_line(pin)
-                linea.request(consumer="celda", type=gpiod.LINE_REQ_DIR_OUT, default_vals=[0])
+                flags = gpiod.LINE_REQ_FLAG_ACTIVE_LOW if self.activo_bajo else 0
+                linea.request(consumer="celda", type=gpiod.LINE_REQ_DIR_OUT, flags=flags, default_vals=[0])
                 self._v1[pin] = linea
             self.abiertas = True
         except Exception:
@@ -259,7 +265,7 @@ def celda_desde_entorno():
     pin_piston = int(os.environ.get("LINE_GPIO_PISTON", "8"))
     pin_banda = int(os.environ.get("LINE_GPIO_BANDA", "9"))
     return CeldaReal(
-        salidas=Salidas(pin_piston, pin_banda),
+        salidas=Salidas(pin_piston, pin_banda, os.environ.get("LINE_RELES_ACTIVO_BAJO", "0").strip().lower() in ("1", "true", "yes", "on")),
         esperar=_esperar_real,
         espera_piston=float(os.environ.get("LINE_PISTON_ESPERA_S", "3")),
         piston_encendido=float(os.environ.get("LINE_PISTON_ON_S", "1")),

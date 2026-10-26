@@ -35,6 +35,9 @@ definirlas el comportamiento es el de siempre.
 | `AETHER_DETECT_MAX_HZ` | 0–120 | `10` | Máximo de inferencias por segundo (0 = sin tope). **Valor de diseño, no medido** |
 | `YOLO_WEIGHTS` | ruta | `yolov8n.pt` | Misma variable que ya usaba el resto del backend |
 | `AETHER_YOLO_IMGSZ` | 0–2048 | `0` (el del modelo) | |
+| `AETHER_PIECES` | bool | `1` | Con `parts.pt` presente (`edge/perception/weights/parts.pt`), el agente corre DOS modelos: `parts.pt` identifica las piezas por su clase (sin código QR) y el detector general queda como detector de obstáculos (no entra al inventario; sale en `/status` → `obstacles`). `0` o sin `parts.pt`: un solo modelo, como antes (el log lo avisa) |
+| `AETHER_PIECE_CONF` | 0.05–0.99 | `0.5` | Confianza mínima para aceptar una pieza. **Valor de arranque, no medido** |
+| `AETHER_OBSTACLE_CONF` | 0.05–0.99 | `0.4` | Confianza mínima para contar un obstáculo. **No medido** |
 | `AETHER_YOLO_DEVICE` | texto | vacío (automático) | p. ej. `0` para la GPU |
 | `AETHER_YOLO_HALF` | bool | `0` | FP16 de PyTorch. **No se ha medido en el Jetson**; TensorRT no está implementado |
 | `AETHER_JPEG_QUALITY` | 30–100 | `80` | |
@@ -54,6 +57,7 @@ definirlas el comportamiento es el de siempre.
 | `AETHER_CELL_STREAM_FPS` | `10` (1–30) | Cuadros por segundo del video de la celda |
 | `LINE_VISION_CAMERA_*` | `0`, `v4l2`, `MJPG`, `640x480` | |
 | `LINE_GPIO_PISTON`, `LINE_GPIO_BANDA` | `8`, `9` | **No se activan**: `gpiod` no está instalado hasta confirmar el cableado |
+| `LINE_RELES_ACTIVO_BAJO` | `0` | `1` si la placa de relevadores enciende con el pin en bajo. Sin probar en la Pi |
 
 ## Servicio de voz de la laptop (`python -m voice.service`, desde `backend/`)
 

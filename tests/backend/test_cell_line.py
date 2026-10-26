@@ -87,3 +87,34 @@ def test_sin_pines_no_se_anota_como_expulsada():
     c.correr_ya("FAIL")
     assert c.snapshot()["recent"][0]["accion"] == "fallo_actuacion"
     assert c.snapshot()["sources"]["plc"] is False
+
+
+def _gpiod_falso(monkeypatch, llamadas):
+    import types
+
+    class LineSettings:
+        def __init__(self, **kw):
+            llamadas.append(kw)
+
+    class Direction:
+        OUTPUT = "out"
+
+    class Value:
+        ACTIVE, INACTIVE = 1, 0
+
+    falso = types.SimpleNamespace(
+        request_lines=lambda *a, **kw: object(),
+        LineSettings=LineSettings,
+        line=types.SimpleNamespace(Direction=Direction, Value=Value),
+    )
+    monkeypatch.setitem(sys.modules, "gpiod", falso)
+
+
+def test_reles_activo_bajo_se_pasa_a_gpiod(monkeypatch):
+    from cell_line import Salidas
+
+    for activo_bajo in (False, True):
+        llamadas = []
+        _gpiod_falso(monkeypatch, llamadas)
+        assert Salidas(8, 9, activo_bajo).abiertas
+        assert [c["active_low"] for c in llamadas] == [activo_bajo, activo_bajo]
