@@ -1,0 +1,1 @@
+{ "name": "sim_hal", "version": "0.1.0", "description": "Arduino de mentiras para correr el firmware del carrito en la PC contra el simulador", "frameworks": "*", "platforms": "native" }

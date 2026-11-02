@@ -47,3 +47,6 @@ polars
 nvidia-ml-py
 # (ultralytics-thop también es dependencia de ultralytics, pero arrastra torch:
 #  se instala aparte con --no-deps, ver el paso 4 de arriba.)
+
+# Programas del carrito (edge/navigation): habla con el ESP32 por el puerto USB serie.
+pyserial
