@@ -22,6 +22,14 @@ Movimientos (cada uno espera a que el ESP32 avise que terminó, y levanta `Error
 Lectura: `distancia("frente"|"izquierda"|"derecha"|"pila")` en mm (8190 = nada a menos de 1.2 m), `bateria()`, `paro_presionado()`,
 `carrito.pose()` -> (x, y, grados).
 
+Visión (la cámara): `vision()` devuelve `{"obstaculos": {"cantidad", "clases", "area_max_pct"}, "arucos": [...], "detalle": [...]}` y
+`hay_persona(area_min_pct=3)` dice si hay una persona que ocupa al menos ese porcentaje de la imagen. Lee el agente de visión
+(`GET /status`): en el carrito real `http://localhost:8001/status` (agente del Jetson), en el simulador el propio simulador.
+**Qué es real hoy:** el agente real publica las clases de obstáculos (YOLO general) y el porcentaje de imagen del más grande;
+una cámara sola no mide distancia, el porcentaje es un indicio de cercanía. **`arucos` y `detalle` solo existen en el simulador:**
+el agente real todavía solo detecta el ID del ArUco, no su posición, así que en el carrito real `arucos` llega vacío.
+No escribas programas que dependan de `arucos` sin avisarme.
+
 Otras: `decir(texto)` (Lumina), `fijar_pose(x, y, grados)`, `carrito.velocidad_maxima(v)`, `carrito.rearmar()`, `ErrorCarrito`, `math`.
 
 Mapa: origen en el eje de las ruedas acoplado en la banda; x hacia la banda; y a la izquierda; 0° = mirando a la banda;

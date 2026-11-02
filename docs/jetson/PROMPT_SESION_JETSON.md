@@ -57,6 +57,15 @@ protocolo; los programas que escribimos corren igual en el simulador y aquí con
 4. **Carrito en el piso**, solo con mi autorización, una recta de 1 m, luego giros y la prueba del cuadrado.
 5. **Programas de la misión** (banda ↔ descarga) y su acople, empezando por `edge/navigation/programas/ejemplo_ciclo.py`.
 
+## La visión (importante)
+
+La cámara y YOLO corren en esta Jetson, en el agente `backend/aether_agent.py` (puerto 8001, `GET /status`). Hoy ese agente
+publica solo `obstacles = {count, classes, max_area_pct}` (clases del YOLO general y porcentaje de imagen del más grande; sin
+distancia) y detecta el ID de los ArUco, **sin calcular su posición**. Los programas leen eso con `vision()` / `hay_persona()`.
+En el simulador de mi laptop existen además `arucos` (posición) y `detalle`, que **el carrito real todavía no tiene**: no
+escribas programas que dependan de eso sin avisarme. Si te pido usar la cámara, primero comprueba que el agente corre
+(`curl -s http://localhost:8001/status`) y dime qué devuelve de verdad.
+
 ## Cómo escribir programas
 
 Un programa es un archivo `.py` en `edge/navigation/programas/` que usa `carrito.py` (`avanzar`, `retroceder`, `girar_a`, `ir_a`,

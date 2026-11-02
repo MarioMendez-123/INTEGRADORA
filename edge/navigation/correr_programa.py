@@ -25,6 +25,7 @@ def main():
     ap = argparse.ArgumentParser(description="Corre un programa del carrito Aether")
     ap.add_argument("archivo")
     ap.add_argument("--puerto", required=True, help="/dev/ttyUSB0 (real) o socket://localhost:7701 (simulador)")
+    ap.add_argument("--vision", default=None, help="URL del sistema de visión (por omisión: el del simulador si --puerto es socket://, o el agente del Jetson http://localhost:8001/status)")
     ap.add_argument("--pose", default="0,0,0", help="x,y,grados donde está el carrito al empezar (por omisión, acoplado en la banda)")
     a = ap.parse_args()
 
@@ -32,11 +33,12 @@ def main():
         print(f"[{time.strftime('%H:%M:%S')}] {t}", flush=True)
 
     x, y, g = (float(v) for v in a.pose.split(","))
-    c = Carrito(Puerto(a.puerto), decir=decir, pose=(x, y, g))
+    vision = a.vision or ("http://127.0.0.1:8770/status" if a.puerto.startswith("socket://") else "http://localhost:8001/status")
+    c = Carrito(Puerto(a.puerto), decir=decir, pose=(x, y, g), vision_url=vision)
     codigo = pathlib.Path(a.archivo).read_text(encoding="utf-8")
     entorno = {"carrito": c, "math": math, "ErrorCarrito": ErrorCarrito, "__name__": "__programa__"}
     for nombre in ("avanzar", "retroceder", "girar", "girar_a", "ir_a", "acoplar", "esperar", "decir", "distancia",
-                   "bateria", "paro_presionado", "fijar_pose"):
+                   "bateria", "paro_presionado", "fijar_pose", "vision", "hay_persona"):
         entorno[nombre] = getattr(c, nombre)
     codigo_salida = 0
     try:

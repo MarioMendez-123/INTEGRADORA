@@ -35,11 +35,13 @@ def _ang(a):
 
 
 class Carrito:
-    def __init__(self, puerto, decir=print, pose=(0.0, 0.0, 0.0), limite_ayuda_s=20.0):
+    def __init__(self, puerto, decir=print, pose=(0.0, 0.0, 0.0), limite_ayuda_s=20.0, vision_url=None):
         """`puerto` tiene escribir(bytes) y lineas() -> list[str] (ver mision.Puerto). `pose` = (x, y, grados)."""
         self.p, self._decir = puerto, decir
         self.x, self.y, self.th = pose[0], pose[1], pose[2]        # th en grados
         self.limite_ayuda_s = limite_ayuda_s
+        self.vision_url = vision_url          # agente de visión: http://localhost:8001/status (real) o el del simulador
+        self.fuente_vision = None             # alternativa: una función que devuelva el mismo JSON (pruebas)
         self._s_prev = None
         self._t_hb = 0.0
         self._id = 0
@@ -158,6 +160,38 @@ class Carrito:
         """Distancia en mm del VL53L0X (8190 = nada a menos de 1.2 m). lado: frente, izquierda, derecha, pila."""
         self._bombear()
         return self._rng[{"frente": 0, "izquierda": 1, "derecha": 2, "pila": 3}[lado]]
+
+    def vision(self) -> dict:
+        """Lo que ve el sistema de visión (la cámara), con el mismo formato del agente del Jetson (`GET /status`).
+
+        {"obstaculos": {"cantidad", "clases", "area_max_pct"}, "arucos": [...], "detalle": [...]}
+        - obstaculos: lo que publica hoy el agente real: clases del YOLO general y qué porcentaje del cuadro ocupa
+          el más grande. Una cámara sola NO mide distancia: el porcentaje es un indicio de cercanía.
+        - arucos y detalle: SOLO existen en el simulador. El agente real todavía no calcula la posición de los ArUco
+          (solo detecta el ID) ni da detalle por objeto; en el carrito real `arucos` llega vacío.
+        """
+        import json
+        import urllib.request
+        try:
+            if self.fuente_vision is not None:
+                d = self.fuente_vision()
+            elif self.vision_url:
+                with urllib.request.urlopen(self.vision_url, timeout=1.5) as r:
+                    d = json.load(r)
+            else:
+                raise ErrorCarrito("no hay sistema de visión configurado (pasa --vision URL a correr_programa.py)")
+        except ErrorCarrito:
+            raise
+        except Exception as ex:
+            raise ErrorCarrito(f"no pude leer el sistema de visión en {self.vision_url}: {ex}")
+        o = d.get("obstacles") or {}
+        return {"obstaculos": {"cantidad": o.get("count", 0), "clases": o.get("classes", []), "area_max_pct": o.get("max_area_pct", 0.0)},
+                "arucos": d.get("arucos", []), "detalle": d.get("detalle", [])}
+
+    def hay_persona(self, area_min_pct: float = 3.0) -> bool:
+        """True si la cámara ve una persona que ocupa al menos `area_min_pct` % del cuadro (más porcentaje = más cerca)."""
+        v = self.vision()
+        return "person" in v["obstaculos"]["clases"] and v["obstaculos"]["area_max_pct"] >= area_min_pct
 
     def bateria(self):
         """Voltaje de la batería en V (None si el ESP32 todavía no lo ha reportado)."""

@@ -37,9 +37,12 @@ sys.path.insert(0, str(AQUI))
 
 from firmware_ref import FirmwareRef  # noqa: E402
 from nucleo import mundo  # noqa: E402
+from nucleo.explicaciones import PINES, explicacion  # noqa: E402
 from nucleo.simulacion import Simulacion  # noqa: E402
 
 RAIZ = AQUI.parent
+NL = bytes([10])
+SERVIDOR = None                    # el Servidor en marcha (lo usan las rutas HTTP /status y /vision.json)
 PROGRAMAS = RAIZ / "edge" / "navigation" / "programas"
 NOMBRE_PROGRAMA = re.compile(r"^[A-Za-z0-9_\-]{1,40}$")
 LINEAS_SILENCIOSAS = ("ODO", "MOT", "RNG", "PWR")      # llegan muchas por segundo: se guardan, no se listan
@@ -81,6 +84,12 @@ class Servidor:
         self._espera = None
         self.prog: asyncio.subprocess.Process | None = None
         self.salida_prog: list[str] = []
+        self.modo = "sim"                    # "sim" = solo simulación; "dual" = simulación + ESP32 real a la vez
+        self.real = None                     # puerto serie del ESP32 real (pyserial)
+        self.puerto_real = ""
+        self.real_info = {"lineas": 0, "ultimo": 0.0, "bat_v": None, "paro_mv": None, "frente_mm": None, "pose": None, "s_prev": None}
+        self._resto_real = ""
+        self.ver_cables = False
 
     # ------------------------------------------------------------ tiempo real
     def ahora(self) -> float:
@@ -88,9 +97,9 @@ class Servidor:
 
     def avanzar(self):
         dt = self.ahora() - self.sim.t
-        if dt > 0.25:                              # la PC se trabó: no intentes recuperar más de 0.25 s
-            self.t0 += dt - 0.25
-            dt = 0.25
+        if dt > 0.04:                              # si la PC no alcanza, el simulador va un poco más lento que el tiempo real, sin saltos
+            self.t0 += dt - 0.04
+            dt = 0.04
         if dt >= 0.001:
             self.sim.paso(dt)
         for ev in self.sim.eventos:
@@ -105,11 +114,104 @@ class Servidor:
         else:
             self.detener_firmware()
 
+    def _orden(self, datos: bytes):
+        """Una orden para el ESP32 (de un programa, del joystick o de la misión). En modo dual llega a los dos: al simulado y al real."""
+        if self.sim.esp32.vivo:
+            self.sim.esp32.usb_rx += datos
+        if self.modo == "dual" and self.real is not None:
+            try:
+                self.real.write(datos)
+            except Exception as ex:
+                self._monitor(f"[ESP32 real] no pude escribir en el puerto: {ex}")
+
     def _salida_usb(self, datos: bytes):
-        """Lo que el ESP32 manda por USB: al monitor de la página y al programa conectado al puerto 7701."""
-        self._monitor_usb(datos)
-        for w in list(self.usb_clientes):
-            w.write(datos)
+        """Lo que el ESP32 SIMULADO manda por USB. Los programas solo lo ven en modo 'sim'; en modo dual ven el del ESP32 real."""
+        self._monitor_usb(datos, "sim")
+        if self.modo == "sim":
+            for w in list(self.usb_clientes):
+                w.write(datos)
+
+    # ------------------------------------------------------------ ESP32 real (modo dual)
+    def abrir_real(self, puerto: str):
+        try:
+            import serial
+        except ImportError:
+            sys.path.insert(0, str(pathlib.Path.home() / ".platformio" / "penv" / "Lib" / "site-packages"))   # PlatformIO ya trae pyserial
+            try:
+                import serial
+            except ImportError:
+                raise RuntimeError("Falta pyserial. Instálalo con:  backend\\.venv\\Scripts\\python.exe -m pip install pyserial")
+        if puerto == "auto":
+            from serial.tools import list_ports
+            cand = [q for q in list_ports.comports() if any(k in (q.description or "").upper() for k in ("CP210", "CH340", "USB SERIAL", "UART"))]
+            if not cand:
+                raise RuntimeError("No encontré el ESP32 en ningún puerto USB (revisa que el cable sea de datos).")
+            puerto = cand[0].device
+        self.real = serial.serial_for_url(puerto, baudrate=115200, timeout=0.05)
+        self.puerto_real = puerto
+
+    async def leer_real(self):
+        bucle = asyncio.get_running_loop()
+        while self.real is not None:
+            try:
+                datos = await bucle.run_in_executor(None, self.real.read, 4096)
+            except Exception as ex:
+                self._monitor(f"[ESP32 real] se perdió el puerto: {ex}")
+                self.real = None
+                self.modo = "sim"
+                return
+            if datos:
+                self._entra_real(datos)
+
+    def _entra_real(self, datos: bytes):
+        """Líneas del ESP32 real: se leen para comparar con el simulado y, en modo dual, se las pasan a los programas."""
+        if self.modo == "dual":
+            for w in list(self.usb_clientes):
+                w.write(datos)
+        texto = self._resto_real + datos.decode(errors="replace")
+        *lineas, self._resto_real = texto.split(chr(10))
+        info = self.real_info
+        for ln in lineas:
+            ln = ln.strip()
+            t = ln.split()
+            if not t:
+                continue
+            info["lineas"] += 1
+            info["ultimo"] = time.monotonic()
+            try:
+                if t[0] == "ODO" and len(t) >= 6 and t[4] != "nan":
+                    suma, th = (float(t[2]) + float(t[3])) / 2, float(t[4])
+                    if info["pose"] is None:
+                        c = self.sim.carrito
+                        info["pose"] = [c.x, c.y, th]
+                    elif info["s_prev"] is not None:
+                        ds = suma - info["s_prev"]
+                        info["pose"][0] += ds * math.cos(math.radians(th))
+                        info["pose"][1] += ds * math.sin(math.radians(th))
+                    info["s_prev"] = suma
+                    info["pose"][2] = th
+                elif t[0] == "PWR" and len(t) >= 3:
+                    info["bat_v"], info["paro_mv"] = int(t[1]) / 1000, int(t[2])
+                elif t[0] == "RNG" and len(t) >= 2:
+                    info["frente_mm"] = int(t[1])
+            except ValueError:
+                pass
+            if t[0] not in LINEAS_SILENCIOSAS:
+                self._monitor("[ESP32 real] " + ln)
+
+    def cambiar_modo(self, modo: str):
+        if modo not in ("sim", "dual"):
+            raise ValueError("modo desconocido")
+        if modo == "dual" and self.real is None:
+            raise ValueError("No hay un ESP32 real conectado. Abre el servidor con:  --esp32 COM5  (o --esp32 auto) y recarga.")
+        self.modo = modo
+        self.alinear()
+        self._monitor("[simulador] Modo: " + ("simulación + ESP32 real a la vez" if modo == "dual" else "solo simulación"))
+
+    def alinear(self):
+        """Pone el origen del carrito real donde está el simulado, para comparar posiciones."""
+        self.real_info["pose"] = None
+        self.real_info["s_prev"] = None
 
     def _monitor(self, texto: str):
         self.monitor.append(texto)
@@ -153,8 +255,7 @@ class Servidor:
             self.mision.kill()
             self._monitor("[simulador] Detuve el programa de la Jetson")
         self.mision = None
-        if self.sim.esp32.vivo:
-            self.sim.esp32.usb_rx += b"STOP\n"
+        self._orden(b"STOP" + NL)
 
     # ------------------------------------------------------------ programas del usuario (edge/navigation/programas)
     def lista_programas(self) -> list[str]:
@@ -198,8 +299,7 @@ class Servidor:
         if self.prog and self.prog.returncode is None:
             self.prog.kill()
             self.salida_prog.append("■ detenido por ti")
-            if self.sim.esp32.vivo:
-                self.sim.esp32.usb_rx += b"STOP" + chr(10).encode()
+            self._orden(b"STOP" + NL)
         self.prog = None
 
     # ------------------------------------------------------------ casos de obstáculos
@@ -339,11 +439,14 @@ class Servidor:
 
     _linea_usb = ""
 
-    def _monitor_usb(self, datos: bytes):
+    def _monitor_usb(self, datos: bytes, origen: str = "sim"):
         self._linea_usb += datos.decode(errors="replace")
-        *lineas, self._linea_usb = self._linea_usb.split("\n")
+        *lineas, self._linea_usb = self._linea_usb.split(chr(10))
         for ln in lineas:
-            self._monitor(ln.rstrip("\r"))
+            ln = ln.rstrip(chr(13))
+            if ln.split(" ")[0] in LINEAS_SILENCIOSAS:
+                continue
+            self._monitor(("[sim] " if self.modo == "dual" else "") + ln)
 
     # ------------------------------------------------------------ USB hacia la Jetson (puerto 7701)
     async def usb(self, lector: asyncio.StreamReader, escritor: asyncio.StreamWriter):
@@ -351,8 +454,7 @@ class Servidor:
         self._monitor("[simulador] Algo se conectó al USB del ESP32 (puerto 7701)")
         try:
             while datos := await lector.read(4096):
-                if self.sim.esp32.vivo:
-                    self.sim.esp32.usb_rx += datos
+                self._orden(datos)
         except ConnectionError:
             pass
         finally:
@@ -366,7 +468,9 @@ class Servidor:
                 "arucos": mundo.ARUCOS,
                 "pines": c.nombres,
                 "cables": c.cables, "cables_guia": [x["id"] for x in c.cables_guia],
-                "casos": [{"id": k, "nombre": v[0], "descripcion": v[1], "esperado": v[2]} for k, v in CASOS.items()]}
+                "casos": [{"id": k, "nombre": v[0], "descripcion": v[1], "esperado": v[2]} for k, v in CASOS.items()],
+                "explicaciones": {g: explicacion(g) for g in {x["grupo"] for x in c.cables} | {"Tus cables"}},
+                "pines_info": PINES, "real_disponible": self.real is not None, "puerto_real": self.puerto_real}
 
     def estado_json(self) -> dict:
         e = self.sim.estado()
@@ -378,7 +482,43 @@ class Servidor:
         e["caso"] = self.caso_id
         e["prog"] = {"corriendo": bool(self.prog and self.prog.returncode is None), "salida": self.salida_prog[-120:]}
         e["firmware"]["referencia"] = bool(self.ref)
+        e["modo"] = self.modo
+        r, car = self.real_info, self.sim.carrito
+        real = {"disponible": self.real is not None, "puerto": self.puerto_real, "lineas": r["lineas"], "bat_v": r["bat_v"],
+                "paro_mv": r["paro_mv"], "frente_mm": r["frente_mm"], "pose": r["pose"],
+                "hace_s": round(time.monotonic() - r["ultimo"], 1) if r["ultimo"] else None}
+        if r["pose"]:
+            real["dif_cm"] = round(math.hypot(r["pose"][0] - car.x, r["pose"][1] - car.y) * 100, 1)
+            real["dif_grados"] = round((math.degrees(car.th) - r["pose"][2] + 540) % 360 - 180, 1)
+        e["real"] = real
+        esp = self.sim.esp32
+        e["tramas"] = list(esp.bus_log)[-24:]
+        t = self.sim.t
+        e["senales"] = {"t": round(t, 3), "tx": [round(x, 4) for x in esp.tx_tiempos if t - x < 4],
+                        "pines": {str(g): [[round(a, 4), b] for a, b in h if t - a < 4] for g, h in esp.hist_pines.items() if g in (4, 32, 33, 15)},
+                        "pines_ahora": {str(g): esp.c.salidas_esp32.get(g) for g in (4, 32, 33, 15)}}
+        e["vision"] = self.sim.vision()
+        if self.ver_cables:
+            circ = self.sim.circuito
+            e["cables_v"] = {k["id"]: (None if circ.volt(k["de"]) is None else round(circ.volt(k["de"]), 2)) for k in circ.cables}
         return e
+
+    def info_cable(self, ident: str) -> dict:
+        """Todo lo que se sabe de un cable ahora mismo: a qué une, qué voltaje lleva, qué más está en su mismo punto y para qué sirve."""
+        circ = self.sim.circuito
+        k = next((x for x in circ.cables if x["id"] == ident), None)
+        if k is None:
+            raise KeyError("ese cable ya no existe")
+        v = circ.volt(k["de"])
+        red = circ.redes.get(k["de"])
+        miembros = sorted(circ.nombres.get(n, n) for n, r in circ.redes.items() if r == red)
+        grupo = k["grupo"]
+        corr = circ.corrientes
+        aprox = {"Potencia": corr["bat"], "Rama de motores": corr["F15"], "Motores M0601": corr["F15"], "Rama auxiliar": corr["F10"]}.get(grupo)
+        return {"tipo": "cable", "id": ident, "de": k["de"], "a": k["a"], "nombre_de": circ.nombres.get(k["de"], k["de"]), "nombre_a": circ.nombres.get(k["a"], k["a"]),
+                "grupo": grupo, "color": k["color"], "v": None if v is None else round(v, 3), "en_el_mismo_punto": miembros[:40], "n_en_el_mismo_punto": len(miembros),
+                "corriente_aprox": None if aprox is None else round(aprox, 2), **explicacion(grupo),
+                "pin_de": PINES.get(k["de"], ""), "pin_a": PINES.get(k["a"], "")}
 
     def accion(self, m: dict):
         a, c, sim = m.get("accion"), self.sim.circuito, self.sim
@@ -430,8 +570,13 @@ class Servidor:
         elif a == "caso":
             self.iniciar_caso(m["nombre"])
         elif a == "usb_enviar":
-            if sim.esp32.vivo:
-                sim.esp32.usb_rx += (m["texto"] + "\n").encode()
+            self._orden((m["texto"] + chr(10)).encode())
+        elif a == "modo":
+            self.cambiar_modo(m["valor"])
+        elif a == "alinear":
+            self.alinear()
+        elif a == "ver_cables":
+            self.ver_cables = bool(m["valor"])
         c.evaluar()
 
     async def navegador(self, ws):
@@ -445,6 +590,9 @@ class Servidor:
                     if m.get("accion") == "prog_leer":
                         await ws.send(json.dumps({"tipo": "programa", "nombre": m["nombre"], "codigo": self.leer_programa(m["nombre"])}))
                         continue
+                    if m.get("accion") == "inspeccionar":
+                        await ws.send(json.dumps(self.info_cable(m["id"])))
+                        continue
                     if m.get("accion") == "prog_listar":
                         await ws.send(json.dumps({"tipo": "programas", "lista": self.lista_programas()}))
                         continue
@@ -457,11 +605,12 @@ class Servidor:
             self.navegadores.discard(ws)
 
     async def ciclo(self):
-        n = 0
+        ultimo = 0.0
         while True:
             self.avanzar()
-            n += 1
-            if n % 6 == 0 and self.navegadores:            # ~30 veces por segundo
+            ahora = time.monotonic()
+            if ahora - ultimo >= 0.033 and self.navegadores:  # 30 estados por segundo, medidos en tiempo real
+                ultimo = ahora
                 if self._cambio_mundo:
                     msg = json.dumps(self.mundo_json())
                     for ws in list(self.navegadores):
@@ -473,13 +622,16 @@ class Servidor:
                         await ws.send(msg)
                     except Exception:
                         self.navegadores.discard(ws)
-            await asyncio.sleep(0.005)
+            await asyncio.sleep(0.002)
 
 
 def archivo_estatico(conexion, peticion):
     ruta = peticion.path.split("?")[0]
     if peticion.headers.get("Upgrade", "").lower() == "websocket":
         return None
+    if ruta in ("/status", "/vision.json") and SERVIDOR is not None:
+        cuerpo = json.dumps(SERVIDOR.sim.vision()).encode()
+        return Response(200, "OK", Headers({"Content-Type": "application/json", "Cache-Control": "no-store"}), cuerpo)
     archivo = ESTATICOS.get(ruta) or (AQUI / ruta.lstrip("/")).resolve()
     if not str(archivo).startswith(str(AQUI)) or not archivo.is_file() or not (
             str(archivo).startswith(str(AQUI / "web")) or str(archivo).startswith(str(AQUI / "generado"))):
@@ -491,17 +643,31 @@ def archivo_estatico(conexion, peticion):
 
 
 async def main():
+    if sys.platform == "win32":                      # sin esto Windows duerme de 15 en 15 ms y el simulador va a tirones
+        import ctypes
+        ctypes.windll.winmm.timeBeginPeriod(1)
     ap = argparse.ArgumentParser(description="Simulador del carrito Aether")
     ap.add_argument("--firmware", help="ruta al programa compilado con el entorno native")
     ap.add_argument("--puerto", type=int, default=8770)
+    ap.add_argument("--esp32", help="puerto del ESP32 real (COM5, /dev/ttyUSB0, socket://host:puerto o auto): activa el modo simulación + ESP32 real")
     ap.add_argument("--sin-firmware", action="store_true", help="no correr ningún firmware (solo el circuito y la física)")
     args = ap.parse_args()
     s = Servidor(args.firmware, ref=not args.firmware and not args.sin_firmware)
+    global SERVIDOR
+    SERVIDOR = s
+    if args.esp32:
+        try:
+            s.abrir_real(args.esp32)
+            print(f"ESP32 real conectado en {s.puerto_real}: ya puedes usar el modo simulación + ESP32 real")
+        except Exception as ex:
+            print(f"No pude abrir el ESP32 real ({ex}). Sigo solo con la simulación.")
     async with serve(s.navegador, "127.0.0.1", args.puerto, process_request=archivo_estatico, max_size=2 ** 22):
         await asyncio.start_server(s.hal, "127.0.0.1", 7700)
         await asyncio.start_server(s.usb, "127.0.0.1", 7701)
         print(f"Simulador listo: abre http://localhost:{args.puerto} en Chrome  (pines: 7700, USB: 7701)")
         print("Firmware:", args.firmware or ("ninguno" if args.sin_firmware else "de referencia en Python (sin compilador de C++)"))
+        if s.real is not None:
+            asyncio.ensure_future(s.leer_real())
         await s.ciclo()
 
 

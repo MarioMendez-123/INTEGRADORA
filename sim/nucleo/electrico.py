@@ -100,6 +100,8 @@ class Circuito:
                             for c in placa["cables"]]
         self.cables_guia += [{"id": f"h{i + 1}", "de": a, "a": b, "grupo": g, "color": col}
                              for i, (a, b, g, col) in enumerate(ARNES)]
+        self._cache_mapa = {}
+        self._gpios = [(k, int(k[2:])) for k in self.nombres if k.startswith("E.") and k[2:].isdigit()]
         self.reiniciar_cableado()
         # estado de los mandos
         self.kcd1 = False
@@ -123,9 +125,11 @@ class Circuito:
     # ------------------------------------------------------------ edición de cables
     def reiniciar_cableado(self):
         self.cables = [dict(c) for c in self.cables_guia]
+        self._cache_mapa = {}
 
     def cortar(self, ident: str):
         self.cables = [c for c in self.cables if c["id"] != ident]
+        self._cache_mapa = {}
         self.evaluar()
 
     def conectar(self, de: str, a: str, ident: str | None = None) -> str:
@@ -133,6 +137,7 @@ class Circuito:
             raise ValueError("pin desconocido")
         ident = ident or f"u{len(self.cables) + 1}_{abs(hash((de, a))) % 9999}"
         self.cables.append({"id": ident, "de": de, "a": a, "grupo": "Tus cables", "color": "cMag"})
+        self._cache_mapa = {}
         self.evaluar()
         return ident
 
@@ -142,6 +147,19 @@ class Circuito:
         self.danos.clear()
 
     # ------------------------------------------------------------ evaluación
+    def _mapa(self, sin_fusibles: bool) -> dict:
+        """pin -> representante de su punto eléctrico. Se guarda mientras no cambie nada que una o separe pines
+        (cables, KCD1, paro, relé, fusibles, finales de carrera): así no se recalcula en cada cambio de un pin."""
+        clave = (sin_fusibles, self.kcd1, self.paro_presionado, self.rele_cerrado, self.fusible_ok["F15"], self.fusible_ok["F10"],
+                 tuple(sorted(self.finales_presionados)))
+        mapa = self._cache_mapa.get(clave)
+        if mapa is None:
+            if len(self._cache_mapa) > 48:
+                self._cache_mapa = {}
+            u = self._uniones(sin_fusibles)
+            mapa = self._cache_mapa[clave] = {k: u.raiz(k) for k in self.nombres}
+        return mapa
+
     def _uniones(self, sin_fusibles: bool = False):
         u = _Uniones()
         for k in self.nombres:
@@ -174,20 +192,20 @@ class Circuito:
         a, b = self.volt(mas), self.volt(menos)
         return (a or 0.0) - (b or 0.0) if a is not None and b is not None else 0.0
 
-    def evaluar(self, dt: float = 0.0):
+    def evaluar(self, dt: float = 0.0, rapido: bool = False):
+        """rapido=True: solo recalcula voltajes (lo que pasa al cambiar un pin); daños y corrientes se revisan en el ciclo de 10 ms."""
         self.avisos = []
         v_bat = self.v_bat_circuito_abierto - self.corrientes["bat"] * self.r_interna
         for _ in range(8):
             # un fusible se quema si, quitándolo, su salida queda unida a la tierra
-            u0 = self._uniones(sin_fusibles=True)
+            m0 = self._mapa(True)
             quemado = False
             for f in ("F15", "F10"):
-                if self.fusible_ok[f] and u0.raiz(f"{f}.out") == u0.raiz("BAT.-"):
+                if self.fusible_ok[f] and m0[f"{f}.out"] == m0["BAT.-"]:
                     self.fusible_ok[f] = False
                     self.avisos.append(f"Se quemó el fusible {f[1:]} A: su salida quedó en corto con la tierra")
                     quemado = True
-            u = self._uniones()
-            self.redes = {k: u.raiz(k) for k in self.nombres}
+            self.redes = self._mapa(False)
             tierra = self.red("BAT.-")
             fijas: dict[str, float] = {tierra: 0.0}
             choque = None
@@ -245,8 +263,9 @@ class Circuito:
             break
         self.esp_vivo = esp_vivo
         self.xl_ok, self.elev_ok = xl_ok, elev_ok
-        self._revisar_danos()
-        self._corrientes(dt, v_bat)
+        if not rapido:
+            self._revisar_danos()
+            self._corrientes(dt, v_bat)
 
     def _nodal(self, fijas: dict[str, float]) -> dict[str, float | None]:
         aristas = []
@@ -292,10 +311,7 @@ class Circuito:
     def _revisar_danos(self):
         if not self.esp_vivo and "ESP32" not in self.danos:
             pass
-        for k, nombre in self.nombres.items():
-            if not k.startswith("E.") or not k[2:].isdigit():
-                continue
-            g = int(k[2:])
+        for k, g in self._gpios:
             v = self.volt(k)
             if v is not None and v > 3.6 and g not in self.salidas_esp32:
                 if v > 6:

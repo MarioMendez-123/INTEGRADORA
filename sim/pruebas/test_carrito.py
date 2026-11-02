@@ -58,3 +58,16 @@ def test_paro_levanta_falla():
     sim.circuito.evaluar()
     with pytest.raises(lib.ErrorCarrito):
         c.girar_a(180)
+
+
+def test_vision_en_la_libreria():
+    import math
+    sim, c = nuevo()
+    c.fuente_vision = sim.vision
+    sim.colocar(-1.2, 0.0, math.pi)
+    assert not c.hay_persona()
+    sim.extra.append(mundo.obstaculo_persona(-2.4, 0.0))
+    assert c.hay_persona(3.0) and c.vision()["obstaculos"]["clases"] == ["person"]
+    c.fuente_vision = None
+    with pytest.raises(lib.ErrorCarrito):
+        c.vision()

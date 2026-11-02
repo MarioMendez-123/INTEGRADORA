@@ -147,8 +147,11 @@ class Carrito:
         self.contactos = []
         for _ in range(3):
             empuje = None
+            caja = self.caja()
             for ob in obstaculos:
-                s = separacion(self.caja(), ob)
+                if (ob.cx - caja.cx) ** 2 + (ob.cy - caja.cy) ** 2 > (0.45 + math.hypot(ob.hx, ob.hy)) ** 2:
+                    continue                               # demasiado lejos para tocarse
+                s = separacion(caja, ob)
                 if s and (empuje is None or s[0] > empuje[0]):
                     empuje = (*s, ob.nombre)
             if not empuje:

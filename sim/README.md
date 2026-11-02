@@ -101,3 +101,24 @@ Para compartir programas con la sesión de Claude de la Jetson se usa git (los p
 Pruebas: `sim/pruebas/test_carrito.py`.
 
 Corrección: los 6 fixtures de la guía ya no aparecen pegados al lado del carrito (estaban en su pose final de la animación).
+
+## Dos modos: solo simulación o simulación + ESP32 real
+
+- **Solo simulación** (por omisión): el ESP32 es virtual; no necesitas ningún aparato.
+- **Simulación + ESP32 real**: conecta el ESP32 por USB y abre el servidor con `--esp32 COM5` (o `--esp32 auto`; `socket://host:puerto`
+  también sirve). Necesita `pyserial` (`pip install pyserial`). En la pestaña *Resumen* cambias de modo. Las órdenes (de programas,
+  joystick y misión) llegan al ESP32 simulado **y** al real; los programas ven las lecturas del real. La página compara posición,
+  rumbo y batería de los dos. Probado con un ESP32 "real" de mentira por socket; **no con un ESP32 de verdad**.
+
+## Ver cable por cable
+
+*Cables*: lista de los cables de la guía con su voltaje en vivo; al tocar uno, un inspector dice qué voltaje lleva, qué otros pines
+están en el mismo punto, para qué sirve y qué pasa si lo cortas. *Señales*: tramas del RS485 decodificadas (TX/RX, CRC, a qué motor
+llegaron), un analizador lógico de DE, TX y los XSHUT, y las direcciones I²C. La corriente por cable es una estimación por grupo, no
+una medición. Las señales de datos (RS485, I²C) muestran "señal de datos" en vez de un voltaje: no se simulan como voltaje.
+
+## Visión
+
+`vision()` en los programas lee `GET /status` (simulador: `http://localhost:8770/status`; carrito real: el agente del Jetson en
+`http://localhost:8001/status`). Mismo formato de obstáculos en los dos. Los ArUco con posición y el detalle por objeto son
+**solo del simulador**: el agente real todavía no los calcula.

@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import random
 
-from . import mundo
+from . import mundo, vision
 from .electrico import Circuito
 from .esp32 import Esp32Virtual
 from .fisica import Carrito, rayo_caja
@@ -69,6 +69,9 @@ class Simulacion:
         self.esp_estaba_vivo = False
         self.eventos: list[str] = []
         self.gancho = None                      # función que se llama cada 1 ms (firmware de referencia)
+
+    def vision(self) -> dict:
+        return vision.deteccion(self.carrito, self.obstaculos(), mundo.ARUCOS)
 
     def obstaculos(self):
         return self.estaciones + self.extra

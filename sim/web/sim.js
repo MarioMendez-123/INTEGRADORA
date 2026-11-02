@@ -12,7 +12,7 @@ ws.onmessage = ev => {
   const m = JSON.parse(ev.data);
   if (m.tipo === 'mundo') { S.mundo = m; pintarCables(); pintarPines(); Modelo.mundo(m); }
   else if (m.tipo === 'estado') { S.estado = m; pintarEstado(m); Modelo.estado(m); Tutorial.revisar(m, S.pistas); }
-  else if (m.tipo === 'error') alert(m.texto);
+  else if (m.tipo === 'error') (window.avisar || alert)(m.texto);
 };
 ws.onclose = () => { $('hud').innerHTML = '<span class="chip mal">Sin conexión con sim/servidor.py: ¿sigue abierto?</span>'; };
 
@@ -88,7 +88,7 @@ function pintarEstado(e) {
   const danos = Object.values(el.danos).map(t => `<li class="mal">${t}</li>`).join('') + el.avisos.map(t => `<li>${t}</li>`).join('');
   const vl = e.sensores, dir = e.esp32.vl53, mm = k => vl[k] >= 8190 ? '—' : vl[k] + ' mm';
   const f15 = el.fusibles.F15 ? f2(el.corrientes.F15, ' A') : '<span class="mal">quemado</span>', f10 = el.fusibles.F10 ? f2(el.corrientes.F10, ' A') : '<span class="mal">quemado</span>';
-  $('p-medidas').innerHTML = `${danos ? `<div class="alerta"><ul>${danos}</ul></div>` : ''}
+  $('p-medidas').innerHTML = `<p class="lede">Lo que mediría un <b>multímetro</b> en cada punto del carrito y lo que reporta cada sensor. Si algo se ve raro aquí, busca su causa en <b>Cables</b>.</p>${danos ? `<div class="alerta"><ul>${danos}</ul></div>` : ''}
     <h2>Voltajes</h2><div class="datos">${dato('batería', f2(v.bateria, ' V'))}${dato('XL4005', f2(v.xl4005, ' V'))}${dato('ruedas', f2(v.elevador, ' V'))}${dato('3V3', f2(v.esp32_3v3, ' V'))}${dato('GPIO 34 paro', f2(v.gpio34, ' V'))}${dato('GPIO 39 bat.', f2(v.gpio39, ' V'))}</div>
     <h2>Corriente</h2><div class="datos">${dato('fusible 15 A', f15)}${dato('fusible 10 A', f10)}${dato('batería usada', (el.ah * 1000).toFixed(1) + ' mAh')}</div>
     <h2>Motores M0601</h2><div class="datos">${mot}</div>
@@ -171,12 +171,16 @@ const Modelo = (() => {
       if (p) forzar(p.group, hay.has(id));
     }
   }
-  function estado(e) { ultimo = e; }
+  let tLlegada = 0;
+  function estado(e) { ultimo = e; tLlegada = performance.now(); }
   function dibujar() {
     requestAnimationFrame(dibujar);
     if (!listo && !preparar()) return;
     if (!ultimo) return;
-    const c = ultimo.carrito, now = performance.now() / 1000;
+    // el servidor manda ~30 estados por segundo; entre uno y otro se avanza la pose con la velocidad, para que el movimiento sea fluido
+    const base = ultimo.carrito, dtE = Math.min(0.12, (performance.now() - tLlegada) / 1000), thM = base.th + base.w * dtE / 2;
+    const c = { ...base, x: base.x + base.v * Math.cos(thM) * dtE, y: base.y + base.v * Math.sin(thM) * dtE, th: base.th + base.w * dtE };
+    const now = performance.now() / 1000;
     if (tPrev) recorrido += c.v * Math.min(0.1, now - tPrev);
     tPrev = now;
     const th = c.th, [cx, cz] = guia(c.x - 0.07 * Math.cos(th), c.y - 0.07 * Math.sin(th));

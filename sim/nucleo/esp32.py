@@ -16,8 +16,33 @@ import random
 from collections import deque
 
 from .electrico import Circuito
+from .m0601 import crc8_maxim
 
 BAUD_M0601 = 115200
+
+
+def decodificar_tx(d: bytes) -> str:
+    """Lo que dice una trama que el ESP32 manda a un motor, en palabras."""
+    if len(d) < 10:
+        return f"trama incompleta ({len(d)} bytes)"
+    ok = "CRC ok" if crc8_maxim(d[:9]) == d[9] else "CRC MAL"
+    if d[1] == 0x64:
+        rpm = int.from_bytes(d[2:4], "big", signed=True)
+        return f"ID {d[0]} · manejar a {rpm} rpm{' con freno' if d[7] == 0xFF else ''} · {ok}"
+    if d[1] == 0xA0:
+        return f"ID {d[0]} · cambiar a modo {d[9]} (2 = velocidad)"
+    if d[1] == 0x74:
+        return f"ID {d[0]} · consultar estado · {ok}"
+    return f"ID {d[0]} · comando 0x{d[1]:02X} · {ok}"
+
+
+def decodificar_rx(d: bytes) -> str:
+    if len(d) < 10:
+        return f"respuesta incompleta ({len(d)} bytes)"
+    ok = "CRC ok" if crc8_maxim(d[:9]) == d[9] else "CRC MAL"
+    rpm = int.from_bytes(d[4:6], "big", signed=True)
+    corr = int.from_bytes(d[2:4], "big") * 8 / 1000
+    return f"ID {d[0]} responde · {rpm} rpm · {corr:.2f} A · error {d[8]} · {ok}"
 
 
 class Esp32Virtual:
@@ -39,6 +64,9 @@ class Esp32Virtual:
         self.i2c = (21, 22)
         self.vl_dir: dict[str, int] = {}                       # dirección actual de cada VL53L0X
         self.vl_vivo: dict[str, bool] = {}
+        self.bus_log: deque = deque(maxlen=80)                  # tramas del bus RS485, ya explicadas
+        self.tx_tiempos: deque = deque(maxlen=600)
+        self.hist_pines: dict[int, deque] = {}
         self.contador = {"tx_bus": 0, "rx_ok": 0, "rx_perdidas": 0}
 
     @property
@@ -50,7 +78,7 @@ class Esp32Virtual:
         self.modos[g] = modo
         if modo != "O":
             self.c.salidas_esp32.pop(g, None)
-        self.c.evaluar()
+        self.c.evaluar(rapido=True)
         self._anotar_re(t)
 
     def digital_write(self, g: int, nivel: int, t: float):
@@ -61,7 +89,8 @@ class Esp32Virtual:
         nivel = 1 if nivel else 0
         if self.c.salidas_esp32.get(g) != nivel:      # solo se recalcula el circuito si el pin cambió
             self.c.salidas_esp32[g] = nivel
-            self.c.evaluar()
+            self.hist_pines.setdefault(g, deque(maxlen=300)).append((t, nivel))
+            self.c.evaluar(rapido=True)
         self._anotar_re(t)
 
     def digital_read(self, g: int) -> int:
@@ -98,6 +127,8 @@ class Esp32Virtual:
     # ---------------------------------------------------------------- UART2 ↔ MAX485 ↔ bus RS485
     def uart2_begin(self, baud: int, rx: int, tx: int):
         self.uart2 = (baud, rx, tx)
+        self.c.salidas_esp32[tx] = 1                 # una UART en reposo mantiene su línea TX en alto
+        self.c.evaluar(rapido=True)
 
     def _camino_tx(self) -> str | None:
         c = self.c
@@ -130,21 +161,27 @@ class Esp32Virtual:
         motivo = self._camino_tx()
         if motivo:
             self.c.avisos.append(motivo)
+            self.bus_log.append({"t": round(t, 3), "dir": "tx", "hex": datos.hex(" "), "texto": motivo, "ok": False})
             return
         self.contador["tx_bus"] += 1
+        self.tx_tiempos.append(t)
         if abs(baud - BAUD_M0601) / BAUD_M0601 > 0.03:
             datos = bytes(self.rng.randint(0, 255) for _ in datos)   # velocidad equivocada: el motor lee basura
+        llegaron = []
         for m, pref in zip(self.motores, ("ML", "MR")):
             directo = self.c.unidos("M.A", f"{pref}.A") and self.c.unidos("M.B", f"{pref}.B")
             cruzado = self.c.unidos("M.A", f"{pref}.B") and self.c.unidos("M.B", f"{pref}.A")
             if not (directo or cruzado):
                 continue
+            llegaron.append(m.id)
             llega = datos if directo else bytes(b ^ 0xFF for b in datos)    # A y B al revés: bits invertidos
             for k in range(0, len(llega) - 9, 10):
                 resp = m.recibir(llega[k:k + 10], fin)
                 if resp is not None:
                     vuelve = resp if directo else bytes(b ^ 0xFF for b in resp)
                     self.rx2.append((fin + 0.0003 + len(resp) * 10 / BAUD_M0601, vuelve, True))
+        quien = "llegó a los motores " + ", ".join(map(str, llegaron)) if llegaron else "no llegó a ningún motor (cable A/B suelto)"
+        self.bus_log.append({"t": round(t, 3), "dir": "tx", "hex": datos.hex(" "), "texto": decodificar_tx(datos) + " · " + quien, "ok": bool(llegaron)})
 
     def uart2_read(self, t: float) -> bytes:
         if not self.vivo or not self.uart2:
@@ -154,7 +191,9 @@ class Esp32Virtual:
             llegada, datos, _ = self.rx2.popleft()
             if self._re_en(llegada) > 0.8 or self._camino_rx():
                 self.contador["rx_perdidas"] += 1          # el MAX485 estaba transmitiendo o no hay camino
+                self.bus_log.append({"t": round(llegada, 3), "dir": "rx", "hex": datos.hex(" "), "texto": "respuesta PERDIDA: " + (self._camino_rx() or "el MAX485 seguía en modo transmitir (DE/RE en alto)"), "ok": False})
                 continue
+            self.bus_log.append({"t": round(llegada, 3), "dir": "rx", "hex": datos.hex(" "), "texto": decodificar_rx(datos), "ok": True})
             baud = self.uart2[0]
             if abs(baud - BAUD_M0601) / BAUD_M0601 > 0.03:
                 datos = bytes(self.rng.randint(0, 255) for _ in datos)
