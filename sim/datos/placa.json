@@ -1,0 +1,1700 @@
+{
+ "fuente": "Guía Armado del carrito Aether rev. 3.17c (window.__aether.PIN y WIRES)",
+ "pines": {
+  "E.3V3": {
+   "name": "ESP32 · 3V3",
+   "where": "fila del lado de los A4988, pin 19 contando desde el USB",
+   "comp": null
+  },
+  "E.EN": {
+   "name": "ESP32 · EN",
+   "where": "fila del lado de los A4988, pin 18 contando desde el USB",
+   "comp": null
+  },
+  "E.36": {
+   "name": "ESP32 · GPIO 36",
+   "where": "fila del lado de los A4988, pin 17 contando desde el USB",
+   "comp": null
+  },
+  "E.39": {
+   "name": "ESP32 · GPIO 39",
+   "where": "fila del lado de los A4988, pin 16 contando desde el USB",
+   "comp": null
+  },
+  "E.34": {
+   "name": "ESP32 · GPIO 34",
+   "where": "fila del lado de los A4988, pin 15 contando desde el USB",
+   "comp": null
+  },
+  "E.35": {
+   "name": "ESP32 · GPIO 35",
+   "where": "fila del lado de los A4988, pin 14 contando desde el USB",
+   "comp": null
+  },
+  "E.32": {
+   "name": "ESP32 · GPIO 32",
+   "where": "fila del lado de los A4988, pin 13 contando desde el USB",
+   "comp": null
+  },
+  "E.33": {
+   "name": "ESP32 · GPIO 33",
+   "where": "fila del lado de los A4988, pin 12 contando desde el USB",
+   "comp": null
+  },
+  "E.25": {
+   "name": "ESP32 · GPIO 25",
+   "where": "fila del lado de los A4988, pin 11 contando desde el USB",
+   "comp": null
+  },
+  "E.26": {
+   "name": "ESP32 · GPIO 26",
+   "where": "fila del lado de los A4988, pin 10 contando desde el USB",
+   "comp": null
+  },
+  "E.27": {
+   "name": "ESP32 · GPIO 27",
+   "where": "fila del lado de los A4988, pin 9 contando desde el USB",
+   "comp": null
+  },
+  "E.14": {
+   "name": "ESP32 · GPIO 14",
+   "where": "fila del lado de los A4988, pin 8 contando desde el USB",
+   "comp": null
+  },
+  "E.12": {
+   "name": "ESP32 · GPIO 12",
+   "where": "fila del lado de los A4988, pin 7 contando desde el USB",
+   "comp": null
+  },
+  "E.GNDL": {
+   "name": "ESP32 · GND",
+   "where": "fila del lado de los A4988, pin 6 contando desde el USB",
+   "comp": null
+  },
+  "E.13": {
+   "name": "ESP32 · GPIO 13",
+   "where": "fila del lado de los A4988, pin 5 contando desde el USB",
+   "comp": null
+  },
+  "E.SD2": {
+   "name": "ESP32 · SD2",
+   "where": "fila del lado de los A4988, pin 4 contando desde el USB",
+   "comp": null
+  },
+  "E.SD3": {
+   "name": "ESP32 · SD3",
+   "where": "fila del lado de los A4988, pin 3 contando desde el USB",
+   "comp": null
+  },
+  "E.CMD": {
+   "name": "ESP32 · CMD",
+   "where": "fila del lado de los A4988, pin 2 contando desde el USB",
+   "comp": null
+  },
+  "E.5V": {
+   "name": "ESP32 · 5V",
+   "where": "fila del lado de los A4988, pin 1 contando desde el USB",
+   "comp": null
+  },
+  "E.GND1": {
+   "name": "ESP32 · GND",
+   "where": "fila del lado del MAX485, pin 19 contando desde el USB",
+   "comp": null
+  },
+  "E.23": {
+   "name": "ESP32 · GPIO 23",
+   "where": "fila del lado del MAX485, pin 18 contando desde el USB",
+   "comp": null
+  },
+  "E.22": {
+   "name": "ESP32 · GPIO 22",
+   "where": "fila del lado del MAX485, pin 17 contando desde el USB",
+   "comp": null
+  },
+  "E.TX": {
+   "name": "ESP32 · TX",
+   "where": "fila del lado del MAX485, pin 16 contando desde el USB",
+   "comp": null
+  },
+  "E.RX": {
+   "name": "ESP32 · RX",
+   "where": "fila del lado del MAX485, pin 15 contando desde el USB",
+   "comp": null
+  },
+  "E.21": {
+   "name": "ESP32 · GPIO 21",
+   "where": "fila del lado del MAX485, pin 14 contando desde el USB",
+   "comp": null
+  },
+  "E.GND2": {
+   "name": "ESP32 · GND",
+   "where": "fila del lado del MAX485, pin 13 contando desde el USB",
+   "comp": null
+  },
+  "E.19": {
+   "name": "ESP32 · GPIO 19",
+   "where": "fila del lado del MAX485, pin 12 contando desde el USB",
+   "comp": null
+  },
+  "E.18": {
+   "name": "ESP32 · GPIO 18",
+   "where": "fila del lado del MAX485, pin 11 contando desde el USB",
+   "comp": null
+  },
+  "E.5": {
+   "name": "ESP32 · GPIO 5",
+   "where": "fila del lado del MAX485, pin 10 contando desde el USB",
+   "comp": null
+  },
+  "E.17": {
+   "name": "ESP32 · GPIO 17",
+   "where": "fila del lado del MAX485, pin 9 contando desde el USB",
+   "comp": null
+  },
+  "E.16": {
+   "name": "ESP32 · GPIO 16",
+   "where": "fila del lado del MAX485, pin 8 contando desde el USB",
+   "comp": null
+  },
+  "E.4": {
+   "name": "ESP32 · GPIO 4",
+   "where": "fila del lado del MAX485, pin 7 contando desde el USB",
+   "comp": null
+  },
+  "E.0": {
+   "name": "ESP32 · GPIO 0",
+   "where": "fila del lado del MAX485, pin 6 contando desde el USB",
+   "comp": null
+  },
+  "E.2": {
+   "name": "ESP32 · GPIO 2",
+   "where": "fila del lado del MAX485, pin 5 contando desde el USB",
+   "comp": null
+  },
+  "E.15": {
+   "name": "ESP32 · GPIO 15",
+   "where": "fila del lado del MAX485, pin 4 contando desde el USB",
+   "comp": null
+  },
+  "E.SD1": {
+   "name": "ESP32 · SD1",
+   "where": "fila del lado del MAX485, pin 3 contando desde el USB",
+   "comp": null
+  },
+  "E.SD0": {
+   "name": "ESP32 · SD0",
+   "where": "fila del lado del MAX485, pin 2 contando desde el USB",
+   "comp": null
+  },
+  "E.CLK": {
+   "name": "ESP32 · CLK",
+   "where": "fila del lado del MAX485, pin 1 contando desde el USB",
+   "comp": null
+  },
+  "A1.VMOT": {
+   "name": "A4988 #1 · VMOT",
+   "where": "fila de potencia (VMOT … GND), pin 1 desde VMOT",
+   "comp": null
+  },
+  "A1.PGND": {
+   "name": "A4988 #1 · GND (junto a VMOT)",
+   "where": "fila de potencia (VMOT … GND), pin 2 desde VMOT",
+   "comp": null
+  },
+  "A1.2B": {
+   "name": "A4988 #1 · 2B",
+   "where": "fila de potencia (VMOT … GND), pin 3 desde VMOT",
+   "comp": null
+  },
+  "A1.2A": {
+   "name": "A4988 #1 · 2A",
+   "where": "fila de potencia (VMOT … GND), pin 4 desde VMOT",
+   "comp": null
+  },
+  "A1.1A": {
+   "name": "A4988 #1 · 1A",
+   "where": "fila de potencia (VMOT … GND), pin 5 desde VMOT",
+   "comp": null
+  },
+  "A1.1B": {
+   "name": "A4988 #1 · 1B",
+   "where": "fila de potencia (VMOT … GND), pin 6 desde VMOT",
+   "comp": null
+  },
+  "A1.VDD": {
+   "name": "A4988 #1 · VDD",
+   "where": "fila de potencia (VMOT … GND), pin 7 desde VMOT",
+   "comp": null
+  },
+  "A1.LGND": {
+   "name": "A4988 #1 · GND (junto a VDD)",
+   "where": "fila de potencia (VMOT … GND), pin 8 desde VMOT",
+   "comp": null
+  },
+  "A1.EN": {
+   "name": "A4988 #1 · ENABLE",
+   "where": "fila de lógica (ENABLE … DIR), pin 1 desde ENABLE",
+   "comp": null
+  },
+  "A1.MS1": {
+   "name": "A4988 #1 · MS1",
+   "where": "fila de lógica (ENABLE … DIR), pin 2 desde ENABLE",
+   "comp": null
+  },
+  "A1.MS2": {
+   "name": "A4988 #1 · MS2",
+   "where": "fila de lógica (ENABLE … DIR), pin 3 desde ENABLE",
+   "comp": null
+  },
+  "A1.MS3": {
+   "name": "A4988 #1 · MS3",
+   "where": "fila de lógica (ENABLE … DIR), pin 4 desde ENABLE",
+   "comp": null
+  },
+  "A1.RST": {
+   "name": "A4988 #1 · RESET",
+   "where": "fila de lógica (ENABLE … DIR), pin 5 desde ENABLE",
+   "comp": null
+  },
+  "A1.SLP": {
+   "name": "A4988 #1 · SLEEP",
+   "where": "fila de lógica (ENABLE … DIR), pin 6 desde ENABLE",
+   "comp": null
+  },
+  "A1.STEP": {
+   "name": "A4988 #1 · STEP",
+   "where": "fila de lógica (ENABLE … DIR), pin 7 desde ENABLE",
+   "comp": null
+  },
+  "A1.DIR": {
+   "name": "A4988 #1 · DIR",
+   "where": "fila de lógica (ENABLE … DIR), pin 8 desde ENABLE",
+   "comp": null
+  },
+  "C1.+": {
+   "name": "100 µF #1 · pata + (larga)",
+   "where": "pata larga, del lado contrario a la franja",
+   "comp": null
+  },
+  "C1.-": {
+   "name": "100 µF #1 · pata − (franja)",
+   "where": "pata corta, del lado de la franja",
+   "comp": null
+  },
+  "J7.2B": {
+   "name": "J7 · 2B",
+   "where": "bornera del motor del elevador izquierdo, terminal 1 (2B)",
+   "comp": null
+  },
+  "J7.2A": {
+   "name": "J7 · 2A",
+   "where": "bornera del motor del elevador izquierdo, terminal 2 (2A)",
+   "comp": null
+  },
+  "J7.1A": {
+   "name": "J7 · 1A",
+   "where": "bornera del motor del elevador izquierdo, terminal 3 (1A)",
+   "comp": null
+  },
+  "J7.1B": {
+   "name": "J7 · 1B",
+   "where": "bornera del motor del elevador izquierdo, terminal 4 (1B)",
+   "comp": null
+  },
+  "A2.VMOT": {
+   "name": "A4988 #2 · VMOT",
+   "where": "fila de potencia (VMOT … GND), pin 1 desde VMOT",
+   "comp": null
+  },
+  "A2.PGND": {
+   "name": "A4988 #2 · GND (junto a VMOT)",
+   "where": "fila de potencia (VMOT … GND), pin 2 desde VMOT",
+   "comp": null
+  },
+  "A2.2B": {
+   "name": "A4988 #2 · 2B",
+   "where": "fila de potencia (VMOT … GND), pin 3 desde VMOT",
+   "comp": null
+  },
+  "A2.2A": {
+   "name": "A4988 #2 · 2A",
+   "where": "fila de potencia (VMOT … GND), pin 4 desde VMOT",
+   "comp": null
+  },
+  "A2.1A": {
+   "name": "A4988 #2 · 1A",
+   "where": "fila de potencia (VMOT … GND), pin 5 desde VMOT",
+   "comp": null
+  },
+  "A2.1B": {
+   "name": "A4988 #2 · 1B",
+   "where": "fila de potencia (VMOT … GND), pin 6 desde VMOT",
+   "comp": null
+  },
+  "A2.VDD": {
+   "name": "A4988 #2 · VDD",
+   "where": "fila de potencia (VMOT … GND), pin 7 desde VMOT",
+   "comp": null
+  },
+  "A2.LGND": {
+   "name": "A4988 #2 · GND (junto a VDD)",
+   "where": "fila de potencia (VMOT … GND), pin 8 desde VMOT",
+   "comp": null
+  },
+  "A2.EN": {
+   "name": "A4988 #2 · ENABLE",
+   "where": "fila de lógica (ENABLE … DIR), pin 1 desde ENABLE",
+   "comp": null
+  },
+  "A2.MS1": {
+   "name": "A4988 #2 · MS1",
+   "where": "fila de lógica (ENABLE … DIR), pin 2 desde ENABLE",
+   "comp": null
+  },
+  "A2.MS2": {
+   "name": "A4988 #2 · MS2",
+   "where": "fila de lógica (ENABLE … DIR), pin 3 desde ENABLE",
+   "comp": null
+  },
+  "A2.MS3": {
+   "name": "A4988 #2 · MS3",
+   "where": "fila de lógica (ENABLE … DIR), pin 4 desde ENABLE",
+   "comp": null
+  },
+  "A2.RST": {
+   "name": "A4988 #2 · RESET",
+   "where": "fila de lógica (ENABLE … DIR), pin 5 desde ENABLE",
+   "comp": null
+  },
+  "A2.SLP": {
+   "name": "A4988 #2 · SLEEP",
+   "where": "fila de lógica (ENABLE … DIR), pin 6 desde ENABLE",
+   "comp": null
+  },
+  "A2.STEP": {
+   "name": "A4988 #2 · STEP",
+   "where": "fila de lógica (ENABLE … DIR), pin 7 desde ENABLE",
+   "comp": null
+  },
+  "A2.DIR": {
+   "name": "A4988 #2 · DIR",
+   "where": "fila de lógica (ENABLE … DIR), pin 8 desde ENABLE",
+   "comp": null
+  },
+  "C2.+": {
+   "name": "100 µF #2 · pata + (larga)",
+   "where": "pata larga, del lado contrario a la franja",
+   "comp": null
+  },
+  "C2.-": {
+   "name": "100 µF #2 · pata − (franja)",
+   "where": "pata corta, del lado de la franja",
+   "comp": null
+  },
+  "J8.2B": {
+   "name": "J8 · 2B",
+   "where": "bornera del motor del elevador derecho, terminal 1 (2B)",
+   "comp": null
+  },
+  "J8.2A": {
+   "name": "J8 · 2A",
+   "where": "bornera del motor del elevador derecho, terminal 2 (2A)",
+   "comp": null
+  },
+  "J8.1A": {
+   "name": "J8 · 1A",
+   "where": "bornera del motor del elevador derecho, terminal 3 (1A)",
+   "comp": null
+  },
+  "J8.1B": {
+   "name": "J8 · 1B",
+   "where": "bornera del motor del elevador derecho, terminal 4 (1B)",
+   "comp": null
+  },
+  "A3.VMOT": {
+   "name": "A4988 #3 · VMOT",
+   "where": "fila de potencia (VMOT … GND), pin 1 desde VMOT",
+   "comp": null
+  },
+  "A3.PGND": {
+   "name": "A4988 #3 · GND (junto a VMOT)",
+   "where": "fila de potencia (VMOT … GND), pin 2 desde VMOT",
+   "comp": null
+  },
+  "A3.2B": {
+   "name": "A4988 #3 · 2B",
+   "where": "fila de potencia (VMOT … GND), pin 3 desde VMOT",
+   "comp": null
+  },
+  "A3.2A": {
+   "name": "A4988 #3 · 2A",
+   "where": "fila de potencia (VMOT … GND), pin 4 desde VMOT",
+   "comp": null
+  },
+  "A3.1A": {
+   "name": "A4988 #3 · 1A",
+   "where": "fila de potencia (VMOT … GND), pin 5 desde VMOT",
+   "comp": null
+  },
+  "A3.1B": {
+   "name": "A4988 #3 · 1B",
+   "where": "fila de potencia (VMOT … GND), pin 6 desde VMOT",
+   "comp": null
+  },
+  "A3.VDD": {
+   "name": "A4988 #3 · VDD",
+   "where": "fila de potencia (VMOT … GND), pin 7 desde VMOT",
+   "comp": null
+  },
+  "A3.LGND": {
+   "name": "A4988 #3 · GND (junto a VDD)",
+   "where": "fila de potencia (VMOT … GND), pin 8 desde VMOT",
+   "comp": null
+  },
+  "A3.EN": {
+   "name": "A4988 #3 · ENABLE",
+   "where": "fila de lógica (ENABLE … DIR), pin 1 desde ENABLE",
+   "comp": null
+  },
+  "A3.MS1": {
+   "name": "A4988 #3 · MS1",
+   "where": "fila de lógica (ENABLE … DIR), pin 2 desde ENABLE",
+   "comp": null
+  },
+  "A3.MS2": {
+   "name": "A4988 #3 · MS2",
+   "where": "fila de lógica (ENABLE … DIR), pin 3 desde ENABLE",
+   "comp": null
+  },
+  "A3.MS3": {
+   "name": "A4988 #3 · MS3",
+   "where": "fila de lógica (ENABLE … DIR), pin 4 desde ENABLE",
+   "comp": null
+  },
+  "A3.RST": {
+   "name": "A4988 #3 · RESET",
+   "where": "fila de lógica (ENABLE … DIR), pin 5 desde ENABLE",
+   "comp": null
+  },
+  "A3.SLP": {
+   "name": "A4988 #3 · SLEEP",
+   "where": "fila de lógica (ENABLE … DIR), pin 6 desde ENABLE",
+   "comp": null
+  },
+  "A3.STEP": {
+   "name": "A4988 #3 · STEP",
+   "where": "fila de lógica (ENABLE … DIR), pin 7 desde ENABLE",
+   "comp": null
+  },
+  "A3.DIR": {
+   "name": "A4988 #3 · DIR",
+   "where": "fila de lógica (ENABLE … DIR), pin 8 desde ENABLE",
+   "comp": null
+  },
+  "C3.+": {
+   "name": "100 µF #3 · pata + (larga)",
+   "where": "pata larga, del lado contrario a la franja",
+   "comp": null
+  },
+  "C3.-": {
+   "name": "100 µF #3 · pata − (franja)",
+   "where": "pata corta, del lado de la franja",
+   "comp": null
+  },
+  "J9.2B": {
+   "name": "J9 · 2B",
+   "where": "bornera del motor del empujador, terminal 1 (2B)",
+   "comp": null
+  },
+  "J9.2A": {
+   "name": "J9 · 2A",
+   "where": "bornera del motor del empujador, terminal 2 (2A)",
+   "comp": null
+  },
+  "J9.1A": {
+   "name": "J9 · 1A",
+   "where": "bornera del motor del empujador, terminal 3 (1A)",
+   "comp": null
+  },
+  "J9.1B": {
+   "name": "J9 · 1B",
+   "where": "bornera del motor del empujador, terminal 4 (1B)",
+   "comp": null
+  },
+  "L.LV1": {
+   "name": "Convertidor · LV1",
+   "where": "fila LV (lado de 3.3 V)",
+   "comp": null
+  },
+  "L.LV2": {
+   "name": "Convertidor · LV2",
+   "where": "fila LV (lado de 3.3 V)",
+   "comp": null
+  },
+  "L.LV": {
+   "name": "Convertidor · LV",
+   "where": "fila LV (lado de 3.3 V)",
+   "comp": null
+  },
+  "L.GNDL": {
+   "name": "Convertidor · GND",
+   "where": "fila LV (lado de 3.3 V)",
+   "comp": null
+  },
+  "L.LV3": {
+   "name": "Convertidor · LV3",
+   "where": "fila LV (lado de 3.3 V)",
+   "comp": null
+  },
+  "L.LV4": {
+   "name": "Convertidor · LV4",
+   "where": "fila LV (lado de 3.3 V)",
+   "comp": null
+  },
+  "L.HV1": {
+   "name": "Convertidor · HV1",
+   "where": "fila HV (lado de 5 V)",
+   "comp": null
+  },
+  "L.HV2": {
+   "name": "Convertidor · HV2",
+   "where": "fila HV (lado de 5 V)",
+   "comp": null
+  },
+  "L.HV": {
+   "name": "Convertidor · HV",
+   "where": "fila HV (lado de 5 V)",
+   "comp": null
+  },
+  "L.GNDH": {
+   "name": "Convertidor · GND",
+   "where": "fila HV (lado de 5 V)",
+   "comp": null
+  },
+  "L.HV3": {
+   "name": "Convertidor · HV3",
+   "where": "fila HV (lado de 5 V)",
+   "comp": null
+  },
+  "L.HV4": {
+   "name": "Convertidor · HV4",
+   "where": "fila HV (lado de 5 V)",
+   "comp": null
+  },
+  "M.RO": {
+   "name": "MAX485 · RO",
+   "where": "header de señales (RO RE DE DI)",
+   "comp": null
+  },
+  "M.RE": {
+   "name": "MAX485 · RE",
+   "where": "header de señales (RO RE DE DI)",
+   "comp": null
+  },
+  "M.DE": {
+   "name": "MAX485 · DE",
+   "where": "header de señales (RO RE DE DI)",
+   "comp": null
+  },
+  "M.DI": {
+   "name": "MAX485 · DI",
+   "where": "header de señales (RO RE DE DI)",
+   "comp": null
+  },
+  "M.VCC": {
+   "name": "MAX485 · VCC",
+   "where": "header del bus (VCC B A GND)",
+   "comp": null
+  },
+  "M.B": {
+   "name": "MAX485 · B",
+   "where": "header del bus (VCC B A GND)",
+   "comp": null
+  },
+  "M.A": {
+   "name": "MAX485 · A",
+   "where": "header del bus (VCC B A GND)",
+   "comp": null
+  },
+  "M.GND": {
+   "name": "MAX485 · GND",
+   "where": "header del bus (VCC B A GND)",
+   "comp": null
+  },
+  "B.PS0": {
+   "name": "BNO055 · PS0",
+   "where": "fila VCC · GND · BOOT · PS1 · PS0 (la del LED de encendido)",
+   "comp": null
+  },
+  "B.PS1": {
+   "name": "BNO055 · PS1",
+   "where": "fila VCC · GND · BOOT · PS1 · PS0 (la del LED de encendido)",
+   "comp": null
+  },
+  "B.BOOT": {
+   "name": "BNO055 · BOOT",
+   "where": "fila VCC · GND · BOOT · PS1 · PS0 (la del LED de encendido)",
+   "comp": null
+  },
+  "B.GND": {
+   "name": "BNO055 · GND",
+   "where": "fila VCC · GND · BOOT · PS1 · PS0 (la del LED de encendido)",
+   "comp": null
+  },
+  "B.VIN": {
+   "name": "BNO055 · VCC",
+   "where": "fila VCC · GND · BOOT · PS1 · PS0 (la del LED de encendido)",
+   "comp": null
+  },
+  "B.SDA": {
+   "name": "BNO055 · SDA",
+   "where": "fila BL-IND · RST · INT · SCL · SDA",
+   "comp": null
+  },
+  "B.SCL": {
+   "name": "BNO055 · SCL",
+   "where": "fila BL-IND · RST · INT · SCL · SDA",
+   "comp": null
+  },
+  "B.INT": {
+   "name": "BNO055 · INT",
+   "where": "fila BL-IND · RST · INT · SCL · SDA",
+   "comp": null
+  },
+  "B.RST": {
+   "name": "BNO055 · RST",
+   "where": "fila BL-IND · RST · INT · SCL · SDA",
+   "comp": null
+  },
+  "B.BLIND": {
+   "name": "BNO055 · BL-IND",
+   "where": "fila BL-IND · RST · INT · SCL · SDA",
+   "comp": null
+  },
+  "REN.a": {
+   "name": "R 10 kΩ · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "REN.b": {
+   "name": "R 10 kΩ · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "R1.a": {
+   "name": "R 100 kΩ · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "R1.b": {
+   "name": "R 100 kΩ · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "R2.a": {
+   "name": "R 20 kΩ · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "R2.b": {
+   "name": "R 20 kΩ · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "CD.a": {
+   "name": "C 100 nF · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "CD.b": {
+   "name": "C 100 nF · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "R5.a": {
+   "name": "R 10 kΩ (FC4) · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "R5.b": {
+   "name": "R 10 kΩ (FC4) · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "R3.a": {
+   "name": "R 100 kΩ (paro) · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "R3.b": {
+   "name": "R 100 kΩ (paro) · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "R4.a": {
+   "name": "R 20 kΩ (paro) · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "R4.b": {
+   "name": "R 20 kΩ (paro) · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "C2.a": {
+   "name": "C 100 nF (paro) · pata 1",
+   "where": "una pata",
+   "comp": null
+  },
+  "C2.b": {
+   "name": "C 100 nF (paro) · pata 2",
+   "where": "la otra pata",
+   "comp": null
+  },
+  "J1.+12V": {
+   "name": "J1 · +12V",
+   "where": "J1 · 12 V de motores, terminal 1",
+   "comp": null
+  },
+  "J1.GND": {
+   "name": "J1 · GND",
+   "where": "J1 · 12 V de motores, terminal 2",
+   "comp": null
+  },
+  "J2.+5V": {
+   "name": "J2 · +5V",
+   "where": "J2 · lógica (5 V) y medición, terminal 1",
+   "comp": null
+  },
+  "J2.GND": {
+   "name": "J2 · GND",
+   "where": "J2 · lógica (5 V) y medición, terminal 2",
+   "comp": null
+  },
+  "J2.+12V AUX": {
+   "name": "J2 · +12V AUX",
+   "where": "J2 · lógica (5 V) y medición, terminal 3",
+   "comp": null
+  },
+  "J5.3V3": {
+   "name": "J5 · 3V3",
+   "where": "J5 · I²C de los VL53L0X, terminal 1",
+   "comp": null
+  },
+  "J5.GND": {
+   "name": "J5 · GND",
+   "where": "J5 · I²C de los VL53L0X, terminal 2",
+   "comp": null
+  },
+  "J5.SDA": {
+   "name": "J5 · SDA",
+   "where": "J5 · I²C de los VL53L0X, terminal 3",
+   "comp": null
+  },
+  "J5.SCL": {
+   "name": "J5 · SCL",
+   "where": "J5 · I²C de los VL53L0X, terminal 4",
+   "comp": null
+  },
+  "J4.FC1": {
+   "name": "J4 · FC1",
+   "where": "J4 · finales de carrera, terminal 1",
+   "comp": null
+  },
+  "J4.GND1": {
+   "name": "J4 · GND1",
+   "where": "J4 · finales de carrera, terminal 2",
+   "comp": null
+  },
+  "J4.FC2": {
+   "name": "J4 · FC2",
+   "where": "J4 · finales de carrera, terminal 3",
+   "comp": null
+  },
+  "J4.GND2": {
+   "name": "J4 · GND2",
+   "where": "J4 · finales de carrera, terminal 4",
+   "comp": null
+  },
+  "J4.FC3": {
+   "name": "J4 · FC3",
+   "where": "J4 · finales de carrera, terminal 5",
+   "comp": null
+  },
+  "J4.GND3": {
+   "name": "J4 · GND3",
+   "where": "J4 · finales de carrera, terminal 6",
+   "comp": null
+  },
+  "J3.A": {
+   "name": "J3 · A",
+   "where": "J3 · RS485 a los M0601, terminal 1",
+   "comp": null
+  },
+  "J3.B": {
+   "name": "J3 · B",
+   "where": "J3 · RS485 a los M0601, terminal 2",
+   "comp": null
+  },
+  "J3.GND": {
+   "name": "J3 · GND",
+   "where": "J3 · RS485 a los M0601, terminal 3",
+   "comp": null
+  },
+  "J6.X0": {
+   "name": "J6 · X0",
+   "where": "J6 · XSHUT de 3 VL53L0X, terminal 1",
+   "comp": null
+  },
+  "J6.X1": {
+   "name": "J6 · X1",
+   "where": "J6 · XSHUT de 3 VL53L0X, terminal 2",
+   "comp": null
+  },
+  "J6.X2": {
+   "name": "J6 · X2",
+   "where": "J6 · XSHUT de 3 VL53L0X, terminal 3",
+   "comp": null
+  },
+  "J13.FC4": {
+   "name": "J13 · FC4",
+   "where": "J13 · final superior y lectura del paro, terminal 1",
+   "comp": null
+  },
+  "J13.GND4": {
+   "name": "J13 · GND4",
+   "where": "J13 · final superior y lectura del paro, terminal 2",
+   "comp": null
+  },
+  "J13.PARO": {
+   "name": "J13 · PARO",
+   "where": "J13 · final superior y lectura del paro, terminal 3",
+   "comp": null
+  },
+  "J11.GND": {
+   "name": "J11 · GND",
+   "where": "header macho del servo, pin 1 (café del servo)",
+   "comp": null
+  },
+  "J11.+5V": {
+   "name": "J11 · +5V",
+   "where": "header macho del servo, pin 2 (rojo del servo)",
+   "comp": null
+  },
+  "J11.SIG": {
+   "name": "J11 · SIG",
+   "where": "header macho del servo, pin 3 (naranja del servo)",
+   "comp": null
+  }
+ },
+ "cables": [
+  {
+   "id": "w001",
+   "n": 1,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "J1.+12V",
+   "to": "A3.VMOT",
+   "mat": "cRed"
+  },
+  {
+   "id": "w002",
+   "n": 2,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "A3.VMOT",
+   "to": "A2.VMOT",
+   "mat": "cRed"
+  },
+  {
+   "id": "w003",
+   "n": 3,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "A2.VMOT",
+   "to": "A1.VMOT",
+   "mat": "cRed"
+  },
+  {
+   "id": "w004",
+   "n": 4,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "J1.GND",
+   "to": "A3.PGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w005",
+   "n": 5,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "A3.PGND",
+   "to": "A2.PGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w006",
+   "n": 6,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "A2.PGND",
+   "to": "A1.PGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w007",
+   "n": 7,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "C1.+",
+   "to": "A1.VMOT",
+   "mat": "cRed"
+  },
+  {
+   "id": "w008",
+   "n": 8,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "C1.-",
+   "to": "A1.PGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w009",
+   "n": 9,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "C2.+",
+   "to": "A2.VMOT",
+   "mat": "cRed"
+  },
+  {
+   "id": "w010",
+   "n": 10,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "C2.-",
+   "to": "A2.PGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w011",
+   "n": 11,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "C3.+",
+   "to": "A3.VMOT",
+   "mat": "cRed"
+  },
+  {
+   "id": "w012",
+   "n": 12,
+   "group": "Potencia de los drivers (12 V)",
+   "from": "C3.-",
+   "to": "A3.PGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w013",
+   "n": 13,
+   "group": "Lógica de los drivers (3.3 V y GND)",
+   "from": "E.3V3",
+   "to": "A3.VDD",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w014",
+   "n": 14,
+   "group": "Lógica de los drivers (3.3 V y GND)",
+   "from": "A3.VDD",
+   "to": "A2.VDD",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w015",
+   "n": 15,
+   "group": "Lógica de los drivers (3.3 V y GND)",
+   "from": "A2.VDD",
+   "to": "A1.VDD",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w016",
+   "n": 16,
+   "group": "Lógica de los drivers (3.3 V y GND)",
+   "from": "E.GNDL",
+   "to": "A1.LGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w017",
+   "n": 17,
+   "group": "Lógica de los drivers (3.3 V y GND)",
+   "from": "A1.LGND",
+   "to": "A2.LGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w018",
+   "n": 18,
+   "group": "Lógica de los drivers (3.3 V y GND)",
+   "from": "A2.LGND",
+   "to": "A3.LGND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w019",
+   "n": 19,
+   "group": "Configuración de cada driver",
+   "from": "A1.MS1",
+   "to": "A1.MS3",
+   "mat": "cTin"
+  },
+  {
+   "id": "w020",
+   "n": 20,
+   "group": "Configuración de cada driver",
+   "from": "A1.MS3",
+   "to": "A1.VDD",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w021",
+   "n": 21,
+   "group": "Configuración de cada driver",
+   "from": "A1.RST",
+   "to": "A1.SLP",
+   "mat": "cTin"
+  },
+  {
+   "id": "w022",
+   "n": 22,
+   "group": "Configuración de cada driver",
+   "from": "A2.MS1",
+   "to": "A2.MS3",
+   "mat": "cTin"
+  },
+  {
+   "id": "w023",
+   "n": 23,
+   "group": "Configuración de cada driver",
+   "from": "A2.MS3",
+   "to": "A2.VDD",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w024",
+   "n": 24,
+   "group": "Configuración de cada driver",
+   "from": "A2.RST",
+   "to": "A2.SLP",
+   "mat": "cTin"
+  },
+  {
+   "id": "w025",
+   "n": 25,
+   "group": "Configuración de cada driver",
+   "from": "A3.MS1",
+   "to": "A3.MS3",
+   "mat": "cTin"
+  },
+  {
+   "id": "w026",
+   "n": 26,
+   "group": "Configuración de cada driver",
+   "from": "A3.MS3",
+   "to": "A3.VDD",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w027",
+   "n": 27,
+   "group": "Configuración de cada driver",
+   "from": "A3.RST",
+   "to": "A3.SLP",
+   "mat": "cTin"
+  },
+  {
+   "id": "w028",
+   "n": 28,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "E.25",
+   "to": "A1.STEP",
+   "mat": "cGrn"
+  },
+  {
+   "id": "w029",
+   "n": 29,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "A1.STEP",
+   "to": "A2.STEP",
+   "mat": "cGrn"
+  },
+  {
+   "id": "w030",
+   "n": 30,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "E.26",
+   "to": "A1.DIR",
+   "mat": "cBlu"
+  },
+  {
+   "id": "w031",
+   "n": 31,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "A1.DIR",
+   "to": "A2.DIR",
+   "mat": "cBlu"
+  },
+  {
+   "id": "w032",
+   "n": 32,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "E.27",
+   "to": "A3.STEP",
+   "mat": "cGrn"
+  },
+  {
+   "id": "w033",
+   "n": 33,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "E.14",
+   "to": "A3.DIR",
+   "mat": "cBlu"
+  },
+  {
+   "id": "w034",
+   "n": 34,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "E.13",
+   "to": "A1.EN",
+   "mat": "cBrn"
+  },
+  {
+   "id": "w035",
+   "n": 35,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "A1.EN",
+   "to": "A2.EN",
+   "mat": "cBrn"
+  },
+  {
+   "id": "w036",
+   "n": 36,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "A2.EN",
+   "to": "A3.EN",
+   "mat": "cBrn"
+  },
+  {
+   "id": "w037",
+   "n": 37,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "A3.EN",
+   "to": "REN.a",
+   "mat": "cBrn"
+  },
+  {
+   "id": "w038",
+   "n": 38,
+   "group": "Señales STEP, DIR y ENABLE",
+   "from": "REN.b",
+   "to": "E.3V3",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w039",
+   "n": 39,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A1.1A",
+   "to": "J7.1A",
+   "mat": "cGry"
+  },
+  {
+   "id": "w040",
+   "n": 40,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A1.1B",
+   "to": "J7.1B",
+   "mat": "cGry"
+  },
+  {
+   "id": "w041",
+   "n": 41,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A1.2A",
+   "to": "J7.2A",
+   "mat": "cTeal"
+  },
+  {
+   "id": "w042",
+   "n": 42,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A1.2B",
+   "to": "J7.2B",
+   "mat": "cTeal"
+  },
+  {
+   "id": "w043",
+   "n": 43,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A2.1A",
+   "to": "J8.1A",
+   "mat": "cGry"
+  },
+  {
+   "id": "w044",
+   "n": 44,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A2.1B",
+   "to": "J8.1B",
+   "mat": "cGry"
+  },
+  {
+   "id": "w045",
+   "n": 45,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A2.2A",
+   "to": "J8.2A",
+   "mat": "cTeal"
+  },
+  {
+   "id": "w046",
+   "n": 46,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A2.2B",
+   "to": "J8.2B",
+   "mat": "cTeal"
+  },
+  {
+   "id": "w047",
+   "n": 47,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A3.1A",
+   "to": "J9.1A",
+   "mat": "cGry"
+  },
+  {
+   "id": "w048",
+   "n": 48,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A3.1B",
+   "to": "J9.1B",
+   "mat": "cGry"
+  },
+  {
+   "id": "w049",
+   "n": 49,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A3.2A",
+   "to": "J9.2A",
+   "mat": "cTeal"
+  },
+  {
+   "id": "w050",
+   "n": 50,
+   "group": "Bobinas de los motores a sus borneras",
+   "from": "A3.2B",
+   "to": "J9.2B",
+   "mat": "cTeal"
+  },
+  {
+   "id": "w051",
+   "n": 51,
+   "group": "Alimentación de 5 V",
+   "from": "J2.+5V",
+   "to": "E.5V",
+   "mat": "cOra"
+  },
+  {
+   "id": "w052",
+   "n": 52,
+   "group": "Alimentación de 5 V",
+   "from": "J2.+5V",
+   "to": "L.HV",
+   "mat": "cOra"
+  },
+  {
+   "id": "w053",
+   "n": 53,
+   "group": "Alimentación de 5 V",
+   "from": "L.HV",
+   "to": "M.VCC",
+   "mat": "cOra"
+  },
+  {
+   "id": "w054",
+   "n": 54,
+   "group": "Alimentación de 5 V",
+   "from": "J2.GND",
+   "to": "E.GND2",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w055",
+   "n": 55,
+   "group": "Alimentación de 5 V",
+   "from": "J2.+5V",
+   "to": "J11.+5V",
+   "mat": "cOra"
+  },
+  {
+   "id": "w056",
+   "n": 56,
+   "group": "Alimentación de 5 V",
+   "from": "J2.GND",
+   "to": "J11.GND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w057",
+   "n": 57,
+   "group": "3.3 V y GND de los módulos",
+   "from": "E.3V3",
+   "to": "L.LV",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w058",
+   "n": 58,
+   "group": "3.3 V y GND de los módulos",
+   "from": "E.GND2",
+   "to": "L.GNDL",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w059",
+   "n": 59,
+   "group": "3.3 V y GND de los módulos",
+   "from": "L.GNDL",
+   "to": "M.GND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w060",
+   "n": 60,
+   "group": "3.3 V y GND de los módulos",
+   "from": "M.GND",
+   "to": "J3.GND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w061",
+   "n": 61,
+   "group": "3.3 V y GND de los módulos",
+   "from": "E.3V3",
+   "to": "J5.3V3",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w062",
+   "n": 62,
+   "group": "3.3 V y GND de los módulos",
+   "from": "E.GND1",
+   "to": "J5.GND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w063",
+   "n": 63,
+   "group": "3.3 V y GND de los módulos",
+   "from": "J5.3V3",
+   "to": "B.VIN",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w064",
+   "n": 64,
+   "group": "3.3 V y GND de los módulos",
+   "from": "J5.GND",
+   "to": "B.GND",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w065",
+   "n": 65,
+   "group": "3.3 V y GND de los módulos",
+   "from": "J5.GND",
+   "to": "J4.GND1",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w066",
+   "n": 66,
+   "group": "3.3 V y GND de los módulos",
+   "from": "J4.GND1",
+   "to": "J4.GND2",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w067",
+   "n": 67,
+   "group": "3.3 V y GND de los módulos",
+   "from": "J4.GND2",
+   "to": "J4.GND3",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w068",
+   "n": 68,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "E.17",
+   "to": "M.DI",
+   "mat": "cPur"
+  },
+  {
+   "id": "w069",
+   "n": 69,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "E.4",
+   "to": "M.DE",
+   "mat": "cPur"
+  },
+  {
+   "id": "w070",
+   "n": 70,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "M.DE",
+   "to": "M.RE",
+   "mat": "cTin"
+  },
+  {
+   "id": "w071",
+   "n": 71,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "M.RO",
+   "to": "L.HV1",
+   "mat": "cPur"
+  },
+  {
+   "id": "w072",
+   "n": 72,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "L.LV1",
+   "to": "E.16",
+   "mat": "cPur"
+  },
+  {
+   "id": "w073",
+   "n": 73,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "M.A",
+   "to": "J3.A",
+   "mat": "cLbl"
+  },
+  {
+   "id": "w074",
+   "n": 74,
+   "group": "RS485 (MAX485 y convertidor de nivel)",
+   "from": "M.B",
+   "to": "J3.B",
+   "mat": "cLim"
+  },
+  {
+   "id": "w075",
+   "n": 75,
+   "group": "Bus I²C (SDA y SCL)",
+   "from": "E.21",
+   "to": "J5.SDA",
+   "mat": "cYel"
+  },
+  {
+   "id": "w076",
+   "n": 76,
+   "group": "Bus I²C (SDA y SCL)",
+   "from": "E.22",
+   "to": "J5.SCL",
+   "mat": "cWht"
+  },
+  {
+   "id": "w077",
+   "n": 77,
+   "group": "Bus I²C (SDA y SCL)",
+   "from": "J5.SDA",
+   "to": "B.SDA",
+   "mat": "cYel"
+  },
+  {
+   "id": "w078",
+   "n": 78,
+   "group": "Bus I²C (SDA y SCL)",
+   "from": "J5.SCL",
+   "to": "B.SCL",
+   "mat": "cWht"
+  },
+  {
+   "id": "w079",
+   "n": 79,
+   "group": "XSHUT de los VL53L0X (directo del ESP32)",
+   "from": "E.32",
+   "to": "J6.X0",
+   "mat": "cOli"
+  },
+  {
+   "id": "w080",
+   "n": 80,
+   "group": "XSHUT de los VL53L0X (directo del ESP32)",
+   "from": "E.33",
+   "to": "J6.X1",
+   "mat": "cOli"
+  },
+  {
+   "id": "w081",
+   "n": 81,
+   "group": "XSHUT de los VL53L0X (directo del ESP32)",
+   "from": "E.15",
+   "to": "J6.X2",
+   "mat": "cOli"
+  },
+  {
+   "id": "w082",
+   "n": 82,
+   "group": "Finales de carrera",
+   "from": "E.18",
+   "to": "J4.FC1",
+   "mat": "cBei"
+  },
+  {
+   "id": "w083",
+   "n": 83,
+   "group": "Finales de carrera",
+   "from": "E.19",
+   "to": "J4.FC2",
+   "mat": "cBei"
+  },
+  {
+   "id": "w084",
+   "n": 84,
+   "group": "Finales de carrera",
+   "from": "E.23",
+   "to": "J4.FC3",
+   "mat": "cBei"
+  },
+  {
+   "id": "w085",
+   "n": 85,
+   "group": "Divisor para medir la batería",
+   "from": "J2.+12V AUX",
+   "to": "R1.a",
+   "mat": "cRed"
+  },
+  {
+   "id": "w086",
+   "n": 86,
+   "group": "Divisor para medir la batería",
+   "from": "R1.b",
+   "to": "R2.a",
+   "mat": "cTin"
+  },
+  {
+   "id": "w087",
+   "n": 87,
+   "group": "Divisor para medir la batería",
+   "from": "R2.a",
+   "to": "CD.a",
+   "mat": "cTin"
+  },
+  {
+   "id": "w088",
+   "n": 88,
+   "group": "Divisor para medir la batería",
+   "from": "R2.b",
+   "to": "CD.b",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w089",
+   "n": 89,
+   "group": "Divisor para medir la batería",
+   "from": "R2.b",
+   "to": "E.GND1",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w090",
+   "n": 90,
+   "group": "Divisor para medir la batería",
+   "from": "R2.a",
+   "to": "E.39",
+   "mat": "cOli"
+  },
+  {
+   "id": "w091",
+   "n": 91,
+   "group": "Servo de la uña",
+   "from": "E.5",
+   "to": "J11.SIG",
+   "mat": "cMag"
+  },
+  {
+   "id": "w092",
+   "n": 92,
+   "group": "Lectura del paro (GPIO 34)",
+   "from": "J13.PARO",
+   "to": "R3.a",
+   "mat": "cRed"
+  },
+  {
+   "id": "w093",
+   "n": 93,
+   "group": "Lectura del paro (GPIO 34)",
+   "from": "R3.b",
+   "to": "R4.a",
+   "mat": "cTin"
+  },
+  {
+   "id": "w094",
+   "n": 94,
+   "group": "Lectura del paro (GPIO 34)",
+   "from": "R4.a",
+   "to": "C2.a",
+   "mat": "cTin"
+  },
+  {
+   "id": "w095",
+   "n": 95,
+   "group": "Lectura del paro (GPIO 34)",
+   "from": "R4.b",
+   "to": "C2.b",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w096",
+   "n": 96,
+   "group": "Lectura del paro (GPIO 34)",
+   "from": "R4.b",
+   "to": "R2.b",
+   "mat": "cBlk"
+  },
+  {
+   "id": "w097",
+   "n": 97,
+   "group": "Lectura del paro (GPIO 34)",
+   "from": "R4.a",
+   "to": "E.34",
+   "mat": "cOli"
+  },
+  {
+   "id": "w098",
+   "n": 98,
+   "group": "Final de carrera superior (GPIO 35)",
+   "from": "J13.FC4",
+   "to": "R5.a",
+   "mat": "cBei"
+  },
+  {
+   "id": "w099",
+   "n": 99,
+   "group": "Final de carrera superior (GPIO 35)",
+   "from": "R5.a",
+   "to": "E.35",
+   "mat": "cBei"
+  },
+  {
+   "id": "w100",
+   "n": 100,
+   "group": "Final de carrera superior (GPIO 35)",
+   "from": "R5.b",
+   "to": "REN.b",
+   "mat": "cPnk"
+  },
+  {
+   "id": "w101",
+   "n": 101,
+   "group": "Final de carrera superior (GPIO 35)",
+   "from": "J13.GND4",
+   "to": "J4.GND3",
+   "mat": "cBlk"
+  }
+ ]
+}

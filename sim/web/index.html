@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aether · Simulador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Negro y neón, línea fina, sin rellenos: cian para lo normal, naranja para avisar, rosa rojo para fallas. */
+:root {
+  --bg: #03050a; --panel: #05080e; --raised: #09101a; --ink: #d9f7ff; --ink2: #86adb8; --ink3: #4f6f78;
+  --line: rgba(20, 241, 255, .16); --line2: rgba(20, 241, 255, .38);
+  --cyan: #14f1ff; --orange: #ff7a1a; --ok: #2cff9a; --crit: #ff3b6b;
+  --glow: 0 0 10px rgba(20, 241, 255, .35); --glow-o: 0 0 10px rgba(255, 122, 26, .4); --glow-r: 0 0 10px rgba(255, 59, 107, .45);
+  --disp: Orbitron, "Arial Narrow", sans-serif; --body: Rajdhani, "Segoe UI", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 500 15px/1.4 var(--body); }
+#app { display: grid; grid-template-columns: minmax(0, 1fr) 460px; height: 100vh; }
+@media (max-width: 1000px) { #app { grid-template-columns: minmax(0, 1fr) 380px; } }
+
+/* ---------- escena ---------- */
+#escena { position: relative; min-width: 0; overflow: hidden; background: var(--bg); }
+#escena iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--bg); }
+#sin-modelo { position: absolute; inset: 0; display: none; place-items: center; text-align: center; padding: 40px; color: var(--ink2); }
+#hud { position: absolute; left: 14px; top: 14px; right: 14px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+.chip { font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 6px 8px; background: rgba(3, 5, 10, .78); border: 1px solid var(--line); color: var(--ink2); }
+.chip.ok { color: var(--ok); border-color: rgba(44, 255, 154, .45); } .chip.aviso { color: var(--orange); border-color: rgba(255, 122, 26, .5); } .chip.mal { color: var(--crit); border-color: var(--crit); box-shadow: var(--glow-r); }
+#vista { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 6px; flex-wrap: wrap; max-width: calc(100% - 28px); }
+#camMarco { position: absolute; right: 12px; bottom: 12px; border: 1px solid var(--cyan); box-shadow: var(--glow); pointer-events: none; }
+#camMarco::after { content: "C920"; position: absolute; left: 6px; top: 4px; font: 500 10px var(--mono); letter-spacing: .12em; color: var(--cyan); }
+
+/* ---------- panel ---------- */
+aside { display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-left: 1px solid var(--line2); box-shadow: -1px 0 14px rgba(20, 241, 255, .12); }
+.marca { display: flex; align-items: center; gap: 10px; padding: 14px 18px 10px; font: 700 13px var(--disp); letter-spacing: .28em; color: var(--cyan); text-shadow: var(--glow); }
+.marca::before { content: ""; width: 8px; height: 8px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+.marca small { margin-left: auto; font: 500 10px var(--mono); letter-spacing: .1em; color: var(--ink3); text-shadow: none; }
+nav { display: flex; flex-wrap: wrap; gap: 0 2px; padding: 0 12px; border-bottom: 1px solid var(--line); }
+nav button { flex: 1 1 auto; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--ink3); padding: 9px 8px 8px; font: 700 11px var(--disp); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+nav button:hover { color: var(--ink); }
+nav button[aria-selected="true"] { color: var(--cyan); border-bottom-color: var(--cyan); text-shadow: var(--glow); }
+.pestana { display: none; overflow-y: auto; overflow-x: hidden; padding: 16px 18px 40px; flex: 1; min-height: 0; }
+.pestana.activa { display: block; }
+.pestana::-webkit-scrollbar { width: 6px; } .pestana::-webkit-scrollbar-thumb { background: var(--line2); }
+h2 { margin: 22px 0 10px; font: 700 11px var(--disp); letter-spacing: .22em; text-transform: uppercase; color: var(--cyan); }
+h2:first-child { margin-top: 0; }
+h3 { margin: 0; font: 600 16px var(--body); }
+p { margin: 0 0 10px; color: var(--ink2); }
+code { font: 400 12px var(--mono); color: var(--cyan); }
+.tenue { color: var(--ink3); } .mal { color: var(--crit); } .ok, .bien { color: var(--ok); }
+small { color: var(--ink3); font-size: 11px; }
+details > summary { cursor: pointer; color: var(--ink3); font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 4px 0; list-style: none; }
+details > summary::before { content: "+ "; color: var(--cyan); } details[open] > summary::before { content: "– "; }
+details > summary:hover { color: var(--ink); }
+
+/* ---------- controles ---------- */
+.fila { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+.b { background: transparent; color: var(--ink); border: 1px solid var(--line2); padding: 9px 14px; font: 700 12px var(--disp); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; min-height: 38px; transition: box-shadow .15s, color .15s; }
+.b:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: var(--glow); }
+.b.on { background: var(--cyan); border-color: var(--cyan); color: #021014; box-shadow: var(--glow); }
+.b.primario { border-color: var(--cyan); color: var(--cyan); }
+.b.rojo { border-color: rgba(255, 59, 107, .6); color: var(--crit); } .b.rojo:hover { border-color: var(--crit); color: var(--crit); box-shadow: var(--glow-r); }
+.b.rojo.on { background: var(--crit); border-color: var(--crit); color: #fff; box-shadow: var(--glow-r); }
+.b.chico { min-height: 30px; padding: 5px 10px; font-size: 10.5px; }
+.b.grande { flex: 1 1 130px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 1px solid var(--cyan); outline-offset: 2px; }
+input[type=text], select { background: #02060a; color: var(--ink); border: 1px solid var(--line2); padding: 7px 9px; font: 13px var(--mono); min-height: 34px; min-width: 0; }
+input[type=range] { accent-color: var(--cyan); width: 100%; }
+input[type=checkbox] { accent-color: var(--cyan); }
+.par { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.par label { font-weight: 600; } .par output { font: 500 12px var(--mono); color: var(--cyan); }
+.par input { grid-column: 1 / -1; } .par small { grid-column: 1 / -1; }
+.falla { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; padding: 9px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.falla input { margin-top: 4px; } .falla small { grid-column: 2; }
+
+/* ---------- datos ---------- */
+.datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.dato { border: 1px solid var(--line); padding: 7px 9px; min-width: 0; }
+.dato b { display: block; font: 500 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dato span { display: block; font: 500 15px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.dato small { font-size: 10px; }
+.alerta { border: 1px solid var(--crit); box-shadow: var(--glow-r); padding: 8px 12px; margin-bottom: 14px; }
+.alerta ul { margin: 0; padding-left: 1.1em; color: var(--ink2); }
+.cable { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.cable i { width: 10px; height: 10px; display: block; } .cable.cortado { opacity: .5; text-decoration: line-through; }
+.cable .b { min-height: 26px; padding: 3px 8px; font-size: 10px; }
+details.grupo summary { color: var(--ink); font: 700 13px var(--body); letter-spacing: .04em; text-transform: none; }
+.caja { border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 10px; }
+#monitor, #pSalida { font: 12px/1.5 var(--mono); background: #02060a; border: 1px solid var(--line); padding: 8px 10px; overflow: auto; white-space: pre-wrap; color: var(--ink2); }
+#monitor { height: 55vh; } #pSalida { min-height: 110px; max-height: 240px; }
+#pCodigo { width: 100%; min-height: 280px; height: 36vh; resize: vertical; background: #02060a; color: #c8f3ff; border: 1px solid var(--line2); padding: 10px; font: 13px/1.55 var(--mono); tab-size: 4; white-space: pre; overflow: auto; }
+pre { background: #02060a; border: 1px solid var(--line); padding: 10px; overflow-x: auto; font: 12px/1.5 var(--mono); color: var(--ink); margin: 6px 0 10px; }
+pre code { color: var(--ink); }
+
+/* ---------- joystick ---------- */
+#pad { width: 150px; height: 150px; border-radius: 50%; border: 1px solid var(--line2); box-shadow: var(--glow), inset 0 0 18px rgba(20, 241, 255, .12); position: relative; touch-action: none; flex: none; background: radial-gradient(circle, rgba(20, 241, 255, .06), transparent 70%); }
+#pad::before, #pad::after { content: ""; position: absolute; background: var(--line); } #pad::before { left: 50%; top: 8%; bottom: 8%; width: 1px; } #pad::after { top: 50%; left: 8%; right: 8%; height: 1px; }
+#pad i { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px; border-radius: 50%; border: 2px solid var(--cyan); background: rgba(20, 241, 255, .18); box-shadow: var(--glow); pointer-events: none; }
+#pad span { display: none; }
+.caso { border: 1px solid var(--line); padding: 8px 12px; margin-bottom: 6px; } .caso.activo { border-color: var(--cyan); box-shadow: var(--glow); }
+.caso-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .caso p { margin: 4px 0; font-size: 13px; }
+
+/* ---------- tutorial ---------- */
+.barra { height: 2px; background: var(--line); } .barra i { display: block; height: 100%; background: var(--cyan); box-shadow: var(--glow); }
+.paso { border: 1px solid var(--line); margin-bottom: 6px; }
+.paso > summary { list-style: none; cursor: pointer; padding: 9px 12px; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; color: var(--ink); font: 600 15px var(--body); text-transform: none; letter-spacing: 0; }
+.paso > summary::before, .paso[open] > summary::before { content: none; }
+.paso > summary .num { font: 700 12px var(--disp); color: var(--cyan); }
+.paso .estado { font: 500 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); }
+.paso.hecho { border-color: rgba(44, 255, 154, .4); } .paso.hecho .estado { color: var(--ok); } .paso.hecho .num { color: var(--ok); }
+.paso .cuerpo { padding: 0 12px 12px; } .paso .cuerpo ol, .paso .cuerpo ul { color: var(--ink2); padding-left: 1.2em; margin: 0 0 8px; }
+.copiar { float: right; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <main id="escena">
+    <iframe id="modelo" title="Carrito Aether en 3D" src="/generado/carrito_3d.html?sim"></iframe>
+    <div id="sin-modelo"><div><h2>Falta el modelo 3D</h2><p>Corre en PowerShell, en la carpeta del repo:</p><pre>python sim\preparar_modelo.py "C:\Users\mende\Downloads\Armado del carrito Aether (2) (2).html"</pre><p>y recarga.</p></div></div>
+    <div id="hud" aria-live="polite"></div>
+    <div id="vista">
+      <button class="b chico on" id="bSeguir" aria-pressed="true">Seguir</button>
+      <button class="b chico" id="bArriba">Planta</button>
+      <button class="b chico on" id="bCamara" aria-pressed="true">Cámara</button>
+    </div>
+    <div id="camMarco" hidden></div>
+  </main>
+  <aside>
+    <div class="marca">AETHER<small>SIMULADOR</small></div>
+    <nav role="tablist">
+      <button role="tab" data-p="tutorial" aria-selected="true">Tutorial</button>
+      <button role="tab" data-p="mision" aria-selected="false">Misión</button>
+      <button role="tab" data-p="programar" aria-selected="false">Programar</button>
+      <button role="tab" data-p="mandos" aria-selected="false">Mandos</button>
+      <button role="tab" data-p="medidas" aria-selected="false">Medidas</button>
+      <button role="tab" data-p="cables" aria-selected="false">Cables</button>
+      <button role="tab" data-p="monitor" aria-selected="false">Monitor</button>
+    </nav>
+
+    <section class="pestana activa" id="p-tutorial"></section>
+
+    <section class="pestana" id="p-mision">
+      <h2>Misión</h2>
+      <div class="fila"><button class="b grande primario" id="mIda">Banda → descarga</button><button class="b grande primario" id="mVuelta">Descarga → banda</button></div>
+      <div class="fila"><button class="b grande primario" id="mCiclo">Ciclo completo</button><button class="b rojo" id="mDetener">Detener</button></div>
+      <p id="mEstado" class="tenue"></p>
+      <details><summary>cómo funciona</summary><p>La Jetson (<code>edge/navigation/mision.py</code>) manda la ruta y el ESP32 la ejecuta. La carga y la descarga son una pausa de 2 s: la torre aún no está en el firmware.</p></details>
+      <h2>Joystick</h2>
+      <div class="fila" style="gap:18px"><div id="pad" aria-label="Joystick"><i></i><span>joystick</span></div>
+        <div style="flex:1;min-width:140px"><label for="vmax">Velocidad máx. <b id="vmaxV" style="color:var(--cyan);font-family:var(--mono);font-weight:500">0.35 m/s</b></label><input type="range" id="vmax" min="0.05" max="0.6" step="0.05" value="0.35"><small>también con las flechas del teclado</small></div></div>
+      <h2>Obstáculos</h2>
+      <div id="casos"></div>
+    </section>
+
+    <section class="pestana" id="p-programar">
+      <div class="fila"><select id="pLista" aria-label="Programas guardados" style="flex:1"></select><button class="b chico" id="pAbrir">Abrir</button><button class="b chico" id="pActualizar">↻</button></div>
+      <div class="fila"><input type="text" id="pNombre" value="mi_programa" aria-label="Nombre del programa" style="flex:1" maxlength="40"><button class="b chico" id="pGuardar">Guardar</button></div>
+      <textarea id="pCodigo" spellcheck="false" aria-label="Código del programa" wrap="off"></textarea>
+      <div class="fila" style="margin-top:8px"><button class="b primario" id="pEjecutar">Guardar y ejecutar</button><button class="b rojo" id="pDetener">Detener</button></div>
+      <p id="pEstado" class="tenue"></p>
+      <h2>Salida</h2>
+      <div id="pSalida" role="log" aria-live="polite">—</div>
+      <details style="margin-top:12px"><summary>ayuda y carrito real</summary>
+        <p>Funciones: <code>avanzar</code> <code>retroceder</code> <code>girar_a</code> <code>girar</code> <code>ir_a</code> <code>acoplar</code> <code>esperar</code> <code>distancia</code> <code>decir</code>. Lista completa en <code>edge/navigation/programas/LEEME.md</code>.</p>
+        <p>En la Jetson:</p><pre><code>python3 edge/navigation/correr_programa.py edge/navigation/programas/mi_programa.py --puerto /dev/ttyUSB0</code></pre>
+        <p>Los programas están en el repo: <code>git push</code> aquí y <code>git pull</code> allá.</p></details>
+    </section>
+
+    <section class="pestana" id="p-mandos">
+      <h2>Energía</h2>
+      <div class="fila"><button class="b grande" id="bKcd1" aria-pressed="false">KCD1</button><button class="b grande rojo" id="bParo" aria-pressed="false">Paro</button><button class="b grande" id="bEn">Reiniciar ESP32</button></div>
+      <h2>Finales de carrera</h2>
+      <div class="fila" id="finales"></div>
+      <h2>Carrito</h2>
+      <div class="fila"><button class="b chico" data-colocar="0,0,0">Banda</button><button class="b chico" data-colocar="-3.82,2.0,1.5708">Descarga</button><button class="b chico" data-colocar="-2,0,3.1416">Medio</button></div>
+      <div class="fila"><button class="b chico" id="bPersona">+ Persona</button><button class="b chico" id="bCajaObs">+ Caja</button><button class="b chico" id="bQuitar">Quitar</button></div>
+      <h2>Física</h2>
+      <div class="par"><label for="masa">Masa</label><output id="masaV">40 kg</output><input type="range" id="masa" min="20" max="60" value="40" step="1"></div>
+      <label class="falla"><input type="checkbox" id="mismoLado"><span>Motores del mismo lado</span><small>error de compra: una rueda gira al revés</small></label>
+      <div class="fila" style="margin-top:10px"><button class="b" id="bReparar">Reparar todo</button></div>
+    </section>
+
+    <section class="pestana" id="p-medidas"></section>
+
+    <section class="pestana" id="p-cables">
+      <div class="fila"><input type="text" id="cDe" list="listaPines" placeholder="de  (E.17)" style="flex:1"><input type="text" id="cA" list="listaPines" placeholder="a  (M.DI)" style="flex:1"><button class="b chico" id="bConectar">Unir</button></div>
+      <div class="fila"><button class="b chico" id="bGuia">Cableado de la guía</button></div>
+      <datalist id="listaPines"></datalist>
+      <div id="listaCables"></div>
+    </section>
+
+    <section class="pestana" id="p-monitor">
+      <div id="monitor" role="log" aria-live="polite"></div>
+      <div class="fila" style="margin-top:8px"><input type="text" id="usbTexto" placeholder="mensaje por USB al ESP32  (Enter)" style="flex:1"></div>
+    </section>
+  </aside>
+</div>
+<script src="/web/tutorial.js"></script>
+<script src="/web/sim.js"></script>
+</body>
+</html>
