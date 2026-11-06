@@ -16,7 +16,7 @@ VL_MONTAJE = {  # x, y, ángulo
     "VL1": (-0.22, 0.1892, math.pi / 2),
     "VL2": (-0.22, -0.1892, -math.pi / 2),
 }
-VL_ALTURA = 0.1885
+VL_ALTURA = 0.1555        # rev. 3.18: el marco de abajo bajó 3.3 cm
 VL_ALCANCE = 1.2          # m, modo por omisión del VL53L0X en interiores (aprox.)
 VL_FUERA = 8190           # lo que lee el Pololu cuando no hay nada
 
@@ -92,7 +92,7 @@ class Simulacion:
         c = self.circuito
         self._t_circuito += h
         if self._t_circuito >= 0.01:            # el circuito se reevalúa cada 10 ms (y en cada cambio de pin)
-            c.i_motores = self.motor_izq.corriente() + self.motor_der.corriente()
+            c.i_motores = self.motor_izq.corriente_fuente() + self.motor_der.corriente_fuente()
             c.evaluar(self._t_circuito)
             self._t_circuito = 0.0
             if c.esp_vivo != self.esp_estaba_vivo:

@@ -91,8 +91,9 @@ const ELECTRICO = [
   ['rInterna', 'Resistencia interna de la batería', 0.005, 0.2, 0.005, 'Ω', v => (v * 1000).toFixed(0) + ' mΩ', 'Hace que el voltaje caiga cuando los motores jalan corriente. Una batería vieja tiene más.'],
   ['vXl', 'Ajuste del XL4005', 4.0, 8.0, 0.05, 'V', v => v.toFixed(2) + ' V', 'La guía pide 5.0–5.1 V. Por debajo de 4.3 V el ESP32 se reinicia; arriba de 6.5 V se quema.'],
   ['vElev', 'Ajuste del elevador (ruedas)', 12, 24, 0.5, 'V', v => v.toFixed(1) + ' V', 'La guía pide 18.0 V. Con menos voltaje los M0601 giran más lento; abajo de 12 V no arrancan.'],
+  ['iCC', 'Límite de corriente del elevador', 1, 12, 0.5, 'A', v => v.toFixed(1) + ' A', 'La guía pide ~6 A con la perilla CC. Si los motores piden más, baja el voltaje de las ruedas; abajo de 12 V no arrancan.'],
   ['fus15', 'Fusible de la rama de motores', 3, 20, 1, 'A', v => v.toFixed(0) + ' A', 'La guía usa 15 A. Uno chico se quema al arrancar con carga.'],
-  ['fus10', 'Fusible de la lógica y la Jetson', 2, 15, 1, 'A', v => v.toFixed(0) + ' A', 'La guía usa 10 A.'],
+  ['fus10', 'Fusible de la lógica y la Jetson', 2, 15, 1, 'A', v => v.toFixed(0) + ' A', 'La guía usa 5 A.'],
   ['iJetson', 'Consumo de la Jetson', 0.3, 2.5, 0.1, 'A', v => v.toFixed(1) + ' A', 'A 12 V. En modo de 25 W con YOLO jala más.'],
   ['rpmVacio', 'M0601: rpm en vacío a 18 V', 120, 260, 5, 'rpm', v => v.toFixed(0), 'Hoja: 200 rpm.'],
   ['parNominal', 'M0601: par nominal', 0.4, 1.6, 0.02, 'N·m', v => v.toFixed(2), 'Hoja: 0.96 N·m a 115 rpm.'],
@@ -122,7 +123,7 @@ const FALLAS = [
   ['sdaSuelto', 'SDA del I²C suelto', 'Los VL53L0X y el BNO055 no contestan: el ESP32 avisa y no se puede navegar.', c => c.cortar('p75')],
   ['paroRoto', 'Cable del paro roto', 'Con un paro NC, un cable roto se ve como "presionado": el relé nunca cierra. Es la idea de usar NC.', c => c.cortar('h9')],
   ['sinDivisor', 'Paro sin divisor: 12 V al GPIO 34', 'El error que advierte la guía: el ESP32 se quema.', c => { c.cortar('h19'); c.conectar('RELE.VCC', 'E.34'); }],
-  ['cortoMotores', 'Corto en la rama de motores', 'Se quema el fusible de 15 A; la lógica sigue viva por el de 10 A.', c => c.conectar('F15.out', 'J1.GND')],
+  ['cortoMotores', 'Corto en la rama de motores', 'Se quema el fusible de 15 A; la lógica sigue viva por el de 5 A.', c => c.conectar('F15.out', 'J1.GND')],
   ['tierraBat', 'Tierra de la batería floja', 'Todo se apaga.', c => c.cortar('h3')],
   ['mismoLado', 'Dos M0601 del mismo lado', 'Error de compra que advierte la guía: una rueda gira al revés y el carrito gira en su lugar.', null],
 ];
@@ -159,6 +160,7 @@ function pintarTodo() {
       <div class="dato"><b>XL4005</b><span>${f2(v.xl4005, 'V')}</span></div><div class="dato"><b>Elevador</b><span>${f2(v.elevador, 'V')}</span></div>
       <div class="dato"><b>GPIO 34 (paro)</b><span>${f2(v.gpio34, 'V')}</span></div><div class="dato"><b>3V3 ESP32</b><span>${f2(v.esp32_3v3, 'V')}</span></div></div>
       <h2>Protecciones</h2><table><tr><td>Fusible motores (${P.fus15} A)</td><td class="n">${el.fusibles.F15 ? el.corrientes.F15.toFixed(2) + ' A' : '<span class="mal">QUEMADO</span>'}</td></tr>
+      <tr><td>Salida del elevador (límite ${P.iCC} A)</td><td class="n">${el.corrientes.motores.toFixed(2)} A</td></tr>
       <tr><td>Fusible lógica (${P.fus10} A)</td><td class="n">${el.fusibles.F10 ? el.corrientes.F10.toFixed(2) + ' A' : '<span class="mal">QUEMADO</span>'}</td></tr>
       <tr><td>Relé</td><td class="n">${el.rele ? 'cerrado' : 'abierto'}</td></tr><tr><td>Usado de la batería</td><td class="n">${(el.ah * 1000).toFixed(0)} mAh</td></tr></table>
       <h2>Motores M0601</h2><table>${e.motores.map(m => `<tr><td>${m.nombre}</td><td class="n">${m.rpm} rpm (pide ${m.objetivo})</td><td class="n">${m.i} A</td><td class="n">${m.suelto ? '<span class="tenue">libre</span>' : m.freno ? 'frena' : 'maneja'}${m.error ? ' <span class="mal">bloqueo</span>' : ''}</td></tr>`).join('')}</table>

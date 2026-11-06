@@ -90,7 +90,7 @@ function pintarEstado(e) {
   const f15 = el.fusibles.F15 ? f2(el.corrientes.F15, ' A') : '<span class="mal">quemado</span>', f10 = el.fusibles.F10 ? f2(el.corrientes.F10, ' A') : '<span class="mal">quemado</span>';
   $('p-medidas').innerHTML = `<p class="lede">Lo que mediría un <b>multímetro</b> en cada punto del carrito y lo que reporta cada sensor. Si algo se ve raro aquí, busca su causa en <b>Cables</b>.</p>${danos ? `<div class="alerta"><ul>${danos}</ul></div>` : ''}
     <h2>Voltajes</h2><div class="datos">${dato('batería', f2(v.bateria, ' V'))}${dato('XL4005', f2(v.xl4005, ' V'))}${dato('ruedas', f2(v.elevador, ' V'))}${dato('3V3', f2(v.esp32_3v3, ' V'))}${dato('GPIO 34 paro', f2(v.gpio34, ' V'))}${dato('GPIO 39 bat.', f2(v.gpio39, ' V'))}</div>
-    <h2>Corriente</h2><div class="datos">${dato('fusible 15 A', f15)}${dato('fusible 10 A', f10)}${dato('batería usada', (el.ah * 1000).toFixed(1) + ' mAh')}</div>
+    <h2>Corriente</h2><div class="datos">${dato('fusible 15 A', f15)}${dato('fusible 5 A', f10)}${dato('salida 18 V (límite ~6 A)', f2(el.corrientes.motores, ' A'))}${dato('batería usada', (el.ah * 1000).toFixed(1) + ' mAh')}</div>
     <h2>Motores M0601</h2><div class="datos">${mot}</div>
     <h2>Sensores</h2><div class="datos">${dato('frente', mm('VL0'))}${dato('izquierda', mm('VL1'))}${dato('derecha', mm('VL2'))}${dato('rumbo', (e.carrito.th * 180 / Math.PI).toFixed(1) + '°')}</div>
     <h2>Carrito</h2><div class="datos">${dato('x, y', e.carrito.x.toFixed(2) + ', ' + e.carrito.y.toFixed(2))}${dato('velocidad', e.carrito.v.toFixed(2) + ' m/s')}${dato('toca', e.carrito.contactos.join(', ') || '—')}${dato('patinan', e.carrito.patina.some(Boolean) ? '<span class="mal">sí</span>' : 'no')}</div>
@@ -119,7 +119,7 @@ const Modelo = (() => {
     extra = new T.Group(); A.scene.add(extra);
     rayos = new T.Group(); A.cartRoot.add(rayos);
     camC920 = new T.PerspectiveCamera(43.3, 16 / 9, 0.05, 30);       // C920 en 16:9, ~43° vertical (se confirma al calibrar)
-    camC920.position.set(0.245, 1.066, 0);     // frente del lente (la pieza de la guía está en x 0.213)
+    camC920.position.set(0.245, 1.077, 0);     // frente del lente (la pieza de la guía está en x 0.213)
     camC920.rotation.order = 'YXZ'; camC920.rotation.set(-6 * Math.PI / 180, -Math.PI / 2, 0);   // mira a +x, 6° hacia abajo
     camC920.layers.mask = A.camera.layers.mask;              // la guía dibuja sus piezas en varias capas
     A.cartRoot.add(camC920);
@@ -193,7 +193,7 @@ const Modelo = (() => {
     for (const [k, [x, z, a]] of Object.entries(mont)) {
       const d = ultimo.sensores[k]; if (!ultimo.esp32.vivo) continue;
       const L = d >= 8190 ? 1.2 : d / 1000, col = d < 400 ? 0xef6b5e : 0x6e9cff;
-      const g = new T.BufferGeometry().setFromPoints([new T.Vector3(x, 0.1885, z), new T.Vector3(x + L * Math.cos(a), 0.1885, z - L * Math.sin(a))]);
+      const g = new T.BufferGeometry().setFromPoints([new T.Vector3(x, 0.1555, z), new T.Vector3(x + L * Math.cos(a), 0.1555, z - L * Math.sin(a))]);
       rayos.add(new T.Line(g, new T.LineBasicMaterial({ color: col })));
     }
     if (seguir) {

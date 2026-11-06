@@ -6,8 +6,8 @@
   // ------------------------------------------------------------------ parámetros (los mueve la pestaña Física/Eléctrico)
   const P = {
     masa: 40, mu: 0.7, normal: 85, crr: 0.03, giroRodajas: 0.6, mRueda: 1.4,
-    vBatLlena: 12.9, vBatVacia: 11.8, ahBat: 24, rInterna: 0.02, fus15: 15, fus10: 10,
-    vElev: 18, vXl: 5.05, rpmVacio: 200, parNominal: 0.96, rpmNominal: 115, vMinMotor: 12, kt: 0.40,
+    vBatLlena: 12.9, vBatVacia: 11.8, ahBat: 24, rInterna: 0.02, fus15: 15, fus10: 5, iCC: 6,
+    vElev: 18, vXl: 5.05, rpmVacio: 200, parNominal: 0.96, rpmNominal: 115, vMinMotor: 12, kt: 0.75, rFase: 2.15,
     tSinTrama: 0.06, kp: 0.35, ki: 2.5, frenoKd: 1.2, iJetson: 1.2, ruidoVl: 0.02, derivaImu: 0.0,
   };
   const R_RUEDA = 0.051, VIA = 0.259, EJE_X = 0.07, LARGO = 0.5, ANCHO = 0.4;
@@ -47,7 +47,7 @@
     return [caja(cx, cy, largo / 2, grueso / 2, -abre, 'boca de la guía izquierda', 0.3), caja(cx, -cy, largo / 2, grueso / 2, abre, 'boca de la guía derecha', 0.3)];
   }
   const ESTACIONES = () => [
-    caja(F + 0.03 + 1.545, 0, 1.545, 0.17, 0, 'banda', 0.83),
+    caja(F + 0.03 + 1.545, 0, 1.545, 0.17, 0, 'banda', 0.8215),
     caja(F + 0.015, 0.11, 0.015, 0.02, 0, 'tope izquierdo', 0.3), caja(F + 0.015, -0.11, 0.015, 0.02, 0, 'tope derecho', 0.3),
     caja(F - 0.09, 0.21075, 0.09, 0.01, 0, 'guía en V izquierda', 0.3), caja(F - 0.09, -0.21075, 0.09, 0.01, 0, 'guía en V derecha', 0.3),
     ...bocas(),
@@ -101,6 +101,7 @@
   class M0601 {
     constructor(id, nombre) { Object.assign(this, { id, nombre, modo: 2, alimentado: false, voltaje: 0, objetivo: 0, rampa: 0, acc: 0, freno: false, ultima: -1e9, integral: 0, par: 0, omega: 0, angulo: 0, error: 0, tBloq: 0, ok: 0, malas: 0, invertido: false }); }
     corriente() { return this.alimentado ? 0.12 + Math.abs(this.par) / P.kt : 0; }
+    corrienteFuente() { if (!this.alimentado) return 0; const i = Math.abs(this.par) / P.kt; return 0.12 + Math.max(0, this.par * this.omega + i * i * P.rFase) / Math.max(this.voltaje, 1); }   // m0601.py: corriente_fuente
     recibir(d, t) {
       if (!this.alimentado || d.length !== 10) return null;
       if (d[0] === 0xAA && d[1] === 0x55 && d[2] === 0x53) { this.id = d[3]; return null; }
@@ -139,12 +140,13 @@
 
   // ------------------------------------------------------------------ circuito (electrico.py)
   const EXTRA = {
-    'BAT.+': 'Batería · borne +', 'BAT.-': 'Batería · borne −', 'F15.in': 'Fusible 15 A · entrada', 'F15.out': 'Fusible 15 A · salida', 'F10.in': 'Fusible 10 A · entrada', 'F10.out': 'Fusible 10 A · salida',
+    'BAT.+': 'Batería · borne +', 'BAT.-': 'Batería · borne −', 'F15.in': 'Fusible 15 A · entrada', 'F15.out': 'Fusible 15 A · salida', 'F10.in': 'Fusible 5 A · entrada', 'F10.out': 'Fusible 5 A · salida',
     'KCD.a': 'KCD1 · pata 1', 'KCD.b': 'KCD1 · pata 2', 'PARO.1': 'Paro (NC) · borne 1', 'PARO.2': 'Paro (NC) · borne 2',
     'RELE.VCC': 'Relé · VCC', 'RELE.GND': 'Relé · GND', 'RELE.COM': 'Relé · COM', 'RELE.NO': 'Relé · NO',
     'ELEV.IN+': 'Elevador · IN+', 'ELEV.IN-': 'Elevador · IN−', 'ELEV.OUT+': 'Elevador · OUT+ (18 V)', 'ELEV.OUT-': 'Elevador · OUT−',
     'XL.IN+': 'XL4005 · IN+', 'XL.IN-': 'XL4005 · IN−', 'XL.OUT+': 'XL4005 · OUT+ (5 V)', 'XL.OUT-': 'XL4005 · OUT−', 'JET.+12': 'Jetson · 12 V', 'JET.GND': 'Jetson · GND',
     'ML.V+': 'M0601 izq. · V+', 'ML.GND': 'M0601 izq. · GND', 'ML.A': 'M0601 izq. · A', 'ML.B': 'M0601 izq. · B', 'MR.V+': 'M0601 der. · V+', 'MR.GND': 'M0601 der. · GND', 'MR.A': 'M0601 der. · A', 'MR.B': 'M0601 der. · B',
+    'VM.+': 'Voltímetro · rojo (+)', 'VM.-': 'Voltímetro · negro (−)', 'C18.+': 'Capacitor 1000 µF (18 V) · pata +', 'C18.-': 'Capacitor 1000 µF (18 V) · franja (−)',
   };
   const VL = { VL0: 'VL53L0X frontal', VL1: 'VL53L0X izquierdo', VL2: 'VL53L0X derecho', VLP: 'VL53L0X de la pila' };
   for (const [k, n] of Object.entries(VL)) for (const p of ['VIN', 'GND', 'SDA', 'SCL', ...(k !== 'VLP' ? ['XSHUT'] : [])]) EXTRA[`${k}.${p}`] = `${n} · ${p}`;
@@ -161,6 +163,7 @@
   ARNES.push(['J6.X0', 'VL0.XSHUT', 'Sensores VL53L0X', 'cOli'], ['J6.X1', 'VL1.XSHUT', 'Sensores VL53L0X', 'cOli'], ['J6.X2', 'VL2.XSHUT', 'Sensores VL53L0X', 'cOli']);
   for (const i of [1, 2, 3]) ARNES.push([`J4.FC${i}`, `FC${i}.S`, 'Finales de carrera', 'cBei'], [`J4.GND${i}`, `FC${i}.G`, 'Finales de carrera', 'cBlk']);
   ARNES.push(['J13.FC4', 'FC4.S', 'Finales de carrera', 'cBei'], ['J13.GND4', 'FC4.G', 'Finales de carrera', 'cBlk']);
+  ARNES.push(['XL.IN+', 'VM.+', 'Voltímetro', 'cRed'], ['VM.-', 'XL.IN-', 'Voltímetro', 'cBlk'], ['ELEV.OUT+', 'C18.+', 'Capacitor de 18 V', 'cRed'], ['C18.-', 'ELEV.OUT-', 'Capacitor de 18 V', 'cBlk']);   // rev. 3.17d, al final para no mover los h1, h2…
   const UNIDOS = [['E.GND1', 'E.GND2'], ['E.GND1', 'E.GNDL'], ['L.GNDL', 'L.GNDH'], ['XL.IN-', 'XL.OUT-'], ['ELEV.IN-', 'ELEV.OUT-'], ['A1.PGND', 'A1.LGND'], ['A2.PGND', 'A2.LGND'], ['A3.PGND', 'A3.LGND']];
   const RES = { R1: 100e3, R2: 20e3, R3: 100e3, R4: 20e3, R5: 10e3, REN: 10e3 };
 
@@ -170,7 +173,7 @@
       this.guia = placa.cables.map(c => ({ id: 'p' + c.n, de: c.from, a: c.to, grupo: c.group, color: c.mat, pieza: c.id }))
         .concat(ARNES.map(([de, a, g, col], i) => ({ id: 'h' + (i + 1), de, a, grupo: g, color: col })));
       this.cables = this.guia.map(c => ({ ...c }));
-      Object.assign(this, { kcd1: false, paro: false, finales: new Set(), fusOk: { F15: true, F10: true }, danos: {}, salidas: {}, rele: false, ah: 0, iMot: 0, tSobre: { F15: 0, F10: 0 }, corr: { F15: 0, F10: 0, bat: 0 }, avisos: [], redes: {}, v: {}, n: 0 });
+      Object.assign(this, { kcd1: false, paro: false, finales: new Set(), fusOk: { F15: true, F10: true }, danos: {}, salidas: {}, rele: false, ah: 0, iMot: 0, fCc: 1, tSobre: { F15: 0, F10: 0 }, corr: { F15: 0, F10: 0, bat: 0, motores: 0 }, avisos: [], redes: {}, v: {}, n: 0 });
       this.evaluar();
     }
     reiniciar() { this.cables = this.guia.map(c => ({ ...c })); }
@@ -202,7 +205,7 @@
       let espVivo = false, xlOk = false, elevOk = false;
       for (let it = 0; it < 8; it++) {
         const r0 = this.uniones(true); let quemado = false;
-        for (const f of ['F15', 'F10']) if (this.fusOk[f] && r0(f + '.out') === r0('BAT.-')) { this.fusOk[f] = false; this.avisos.push(`Se quemó el fusible ${f.slice(1)} A: su salida quedó en corto con la tierra`); quemado = true; }
+        for (const f of ['F15', 'F10']) if (this.fusOk[f] && r0(f + '.out') === r0('BAT.-')) { this.fusOk[f] = false; this.avisos.push(`Se quemó el fusible ${f === 'F15' ? P.fus15 : P.fus10} A: su salida quedó en corto con la tierra`); quemado = true; }
         const r = this.uniones(false); this.redes = {}; for (const k in this.nombres) this.redes[k] = r(k);
         if (quemado) continue;
         const tierra = this.red('BAT.-'), fijas = { [tierra]: 0 };
@@ -216,7 +219,7 @@
         if (P.vXl > 6.5 && xlOk) this.avisos.push(`El XL4005 está ajustado a ${P.vXl.toFixed(1)} V: la guía pide 5.0–5.1 V`);
         const vel = this.red('ELEV.IN-') === tierra ? fijas[this.red('ELEV.IN+')] : undefined;
         elevOk = vel !== undefined && vel >= 9.5 && vel <= 16 && !this.danos.ELEV;
-        if (elevOk && this.red('ELEV.OUT+') !== tierra) fijar('ELEV.OUT+', vel >= 10.5 ? P.vElev : P.vElev * (vel - 9.5));
+        if (elevOk && this.red('ELEV.OUT+') !== tierra) fijar('ELEV.OUT+', (vel >= 10.5 ? P.vElev : P.vElev * (vel - 9.5)) * this.fCc);
         const v5 = this.red('E.GND1') === tierra ? fijas[this.red('E.5V')] : undefined;
         if (v5 !== undefined && v5 > 6.5 && !this.danos.ESP32) this.danos.ESP32 = `Le entraron ${v5.toFixed(1)} V por el pin 5V (máximo ~6 V): ESP32 quemado`;
         espVivo = v5 !== undefined && v5 >= 4.3 && v5 <= 6.5 && !this.danos.ESP32;
@@ -268,8 +271,10 @@
       if (this.xlOk) aux += P.vXl * ((this.espVivo ? 0.15 : 0) + 0.01) / 0.88 / Math.max(vBat, 1);
       if (this.dif('JET.+12', 'JET.GND') > 9) aux += P.iJetson;
       if (this.rele) aux += 0.07;
-      const mot = this.elevOk ? P.vElev * this.iMot / 0.9 / Math.max(vBat, 1) : 0;
-      this.corr = { F15: this.fusOk.F15 ? mot : 0, F10: this.fusOk.F10 ? aux : 0 }; this.corr.bat = this.corr.F15 + this.corr.F10;
+      this.fCc = this.iMot > P.iCC ? Math.max(0, this.fCc - 3 * dt) : Math.min(1, this.fCc + 3 * dt);   // electrico.py: límite CC del elevador
+      if (this.fCc < 1) this.avisos.push(`El elevador llegó a su límite de ${P.iCC.toFixed(1)} A: bajó el voltaje de las ruedas`);
+      const mot = this.elevOk ? P.vElev * this.fCc * this.iMot / 0.9 / Math.max(vBat, 1) : 0;
+      this.corr = { F15: this.fusOk.F15 ? mot : 0, F10: this.fusOk.F10 ? aux : 0, motores: this.elevOk ? this.iMot : 0 }; this.corr.bat = this.corr.F15 + this.corr.F10;
       this.ah += this.corr.bat * dt / 3600;
       for (const [f, nom] of [['F15', P.fus15], ['F10', P.fus10]]) {
         const i = this.corr[f]; this.tSobre[f] = i > 2 * nom ? this.tSobre[f] + dt : 0;
@@ -282,7 +287,7 @@
       const r = p => { const x = this.volt(p); return x === null ? null : +x.toFixed(2); };
       return { kcd1: this.kcd1, paro: this.paro, rele: this.rele, fusibles: { ...this.fusOk }, corrientes: Object.fromEntries(Object.entries(this.corr).map(([k, v]) => [k, +v.toFixed(2)])),
         v: { bateria: r('BAT.+'), xl4005: +this.dif('XL.OUT+', 'XL.OUT-').toFixed(2), elevador: +this.dif('ELEV.OUT+', 'ELEV.OUT-').toFixed(2), esp32_3v3: r('E.3V3'), gpio34: r('E.34'), gpio39: r('E.39'), gpio35: r('E.35') },
-        esp32_vivo: this.espVivo, danos: { ...this.danos }, avisos: [...this.avisos], finales: [...this.finales].sort(), ah: +this.ah.toFixed(4) };
+        esp32_vivo: this.espVivo, elevador_cc: this.fCc < 1, danos: { ...this.danos }, avisos: [...this.avisos], finales: [...this.finales].sort(), ah: +this.ah.toFixed(4) };
     }
   }
 
@@ -368,7 +373,7 @@
     mm(k) {
       if (k === 'VLP') return 150;
       const [px, py, a0] = VL_MONT[k], [ox, oy] = this.car.aMundo(px, py); let m = null;
-      for (const da of [-0.2, 0, 0.2]) { const a = this.car.th + a0 + da; for (const c of this.obst()) { if (!(c.base <= 0.1885 && 0.1885 <= c.base + c.alto)) continue; const d = rayoCaja(ox, oy, Math.cos(a), Math.sin(a), c); if (d !== null && (m === null || d < m)) m = d; } }
+      for (const da of [-0.2, 0, 0.2]) { const a = this.car.th + a0 + da; for (const c of this.obst()) { if (!(c.base <= 0.1555 && 0.1555 <= c.base + c.alto)) continue; const d = rayoCaja(ox, oy, Math.cos(a), Math.sin(a), c); if (d !== null && (m === null || d < m)) m = d; } }
       if (m === null || m > 1.2) return 8190;
       return Math.max(30, Math.round((m + (Math.random() - 0.5) * 2 * (0.003 + P.ruidoVl * m)) * 1000));
     }
@@ -376,7 +381,7 @@
     p(h) {
       this.t += h; this.tc += h; this.deriva += P.derivaImu * Math.PI / 180 / 60 * h;
       if (this.tc >= 0.01) {
-        this.c.iMot = this.mi.corriente() + this.md.corriente(); this.c.evaluar(this.tc); this.tc = 0;
+        this.c.iMot = this.mi.corrienteFuente() + this.md.corrienteFuente(); this.c.evaluar(this.tc); this.tc = 0;
         if (this.c.espVivo !== this.antes) { this.eventos.push(this.c.espVivo ? 'encendido' : 'apagado'); if (!this.c.espVivo) this.esp.reiniciar(); this.antes = this.c.espVivo; }
       }
       this.mi.voltaje = this.c.danos.ML ? 0 : Math.max(0, this.c.dif('ML.V+', 'ML.GND'));

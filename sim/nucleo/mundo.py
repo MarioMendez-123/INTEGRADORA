@@ -28,7 +28,7 @@ def bocas_en_v(f: float, abre: float = 0.24, largo: float = 0.18, grueso: float 
 def estaciones() -> list[Caja]:
     f = FRENTE_ACOPLADO
     cajas = [
-        Caja(f + 0.03 + 1.545, 0.0, 1.545, 0.17, 0, "banda", alto=0.83),
+        Caja(f + 0.03 + 1.545, 0.0, 1.545, 0.17, 0, "banda", alto=0.8215),
         Caja(f + 0.015, 0.11, 0.015, 0.02, 0, "tope izquierdo", alto=0.30),
         Caja(f + 0.015, -0.11, 0.015, 0.02, 0, "tope derecho", alto=0.30),
         # guías en V a los lados del carrito acoplado: tramo recto (±0.75 mm de juego) y boca abierta

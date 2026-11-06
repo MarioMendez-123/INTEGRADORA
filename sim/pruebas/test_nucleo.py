@@ -50,6 +50,36 @@ def test_energia_como_en_la_guia():
     assert e["v"]["elevador"] == 0 and e["v"]["gpio34"] == 0 and e["esp32_vivo"]
 
 
+def test_conexiones_de_la_guia_321():
+    c = Circuito()
+    assert {"p102", "p103"} <= {x["id"] for x in c.cables}
+    assert c.volt("VM.+") in (None, 0.0)                # sin KCD1, el voltímetro queda apagado
+    c.kcd1 = True
+    c.evaluar()
+    e = c.estado()
+    assert e["v"]["elevador"] == 18.0 and e["esp32_vivo"]   # los capacitores no conducen: nada cambia
+    assert c.dif("C11.+", "C11.-") == 5.05 and c.dif("C18.+", "C18.-") == 18.0
+    assert c.dif("VM.+", "VM.-") > 12
+    c.conectar("F10.out", "BAT.-")
+    assert not c.fusible_ok["F10"] and any("fusible 5 A" in a for a in c.avisos)
+
+
+def test_limite_de_corriente_del_elevador():
+    s = encendido()
+    pico = 0.0
+    for _ in range(3):
+        mandar(s, 60, 60, 0.2)
+        pico = max(pico, s.circuito.i_motores)
+    assert pico < 6.0 and s.circuito.estado()["v"]["elevador"] == 18.0   # manejar normal no llega al límite
+    s = encendido()
+    s.circuito.i_cc = 0.4
+    bajo = 18.0
+    for _ in range(10):
+        mandar(s, 60, 60, 0.1)
+        bajo = min(bajo, s.circuito.estado()["v"]["elevador"])
+    assert bajo < 18.0
+
+
 def test_corto_quema_fusible_y_12v_quema_esp32():
     c = Circuito()
     c.kcd1 = True

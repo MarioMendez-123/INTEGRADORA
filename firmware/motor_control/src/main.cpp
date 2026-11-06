@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// ------------------------------------------------------------------ pines (guía rev. 3.17c)
+// ------------------------------------------------------------------ pines (guía rev. 3.21; no cambiaron desde la 3.17c)
 static const int PIN_DE = 4, PIN_RX = 16, PIN_TX = 17, PIN_PARO = 34, PIN_BAT = 39;
 static const int XSHUT[3] = {32, 33, 15};          // frente, izquierdo, derecho
 

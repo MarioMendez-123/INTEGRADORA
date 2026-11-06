@@ -6,15 +6,15 @@ Una cámara sola no mide distancia: el porcentaje de área es un indicio de cerc
 Este módulo devuelve ese mismo formato, y además `arucos` y `detalle`, que son EXTRAS del simulador:
 el agente real todavía no calcula la posición de los ArUco (solo detecta el ID) ni da detalle por objeto.
 
-Geometría de la cámara (guía de armado rev. 3.17c y hoja de la C920): a 0.18 m delante del eje de las
-ruedas, a 1.066 m del piso, inclinada 6° hacia abajo, 70.4° × 43.3° de campo (16:9), 1280 × 720 px.
+Geometría de la cámara (guía de armado rev. 3.21 y hoja de la C920): a 0.18 m delante del eje de las
+ruedas, a 1.077 m del piso, inclinada 6° hacia abajo, 70.4° × 43.3° de campo (16:9), 1280 × 720 px.
 Las clases de los obstáculos simulados son "person" y "box"; en el YOLO real salen nombres de COCO.
 """
 from __future__ import annotations
 
 import math
 
-CAM_X, CAM_Z, TILT = 0.18, 1.066, 6.0
+CAM_X, CAM_Z, TILT = 0.18, 1.077, 6.0
 FOV_H, FOV_V = 70.4, 43.3
 FOCAL_PX = 914.0                  # a 1280 × 720
 PX_MINIMO = 40                    # tamaño mínimo para creerle a un ArUco (compuerta de la guía de navegación)

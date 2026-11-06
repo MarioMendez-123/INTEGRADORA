@@ -22,7 +22,7 @@ DATOS = pathlib.Path(__file__).resolve().parent.parent / "datos"
 PINES_EXTRA = {
     "BAT.+": "Batería · borne +", "BAT.-": "Batería · borne −",
     "F15.in": "Fusible 15 A (motores) · entrada", "F15.out": "Fusible 15 A (motores) · salida",
-    "F10.in": "Fusible 10 A (lógica) · entrada", "F10.out": "Fusible 10 A (lógica) · salida",
+    "F10.in": "Fusible 5 A (lógica) · entrada", "F10.out": "Fusible 5 A (lógica) · salida",
     "KCD.a": "Interruptor KCD1 · pata 1", "KCD.b": "Interruptor KCD1 · pata 2",
     "PARO.1": "Paro LAY37 (NC) · borne 1", "PARO.2": "Paro LAY37 (NC) · borne 2",
     "RELE.VCC": "Relé T90 · VCC", "RELE.GND": "Relé T90 · GND", "RELE.COM": "Relé T90 · COM", "RELE.NO": "Relé T90 · NO",
@@ -31,6 +31,8 @@ PINES_EXTRA = {
     "JET.+12": "Jetson · 12 V", "JET.GND": "Jetson · GND",
     "ML.V+": "M0601 izquierdo · V+", "ML.GND": "M0601 izquierdo · GND", "ML.A": "M0601 izquierdo · A", "ML.B": "M0601 izquierdo · B",
     "MR.V+": "M0601 derecho · V+", "MR.GND": "M0601 derecho · GND", "MR.A": "M0601 derecho · A", "MR.B": "M0601 derecho · B",
+    "VM.+": "Voltímetro 3030N · rojo (+)", "VM.-": "Voltímetro 3030N · negro (−)",
+    "C18.+": "Capacitor 1000 µF (18 V) · pata +", "C18.-": "Capacitor 1000 µF (18 V) · franja (−)",
 }
 SENSORES_VL = {"VL0": "VL53L0X frontal", "VL1": "VL53L0X izquierdo", "VL2": "VL53L0X derecho", "VLP": "VL53L0X de la pila"}
 for k, n in SENSORES_VL.items():
@@ -41,7 +43,7 @@ for k, n in FINALES.items():
     PINES_EXTRA[f"{k}.S"] = f"{n} · señal (NC)"
     PINES_EXTRA[f"{k}.G"] = f"{n} · tierra"
 
-ARNES = [  # (de, a, grupo, color) — de la guía rev. 3.17c (textos de los pasos de potencia)
+ARNES = [  # (de, a, grupo, color) — de la guía rev. 3.21 (textos de los pasos de potencia)
     ("BAT.+", "F15.in", "Potencia", "cRed"), ("BAT.+", "F10.in", "Potencia", "cRed"),
     ("BAT.-", "ELEV.IN-", "Potencia", "cBlk"),
     ("F10.out", "KCD.a", "Rama auxiliar", "cRed"), ("KCD.b", "XL.IN+", "Rama auxiliar", "cRed"),
@@ -66,6 +68,9 @@ ARNES += [("J6.X0", "VL0.XSHUT", "Sensores VL53L0X", "cOli"), ("J6.X1", "VL1.XSH
 for i in (1, 2, 3):
     ARNES += [(f"J4.FC{i}", f"FC{i}.S", "Finales de carrera", "cBei"), (f"J4.GND{i}", f"FC{i}.G", "Finales de carrera", "cBlk")]
 ARNES += [("J13.FC4", "FC4.S", "Finales de carrera", "cBei"), ("J13.GND4", "FC4.G", "Finales de carrera", "cBlk")]
+# rev. 3.17d, al final para no mover los h1, h2… En corriente directa el capacitor no conduce: aquí solo queda conectado.
+ARNES += [("XL.IN+", "VM.+", "Voltímetro", "cRed"), ("VM.-", "XL.IN-", "Voltímetro", "cBlk"),
+          ("ELEV.OUT+", "C18.+", "Capacitor de 18 V", "cRed"), ("C18.-", "ELEV.OUT-", "Capacitor de 18 V", "cBlk")]
 
 UNIDOS_POR_DENTRO = [  # pines que el propio módulo ya une
     ("E.GND1", "E.GND2"), ("E.GND1", "E.GNDL"), ("L.GNDL", "L.GNDH"), ("XL.IN-", "XL.OUT-"),
@@ -73,6 +78,7 @@ UNIDOS_POR_DENTRO = [  # pines que el propio módulo ya une
 ]
 RESISTENCIAS = {"R1": 100e3, "R2": 20e3, "R3": 100e3, "R4": 20e3, "R5": 10e3, "REN": 10e3}
 GPIO_SOLO_ENTRADA = {34, 35, 36, 39}
+FUSIBLE_A = {"F15": 15.0, "F10": 5.0}               # F10 es el nombre interno que le da la guía; desde la rev. 3.17d es de 5 A
 
 
 class _Uniones:
@@ -115,8 +121,10 @@ class Circuito:
         self.r_interna = 0.02
         self.ah_usados = 0.0
         self.i_motores = 0.0                            # A a 18 V (lo pone la simulación)
+        self.i_cc = 6.0                                 # perilla de corriente del elevador (la guía pide ~6 A)
+        self.f_cc = 1.0                                 # 1 = el elevador da su voltaje completo; menos = está en su límite
         self._t_sobre = {"F15": 0.0, "F10": 0.0}
-        self.corrientes = {"F15": 0.0, "F10": 0.0, "bat": 0.0}
+        self.corrientes = {"F15": 0.0, "F10": 0.0, "bat": 0.0, "motores": 0.0}
         self.redes: dict[str, str] = {}
         self.v: dict[str, float | None] = {}
         self.avisos: list[str] = []
@@ -203,7 +211,7 @@ class Circuito:
             for f in ("F15", "F10"):
                 if self.fusible_ok[f] and m0[f"{f}.out"] == m0["BAT.-"]:
                     self.fusible_ok[f] = False
-                    self.avisos.append(f"Se quemó el fusible {f[1:]} A: su salida quedó en corto con la tierra")
+                    self.avisos.append(f"Se quemó el fusible {FUSIBLE_A[f]:.0f} A: su salida quedó en corto con la tierra")
                     quemado = True
             self.redes = self._mapa(False)
             tierra = self.red("BAT.-")
@@ -237,7 +245,7 @@ class Circuito:
             v_el_in = fijas.get(self.red("ELEV.IN+")) if self.red("ELEV.IN-") == tierra else None
             elev_ok = v_el_in is not None and 9.5 <= v_el_in <= 16 and "ELEV" not in self.danos
             if elev_ok and self.red("ELEV.OUT+") != tierra:
-                fijar("ELEV.OUT+", 18.0 if v_el_in >= 10.5 else 18.0 * (v_el_in - 9.5), "elevador")
+                fijar("ELEV.OUT+", (18.0 if v_el_in >= 10.5 else 18.0 * (v_el_in - 9.5)) * self.f_cc, "elevador")
             v5 = fijas.get(self.red("E.5V")) if self.red("E.GND1") == tierra else None
             esp_vivo = v5 is not None and 4.3 <= v5 <= 6.5 and "ESP32" not in self.danos
             if v5 is not None and v5 > 6.5 and "ESP32" not in self.danos:
@@ -337,14 +345,18 @@ class Circuito:
             carga_5v = (0.15 if self.esp_vivo else 0.0) + (0.01 if self.modulo_ok("MAX485", "M.VCC", "M.GND", 4.5) else 0.0)
             aux += 5.05 * carga_5v / 0.88 / max(v_bat, 1)
         if self.dif("JET.+12", "JET.GND") > 9:
-            aux += 1.2                                   # Jetson en 25 W con carga ligera (estimado)
+            aux += 1.2                                   # Jetson con carga ligera, ~15 W (estimado; con 25 W serían ~2 A)
         if self.rele_cerrado:
             aux += 0.07                                  # bobina del relé
-        mot = 18.0 * self.i_motores / 0.9 / max(v_bat, 1) if self.elev_ok else 0.0
-        self.corrientes = {"F15": mot if self.fusible_ok["F15"] else 0.0, "F10": aux if self.fusible_ok["F10"] else 0.0}
+        # ponytail: el límite CC se modela bajando el voltaje poco a poco, no con el lazo real del elevador; alcanza para ver su efecto
+        self.f_cc = max(0.0, self.f_cc - 3 * dt) if self.i_motores > self.i_cc else min(1.0, self.f_cc + 3 * dt)
+        if self.f_cc < 1.0:
+            self.avisos.append(f"El elevador llegó a su límite de {self.i_cc:.1f} A: bajó el voltaje de las ruedas")
+        mot = 18.0 * self.f_cc * self.i_motores / 0.9 / max(v_bat, 1) if self.elev_ok else 0.0
+        self.corrientes = {"F15": mot if self.fusible_ok["F15"] else 0.0, "F10": aux if self.fusible_ok["F10"] else 0.0, "motores": self.i_motores if self.elev_ok else 0.0}
         self.corrientes["bat"] = self.corrientes["F15"] + self.corrientes["F10"]
         self.ah_usados += self.corrientes["bat"] * dt / 3600
-        for f, nominal in (("F15", 15.0), ("F10", 10.0)):
+        for f, nominal in FUSIBLE_A.items():
             i = self.corrientes[f]
             if i > 2 * nominal:
                 self._t_sobre[f] += dt
@@ -383,6 +395,6 @@ class Circuito:
             "fusibles": self.fusible_ok, "corrientes": {k: round(v, 2) for k, v in self.corrientes.items()},
             "v": {"bateria": r("BAT.+"), "xl4005": round(self.dif("XL.OUT+", "XL.OUT-"), 2), "elevador": round(self.dif("ELEV.OUT+", "ELEV.OUT-"), 2),
                   "esp32_3v3": r("E.3V3"), "gpio34": r("E.34"), "gpio39": r("E.39"), "gpio35": r("E.35")},
-            "esp32_vivo": self.esp_vivo, "danos": dict(self.danos), "avisos": list(self.avisos),
+            "esp32_vivo": self.esp_vivo, "elevador_cc": self.f_cc < 1.0, "danos": dict(self.danos), "avisos": list(self.avisos),
             "finales": sorted(self.finales_presionados), "ah": round(self.ah_usados, 4),
         }

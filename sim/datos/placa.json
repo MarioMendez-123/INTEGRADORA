@@ -1,5 +1,5 @@
 {
- "fuente": "Guía Armado del carrito Aether rev. 3.17c (window.__aether.PIN y WIRES)",
+ "fuente": "Guía Armado del carrito Aether rev. 3.21 (window.__aether.PIN y WIRES)",
  "pines": {
   "E.3V3": {
    "name": "ESP32 · 3V3",
@@ -885,6 +885,16 @@
    "name": "J11 · SIG",
    "where": "header macho del servo, pin 3 (naranja del servo)",
    "comp": null
+  },
+  "C11.-": {
+   "name": "C 100 µF del servo · pata − (franja)",
+   "where": "la pata de la franja, en línea con J11 GND",
+   "comp": null
+  },
+  "C11.+": {
+   "name": "C 100 µF del servo · pata + (larga)",
+   "where": "la pata larga, del lado de la orilla",
+   "comp": null
   }
  },
  "cables": [
@@ -1695,6 +1705,22 @@
    "from": "J13.GND4",
    "to": "J4.GND3",
    "mat": "cBlk"
+  },
+  {
+   "id": "w102",
+   "n": 102,
+   "group": "Capacitor del servo (rev. 3.17d)",
+   "from": "C11.-",
+   "to": "J11.GND",
+   "mat": "cTin"
+  },
+  {
+   "id": "w103",
+   "n": 103,
+   "group": "Capacitor del servo (rev. 3.17d)",
+   "from": "C11.+",
+   "to": "J11.+5V",
+   "mat": "cTin"
   }
  ]
 }

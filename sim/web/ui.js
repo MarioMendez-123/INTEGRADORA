@@ -100,7 +100,7 @@
     const el = e.electrico, v = el.v;
     const n = (titulo, valor, estadoNodo) => `<div class="nodo ${estadoNodo}"><b>${titulo}</b><span>${valor}</span></div>`, f = '<span class="flecha">→</span>';
     const sano = ok => ok ? 'on' : '';
-    return `${n('Batería', num(v.bateria, 1) + ' V', 'on')}${f}${n('Fusible 10 A', el.fusibles.F10 ? num(el.corrientes.F10) + ' A' : 'quemado', el.fusibles.F10 ? sano(el.kcd1) : 'mal')}${f}${n('KCD1', el.kcd1 ? 'on' : 'off', sano(el.kcd1))}${f}${n('XL4005', num(v.xl4005) + ' V', sano(v.xl4005 > 4.8))}${f}${n('ESP32', e.esp32.vivo ? 'vivo' : 'apagado', sano(e.esp32.vivo))}
+    return `${n('Batería', num(v.bateria, 1) + ' V', 'on')}${f}${n('Fusible 5 A', el.fusibles.F10 ? num(el.corrientes.F10) + ' A' : 'quemado', el.fusibles.F10 ? sano(el.kcd1) : 'mal')}${f}${n('KCD1', el.kcd1 ? 'on' : 'off', sano(el.kcd1))}${f}${n('XL4005', num(v.xl4005) + ' V', sano(v.xl4005 > 4.8))}${f}${n('ESP32', e.esp32.vivo ? 'vivo' : 'apagado', sano(e.esp32.vivo))}
       <div style="flex-basis:100%;height:0"></div>
       ${n('Batería', num(v.bateria, 1) + ' V', 'on')}${f}${n('Fusible 15 A', el.fusibles.F15 ? num(el.corrientes.F15) + ' A' : 'quemado', el.fusibles.F15 ? sano(el.rele) : 'mal')}${f}${n('Paro y relé', el.rele ? 'cerrado' : 'abierto', sano(el.rele))}${f}${n('Elevador', num(v.elevador, 1) + ' V', sano(v.elevador > 17))}${f}${n('M0601 ×2', e.motores.map(m => m.rpm).join(' / ') + ' rpm', sano(e.motores.some(m => m.v > 12)))}`;
   }

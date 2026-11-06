@@ -138,13 +138,13 @@ for _ in range(5):
 
   const PASOS = [
     { t: 'Conoce el simulador', manual: true, h: `
-      <p>Este es tu carrito tal como está en la guía de armado rev. 3.17c, ya armado y cableado. Empieza acoplado en la banda (enfrente de él). A 4 m hacia atrás y a la izquierda está la estación de descarga: una mesa inclinada de ejemplo. Los ArUco van a 1.5 m; el cuadrito que ves a media altura junto a la banda es el ArUco viejo de la guía, a 0.45 m.</p>
+      <p>Este es tu carrito tal como está en la guía de armado rev. 3.21, ya armado y cableado. Empieza acoplado en la banda (enfrente de él). A 4 m hacia atrás y a la izquierda está la estación de descarga: una mesa inclinada de ejemplo. Los ArUco van a 1.5 m; el cuadrito que ves a media altura junto a la banda es el ArUco viejo de la guía, a 0.45 m.</p>
       <ol><li>Gira la vista arrastrando con el mouse; acerca con la rueda.</li>
       <li>Abajo a la derecha está lo que ve la cámara C920 del carrito.</li>
-      <li>Revisa las pestañas: <b>Mandos</b> (energía y botones), <b>Medidas</b> (el multímetro), <b>Cables</b> (los 101 de la placa y el arnés) y <b>Monitor</b> (lo que imprime tu programa).</li></ol>
+      <li>Revisa las pestañas: <b>Mandos</b> (energía y botones), <b>Medidas</b> (el multímetro), <b>Cables</b> (los 103 de la placa y el arnés) y <b>Monitor</b> (lo que imprime tu programa).</li></ol>
       <p>Las líneas azules que salen de abajo del carrito son los VL53L0X; se ponen rojas si algo está a menos de 40 cm.</p>` },
     { t: 'Enciende la lógica con el KCD1', h: `
-      <p>En <b>Mandos</b> pulsa <b>KCD1</b>. La corriente sale de la batería, pasa por el fusible de 10 A y el KCD1, y llega al XL4005, que da 5 V al ESP32, al MAX485 y al servo. También le llega a la Jetson.</p>
+      <p>En <b>Mandos</b> pulsa <b>KCD1</b>. La corriente sale de la batería, pasa por el fusible de 5 A y el KCD1, y llega al XL4005, que da 5 V al ESP32, al MAX485 y al servo. También le llega a la Jetson.</p>
       <p>Debes ver en <b>Medidas</b>: XL4005 ≈ 5.05 V y 3V3 del ESP32 = 3.3 V.</p>`,
       ok: e => e.electrico.kcd1 && e.esp32.vivo && Math.abs(e.electrico.v.xl4005 - 5.05) < 0.1 },
     { t: 'El paro alimenta el relé: 18 V a las ruedas', h: `

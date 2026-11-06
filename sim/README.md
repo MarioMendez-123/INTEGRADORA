@@ -1,12 +1,12 @@
 # Simulador del carrito Aether
 
-Es el carrito de la guía de armado (rev. 3.17c), ya armado y cableado, en 3D y con física. El mismo firmware que va al ESP32 real
+Es el carrito de la guía de armado (rev. 3.21), ya armado y cableado, en 3D y con física. El mismo firmware que va al ESP32 real
 se compila para la PC y maneja el carrito virtual: si el programa, el cableado o la energía están mal, falla igual que el real.
 
 ## Arrancar (laptop, PowerShell, en la carpeta del repo)
 
 ```powershell
-python sim\preparar_modelo.py "C:\Users\mende\Downloads\Armado del carrito Aether (2) (2).html"   # una vez por revisión de la guía
+python sim\preparar_modelo.py "C:\Users\mende\Downloads\Armado del carrito Aether (1).html"   # una vez por revisión de la guía
 backend\.venv\Scripts\python.exe sim\servidor.py
 ```
 
@@ -22,17 +22,18 @@ backend\.venv\Scripts\python.exe sim\servidor.py --firmware firmware\motor_contr
 
 | Simula | Cómo |
 |---|---|
-| Energía | Batería, fusibles de 15 A y 10 A, KCD1, paro NC, relé, XL4005 (5 V), elevador (18 V), regulador de 3.3 V |
-| Cables | Los 101 de la placa (sacados de la guía) más el arnés; se cortan, se agregan y se cruzan |
+| Energía | Batería, fusibles de 15 A y 5 A, KCD1, paro NC, relé, XL4005 (5 V), elevador (18 V, con su límite de corriente de ~6 A), regulador de 3.3 V |
+| Cables | Los 103 de la placa (sacados de la guía) más el arnés; se cortan, se agregan y se cruzan |
 | Daños | Cortos que queman fusibles, más de 3.6 V en un GPIO, polaridad invertida, sobrevoltaje en módulos |
 | M0601 | Tramas de 10 bytes con CRC-8/MAXIM, IDs, modo, 50 Hz o rueda libre, freno, curva par-velocidad, bloqueo |
 | RS485 | MAX485 con DE/RE, convertidor de nivel, A/B, velocidad en baud |
 | Física | 40 kg, adherencia de las llantas (85 N por rueda motriz), rodar, choques con banda, topes y guías en V |
 | Sensores | 4 VL53L0X (direcciones I²C y XSHUT), BNO055, paro (GPIO 34), batería (GPIO 39), finales de carrera |
-| Cámara | Vista de la C920 a 1.06 m y 6° hacia abajo (solo se ve; todavía no se le pasa a Python) |
+| Cámara | Vista de la C920 a 1.08 m y 6° hacia abajo (solo se ve; todavía no se le pasa a Python) |
 
 No simula todavía: la torre (elevador, empujador, servo, A4988), el detalle registro por registro del I²C,
-ruido eléctrico y transitorios. Los valores del motor y de la fricción son estimados: se ajustan cuando midan el carrito real.
+ruido eléctrico y transitorios. Los capacitores de 100 µF y 1000 µF están conectados, pero no hacen nada aquí: el simulador no modela picos ni el voltaje que sube al frenar. Esa parte se comprueba con la prueba de banco de la guía.
+Los valores del motor y de la fricción son estimados: se ajustan cuando midan el carrito real. La constante de par (0.75 N·m/A) y la resistencia (2.15 Ω) son de la hoja del DDSM115, que la guía dice que es el mismo motor.
 
 ## Puertos (solo en esta computadora)
 

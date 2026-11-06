@@ -52,7 +52,7 @@ const arrow = (x1, y1, x2, y2, label = "", color = "#8b7fff", dy = -12) => `<lin
 const svg = (w, h, inner) => `<svg class="dia a" style="--i:1" viewBox="0 0 ${w} ${h}"><defs><marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#8b7fff"/></marker></defs>${inner}</svg>`;
 
 const workflow = () => svg(1700, 640,
-  box(0, 200, 270, 150, T("Part on belt", "Pieza en banda"), T("fixture holds it|QR identifies it", "el fixture la sujeta|el QR la identifica")) +
+  box(0, 200, 270, 150, T("Part on belt", "Pieza en banda"), T("fixture holds it|YOLO recognizes it", "el fixture la sujeta|YOLO la reconoce")) +
   arrow(270, 275, 345, 275) +
   box(345, 200, 300, 150, T("Vision judges", "La visión juzga"), T("5 equal readings|every 0.5 s", "5 lecturas iguales|cada 0.5 s")) +
   arrow(645, 240, 790, 110, "", "#3ddc97") + `<text x="690" y="150" fill="#3ddc97" font-size="30" font-weight="800" text-anchor="middle">PASS</text>` +
@@ -69,7 +69,7 @@ const network = () => svg(1700, 700,
   `<text x="360" y="32" fill="#9aa1b8" font-size="24" text-anchor="middle" font-family="IBM Plex Mono">${T("MANUFACTURING CELL", "CELDA DE MANUFACTURA")}</text><text x="1340" y="32" fill="#9aa1b8" font-size="24" text-anchor="middle" font-family="IBM Plex Mono">${T("MOBILE ROBOT", "ROBOT MÓVIL")}</text>` +
   box(650, 60, 400, 160, T("Laptop (server)", "Laptop (servidor)"), T("FastAPI, SQLite, dashboard|Lumina: Ollama and Vosk", "FastAPI, SQLite, panel|Lumina: Ollama y Vosk"), "#f2f3f8") +
   box(180, 290, 360, 150, "Raspberry Pi 4", T("USB camera, PASS/FAIL|GPIO 8 and 9", "cámara USB, PASS/FAIL|GPIO 8 y 9")) +
-  box(1160, 290, 360, 150, "Jetson Orin Nano Super", T("camera, YOLO, QR, ArUco|port 8001", "cámara, YOLO, QR, ArUco|puerto 8001")) +
+  box(1160, 290, 360, 150, "Jetson Orin Nano Super", T("camera, YOLO, ArUco|port 8001", "cámara, YOLO, ArUco|puerto 8001")) +
   arrow(650, 170, 400, 290) + `<text x="490" y="205" fill="#8b7fff" font-size="22" font-weight="600" text-anchor="end">${T("LAN: part events", "Red local: eventos de pieza")}</text>` +
   arrow(1050, 170, 1300, 290) + `<text x="1210" y="205" fill="#8b7fff" font-size="22" font-weight="600" text-anchor="start">${T("LAN: observations", "Red local: observaciones")}</text>` +
   box(180, 530, 360, 150, "LOGO! (PLC)", T("belt motor, piston valve|IR presence sensor", "motor de banda, válvula|sensor infrarrojo")) +
@@ -138,7 +138,7 @@ const SLIDES = [
 
   { sec: T("Interconnections", "Interconexiones"), by: "Mario", title: T("How the devices talk", "Cómo se comunican los equipos"), tight: true, body: network },
 
-  { sec: T("Electrical diagrams", "Diagramas eléctricos"), by: "Emmanuel", title: T("Cart: power and emergency stop", "Carrito: potencia y paro de emergencia"), tight: true, body: () => fig(T("elec_potencia_en.png", "fig09.png"), "", "paper") },
+  { sec: T("Electrical diagrams", "Diagramas eléctricos"), by: "Emmanuel", title: T("Cart: power and emergency stop", "Carrito: potencia y paro de emergencia"), tight: true, body: () => fig(T("elec_potencia_en.png", "elec_potencia_es.png"), "", "paper") },
 
   { sec: T("Electrical diagrams", "Diagramas eléctricos"), by: "Uriel", title: T("Cell: Raspberry Pi, relays and LOGO!", "Celda: Raspberry Pi, relevadores y LOGO!"), tight: true, body: () => fig(T("elec_celda_en.png", "fig10.png"), "", "paper") },
 

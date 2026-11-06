@@ -9,8 +9,9 @@ falta compararlo byte por byte con la hoja del M0601:
   poner ID  AA 55 53 ID 00 00 00 00 00 00        (solo con un motor en el bus; sin respuesta)
 
 Valores del modelo que NO salen de una medición (se ajustan cuando midan el motor real):
-  TIEMPO_SIN_TRAMA_S, KT, I0, KP, KI, FRENO_KD, V_MIN.
+  TIEMPO_SIN_TRAMA_S, I0, KP, KI, FRENO_KD, V_MIN.
 De la hoja (DFRobot FIT1042/FIT1038): 18 V, 200 rpm en vacío, 0.96 N·m a 115 rpm, encoder 4096.
+De la hoja del DDSM115 (Waveshare), si de verdad es el mismo motor: KT 0.75 N·m/A, 2.15 Ω, bloqueado 2.0 N·m y hasta 2.7 A.
 """
 from __future__ import annotations
 
@@ -23,7 +24,8 @@ RPM_VACIO = 200.0
 PAR_NOMINAL, RPM_NOMINAL = 0.96, 115.0
 PAR_ARRANQUE = PAR_NOMINAL / (1 - RPM_NOMINAL / RPM_VACIO)   # 2.26 N·m si la curva es recta
 V_MIN = 12.0                 # por debajo, el driver interno no arranca (supuesto)
-KT = 0.40                    # N·m por A (supuesto)
+KT = 0.75                    # N·m por A (hoja del DDSM115)
+R_FASE = 2.15                # Ω (hoja del DDSM115)
 I0 = 0.12                    # A en vacío (supuesto)
 TIEMPO_SIN_TRAMA_S = 0.06    # sin tramas de manejo por más de esto, la rueda queda libre (supuesto)
 KP, KI, FRENO_KD = 0.35, 2.5, 1.2
@@ -113,6 +115,14 @@ class M0601:
         if not self.alimentado:
             return 0.0
         return I0 + abs(self.par) / KT
+
+    def corriente_fuente(self) -> float:
+        """Lo que jala de los 18 V, que no es la corriente del motor: potencia mecánica + pérdidas en el cobre.
+        Si frena con más potencia que esas pérdidas no pide nada: esa energía va al capacitor de 1000 µF (aquí no se modela)."""
+        if not self.alimentado:
+            return 0.0
+        i = abs(self.par) / KT
+        return I0 + max(0.0, self.par * self.omega + i * i * R_FASE) / max(self.voltaje, 1.0)
 
     def actualizar(self, t: float, dt: float, omega_rueda: float) -> float:
         """Calcula el par que aplica a la rueda. omega_rueda en rad/s (+ = hacia adelante)."""

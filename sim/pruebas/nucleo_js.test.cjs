@@ -36,6 +36,15 @@ test('energía como en la guía', () => {
   assert.ok(e.v.gpio34 > 2.0 && e.v.gpio34 < 2.4, e.v.gpio34);
 });
 
+test('conexiones de la guía 3.21', () => {
+  const { g, sim } = mundo();
+  assert.strictEqual(g.PLACA.cables.length, 103);
+  sim.c.kcd1 = true; sim.c.evaluar();
+  assert.strictEqual(sim.c.estado().v.elevador, 18); assert.ok(sim.c.dif('VM.+', 'VM.-') > 12);
+  sim.c.conectar('F10.out', 'BAT.-');
+  assert.ok(!sim.c.fusOk.F10 && sim.c.avisos.some(a => a.includes('fusible 5 A')), sim.c.avisos.join());
+});
+
 test('ruta en L: banda → descarga → banda, acoplando en las dos', () => {
   const { g, sim, jet, log, correr } = mundo();
   sim.c.kcd1 = true; correr(1.0);

@@ -1,7 +1,7 @@
 r"""Prepara el modelo 3D del carrito para el simulador a partir de tu guía de armado.
 
 Uso (laptop, PowerShell, dentro de la carpeta del repo):
-    python sim/preparar_modelo.py "C:\Users\mende\Downloads\Armado del carrito Aether (2) (2).html"
+    python sim/preparar_modelo.py "C:\Users\mende\Downloads\Armado del carrito Aether (1).html"
 
 Copia la guía a sim/generado/carrito_3d.html con dos cambios pequeños:
 1. deja a la vista la librería 3D (window.__THREE) para que el simulador agregue cosas a la escena;
@@ -13,7 +13,7 @@ import pathlib
 import sys
 
 AQUI = pathlib.Path(__file__).resolve().parent
-POR_OMISION = pathlib.Path.home() / "Downloads" / "Armado del carrito Aether (2) (2).html"
+POR_OMISION = pathlib.Path.home() / "Downloads" / "Armado del carrito Aether (1).html"
 ANCLA_IMPORT = "import { mergeGeometries, toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';"
 ANCLA_FINAL = "window.__aether = {"
 MODO_SIM = """
