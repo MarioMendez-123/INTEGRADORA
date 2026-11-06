@@ -6,6 +6,7 @@ de solo lectura, y sirve el dashboard estático (dashboard/) en la raíz —
 mismo origen, sin CORS (Decisión 7, Opción B).
 """
 
+import hashlib
 import json
 import logging
 import os
@@ -397,6 +398,7 @@ def _make_line_vision_processor():
     clases = read_class_names()
 
     def process(frame):
+        
         entorno_results = entorno(frame, verbose=False)
         for box in entorno_results[0].boxes:
             _draw_deteccion(frame, box, entorno.names[int(box.cls[0])], (180, 180, 180))
@@ -857,6 +859,10 @@ LUMINA_SYSTEM_PROMPT = (
 # coincide, sigue el flujo normal contra Ollama más abajo.
 PRELOADED_ANSWERS: list[tuple[re.Pattern, str]] = [
     (
+        re.compile(r"c[oó]mo est[aá]s", re.IGNORECASE),
+        "Muy bien y listo para trabajar.",
+    ),
+    (
         re.compile(r"c[oó]mo te llamas|cu[aá]l es tu nombre", re.IGNORECASE),
         "Soy Lumina, el robot móvil de Aether. Mucho gusto.",
     ),
@@ -937,6 +943,7 @@ class RobotAskRequest(BaseModel):
     """Cuerpo de POST /robot/ask."""
 
     question: str
+    embed: bool = False  # la presentación muestra la proyección dentro de su propia página
 
 
 @app.get("/robot/essay")
@@ -974,7 +981,7 @@ def ask_robot(body: RobotAskRequest):
     if not question:
         raise HTTPException(status_code=422, detail="question no puede estar vacío.")
 
-    desktop = handle_desktop(question)
+    desktop = handle_desktop(question, embed=body.embed)
     if desktop is not None:
         return desktop
 
@@ -1195,6 +1202,9 @@ class RobotTtsRequest(BaseModel):
     text: str
 
 
+TTS_CACHE_DIR = Path(__file__).resolve().parent / "tts_cache"
+
+
 @app.post("/robot/tts")
 def robot_tts(body: RobotTtsRequest):
     """Sintetiza `text` con ElevenLabs y devuelve MP3. La API key vive solo
@@ -1203,6 +1213,10 @@ def robot_tts(body: RobotTtsRequest):
     text = body.text.strip()
     if not text:
         raise HTTPException(status_code=422, detail="text no puede estar vacío.")
+    # Sin internet, una frase que ya se dijo una vez sigue sonando con la misma voz.
+    cached = TTS_CACHE_DIR / (hashlib.sha1(f"{ELEVENLABS_VOICE_ID}|{text}".encode("utf-8")).hexdigest() + ".mp3")
+    if cached.exists():
+        return Response(content=cached.read_bytes(), media_type="audio/mpeg")
     if not ELEVENLABS_API_KEY or not ELEVENLABS_VOICE_ID:
         raise HTTPException(status_code=503, detail="ElevenLabs no está configurado.")
     request = urllib.request.Request(
@@ -1216,11 +1230,14 @@ def robot_tts(body: RobotTtsRequest):
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=30) as response:
+        # 8 s y no más: sin red, Lumina debe caer pronto a la voz de Windows en vez de quedarse callada.
+        with urllib.request.urlopen(request, timeout=8) as response:
             audio = response.read()
     except (urllib.error.URLError, TimeoutError) as exc:
         logger.warning("Lumina: ElevenLabs falló (%s).", exc)
         raise HTTPException(status_code=503, detail="ElevenLabs no respondió.") from exc
+    TTS_CACHE_DIR.mkdir(exist_ok=True)
+    cached.write_bytes(audio)
     return Response(content=audio, media_type="audio/mpeg")
 
 

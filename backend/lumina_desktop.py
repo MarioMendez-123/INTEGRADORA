@@ -103,11 +103,11 @@ _WATCH = re.compile(r"\bav[ií]same si la bater[ií]a baja de\s+(\d+)", re.I)
 _ZONE = re.compile(r"\bqu[eé] hora es en\b", re.I)
 MEMORY_PATH = ROOT / "lumina_memory.json"
 _WHO = re.compile(
-    r"\b(?:ens[eé][nñ]a(?:nos|me)?|muestra(?:nos|me)?)\b.*\bqui[eé]n eres\b",
+    r"\b(?:ens[eé][nñ]a(?:nos|me)?|mu[eé]stra(?:nos|me)?)\b.*\bqui[eé]n eres\b",
     re.I,
 )
 _INTERIOR = re.compile(
-    r"\b(?:muestra(?:nos|me)?|ense[nñ]a(?:nos|me)?|abre)\b.*\b(?:tu interior|el interior|por dentro|adentro)\b",
+    r"\b(?:mu[eé]stra(?:nos|me)?|ens[eé][nñ]a(?:nos|me)?|abre)\b.*\b(?:tu interior|el interior|por dentro|adentro)\b",
     re.I,
 )
 _HOLO = re.compile(
@@ -429,12 +429,16 @@ def parse_intent(text: str) -> dict | None:
     return None
 
 
-def handle_desktop(text: str) -> dict | None:
-    """Ejecuta un comando de escritorio. None = que siga Ollama."""
+def handle_desktop(text: str, embed: bool = False) -> dict | None:
+    """Ejecuta un comando de escritorio. None = que siga Ollama.
+
+    embed=True (presentación local, sin internet): no se consulta n8n, que está en la nube; sin red, Lumina contestaría
+    «n8n no respondió».
+    """
     global PENDING
     intent = parse_intent(text)
     if intent is None:
-        return _n8n_try(text)
+        return None if embed else _n8n_try(text)
     if intent["kind"] == "confirm_yes":
         with _lock:
             job = PENDING
@@ -2214,6 +2218,7 @@ def _show_image(name: str) -> dict:
 
 
 def _holo(model: str, apart: bool = False, pose: str | None = None, reveal: bool = False) -> dict:
+    query = ""
     if model == "robot":
         bits = []
         if apart:

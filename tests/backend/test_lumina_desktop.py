@@ -185,6 +185,12 @@ def test_comandos_utiles():
     assert desk.parse_intent("Lumina, muestra tu interior") == {
         "kind": "holo", "model": "robot", "apart": False, "reveal": True,
     }
+    # El reconocedor de voz escribe "muéstranos" con acento.
+    assert desk.parse_intent("Lumina, muéstranos tu interior") == {
+        "kind": "holo", "model": "robot", "apart": False, "reveal": True,
+    }
+    # Sin internet, la presentación no debe tocar n8n: la frase sigue hacia las respuestas precargadas.
+    assert desk.handle_desktop("hola lumina cómo estás", embed=True) is None
     assert desk.parse_intent("descompón el robot") == {"kind": "holo", "model": "robot", "apart": True}
     assert desk.parse_intent("descompón la molécula de agua") == {"kind": "holo", "model": "agua", "apart": True}
     assert desk.parse_intent("proyecta la placa") == {"kind": "holo", "model": "placa", "apart": False}

@@ -1,0 +1,247 @@
+[
+[
+"a486eff",
+"2026-09-16",
+"Reemplaza arquitectura de brazos robÃ³ticos (KUKA+UR5) por banda+fixtures+pistÃ³n (ADR 0010, supersede ADR 0008)"
+],
+[
+"9b15e2e",
+"2026-09-16",
+"Corrige hallazgos de code review sobre a486eff (tagline y enum de accion)"
+],
+[
+"14ca6d9",
+"2026-09-16",
+"Robot Lumina (cara/voz/cÃ¡mara), changelog y TODO de banda+pistÃ³n, video final"
+],
+[
+"0e6cf47",
+"2026-09-17",
+"RediseÃ±o OLED sci-fi de la interfaz de Lumina (robot.html/css/js)"
+],
+[
+"2c3b230",
+"2026-09-17",
+"Fix: quita el const prefersReducedMotion duplicado en robot.js"
+],
+[
+"8a88fff",
+"2026-10-08",
+"Documenta Aether de punta a punta y deja un dictado sin simbolos para ElevenLabs."
+],
+[
+"1e28ca5",
+"2026-10-16",
+"Quita la camara en vivo del dominio publico y agrega Alianzas."
+],
+[
+"ef6f06e",
+"2026-10-16",
+"Cierra camara, piston y banda cuando la peticion no es del laboratorio."
+],
+[
+"a5a1b4f",
+"2026-10-16",
+"Deja la regla de nginx y Cloudflare para el dominio publico."
+],
+[
+"3e1e19a",
+"2026-10-16",
+"Quita la camara del dominio y deja la demo como correo a Mario."
+],
+[
+"63cc5db",
+"2026-10-16",
+"Abre Gmail al pedir una demo, en lugar de un enlace mailto."
+],
+[
+"75dcb71",
+"2026-10-16",
+"Quita de la meta CSP lo que el navegador ignora."
+],
+[
+"0a88ff3",
+"2026-10-16",
+"Alinea la CSP de nginx con el encabezado que va en Cloudflare."
+],
+[
+"4d310e1",
+"2026-10-16",
+"Documenta el alta de Cloudflare, el correo y la revision del laboratorio."
+],
+[
+"a3ac7a1",
+"2026-10-16",
+"No carga el titulo animado en el iPhone."
+],
+[
+"11b0d61",
+"2026-10-16",
+"Deja la linea de manufactura en tarjetas en el iPhone."
+],
+[
+"df2e9a0",
+"2026-10-16",
+"Agrega la simulacion de funcionamiento a 2x debajo de la portada."
+],
+[
+"bdf37ca",
+"2026-10-17",
+"Quita las notas de pie y el aviso de desplazar."
+],
+[
+"2fb922b",
+"2026-10-21",
+"Agrega la celda, Lumina y el carrito 3D al repo."
+],
+[
+"5fdcc4f",
+"2026-10-21",
+"Usa timezone.utc en lugar de datetime.UTC para correr en Python 3.10"
+],
+[
+"5b4eede",
+"2026-10-21",
+"Baja el target-version de ruff a py310"
+],
+[
+"c0c9924",
+"2026-10-21",
+"Agrega la bitacora de hardware real con la sesion 1"
+],
+[
+"700c3d1",
+"2026-10-21",
+"Agrega requirements-jetson.txt, COMANDOS_LINUX.md y la sesion 2 de la bitacora"
+],
+[
+"f579db1",
+"2026-10-21",
+"Registra la sesion 3 de la bitacora: paquetes base, camara y libcusparseLt"
+],
+[
+"c9f24cb",
+"2026-10-21",
+"Agrega variables opcionales de backend, FOURCC, ancho y alto a la camara"
+],
+[
+"7a93a88",
+"2026-10-21",
+"Anota en la bitacora que FPS, exposicion y calidad de imagen quedan pendientes"
+],
+[
+"81cc730",
+"2026-10-21",
+"Saca ultralytics-thop de requirements-jetson.txt porque arrastra torch"
+],
+[
+"76e975c",
+"2026-10-21",
+"Registra la sesion 4 de la bitacora: libcusparseLt instalada y requisitos corregidos"
+],
+[
+"7c61ddb",
+"2026-10-21",
+"Registra en la bitacora el resultado del bloque 1 en el Jetson"
+],
+[
+"42464ae",
+"2026-10-21",
+"Pide numpy>=1.23,<2 en requirements-jetson.txt"
+],
+[
+"6f79161",
+"2026-10-21",
+"Registra en la bitacora el bloque 2: requisitos instalados y correccion de numpy"
+],
+[
+"fb33786",
+"2026-10-21",
+"Registra en la bitacora el bloque 3: PyTorch de NVIDIA funciona en el Jetson"
+],
+[
+"cc1a180",
+"2026-10-21",
+"Registra la sesion 5: backend en el Jetson y que puede mover fisicamente la celda"
+],
+[
+"98e2ff8",
+"2026-10-21",
+"Agrega el borrador de ADR 0011: reparto de roles y contrato de agentes (no decidido)"
+],
+[
+"09b28e2",
+"2026-10-21",
+"Anota el problema abierto de navegadores del Jetson y suma opciones al ADR 0011"
+],
+[
+"64db3f2",
+"2026-10-21",
+"Agrega SETUP_JETSON.md y actualiza COMANDOS_LINUX.md con lo verificado del dia"
+],
+[
+"5cbb66f",
+"2026-10-22",
+"Agente de la celda para la Pi: ONNX, analisis limitado, rutas compartidas y clave por entorno"
+],
+[
+"7088811",
+"2026-10-22",
+"R0: ADR 0012 y contratos de los agentes de campo y del canal de voz"
+],
+[
+"3db4547",
+"2026-10-22",
+"R1+R2 (laptop y agente del Jetson): camara en su equipo, observaciones idempotentes y puente de voz en la pagina"
+],
+[
+"e948528",
+"2026-10-22",
+"R3: servicio de voz de la laptop (microfono local, solo texto) con aviso, interruptor y anti-eco"
+],
+[
+"3cf779b",
+"2026-10-22",
+"R4: arranque simple - iniciar_aether.ps1 (laptop), iniciar-agente.sh (Jetson por tmux) y ver-aether.sh"
+],
+[
+"0b1cc0c",
+"2026-10-22",
+"R5: la celda de la Pi sigue el mismo patron (sin GPIO): video propio, /status y eventos con id"
+],
+[
+"10893d0",
+"2026-10-22",
+"R6: documentacion - decision final, guia de arranque, tabla de variables, trazabilidad, riesgos y bitacora"
+],
+[
+"1f531be",
+"2026-10-23",
+"Nombres de host en las direcciones de los agentes, pruebas del JS del dashboard y hoja MANANA.md"
+],
+[
+"0e504e9",
+"2026-10-23",
+"Corrige el video del agente bloqueado en index.html: el <meta> de CSP no llevaba los orÃ­genes del agente"
+],
+[
+"c9b32d4",
+"2026-10-23",
+"Mensajes de error de video: distinguen \"bloqueado por la politica de seguridad\" de \"camara o agente no disponible\""
+],
+[
+"e8c0710",
+"2026-10-23",
+"Observaciones: se juntan en lotes (AETHER_OUTBOX_INTERVAL_S) en vez de un POST por observacion"
+],
+[
+"5ef6b86",
+"2026-10-23",
+"Voz: palabra de activacion tolerante (Vosk no tiene \"lumina\"), emision por fin de frase, tecla w y scripts de medicion"
+],
+[
+"cc3e278",
+"2026-10-23",
+"CSP: media-src permite blob: y data: (audio de ElevenLabs y reproductor de llamada) en encabezado y meta"
+]
+]

@@ -6,6 +6,8 @@ Escrita el 25 de octubre de 2026 para el lunes 26. Parte de lo que dejó el vier
 
 **"Onyx" = ONNX.** Es el formato en que se exporta `parts.pt` para que la Pi lo corra con OpenCV, sin `torch` ni `ultralytics` (`backend/line_model.py`).
 
+**Importante: ninguna IP de esta guía es fija.** Todas las `<IP-LAPTOP>`, `<IP-JETSON>` e `<IP-PI>` cambian con la red y el día. Antes de cualquier otro paso, llena la **tabla E del Paso previo** (ahí está cómo sacar cada una) y usa esos valores donde la guía diga `<IP-...>`.
+
 Si algo de "abrir una ventana", "entrar por SSH" o "editar un archivo" no te queda claro, está explicado en **Lo básico** (abajo, antes del Paso previo). Convención de cada comando: `[Laptop · PowerShell]`, `[Jetson · SSH]` o `[Jetson · VNC]` (terminal dentro del escritorio, no por SSH), `[Pi 4 · SSH]`. Etiquetas: **VERIFICADO** (alguien lo corrió y se vio la salida), **NO VERIFICADO** (se supone por el código o por reglas generales), **PENDIENTE** (depende de un dato o de una persona que falta). Donde dice `<IP-…>` va la IP de ese equipo en la red del día. **Nunca pegues claves en el chat ni en el repositorio.**
 
 ---
@@ -96,7 +98,10 @@ Todas las `<IP-LAPTOP>`, `<IP-JETSON>` e `<IP-PI>` de esta guía son las del **d
 ```
 Imprime las direcciones de la laptop (`http://<IP>:8000/   (Wi-Fi)`). Alternativa: `ipconfig` y la línea `Dirección IPv4` del adaptador conectado. Si hay varias, usa la de la misma red que el Jetson y la Pi (la de WiFi o la del cable que ellos usen; no las `vEthernet` ni `169.254.x.x`).
 
+**Resultado real de hoy, 26 de octubre** (salida de tu `-SoloComprobar`): `http://10.4.5.95:8000/   (Wi-Fi)`, en la red `utchsur.ad`. Entonces **`<IP-LAPTOP>` = `10.4.5.95`** mientras no cambies de red. Ojo: antes era `10.4.5.52`; **la IP de la laptop también cambia**, por eso el Jetson y la Pi tienen que actualizarla (2.3 y 5.5).
+
 ### B. IP del Jetson
+0. **Prueba primero la última IP que se conoce** (por si el router le dio la misma): `[Laptop · PowerShell]  ping 10.4.5.103`. Si responde con `Reply from 10.4.5.103: bytes=...`, esa es. **El 26 de oct, con la laptop en `10.4.5.95`, esa IP NO respondió** (`Destination host unreachable`) y `mario-desktop.local` tampoco resolvió: así que hoy el Jetson está apagado, en otra red, o con otra IP. Hay que sacarla del propio Jetson (punto 1).
 1. **Desde el propio Jetson** (lo más seguro): abre un terminal en su pantalla o en la sesión VNC y corre
 ```
 [Jetson · VNC]  hostname -I
@@ -126,9 +131,9 @@ Si el router reparte IP por DHCP, pide a quien lo administre que **reserve** una
 ### E. Tabla del día (llénala antes de seguir)
 | Equipo | IP hoy | Red / interfaz | `ping` desde la laptop |
 |---|---|---|---|
-| Laptop | | | — |
-| Jetson | | | |
-| Pi 4 | | | |
+| Laptop | **10.4.5.95** (26 oct, verificado) | Wi-Fi, red `utchsur.ad` | — |
+| Jetson | _pendiente: `hostname -I` en el Jetson (B.1)_ | debe ser `10.4.5.x` (la misma red) | |
+| Pi 4 | _pendiente (C)_ | | |
 
 ---
 
@@ -155,13 +160,14 @@ Lista los archivos con cambios sin guardar en git (`M` = modificado, `??` = nuev
 Este archivo tiene la configuración secreta del servidor de la laptop. No va a GitHub. Haz esto, en orden:
 1. Elige tu clave (Lo básico, H).
 2. Abre el archivo (Lo básico, E): en PowerShell, `notepad backend\.env`. Si pregunta si lo crea, **Sí**.
-3. Baja al final del texto y agrega **estas dos líneas** (cambia lo que está entre `< >`, **sin dejar los `<` ni los `>`**). Ejemplo con clave `MiClave2026x` e IP `10.4.5.103`:
+3. Baja al final del texto y agrega **estas dos líneas**. **Los valores de ejemplo NO son los tuyos: cámbialos** (sin dejar `<` ni `>`):
 ```
-CELDA_HMI_CLAVE=MiClave2026x
-AETHER_PERCEPTION_AGENT_URL=http://10.4.5.103:8001
+CELDA_HMI_CLAVE=<la clave que elegiste en el paso 1>
+AETHER_PERCEPTION_AGENT_URL=http://<IP-JETSON>:8001
 ```
+   - **¿De dónde sale `<IP-JETSON>`?** Es la dirección del **Jetson** (no la de tu laptop) en la red de hoy. **No es un valor fijo:** la IP `10.4.5.103` que aparecía en versiones anteriores de esta guía era solo la última que se había visto y **no sirve hoy** (se comprobó: no responde). La sacas del Jetson con `hostname -I` (**Paso previo, B**) y la anotas en la tabla E. Ejemplo ilustrativo: si el Jetson te dice `10.4.5.131`, la línea queda `AETHER_PERCEPTION_AGENT_URL=http://10.4.5.131:8001` (el `:8001` es el puerto del agente y ese **sí** es fijo).
+   - **Si todavía no tienes la IP del Jetson, NO sigas este paso:** haz primero el **Paso previo B** (está justo arriba en esta guía) y vuelve. Mientras tanto puedes agregar solo la línea de la clave.
    - Si el archivo **ya tiene** una de esas dos líneas, **edítala** en vez de agregar otra.
-   - La IP del Jetson sale de la tabla E del **Paso previo**. Si todavía no la sabes, escribe solo la primera línea ahora y agrega la segunda cuando la tengas.
 4. **Ctrl+S** y cierra el Bloc de notas.
 5. Comprueba que quedaron (esto muestra solo los nombres, no la clave): `Get-Content backend\.env | ForEach-Object { ($_ -split '=')[0] }`. Debes ver `CELDA_HMI_CLAVE` y `AETHER_PERCEPTION_AGENT_URL` en la lista.
 - Sin `CELDA_HMI_CLAVE`, Arranque/Paro de la celda no responden. El 22 de oct el archivo no la tenía; el siguiente paso (1.3) te lo confirma.
@@ -224,9 +230,9 @@ Entrar por SSH es lo de **Lo básico, C**: después del primer comando el texto 
 El agente lee su configuración de un archivo del Jetson, `~/.aether-agent.env`. Dentro de SSH en el Jetson (Lo básico, C):
 1. ¿Existe? `ls ~/.aether-agent.env`. Si dice `No such file`, créalo de la plantilla: `cp ~/aether/scripts/jetson/aether-agent.env.example ~/.aether-agent.env`.
 2. Mira la línea actual: `grep AETHER_LAPTOP_URL ~/.aether-agent.env`.
-3. Cámbiala por la IP de la laptop de **hoy** (tabla E del Paso previo), sin `< >`. Ejemplo con la IP `10.4.5.52` (copia el comando y cambia solo la IP):
+3. Cámbiala por la IP de la laptop de **hoy** (tabla E del Paso previo), sin `< >`. Ejemplo con la IP de tu laptop de hoy, `10.4.5.95` (si cambias de red, cambia solo la IP):
 ```
-[Jetson · SSH]  sed -i 's|^AETHER_LAPTOP_URL=.*|AETHER_LAPTOP_URL=http://10.4.5.52:8000|' ~/.aether-agent.env
+[Jetson · SSH]  sed -i 's|^AETHER_LAPTOP_URL=.*|AETHER_LAPTOP_URL=http://10.4.5.95:8000|' ~/.aether-agent.env
 [Jetson · SSH]  grep AETHER_LAPTOP_URL ~/.aether-agent.env
 ```
 El segundo comando debe mostrar tu IP. (Si prefieres un editor: `nano ~/.aether-agent.env`, Lo básico, F.)
@@ -234,7 +240,7 @@ Una variable por línea, sin comillas ni espacios junto al `=`.
 
 Comprueba la ruta de red **antes** de arrancar el agente (el servidor de la laptop tiene que estar corriendo para que conteste: si todavía no lo arrancas, haz este paso después de 3.1):
 ```
-[Jetson · SSH]  curl -s -m 3 http://10.4.5.52:8000/health
+[Jetson · SSH]  curl -s -m 3 http://10.4.5.95:8000/health
 ```
 (con la IP de tu laptop). Debe responder algo con `"status"`. Si no contesta: firewall o perfil de red de la laptop (1.3), o la IP está mal (en la laptop, `ipconfig`).
 
@@ -257,12 +263,12 @@ Comprueba la ruta de red **antes** de arrancar el agente (el servidor de la lapt
 (Los dos SHA-256 deben ser iguales.) Opcional: también `parts_report.json`, que solo es informativo.
 2. **Tu dataset** (fotos y etiquetas; `images/` y `labels/` están en `.gitignore`, así que `git pull` no los toca ni los borra). Empaquétalo y cópialo:
 ```
-[Laptop · PowerShell]  tar -czf $env:TEMP\parts_dataset.tar.gz -C edge\perception\parts images labels data.yaml lists
+[Laptop · PowerShell]  tar -czf $env:TEMP\parts_dataset.tar.gz --exclude=*.cache -C edge\perception\parts images labels
 [Laptop · PowerShell]  scp $env:TEMP\parts_dataset.tar.gz mario@<IP-JETSON>:~/
 [Jetson · SSH]         mkdir -p ~/aether/edge/perception/parts && tar -xzf ~/parts_dataset.tar.gz -C ~/aether/edge/perception/parts && rm ~/parts_dataset.tar.gz
 [Jetson · SSH]         find ~/aether/edge/perception/parts/images -type f | wc -l ; cat ~/aether/edge/perception/parts/classes.txt
 ```
-Esperado: el número de fotos que tienes en la laptop (hoy 19) y las tres clases. `classes.txt` llega por `git pull`; si lo cambiaste en la laptop, súbelo a git primero (2.1).
+**Solo se copian `images` y `labels`.** `data.yaml` y `lists/` NO se copian a propósito: traen rutas absolutas de tu laptop (`C:/Users/mende/...`) que en el Jetson no existen; `train_parts.py` los vuelve a generar solo cada vez que entrena. Los `*.cache` son archivos temporales de ultralytics y se excluyen. Esperado: el número de fotos que tienes en la laptop (hoy 19) y las tres clases. `classes.txt` llega por `git pull`; si lo cambiaste en la laptop, súbelo a git primero (2.1).
    - `tar: Cannot open` en la laptop: `tar` viene con Windows 10/11; si falta, comprime la carpeta con el Explorador y usa `unzip`.
    - El dataset en el Jetson **no lo usa el agente** para detectar (solo `parts.pt`). Sirve para tenerlo ahí, revisarlo o reentrenar allí (2.6).
 3. Comprobación **sin arrancar nada** de que el Jetson ve los pesos y las clases:
@@ -315,7 +321,7 @@ Con dos modelos, compara con el viernes (29.0 / 29.1 FPS y ≈ 68 ms). Si la inf
 4. **Luz y fondo:** al menos dos luces distintas (la del laboratorio, una más tenue) y los fondos reales: el fixture, el anaquel y el piso por donde pasa el robot.
 5. **Parcialmente tapada** (parte de la pieza fuera del cuadro o detrás de otra) y **dos piezas juntas**.
 6. **Fotos de fondo sin ninguna pieza** (anaquel vacío, fixture vacío, personas, sillas): enseñan al modelo a **no** inventar piezas. Es lo que hoy falta también para medir el FAIL de la celda.
-7. **Toma las fotos con la cámara del Jetson** (640x480, la misma que usará el robot), no con el celular. La cámara real es la que importa.
+7. **Lo ideal es tomarlas con la cámara del Jetson** (640x480, la que usará el robot), no con el celular. **Ojo, hoy no hay herramienta lista para eso:** la página de captura del dataset (`dataset.html`) usa la cámara del navegador desde donde la abras (`getUserMedia`), y los navegadores bloquean la cámara en páginas `http://` que no son `localhost`; además el agente del Jetson mantiene abierta su cámara. Mientras no exista, toma las fotos con la cámara de la laptop o una USB igual a la del Jetson. Si quieres, se puede agregar una forma de capturar y etiquetar fotos desde el Jetson.
 8. **Cuántas:** Ultralytics recomienda del orden de **1500 imágenes por clase** para producción. Para 3 piezas rígidas en un entorno controlado puede bastar mucho menos, pero **cuánto** solo se sabe midiendo (paso 10). Empieza con 100 a 200 por clase.
 9. Etiqueta en formato YOLO como has hecho hasta ahora (un `.txt` por foto) y deja que `train_parts.py` las reparta (4 de cada 5 a entrenamiento).
 10. **Mide con fotos que el modelo nunca vio:** guarda aparte (no en `inbox`) fotos de **ángulos y luces nuevos**. Después de entrenar, comprueba cuántas acierta. Prueba en vivo: pon cada pieza frente a la cámara del Jetson, gírala despacio 360° y mira la etiqueta verde en la página: debe mantenerse la clase correcta con confianza alta. Anota qué ángulos fallan y toma más fotos de esos.
@@ -559,7 +565,7 @@ Los dos SHA-256 deben ser idénticos (ignora mayúsculas). Distintos = la copia 
 | **`parts.pt`** (pesos entrenados) | La laptop (`edge/perception/weights/`, ignorado por git) | No (la Pi no tiene `torch`) | **Sí** (2.3b, paso 1): lo usa el agente para identificar las 3 piezas |
 | **`parts.onnx`** (el mismo modelo exportado) | La laptop | **Sí** (5.4) | No |
 
-Si además quieres tener las fotos en la Pi, se copian igual que al Jetson (2.3b, paso 2, cambiando la IP y el usuario y quitando `data.yaml`/`lists` si no existen); la Pi **no las usa**.
+Si además quieres tener las fotos en la Pi, se copian igual que al Jetson (2.3b, paso 2, cambiando la IP y el usuario); la Pi **no las usa**.
 
 **Qué necesita cada equipo para identificar piezas:** el Jetson, `parts.pt`; la Pi, `parts.onnx`. Los dos con `classes.txt` iguales y en el mismo orden con que se entrenó. La Pi lo comprueba al arrancar y se detiene con `ValueError: … trae N clases y classes.txt tiene M` si no coinciden; el Jetson solo advierte si la clase no está (revisa que `read_class_names()` de 2.3b dé las mismas tres).
 
@@ -798,7 +804,7 @@ Los valores calibrados van a `~/.celda.env` (por ejemplo `LINE_PISTON_ESPERA_S=�
 
 | Situación | Direcciones conocidas |
 |---|---|
-| WiFi "Mecatronica" | laptop `10.4.5.52`, Jetson `10.4.5.103` (funcionó con regla de firewall Privado) |
+| WiFi "Mecatronica" (22-23 oct) | laptop `10.4.5.52`, Jetson `10.4.5.103`. **Valores pasados: el 26 de oct la laptop es `10.4.5.95` y `.103` no responde** (funcionó con regla de firewall Privado) |
 | Cable en la universidad | el Jetson cae en `10.4.7.x` (otra subred): no se ven; usa el WiFi o el USB-C |
 | USB-C (RNDIS) | laptop `192.168.55.100`, Jetson `192.168.55.1` (respaldo fiable) |
 | Casa | `192.168.100.x` (laptop `.14`, Jetson `.19`) |

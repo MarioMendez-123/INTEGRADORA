@@ -1,0 +1,554 @@
+[
+ {
+  "id": "postes",
+  "name": "Poste de perfil 3030 · 950 mm",
+  "qty": "4",
+  "fn": "Las 4 esquinas del carrito: sostienen el marco de arriba y le dan la altura (tope a ~1.04 m).",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "largueros",
+  "name": "Larguero · 440 mm",
+  "qty": "4",
+  "fn": "Lados largos (500 mm por fuera) de los marcos de abajo y de arriba.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "travesanos",
+  "name": "Travesaño de marco · 340 mm",
+  "qty": "4",
+  "fn": "Frente y atrás de los marcos (400 mm por fuera).",
+  "mount": "Entre los postes, con escuadras impresas.",
+  "check": ""
+ },
+ {
+  "id": "trav_c",
+  "name": "Travesaño central · 340 mm",
+  "qty": "1",
+  "fn": "De aquí cuelgan las placas pivotantes de los motores, y sobre él se paran las columnas traseras de la torre.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "columnas",
+  "name": "Columna de la torre · 890 mm",
+  "qty": "4",
+  "fn": "Jaula de la torre: a ellas se atornillan las guías de la pila, los soportes del elevador y el empujador.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "trav_sc",
+  "name": "Travesaño superior central · 340 mm",
+  "qty": "1",
+  "fn": "Sostiene arriba las columnas traseras.",
+  "mount": "Entre los largueros superiores, a la mitad.",
+  "check": "Firme y nivelado."
+ },
+ {
+  "id": "trav_emp",
+  "name": "Travesaño del empujador · 198 mm",
+  "qty": "1",
+  "fn": "De aquí cuelgan las varillas del empujador y su NEMA 17.",
+  "mount": "Entre las 2 columnas traseras, a ~95 cm.",
+  "check": "Paralelo al piso."
+ },
+ {
+  "id": "escuadras",
+  "name": "Escuadras impresas (PETG)",
+  "qty": "28",
+  "fn": "Unen los perfiles a 90°.",
+  "mount": "Por dentro de cada unión, con tornillos M6 × 16 y tuercas T. 2 por unión en la base, los postes y las columnas; 1 en el marco superior y los travesaños.",
+  "check": ""
+ },
+ {
+  "id": "placas",
+  "name": "Placas de unión impresas",
+  "qty": "16",
+  "fn": "Unen columnas y travesaños de la torre donde no cabe una escuadra.",
+  "mount": "Planas sobre las caras al mismo plano, 2 tornillos M6 por lado con tuerca T.",
+  "check": "Sin juego."
+ },
+ {
+  "id": "tuercas",
+  "name": "Tuerca T de martillo + Allen M6",
+  "qty": "100 juegos",
+  "fn": "Sujetan todo al perfil: escuadras, soportes, bandeja, panel.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "panel",
+  "name": "Panel frontal MDF 3 mm",
+  "qty": "1",
+  "fn": "Tope de la pila: debajo de la ventana retiene los fixtures de abajo; solo sale el de arriba.",
+  "mount": "Atornillado a los postes delanteros con tuercas T. Ventana de 24 × 9.7 cm con borde inferior a 81.8 cm.",
+  "check": ""
+ },
+ {
+  "id": "rodajas",
+  "name": "Rodaja twin de nylon 50 mm",
+  "qty": "4",
+  "fn": "Las 4 esquinas ruedan libres; las 2 ruedas motrices empujan.",
+  "mount": "La espiga entra en un bloque impreso atornillado bajo cada esquina, hasta que el arillo truene.",
+  "check": ""
+ },
+ {
+  "id": "susp",
+  "name": "Placa pivotante de la suspensión",
+  "qty": "2",
+  "fn": "Deja que la rueda suba y baje con el piso; el resorte la empuja contra él.",
+  "mount": "2 baleros 608ZZ a presión y tornillo M8 de pivote con tuerca de seguridad; cuelga del travesaño central.",
+  "check": ""
+ },
+ {
+  "id": "resortes",
+  "name": "Resorte de compresión",
+  "qty": "2",
+  "fn": "Da ~85 N de fuerza a cada rueda: no patina al arrancar y las rodajas no se levantan.",
+  "mount": "En el tornillo guía M8, en la vertical del eje. Se precarga 28 mm (de 75 a 47 mm) con la base en el piso.",
+  "check": ""
+ },
+ {
+  "id": "m0601",
+  "name": "Motor-rueda M0601",
+  "qty": "2",
+  "fn": "Las 2 ruedas motrices: cada una trae su driver y encoder; se manejan por RS485 desde el ESP32.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "cuna",
+  "name": "Cuna impresa de la batería",
+  "qty": "1",
+  "fn": "Asiento de la batería sobre el marco inferior; deja libres las muescas de las columnas traseras.",
+  "mount": "Sobre los largueros y el travesaño central.",
+  "check": "La batería no se mueve."
+ },
+ {
+  "id": "bateria",
+  "name": "Batería BR-1224 (12 V, 24 Ah)",
+  "qty": "1",
+  "fn": "Energía de todo el carrito (~8.3 kg, abajo y al centro).",
+  "mount": "Al centro, bornes hacia la bandeja. Borne + → XT60 → fusibles; borne − → tierra común (IN− del elevador).",
+  "check": ""
+ },
+ {
+  "id": "correa",
+  "name": "Correa con hebilla (o cincho de trinquete)",
+  "qty": "1",
+  "fn": "Sujeta la batería: 8.3 kg sueltos en un frenazo rompen algo.",
+  "mount": "Alrededor de la batería y del travesaño central, pasando por la cuna; topes impresos a los lados. Bien tensa.",
+  "check": ""
+ },
+ {
+  "id": "guias",
+  "name": "Guía en L impresa",
+  "qty": "4",
+  "fn": "Guían la pila tocando los postes de las 4 esquinas del fixture: hueco de 22.0 × 16.9 cm (3.5 mm adelante y atrás, 2 mm por lado). Más adentro no pueden ir: ahí sobresalen las ECU.",
+  "mount": "Traseras: pestaña a la cara frontal de las columnas traseras. Delanteras: pestaña hasta la cara interior de las columnas delanteras (tornillo avellanado). Ala lateral de 8 mm.",
+  "check": ""
+ },
+ {
+  "id": "brk_lo",
+  "name": "Soporte inferior (NEMA + KFL08)",
+  "qty": "2",
+  "fn": "Carga el NEMA, la chumacera de abajo, la varilla y el final de carrera, todo alineado.",
+  "mount": "A la cara trasera de la columna delantera y al poste, con tuercas T.",
+  "check": "No se mueve."
+ },
+ {
+  "id": "brk_up",
+  "name": "Soporte superior (KFL08)",
+  "qty": "2",
+  "fn": "Sostiene la chumacera de arriba y la punta de la varilla.",
+  "mount": "A la columna delantera y al poste, arriba.",
+  "check": "El husillo no cabecea."
+ },
+ {
+  "id": "nema_elev",
+  "name": "NEMA 17 del elevador (17HS4401)",
+  "qty": "2",
+  "fn": "Gira el husillo de su lado. Los 2 reciben los mismos pasos (STEP, DIR y ENABLE compartidos), cada uno con su propio A4988 a 1.0 A.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "cople",
+  "name": "Cople flexible 5 → 8 mm",
+  "qty": "2",
+  "fn": "Une el eje del NEMA (5 mm) con el husillo (8 mm) y absorbe pequeñas desalineaciones.",
+  "mount": "Prisionero sobre la cara plana del eje del motor.",
+  "check": "No patina."
+ },
+ {
+  "id": "kfl",
+  "name": "Chumacera KFL08",
+  "qty": "4",
+  "fn": "Sostienen los husillos.",
+  "mount": "2 por husillo, atornilladas a los soportes.",
+  "check": "El husillo gira suave."
+ },
+ {
+  "id": "husillo",
+  "name": "Husillo TR8 · 60 cm",
+  "qty": "2",
+  "fn": "Suben y bajan la plataforma. Si son de 1 entrada (2 mm por vuelta) se autobloquean: sin energía, la pila no se cae.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "varilla",
+  "name": "Varilla lisa 8 mm × 60 cm",
+  "qty": "2",
+  "fn": "Guían la plataforma para que no se ladee ni gire.",
+  "mount": "En los soportes de abajo y arriba, con 2 SC8UU cada una.",
+  "check": "Los SC8UU deslizan sin juego."
+ },
+ {
+  "id": "sc8uu",
+  "name": "Rodamiento lineal SC8UU",
+  "qty": "6",
+  "fn": "Deslizan sobre las varillas de 8 mm.",
+  "mount": "Atornillados con M4 × 12 a los brazos de la plataforma (4) y al carro del empujador (2).",
+  "check": "Sin juego."
+ },
+ {
+  "id": "tuerca_laton",
+  "name": "Tuerca T8 de latón",
+  "qty": "2",
+  "fn": "Convierte el giro del husillo en subida/bajada de la plataforma.",
+  "mount": "En cada brazo de la plataforma, 4 tornillos M3 × 16.",
+  "check": "Sin juego."
+ },
+ {
+  "id": "plataforma",
+  "name": "Plataforma impresa 21.3 × 16.5 cm",
+  "qty": "1",
+  "fn": "Carga la pila de fixtures: de 40.7 cm (llena, al cargar) a 83.2 cm (último, al descargar).",
+  "mount": "Sus 2 brazos llevan la tuerca de latón y los SC8UU.",
+  "check": "Recorre toda la carrera a mano sin trabarse."
+ },
+ {
+  "id": "fc",
+  "name": "Final de carrera (contacto NC)",
+  "qty": "3",
+  "fn": "Dan el cero (home) del elevador de cada lado y del empujador.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "prod",
+  "name": "Varilla 8 mm × 30 cm (empujador)",
+  "qty": "2",
+  "fn": "Guían el carro del empujador.",
+  "mount": "Horizontales, del soporte delantero (travesaño del empujador) al trasero.",
+  "check": "Paralelas."
+ },
+ {
+  "id": "pframe",
+  "name": "Soportes delanteros del empujador",
+  "qty": "1 juego",
+  "fn": "Cuelgan del travesaño del empujador: sostienen las varillas y el NEMA.",
+  "mount": "Con tuercas T al travesaño del empujador.",
+  "check": "Firmes."
+ },
+ {
+  "id": "pframe_r",
+  "name": "Soporte trasero y final de home",
+  "qty": "1",
+  "fn": "Sostiene atrás las varillas y lleva el final de carrera de home del empujador.",
+  "mount": "Colgado del travesaño superior trasero. Su final de carrera: J4 FC3 → GPIO 23 (NC).",
+  "check": "El carro toca el final en home."
+ },
+ {
+  "id": "carro",
+  "name": "Carro, placa 15 × 3 cm y cremallera",
+  "qty": "1",
+  "fn": "La placa empuja la barra trasera del fixture de arriba (0.6–3.6 cm sobre la banda); la cremallera de 30 cm lo mueve 25 cm.",
+  "mount": "Carro sobre 2 SC8UU; los 2 tramos de cremallera unidos con M3.",
+  "check": "Recorre 25 cm a mano."
+ },
+ {
+  "id": "pinion",
+  "name": "Piñón m1.5 · 20 dientes",
+  "qty": "1",
+  "fn": "Mueve la cremallera: 80 mm/s.",
+  "mount": "En el eje del NEMA, prisionero M3 sobre la cara plana; engranado con un poquito de juego.",
+  "check": "Engrana en los 30 cm."
+ },
+ {
+  "id": "nema_emp",
+  "name": "NEMA 17 del empujador",
+  "qty": "1",
+  "fn": "Mueve el piñón del empujador.",
+  "mount": "Colgado del travesaño del empujador. Su cable va a J9 → A4988 #3 (STEP GPIO 27, DIR GPIO 14).",
+  "check": "Mueve el carro 25 cm."
+ },
+ {
+  "id": "servo",
+  "name": "Microservo MG90S (180°)",
+  "qty": "1",
+  "fn": "Sube y baja la uña que jala el fixture desde la banda.",
+  "mount": "En el carro. Café → GND, rojo → 5 V del XL4005, naranja → GPIO 5 (por J11). Curva floja de ~30 cm en su cable.",
+  "check": ""
+ },
+ {
+  "id": "horn",
+  "name": "Brazo del servo",
+  "qty": "1",
+  "fn": "Une la flecha del servo con el dedo de la uña (2 tornillos M2).",
+  "mount": "Se aprieta después de calibrar los ángulos en la Etapa 12.",
+  "check": "—"
+ },
+ {
+  "id": "pin",
+  "name": "Uña abatible (dedo impreso de 7 mm)",
+  "qty": "1",
+  "fn": "Gira 90° en el plano de la placa: acostada libra el fixture; colgada cae detrás del travesaño trasero (zona libre de 16 mm entre el travesaño y la ECU) y lo jala ~10 cm.",
+  "mount": "Atornillada al brazo del MG90S (2 × M2); al frente gira en un perno M3 × 12 que pasa por la oreja del soporte. Su cara trasera queda 9.5 mm adelante de la placa. El jalón va a lo largo del eje: no carga los engranes del servo.",
+  "check": "Colgada, la punta queda a ~2 cm de la quilla; acostada, a 896 mm (arriba del travesaño del fixture)."
+ },
+ {
+  "id": "fixture",
+  "name": "Fixture con ECU (quilla + 2 bastidores)",
+  "qty": "6",
+  "fn": "Lo que el carrito transporta. Piso con quilla de 16.5 cm (lo único que toca la cinta: pasa entre las pestañas de la banda) y asiento para su ECU; 2 bastidores laterales removibles (2 postes + larguero arriba): el fixture que entra se desliza sobre los largueros del de abajo y el siguiente se apila en ellos. Travesaño trasero para el empujador y la uña, con el QR.",
+  "mount": "Entran por la ventana a 82.7 cm; la pila baja 7.0 cm por cada uno. Para poner la ECU se quitan los bastidores (entran a presión en 4 pernos).",
+  "check": "Los 2 bastidores puestos antes de cargarlo."
+ },
+ {
+  "id": "bandeja",
+  "name": "Bandeja de electrónica",
+  "qty": "1",
+  "fn": "Lleva la placa y los módulos de potencia; se arma en la mesa y se pasa entera al carrito.",
+  "mount": "Detrás de la batería, sobre el travesaño trasero. Todo con separadores M3: nada toca el aluminio.",
+  "check": "Sin continuidad entre la placa y el aluminio."
+ },
+ {
+  "id": "perf",
+  "name": "Placa perforada 9 × 15 cm",
+  "qty": "1",
+  "fn": "Placa principal: aquí va todo lo del ESP32 y sus módulos.",
+  "mount": "Con separadores M3 sobre la bandeja. Los cables van soldados pin a pin (lista de cables).",
+  "check": "Sin puentes de soldadura."
+ },
+ {
+  "id": "sockets",
+  "name": "Tiras header hembra (zócalos)",
+  "qty": "~120 pines",
+  "fn": "Los módulos se enchufan en ellos: un driver quemado se cambia en segundos, sin desoldar.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "esp32",
+  "name": "ESP32 DevKitC (38 pines)",
+  "qty": "1",
+  "fn": "El cerebro de bajo nivel: mueve los 3 motores a pasos, habla con los M0601 por RS485, lee sensores y finales, y obedece al Jetson por USB (watchdog de 1 s).",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "a4988",
+  "name": "Driver A4988",
+  "qty": "3",
+  "fn": "Cada uno mueve un NEMA 17: recibe pulsos (STEP) y sentido (DIR) del ESP32 y le da 1.0 A a las bobinas.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "cap100",
+  "name": "Capacitor electrolítico 100 µF",
+  "qty": "3",
+  "fn": "Uno por A4988, entre VMOT y GND: absorbe el pico de voltaje al arrancar el motor.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "lvl",
+  "name": "Convertidor de nivel 3.3 ↔ 5 V (4 canales)",
+  "qty": "1",
+  "fn": "Baja a 3.3 V la respuesta de los motores (RO del MAX485, 5 V) antes de que llegue al GPIO 16.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "max485",
+  "name": "Módulo MAX485 (RS485)",
+  "qty": "1",
+  "fn": "Traduce el serial del ESP32 al bus RS485 por donde hablan los 2 motores M0601.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "pcf",
+  "name": "Expansor PCF8574",
+  "qty": "1",
+  "fn": "Da 4 salidas más por I²C: prende uno por uno los VL53L0X (XSHUT) para darles direcciones distintas.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "bno",
+  "name": "IMU BNO055",
+  "qty": "1",
+  "fn": "Mide el giro del carrito: corrige la odometría de las ruedas (aprobada por Mario).",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "resist",
+  "name": "Resistencias y capacitor de 100 nF",
+  "qty": "4 + 1",
+  "fn": "Cada una hace algo distinto: pull-up de ENABLE, divisor para medir la batería y protección de los LEDs.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "conectores",
+  "name": "Borneras KF301 y header del servo",
+  "qty": "12",
+  "fn": "Todo lo que entra o sale de la placa va atornillado: se desconecta sin soldar.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "boost",
+  "name": "Elevador de voltaje 400 W (12 → 18 V)",
+  "qty": "1",
+  "fn": "Da los 18 V de las ruedas M0601.",
+  "mount": "En la bandeja con separadores M3. IN+ ← relé NO (tc2), IN− = tierra común. OUT+/OUT− → conectores de potencia de los 2 M0601.",
+  "check": ""
+ },
+ {
+  "id": "xl4005",
+  "name": "Reductor XL4005 (12 → 5 V)",
+  "qty": "1",
+  "fn": "Da 5 V a la lógica: ESP32, MAX485, servo y LEDs.",
+  "mount": "IN+ ← rama auxiliar (fusible 10 A y KCD1). OUT+/OUT− → J2.",
+  "check": "5.0–5.1 V sin carga."
+ },
+ {
+  "id": "relay",
+  "name": "Módulo relé T90 30 A",
+  "qty": "1 (2 canales, se usa 1)",
+  "fn": "Corta la rama de motores (ruedas y drivers) cuando se aprieta el paro.",
+  "mount": "COM ← fusible 15 A; NO → elevador y J1. La bobina se alimenta por el contacto NC del paro; IN fijo en el nivel que lo activa.",
+  "check": ""
+ },
+ {
+  "id": "xt60",
+  "name": "Conector XT60 (hembra + macho)",
+  "qty": "1 par",
+  "fn": "Desconecta la batería de todo el carrito sin herramientas.",
+  "mount": "Hembra en los cables de la batería (sus contactos quedan cubiertos); macho del lado del carrito, a los fusibles y a la tierra común.",
+  "check": "Rojo con +, negro con −. El chaflán del cuerpo solo deja conectarlo en una posición."
+ },
+ {
+  "id": "fuses",
+  "name": "Portafusibles 15 A y 10 A",
+  "qty": "2",
+  "fn": "15 A: rama de motores. 10 A: rama auxiliar (Jetson, lógica, relé).",
+  "mount": "Lo más cerca posible de la batería, después del XT60.",
+  "check": "Continuidad a través de cada fusible."
+ },
+ {
+  "id": "kcd1",
+  "name": "Interruptor KCD1",
+  "qty": "1",
+  "fn": "Prende y apaga la lógica y el Jetson (rama auxiliar).",
+  "mount": "En el costado de atrás, accesible desde afuera. En serie entre el fusible de 10 A y el XL4005.",
+  "check": "Apagado: 0 V en J2."
+ },
+ {
+  "id": "estop",
+  "name": "Paro de emergencia LAY37 (NC)",
+  "qty": "1",
+  "fn": "Corta la energía de la bobina del relé: se detienen ruedas, elevador y empujador aunque el programa esté colgado.",
+  "mount": "Arriba, en una esquina de atrás. Contacto NC en serie con el VCC del relé.",
+  "check": "Al apretarlo, todo se detiene y la plataforma no baja."
+ },
+ {
+  "id": "vl53",
+  "name": "Sensor de distancia VL53L0X",
+  "qty": "4",
+  "fn": "Los 3 de abajo frenan el carrito si hay algo a menos de 40 cm; el de arriba confirma que hay un fixture en la pila.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "qtr",
+  "name": "Barra IR QTR-8A",
+  "qty": "1",
+  "fn": "Respaldo: seguir una línea en el piso si la navegación por waypoints falla (escalera de recortes).",
+  "mount": "Debajo del frente, a 3–5 mm del piso. A 3.3 V (nunca 5 V); salidas 3 a 7 → GPIO 32 a 36 por J10.",
+  "check": "Cada salida cambia al pasar sobre cinta negra y nunca pasa de 3.3 V."
+ },
+ {
+  "id": "jet_plate",
+  "name": "Placa del Jetson (MDF)",
+  "qty": "1",
+  "fn": "Base del Jetson en el marco superior.",
+  "mount": "Atornillada al marco superior trasero.",
+  "check": "Firme."
+ },
+ {
+  "id": "jetson",
+  "name": "Jetson Orin Nano Super",
+  "qty": "1",
+  "fn": "Visión (QR, ArUco, YOLO) y navegación; manda órdenes al ESP32 por USB (Mario).",
+  "mount": "Sobre su placa, con separadores. 12 V de la rama auxiliar por plug 5.5 × 2.5 mm (centro +). USB de datos al ESP32.",
+  "check": "Centro del plug = + antes de conectar."
+ },
+ {
+  "id": "camera",
+  "name": "Cámara Logitech 1080p",
+  "qty": "1",
+  "fn": "Lee el QR de cada fixture y los ArUco de las estaciones.",
+  "mount": "Arriba al frente, por USB al Jetson.",
+  "check": "Ve los 2 ArUco desde donde se detiene el carrito."
+ },
+ {
+  "id": "banda",
+  "name": "Banda transportadora (estación de carga)",
+  "qty": "1",
+  "fn": "Entrega los fixtures al carrito por la ventana, a 83 cm. 3 tramos de 1030 mm con una sola cinta de 20.35 cm que corre sin parar; extremo cerrado (2 rodillos de Ø50) hacia el carrito.",
+  "mount": "Guías de 3 mm colgadas de los rieles (2 mm por lado de la quilla), embudo en el piso y ArUco.",
+  "check": "El carrito queda centrado (±5 mm) y a menos de 1 cm de la tapa."
+ },
+ {
+  "id": "mesa_inc",
+  "name": "Mesa inclinada de descarga",
+  "qty": "1",
+  "fn": "Recibe los 6 fixtures: cada uno se desliza solo hasta el tope y deja libre la entrada.",
+  "mount": "",
+  "check": ""
+ },
+ {
+  "id": "mesa",
+  "name": "Mesa de trabajo",
+  "qty": "—",
+  "fn": "Aquí se arma y se prueba la electrónica antes de pasarla al carrito.",
+  "mount": "—",
+  "check": "—"
+ },
+ {
+  "id": "nivel",
+  "name": "Nivel de burbuja",
+  "qty": "1",
+  "fn": "Revisar que postes y columnas queden verticales.",
+  "mount": "—",
+  "check": "—"
+ },
+ {
+  "id": "sobra",
+  "name": "Sobra de perfil",
+  "qty": "—",
+  "fn": "Lo que queda de cada barra después de los cortes.",
+  "mount": "—",
+  "check": "—"
+ }
+]

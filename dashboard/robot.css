@@ -943,3 +943,56 @@ body.robot-body {
     transform: none !important;
   }
 }
+
+/* ?intro=1 (robot.js, "INTRO"): negro tenue y sin rastro de reproductor hasta que el expositor da clic. */
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 30; /* por encima del arranque (20, 21) */
+  background: #050507;
+  cursor: none;
+  transition: opacity 500ms ease;
+}
+.intro-screen--out {
+  opacity: 0;
+  pointer-events: none;
+}
+.intro-screen video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.intro-screen--playing video {
+  opacity: 1;
+}
+/* Proyección 3D dentro de la misma página: nada de pestañas nuevas durante la presentación. */
+.holo-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 16; /* entre la llamada (15) y el arranque (20) */
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #05070a;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+.holo-frame--on {
+  opacity: 1;
+}
+/* En la presentación no se ven controles ni estados: solo la cara. */
+.intro-show .status-pill,
+.intro-show .face-clock,
+.intro-show #face-suggestion,
+.intro-show .robot-fallback-btn,
+.intro-show .robot-btn--stop {
+  visibility: hidden;
+}
+.slides-frame.holo-frame--on {
+  pointer-events: auto;
+}

@@ -1,0 +1,308 @@
+[
+ {
+  "sub": "Electrónica",
+  "comp": "Expansor de E/S I²C PCF8574 (módulo)",
+  "spec": "XSHUT de los 4 VL53L0X + buzzer",
+  "qty": "1"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Cable de silicona flexible 1 m (14 AWG)",
+  "spec": "3 m rojo + 3 m negro (rama principal y 18 V)",
+  "qty": "6"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Tira Neopixel WS2812 5050 (50 mm)",
+  "spec": "LEDs de estado",
+  "qty": "3"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Batería sellada plomo-ácido 12 V 24 Ah",
+  "spec": "144 Wh útiles (50 % de descarga); 8.3 kg;",
+  "qty": "1"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Cargador inteligente BR-700 (6 A)",
+  "spec": "Para plomo-ácido 4–100 Ah",
+  "qty": "1"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Fusible automotriz 15 A",
+  "spec": "Rama principal (motores y steppers); uno +",
+  "qty": "2"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Fusible automotriz 10 A",
+  "spec": "Rama auxiliar (Jetson + lógica); uno + repuesto",
+  "qty": "2"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Portafusible automotriz para fusible de",
+  "spec": "Uno por rama; trae cable de 16 AWG",
+  "qty": "2"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Faston hembra 1/4 in con forro (Steren",
+  "spec": "Por si la batería trae lengüetas en lugar de",
+  "qty": "2"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Terminales de ojillo para 12–14 AWG",
+  "spec": "2 para los bornes de la batería (si son de",
+  "qty": "1"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Plug DC 5.5 × 2.5 mm con cable",
+  "spec": "Alimentación del Jetson desde la rama auxiliar",
+  "qty": "1"
+ },
+ {
+  "sub": "Electrónica",
+  "comp": "Bornera KF301 de 3 y 4 pines (16 A)",
+  "spec": "La placa lleva 44 terminales: J1 (2), J2, J3 y J12",
+  "qty": "12"
+ },
+ {
+  "sub": "Estación",
+  "comp": "Mesa inclinada de descarga",
+  "spec": "Borde a 83 cm al ras de la ventana, ~1.4 m (6 ×",
+  "qty": "1"
+ },
+ {
+  "sub": "Estructura",
+  "comp": "Perfil 3030 faltante (por definir con el",
+  "spec": "Cortes: 4 × 950, 4 × 890, 4 × 440, 6 × 340 y 1 ×",
+  "qty": "1"
+ },
+ {
+  "sub": "Estructura",
+  "comp": "Escuadras para 3030 impresas en PETG",
+  "spec": "28 escuadras (16 de 36 × 36 × 20 y 12 de 36 ×",
+  "qty": "50"
+ },
+ {
+  "sub": "Estructura",
+  "comp": "Correa de nylon con hebilla o cincho de",
+  "spec": "Sujetar la batería al marco inferior, con topes",
+  "qty": "1"
+ },
+ {
+  "sub": "Estructura",
+  "comp": "MDF 3 mm (medio tablero o retazo) +",
+  "spec": "Solo lo funcional: panel frontal con la ventana",
+  "qty": "1"
+ },
+ {
+  "sub": "Navegación",
+  "comp": "Cámara Yahboom IMX219 8 MP 77° (CSI)",
+  "spec": "Cámara dedicada para el Jetson (planeada por",
+  "qty": "1"
+ },
+ {
+  "sub": "Navegación",
+  "comp": "Marcadores ArUco + embudos de acople +",
+  "spec": "Verificación de posición y centrado mecánico en",
+  "qty": "1"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tuerca T de martillo (drop-in) M6 para",
+  "spec": "Ranura de 8 mm; se meten con el marco ya 175",
+  "qty": ""
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M6 × 12 cabeza Allen",
+  "spec": "Piezas de 5–6 mm: 28 escuadras (56), 16 placas 130",
+  "qty": ""
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M6 × 16 cabeza Allen",
+  "spec": "Piezas de 8 mm: guías traseras de la pila (12),",
+  "qty": "18"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Rondana plana M6",
+  "spec": "Bajo cada cabeza Allen M6 (155), para no rajar 160",
+  "qty": ""
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M8 × 40",
+  "spec": "Pivote de la suspensión (1 por lado): cabeza por",
+  "qty": "2"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tuerca hexagonal M8 (pivote)",
+  "spec": "Va metida por abajo en el soporte del pivote",
+  "qty": "2"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tuerca hexagonal M8 (precarga)",
+  "spec": "Bajo la pestaña del resorte, en el tornillo guía",
+  "qty": "2"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Rondana plana M8",
+  "spec": "Por lado: entre los 2 × 608ZZ, bajo la cabeza del",
+  "qty": "12"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M3 × 8",
+  "spec": "3 NEMA 17 (12) + separadores de la placa",
+  "qty": "24"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M3 × 12",
+  "spec": "Boost (4) y relevador (4) a la bandeja, con",
+  "qty": "10"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M3 × 20",
+  "spec": "Tuercas T8 de los husillos (4 por tuerca: brida",
+  "qty": "10"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tuerca hexagonal M3",
+  "spec": "M3 × 12 (9), M3 × 20 (10), VL53L0X (8), M3 × 25",
+  "qty": "32"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Prisionero (opresor) M3 × 12",
+  "spec": "Piñón del empujador: entra por fuera, pasa la",
+  "qty": "2"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M4 × 12",
+  "spec": "6 SC8UU (4 por rodamiento, roscados al",
+  "qty": "24"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M2.5 × 12 (autorroscante en PETG)",
+  "spec": "3 finales de carrera (2 por final), en barrenos",
+  "qty": "6"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M3 × 10 (VL53L0X)",
+  "spec": "4 VL53L0X (2 por sensor); la tuerca va en la fila",
+  "qty": "8"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Separadores M3 de nylon (20) + lubricante",
+  "spec": "Montar la placa en la bandeja; lubricar los",
+  "qty": "1"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M5 × 20 + tuerca y rondana (KFL08)",
+  "spec": "2 por chumacera (barrenos M5 del STEP de la",
+  "qty": "8"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M2.5 × 12 cabeza plana avellanada",
+  "spec": "3 por M0601 a la placa pivotante impresa + 2 de",
+  "qty": "8"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M8 × 70 + tuerca T M8 para ranura",
+  "spec": "Entra 6 mm en la ranura del larguero con una",
+  "qty": "2"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillería de la cremallera y del soporte",
+  "spec": "1 M3 × 25 (punta de la cremallera a la placa de",
+  "qty": "1"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Fijador de roscas Loctite azul (243)",
+  "spec": "Tornillos del M0601, tuercas de los pivotes y",
+  "qty": "1"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M6 × 20 cabeza Allen",
+  "spec": "Bandeja de la electrónica (4): pasa la placa y la",
+  "qty": "4"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M6 × 12 cabeza plana avellanada",
+  "spec": "Guías delanteras de la pila (12): la cabeza queda",
+  "qty": "12"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M4 × 20 + tuerca",
+  "spec": "Unión de la placa de la plataforma con sus 2",
+  "qty": "4"
+ },
+ {
+  "sub": "Tornillería",
+  "comp": "Tornillo M2 × 8 + tuerca",
+  "spec": "Barra QTR-8A a su soporte (2)",
+  "qty": "2"
+ },
+ {
+  "sub": "Torre",
+  "comp": "Fixtures con quilla + 2 bastidores laterales",
+  "spec": "Uno por ECU: piso con quilla de 16.5 cm y",
+  "qty": "6"
+ },
+ {
+  "sub": "Torre",
+  "comp": "Cremallera (30 cm, en 2 piezas) y piñón",
+  "spec": "Módulo 1.5, involuta 20° (engranan con ~0.07",
+  "qty": "1"
+ },
+ {
+  "sub": "Torre",
+  "comp": "Guías de esquina de la pila impresas en",
+  "spec": "4 guías en L que tocan los postes de las",
+  "qty": "4"
+ },
+ {
+  "sub": "Torre",
+  "comp": "Varilla lisa 8 mm — 60 cm (acero plata,",
+  "spec": "Segunda guía de la plataforma; pedir \"acero",
+  "qty": "1"
+ },
+ {
+  "sub": "Tracción",
+  "comp": "Rodaja giratoria twin de nylon 50 mm",
+  "spec": "20 kg cada una (carga real ~5.4 kg con el peso",
+  "qty": "4"
+ },
+ {
+  "sub": "Tracción",
+  "comp": "Resorte de compresión para la suspensión",
+  "spec": "Alambre 2 mm, Ø exterior ≤ 22 mm (cabe entre",
+  "qty": "2"
+ }
+]

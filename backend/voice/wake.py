@@ -64,7 +64,7 @@ def suena_a_lumina(palabra: str) -> bool:
 
 
 # «Hola Lumina…» / «Oye Lumina…»: un saludo delante no cambia que se esté llamando a Lumina.
-SALUDOS = frozenset({"hola", "oye", "hey", "ey", "ok", "okay", "buenas"})
+SALUDOS = frozenset({"hola", "oye", "hey", "ey", "ok", "okay", "buenas", "hello", "hi"})
 
 
 def _palabras(texto: str):

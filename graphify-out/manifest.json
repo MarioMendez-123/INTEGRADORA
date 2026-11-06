@@ -1,0 +1,2102 @@
+{
+  ".agents/skills/vercel-react-best-practices/metadata.json": {
+    "mtime": 1787902808.8312,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5cd9ae4fc688353236c3b92e8f06dfcc",
+    "semantic_hash": "5cd9ae4fc688353236c3b92e8f06dfcc"
+  },
+  ".claude/skills/vercel-react-best-practices/metadata.json": {
+    "mtime": 1787902808.8312,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5cd9ae4fc688353236c3b92e8f06dfcc",
+    "semantic_hash": "5cd9ae4fc688353236c3b92e8f06dfcc"
+  },
+  "aether-video/audio/engine.js": {
+    "mtime": 1790670088.77311,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7f6a9b3e72ffaa9ef9310ebda1f4a03f",
+    "semantic_hash": "7f6a9b3e72ffaa9ef9310ebda1f4a03f"
+  },
+  "aether-video/call/embed.tsx": {
+    "mtime": 1790734158.8187034,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1ef211f28df95c5eeb0f55c05439eef9",
+    "semantic_hash": "1ef211f28df95c5eeb0f55c05439eef9"
+  },
+  "aether-video/eslint.config.mjs": {
+    "mtime": 1789287819.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e20d59bb6b64567da14d80c3da2c6b15",
+    "semantic_hash": "e20d59bb6b64567da14d80c3da2c6b15"
+  },
+  "aether-video/package.json": {
+    "mtime": 1790818538.8593948,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a9256dd14f8e8b2da4982d371c8e3241",
+    "semantic_hash": "a9256dd14f8e8b2da4982d371c8e3241"
+  },
+  "aether-video/phase0/analyze.mjs": {
+    "mtime": 1790670296.3806791,
+    "seen": 1792634913.0917482,
+    "ast_hash": "cf9cfb103ff86b5ffe46d2cfe34eb319",
+    "semantic_hash": "cf9cfb103ff86b5ffe46d2cfe34eb319"
+  },
+  "aether-video/phase0/instrument.mjs": {
+    "mtime": 1790702891.7778678,
+    "seen": 1792634913.0917482,
+    "ast_hash": "fea2e7f06d7a5951f30283ca6ebe80f6",
+    "semantic_hash": "fea2e7f06d7a5951f30283ca6ebe80f6"
+  },
+  "aether-video/phase0/lumina_timing.json": {
+    "mtime": 1790670315.9449704,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e239298891065513fe6b396fc581900f",
+    "semantic_hash": "e239298891065513fe6b396fc581900f"
+  },
+  "aether-video/phase0/measure-lumina.mjs": {
+    "mtime": 1790702891.779847,
+    "seen": 1792634913.0917482,
+    "ast_hash": "543bb9e708e2c12c1dff74eb4cc03d6c",
+    "semantic_hash": "543bb9e708e2c12c1dff74eb4cc03d6c"
+  },
+  "aether-video/phase0/raw/3g/run-01.json": {
+    "mtime": 1790639690.4617763,
+    "seen": 1792634913.0917482,
+    "ast_hash": "97eb19b559966fc0036043a24a0774bb",
+    "semantic_hash": "97eb19b559966fc0036043a24a0774bb"
+  },
+  "aether-video/phase0/raw/lat1000/run-01.json": {
+    "mtime": 1790639927.851493,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0ac3a38669fb39482083de20886e6514",
+    "semantic_hash": "0ac3a38669fb39482083de20886e6514"
+  },
+  "aether-video/phase0/raw/none/pilot-01.json": {
+    "mtime": 1790638145.2332025,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1f20a81d710b59bbfa1330df7629480f",
+    "semantic_hash": "1f20a81d710b59bbfa1330df7629480f"
+  },
+  "aether-video/phase0/raw/none/run-01.json": {
+    "mtime": 1790640217.3665025,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7b776341c4bd4cbd5b4fccfec34a6f24",
+    "semantic_hash": "7b776341c4bd4cbd5b4fccfec34a6f24"
+  },
+  "aether-video/phase0/raw/none/run-02.json": {
+    "mtime": 1790639112.66636,
+    "seen": 1792634913.0917482,
+    "ast_hash": "248735efc2eff29d70df8acaf9273646",
+    "semantic_hash": "248735efc2eff29d70df8acaf9273646"
+  },
+  "aether-video/phase0/raw/none/run-03.json": {
+    "mtime": 1790640213.1700382,
+    "seen": 1792634913.0917482,
+    "ast_hash": "295e1b9370546749015bac846af91975",
+    "semantic_hash": "295e1b9370546749015bac846af91975"
+  },
+  "aether-video/phase0/raw/offline/run-01.json": {
+    "mtime": 1790637894.553714,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6411da954711144181ccc83b60876376",
+    "semantic_hash": "6411da954711144181ccc83b60876376"
+  },
+  "aether-video/phase0/raw/slow4g/run-01.json": {
+    "mtime": 1790639399.2279315,
+    "seen": 1792634913.0917482,
+    "ast_hash": "76398418db22ece22ba0e3a4bcb3df08",
+    "semantic_hash": "76398418db22ece22ba0e3a4bcb3df08"
+  },
+  "aether-video/phase0/ws-listen.mjs": {
+    "mtime": 1790640020.653091,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5005fdd18b53647507211701cdc8b3f8",
+    "semantic_hash": "5005fdd18b53647507211701cdc8b3f8"
+  },
+  "aether-video/player/audio-live.mjs": {
+    "mtime": 1790669995.7246346,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4766a0123f8b0f65087fc9e30c5a1f0f",
+    "semantic_hash": "4766a0123f8b0f65087fc9e30c5a1f0f"
+  },
+  "aether-video/player/controller.mjs": {
+    "mtime": 1790698676.965456,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ce6bf0890fb6fb89d18c90ae77d7cb33",
+    "semantic_hash": "ce6bf0890fb6fb89d18c90ae77d7cb33"
+  },
+  "aether-video/player/controller.test.mjs": {
+    "mtime": 1790698676.967458,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2888a9f109d4f3ef2781e3e39a394165",
+    "semantic_hash": "2888a9f109d4f3ef2781e3e39a394165"
+  },
+  "aether-video/player/main.tsx": {
+    "mtime": 1790870976.1392667,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b6e5a1e710e6ef632fc32927e427210d",
+    "semantic_hash": "b6e5a1e710e6ef632fc32927e427210d"
+  },
+  "aether-video/player/samples.json": {
+    "mtime": 1790670315.9589918,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a784ed81d85d23070c2a7991a5844e8d",
+    "semantic_hash": "a784ed81d85d23070c2a7991a5844e8d"
+  },
+  "aether-video/player/sim.mjs": {
+    "mtime": 1790696050.332555,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9808fe917bac4822eff6dde287d4af16",
+    "semantic_hash": "9808fe917bac4822eff6dde287d4af16"
+  },
+  "aether-video/remotion.config.ts": {
+    "mtime": 1790668923.9727955,
+    "seen": 1792634913.0917482,
+    "ast_hash": "15e322b990e01b4c954191de8fcd1168",
+    "semantic_hash": "15e322b990e01b4c954191de8fcd1168"
+  },
+  "aether-video/scripts/build-timeline.mjs": {
+    "mtime": 1790672613.4614189,
+    "seen": 1792634913.0917482,
+    "ast_hash": "543520eab467cb39c922554c2d54c8f6",
+    "semantic_hash": "543520eab467cb39c922554c2d54c8f6"
+  },
+  "aether-video/scripts/contact.sh": {
+    "mtime": 1790642182.7299025,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b84afa7a0244439890c2db09c0aaf3b7",
+    "semantic_hash": "b84afa7a0244439890c2db09c0aaf3b7"
+  },
+  "aether-video/scripts/e2e-real.mjs": {
+    "mtime": 1790704368.609824,
+    "seen": 1792634913.0917482,
+    "ast_hash": "31f6765abf20ec9f6ca07ceb20f4b433",
+    "semantic_hash": "31f6765abf20ec9f6ca07ceb20f4b433"
+  },
+  "aether-video/scripts/levels.mjs": {
+    "mtime": 1790669087.3319921,
+    "seen": 1792634913.0917482,
+    "ast_hash": "50d55c9c10cfbd3d97915edee363f8b4",
+    "semantic_hash": "50d55c9c10cfbd3d97915edee363f8b4"
+  },
+  "aether-video/scripts/music.mjs": {
+    "mtime": 1790669995.723633,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e66cb0e315b2e29a5dedd8fa4b6129f1",
+    "semantic_hash": "e66cb0e315b2e29a5dedd8fa4b6129f1"
+  },
+  "aether-video/scripts/perf-player.mjs": {
+    "mtime": 1790708108.5976598,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9ccd6906d1119145de0748e2ccd56d7f",
+    "semantic_hash": "9ccd6906d1119145de0748e2ccd56d7f"
+  },
+  "aether-video/scripts/render.mjs": {
+    "mtime": 1790669259.8671846,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7e8fe69f680271f9146c7ccaafb6a863",
+    "semantic_hash": "7e8fe69f680271f9146c7ccaafb6a863"
+  },
+  "aether-video/scripts/serve.mjs": {
+    "mtime": 1790639416.3809707,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5423cb57279452f147113490b9ca1f58",
+    "semantic_hash": "5423cb57279452f147113490b9ca1f58"
+  },
+  "aether-video/scripts/stills.mjs": {
+    "mtime": 1790669338.77767,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8da6ae9360aabe0929e3a02dcdfcc556",
+    "semantic_hash": "8da6ae9360aabe0929e3a02dcdfcc556"
+  },
+  "aether-video/scripts/sync-test.mjs": {
+    "mtime": 1790701097.2248693,
+    "seen": 1792634913.0917482,
+    "ast_hash": "345ad0bb23ff02776677b7ae73a0afae",
+    "semantic_hash": "345ad0bb23ff02776677b7ae73a0afae"
+  },
+  "aether-video/scripts/wav.mjs": {
+    "mtime": 1790642905.1312556,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ecca559ecaff7bb95382fbc0ad37b2dd",
+    "semantic_hash": "ecca559ecaff7bb95382fbc0ad37b2dd"
+  },
+  "aether-video/src/Aether.tsx": {
+    "mtime": 1790642078.338859,
+    "seen": 1792634913.0917482,
+    "ast_hash": "93d65afd40b51dba87e7cdaee37759e7",
+    "semantic_hash": "93d65afd40b51dba87e7cdaee37759e7"
+  },
+  "aether-video/src/DemoOverlay.tsx": {
+    "mtime": 1790642078.400744,
+    "seen": 1792634913.0917482,
+    "ast_hash": "50943b254e8a69d9a430094161241ec0",
+    "semantic_hash": "50943b254e8a69d9a430094161241ec0"
+  },
+  "aether-video/src/Rehearsal.tsx": {
+    "mtime": 1790708252.849784,
+    "seen": 1792634913.0917482,
+    "ast_hash": "93c76937341ed2c22884a60303cb384d",
+    "semantic_hash": "93c76937341ed2c22884a60303cb384d"
+  },
+  "aether-video/src/Root.tsx": {
+    "mtime": 1790734158.5167272,
+    "seen": 1792634913.0917482,
+    "ast_hash": "849ad3095ef9525d5433ab430a53db29",
+    "semantic_hash": "849ad3095ef9525d5433ab430a53db29"
+  },
+  "aether-video/src/Stage.tsx": {
+    "mtime": 1790642043.325873,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7ed3f9d6962120c4587ac2efd205f777",
+    "semantic_hash": "7ed3f9d6962120c4587ac2efd205f777"
+  },
+  "aether-video/src/call/CallPreview.tsx": {
+    "mtime": 1790734158.2376108,
+    "seen": 1792634913.0917482,
+    "ast_hash": "749e9f4e73e60a39a6897685294c5761",
+    "semantic_hash": "749e9f4e73e60a39a6897685294c5761"
+  },
+  "aether-video/src/call/CallScreen.tsx": {
+    "mtime": 1790734526.2995768,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f5724d3059d6afab33f42e2e5eeaac8d",
+    "semantic_hash": "f5724d3059d6afab33f42e2e5eeaac8d"
+  },
+  "aether-video/src/components/Aperture.tsx": {
+    "mtime": 1790641655.7421322,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1af8ad86aed493574a122134402f938d",
+    "semantic_hash": "1af8ad86aed493574a122134402f938d"
+  },
+  "aether-video/src/components/primitives.tsx": {
+    "mtime": 1790641679.6777253,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9bbec0b6da5bb53a46ca48f274f8e487",
+    "semantic_hash": "9bbec0b6da5bb53a46ca48f274f8e487"
+  },
+  "aether-video/src/index.ts": {
+    "mtime": 1789287819.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d92d9dee1ab16aa44a75ae7fbfb843ca",
+    "semantic_hash": "d92d9dee1ab16aa44a75ae7fbfb843ca"
+  },
+  "aether-video/src/lib/anim.ts": {
+    "mtime": 1790640736.7268605,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1a642688314b9462718355638b81e4a6",
+    "semantic_hash": "1a642688314b9462718355638b81e4a6"
+  },
+  "aether-video/src/lib/track.ts": {
+    "mtime": 1790641656.0050826,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e4def4b15e11d8f05e16f16e9362208f",
+    "semantic_hash": "e4def4b15e11d8f05e16f16e9362208f"
+  },
+  "aether-video/src/scenes/Arquitectura.tsx": {
+    "mtime": 1790642476.4500055,
+    "seen": 1792634913.0917482,
+    "ast_hash": "da174f5fb92210d003ffac8696e6b11f",
+    "semantic_hash": "da174f5fb92210d003ffac8696e6b11f"
+  },
+  "aether-video/src/scenes/Cierre.tsx": {
+    "mtime": 1790708275.2299526,
+    "seen": 1792634913.0917482,
+    "ast_hash": "687771f5244040edf5a128d40dd22827",
+    "semantic_hash": "687771f5244040edf5a128d40dd22827"
+  },
+  "aether-video/src/scenes/Demo.tsx": {
+    "mtime": 1790642476.401338,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e82161c3329bce9fe1bd7fd92e9c0ead",
+    "semantic_hash": "e82161c3329bce9fe1bd7fd92e9c0ead"
+  },
+  "aether-video/src/scenes/Evolucion.tsx": {
+    "mtime": 1790642456.8747537,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ec62d09dc0da8fdcbba99e6815698b3f",
+    "semantic_hash": "ec62d09dc0da8fdcbba99e6815698b3f"
+  },
+  "aether-video/src/scenes/Eye.tsx": {
+    "mtime": 1790641858.6226666,
+    "seen": 1792634913.0917482,
+    "ast_hash": "50b3ad82dd1d6a9af18b4e1d7ebceaa7",
+    "semantic_hash": "50b3ad82dd1d6a9af18b4e1d7ebceaa7"
+  },
+  "aether-video/src/scenes/Integracion.tsx": {
+    "mtime": 1790642476.4934633,
+    "seen": 1792634913.0917482,
+    "ast_hash": "09950ab7bfb384fb76d3a3a3aaafc8dd",
+    "semantic_hash": "09950ab7bfb384fb76d3a3a3aaafc8dd"
+  },
+  "aether-video/src/scenes/Labels.tsx": {
+    "mtime": 1790642078.1643503,
+    "seen": 1792634913.0917482,
+    "ast_hash": "58e5c8aa6e1687d5b19854d7a770c49d",
+    "semantic_hash": "58e5c8aa6e1687d5b19854d7a770c49d"
+  },
+  "aether-video/src/scenes/Observacion.tsx": {
+    "mtime": 1790641887.2914705,
+    "seen": 1792634913.0917482,
+    "ast_hash": "025ce576ffc120241a75ce101dc986cb",
+    "semantic_hash": "025ce576ffc120241a75ce101dc986cb"
+  },
+  "aether-video/src/scenes/Problema.tsx": {
+    "mtime": 1790642456.4414928,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4981463c3560e152fe23a1eb697be825",
+    "semantic_hash": "4981463c3560e152fe23a1eb697be825"
+  },
+  "aether-video/src/scenes/Proceso.tsx": {
+    "mtime": 1790642456.5912342,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9e2499efa789e601c84cd9edcad9e954",
+    "semantic_hash": "9e2499efa789e601c84cd9edcad9e954"
+  },
+  "aether-video/src/scenes/Revelacion.tsx": {
+    "mtime": 1790642456.6533685,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d3036f9cb1a4beca1f4cab5365d2717b",
+    "semantic_hash": "d3036f9cb1a4beca1f4cab5365d2717b"
+  },
+  "aether-video/src/scenes/types.ts": {
+    "mtime": 1790641833.4286666,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e55c7b3052f07700718001025633f6f6",
+    "semantic_hash": "e55c7b3052f07700718001025633f6f6"
+  },
+  "aether-video/src/theme.ts": {
+    "mtime": 1790644223.8811207,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c43427aae9881bea1ab8ac734e232088",
+    "semantic_hash": "c43427aae9881bea1ab8ac734e232088"
+  },
+  "aether-video/src/timeline.ts": {
+    "mtime": 1790641833.183528,
+    "seen": 1792634913.0917482,
+    "ast_hash": "3af74755798145fc51091598d05bfa24",
+    "semantic_hash": "3af74755798145fc51091598d05bfa24"
+  },
+  "aether-video/src/web/HeroWordmark.tsx": {
+    "mtime": 1790818739.0969625,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2d18fe9ecdc502f9a1c88fd851d8f630",
+    "semantic_hash": "2d18fe9ecdc502f9a1c88fd851d8f630"
+  },
+  "aether-video/timeline.json": {
+    "mtime": 1790672613.564627,
+    "seen": 1792634913.0917482,
+    "ast_hash": "de02494402ed37605b695ae7dd2cf202",
+    "semantic_hash": "de02494402ed37605b695ae7dd2cf202"
+  },
+  "aether-video/tsconfig.json": {
+    "mtime": 1790734159.1511354,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8e57b07f0a436530e8f5aaaa078ceda3",
+    "semantic_hash": "8e57b07f0a436530e8f5aaaa078ceda3"
+  },
+  "aether-video/web/embed.tsx": {
+    "mtime": 1790820210.3813787,
+    "seen": 1792634913.0917482,
+    "ast_hash": "3b41f5e309702e5edf2b23239a9fab27",
+    "semantic_hash": "3b41f5e309702e5edf2b23239a9fab27"
+  },
+  "aether_report_package/assemble.js": {
+    "mtime": 1788315205.5263834,
+    "seen": 1792634913.0917482,
+    "ast_hash": "41c5b159b4cba7c07057ea4d0c508739",
+    "semantic_hash": "41c5b159b4cba7c07057ea4d0c508739"
+  },
+  "aether_report_package/build.js": {
+    "mtime": 1788318971.1030045,
+    "seen": 1792634913.0917482,
+    "ast_hash": "403d7f708dc8b4bad6383fdf461c800d",
+    "semantic_hash": "403d7f708dc8b4bad6383fdf461c800d"
+  },
+  "aether_report_package/ch_2.js": {
+    "mtime": 1788317773.5791867,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a29529a578b757fec062f0f2beda3900",
+    "semantic_hash": "a29529a578b757fec062f0f2beda3900"
+  },
+  "aether_report_package/ch_3.js": {
+    "mtime": 1788319761.7323952,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8cd69b0a1f6ebdda4fdedc8014f082b1",
+    "semantic_hash": "8cd69b0a1f6ebdda4fdedc8014f082b1"
+  },
+  "aether_report_package/ch_4_end.js": {
+    "mtime": 1788297894.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ccc78bcbe8c0f5e7b0f3558200e5639b",
+    "semantic_hash": "ccc78bcbe8c0f5e7b0f3558200e5639b"
+  },
+  "aether_report_package/ch_intro_1.js": {
+    "mtime": 1788297894.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f458d1ee587c9410851b60e87434dd16",
+    "semantic_hash": "f458d1ee587c9410851b60e87434dd16"
+  },
+  "aether_report_package/main.js": {
+    "mtime": 1788319921.2279541,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b396c6c6f14f2b64086c64d2295b7c81",
+    "semantic_hash": "b396c6c6f14f2b64086c64d2295b7c81"
+  },
+  "aether_report_package/package.json": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4540be45c152e4b7cdb4c4c7f6a4400b",
+    "semantic_hash": "4540be45c152e4b7cdb4c4c7f6a4400b"
+  },
+  "backend/__init__.py": {
+    "mtime": 1788068497.0616302,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "backend/allowlist.json": {
+    "mtime": 1790898601.264332,
+    "seen": 1792634913.0917482,
+    "ast_hash": "285f87817f0a3b023102b0af7e6e8a5e",
+    "semantic_hash": "285f87817f0a3b023102b0af7e6e8a5e"
+  },
+  "backend/api/__init__.py": {
+    "mtime": 1788068497.1450229,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "backend/camera_publisher.py": {
+    "mtime": 1788333812.5579884,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5f32030d526bcca84b1ac395243c7bde",
+    "semantic_hash": "5f32030d526bcca84b1ac395243c7bde"
+  },
+  "backend/cell_hmi.py": {
+    "mtime": 1791312550.935912,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a140b49c03b200df6f4778eb76ccd131",
+    "semantic_hash": "a140b49c03b200df6f4778eb76ccd131"
+  },
+  "backend/cell_line.py": {
+    "mtime": 1792031714.481665,
+    "seen": 1792634913.0917482,
+    "ast_hash": "24c2ee58332f4d6ffebd19f4f2ffdcb3",
+    "semantic_hash": "24c2ee58332f4d6ffebd19f4f2ffdcb3"
+  },
+  "backend/cell_simulator.py": {
+    "mtime": 1790956878.319464,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0fae5c75b6cde199e29579ad496c5e7a",
+    "semantic_hash": "0fae5c75b6cde199e29579ad496c5e7a"
+  },
+  "backend/dataset_store.py": {
+    "mtime": 1791492304.7428348,
+    "seen": 1792634913.0917482,
+    "ast_hash": "89abcc132821ad58bcd40c7a9e9e8c5c",
+    "semantic_hash": "89abcc132821ad58bcd40c7a9e9e8c5c"
+  },
+  "backend/db/__init__.py": {
+    "mtime": 1788068497.2369528,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "backend/db/database.py": {
+    "mtime": 1788215256.4052484,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b866bac408c038467e97cadb7a1827d9",
+    "semantic_hash": "b866bac408c038467e97cadb7a1827d9"
+  },
+  "backend/db/models/__init__.py": {
+    "mtime": 1788215251.716922,
+    "seen": 1792634913.0917482,
+    "ast_hash": "47fc56e2d1c95334f4c8ff606276865c",
+    "semantic_hash": "47fc56e2d1c95334f4c8ff606276865c"
+  },
+  "backend/db/models/declared_entry.py": {
+    "mtime": 1788230303.5531924,
+    "seen": 1792634913.0917482,
+    "ast_hash": "119184d271b4faa9271865083db2dbe8",
+    "semantic_hash": "119184d271b4faa9271865083db2dbe8"
+  },
+  "backend/db/models/declared_entry_history.py": {
+    "mtime": 1788229161.2369466,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1cf441948f9c1c30b46fb836196bd957",
+    "semantic_hash": "1cf441948f9c1c30b46fb836196bd957"
+  },
+  "backend/inventory_refresh.py": {
+    "mtime": 1788335721.8336782,
+    "seen": 1792634913.0917482,
+    "ast_hash": "61866ae4495cfb259e16fad3127f0cb1",
+    "semantic_hash": "61866ae4495cfb259e16fad3127f0cb1"
+  },
+  "backend/logging_config.py": {
+    "mtime": 1788070039.459072,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6500028e8792124d6a2b63ab834e4775",
+    "semantic_hash": "6500028e8792124d6a2b63ab834e4775"
+  },
+  "backend/lumina_desktop.py": {
+    "mtime": 1792222411.4180233,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4363209990e005a0cc7c285e5752108a",
+    "semantic_hash": "4363209990e005a0cc7c285e5752108a"
+  },
+  "backend/main.py": {
+    "mtime": 1792201484.097502,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4cbfc5e89abfc4e6d29fe9875d3d4b93",
+    "semantic_hash": "4cbfc5e89abfc4e6d29fe9875d3d4b93"
+  },
+  "backend/public_guard.py": {
+    "mtime": 1792221922.701431,
+    "seen": 1792634913.0917482,
+    "ast_hash": "48b68a9a4e0fb71a94e51c56abb4f70c",
+    "semantic_hash": "48b68a9a4e0fb71a94e51c56abb4f70c"
+  },
+  "backend/pyproject.toml": {
+    "mtime": 1788073343.1752992,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1e8c4864d614da880cf086bd184dc93c",
+    "semantic_hash": "1e8c4864d614da880cf086bd184dc93c"
+  },
+  "backend/scripts/load_from_edge.py": {
+    "mtime": 1788230308.5369637,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9fb7d14438f02f08d4c5cbc8d796df48",
+    "semantic_hash": "9fb7d14438f02f08d4c5cbc8d796df48"
+  },
+  "backend/services/__init__.py": {
+    "mtime": 1788068497.41153,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "contracts/inventory_to_manipulation.schema.json": {
+    "mtime": 1789613604.24446,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b1ae4de4cd24912ea25d7e537214a29f",
+    "semantic_hash": "b1ae4de4cd24912ea25d7e537214a29f"
+  },
+  "dashboard/app.js": {
+    "mtime": 1790795810.3878233,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d85cc87d3d195fd041c3ab38bfeac83f",
+    "semantic_hash": "d85cc87d3d195fd041c3ab38bfeac83f"
+  },
+  "dashboard/camera-stream.js": {
+    "mtime": 1788324236.1185324,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6c481f59b449f3bc1eb9e9845add5a47",
+    "semantic_hash": "6c481f59b449f3bc1eb9e9845add5a47"
+  },
+  "dashboard/celda.js": {
+    "mtime": 1792031688.8858628,
+    "seen": 1792634913.0917482,
+    "ast_hash": "43815fe0c4ef9aa4149222ca5aa11b43",
+    "semantic_hash": "43815fe0c4ef9aa4149222ca5aa11b43"
+  },
+  "dashboard/corridor.js": {
+    "mtime": 1792208525.4622142,
+    "seen": 1792634913.0917482,
+    "ast_hash": "619a34aea1ab25b5c3004bf90da1bfa7",
+    "semantic_hash": "619a34aea1ab25b5c3004bf90da1bfa7"
+  },
+  "dashboard/dataset.js": {
+    "mtime": 1791223276.6119373,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f6c3913917ed9775969cc72f83604335",
+    "semantic_hash": "f6c3913917ed9775969cc72f83604335"
+  },
+  "dashboard/explode.js": {
+    "mtime": 1792191973.761285,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5417321b7b1fdd4b1bd807709c670e2d",
+    "semantic_hash": "5417321b7b1fdd4b1bd807709c670e2d"
+  },
+  "dashboard/hero-boot.js": {
+    "mtime": 1792208526.1004188,
+    "seen": 1792634913.0917482,
+    "ast_hash": "56fea2261757573e006565694355b392",
+    "semantic_hash": "56fea2261757573e006565694355b392"
+  },
+  "dashboard/line-vision.js": {
+    "mtime": 1790794776.6597614,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a6fffbebe9a2e4bab4fc1acd7b8e1819",
+    "semantic_hash": "a6fffbebe9a2e4bab4fc1acd7b8e1819"
+  },
+  "dashboard/loader.js": {
+    "mtime": 1790796365.9679568,
+    "seen": 1792634913.0917482,
+    "ast_hash": "78ed29dd58bd494edb21e3aa8545517d",
+    "semantic_hash": "78ed29dd58bd494edb21e3aa8545517d"
+  },
+  "dashboard/motion.js": {
+    "mtime": 1791222237.3019223,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c9109e0c896d394ca0a295cf9583e562",
+    "semantic_hash": "c9109e0c896d394ca0a295cf9583e562"
+  },
+  "dashboard/node-field.js": {
+    "mtime": 1792197643.00856,
+    "seen": 1792634913.0917482,
+    "ast_hash": "bd43865d9b718fe576b6b3c08fd5c3f0",
+    "semantic_hash": "bd43865d9b718fe576b6b3c08fd5c3f0"
+  },
+  "dashboard/perf.js": {
+    "mtime": 1792198420.978517,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0f5e2074cc609ef1f0d389ad93c71256",
+    "semantic_hash": "0f5e2074cc609ef1f0d389ad93c71256"
+  },
+  "dashboard/portada.js": {
+    "mtime": 1792201371.3800745,
+    "seen": 1792634913.0917482,
+    "ast_hash": "091a6cf6dcba68d245d1c75ef461c6fe",
+    "semantic_hash": "091a6cf6dcba68d245d1c75ef461c6fe"
+  },
+  "dashboard/public-mode.js": {
+    "mtime": 1792203475.8879523,
+    "seen": 1792634913.0917482,
+    "ast_hash": "10fe68865dcde45733f658dcdbd62913",
+    "semantic_hash": "10fe68865dcde45733f658dcdbd62913"
+  },
+  "dashboard/robot-model.js": {
+    "mtime": 1792192438.9282565,
+    "seen": 1792634913.0917482,
+    "ast_hash": "dd2cbabede211fca937531b6a4948dd1",
+    "semantic_hash": "dd2cbabede211fca937531b6a4948dd1"
+  },
+  "dashboard/robot.js": {
+    "mtime": 1792039546.161086,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e244321624880e27e02ce0fffaca479c",
+    "semantic_hash": "e244321624880e27e02ce0fffaca479c"
+  },
+  "dashboard/site-boot.js": {
+    "mtime": 1792201311.0133414,
+    "seen": 1792634913.0917482,
+    "ast_hash": "bf6d19890f99681265fec8185a3338bc",
+    "semantic_hash": "bf6d19890f99681265fec8185a3338bc"
+  },
+  "docs/hardware/_build/armar_docx.js": {
+    "mtime": 1791253532.1353362,
+    "seen": 1792634913.0917482,
+    "ast_hash": "145ed626d6e98098b2a5b8a4c34371ac",
+    "semantic_hash": "145ed626d6e98098b2a5b8a4c34371ac"
+  },
+  "docs/hardware/_build/armar_maestro.js": {
+    "mtime": 1791566181.6767259,
+    "seen": 1792634913.0917482,
+    "ast_hash": "922c3623e29cd69e9fe95dd682764e56",
+    "semantic_hash": "922c3623e29cd69e9fe95dd682764e56"
+  },
+  "docs/hardware/_build/armar_manana.js": {
+    "mtime": 1791263416.0987976,
+    "seen": 1792634913.0917482,
+    "ast_hash": "23ace42d7c2a4a08fbfd776c63d7b9a6",
+    "semantic_hash": "23ace42d7c2a4a08fbfd776c63d7b9a6"
+  },
+  "docs/hardware/_build/figuras.py": {
+    "mtime": 1791263400.6866112,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b0dec21bcc9884a924feca99c3872340",
+    "semantic_hash": "b0dec21bcc9884a924feca99c3872340"
+  },
+  "docs/hardware/_build/figuras_equipo.py": {
+    "mtime": 1791565127.6855383,
+    "seen": 1792634913.0917482,
+    "ast_hash": "cd3f68e837c9a07e0098252b2bcdf5cb",
+    "semantic_hash": "cd3f68e837c9a07e0098252b2bcdf5cb"
+  },
+  "docs/hardware/_check.js": {
+    "mtime": 1791854381.827259,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d47854b7b5edb0aeef961d1e464a769e",
+    "semantic_hash": "d47854b7b5edb0aeef961d1e464a769e"
+  },
+  "docs/hardware/_join.py": {
+    "mtime": 1791854446.1257808,
+    "seen": 1792634913.0917482,
+    "ast_hash": "310a6604f2b0234d40ce40033e88e296",
+    "semantic_hash": "310a6604f2b0234d40ce40033e88e296"
+  },
+  "edge/__init__.py": {
+    "mtime": 1788068495.222007,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/comms/__init__.py": {
+    "mtime": 1788068496.8114996,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/comms/mqtt_client/__init__.py": {
+    "mtime": 1788068496.8972552,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/comms/safety_independent_stop/__init__.py": {
+    "mtime": 1788068496.9804816,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/inventory_engine/__init__.py": {
+    "mtime": 1788068496.0210614,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/inventory_engine/aggregate_observations.py": {
+    "mtime": 1788228975.887474,
+    "seen": 1792634913.0917482,
+    "ast_hash": "aa110102315e88379afc27d99d72bd3a",
+    "semantic_hash": "aa110102315e88379afc27d99d72bd3a"
+  },
+  "edge/inventory_engine/coverage_states.py": {
+    "mtime": 1787905230.6370575,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0c2dbf311e345aeb84e012506533f8e4",
+    "semantic_hash": "0c2dbf311e345aeb84e012506533f8e4"
+  },
+  "edge/inventory_engine/declared_inventory/__init__.py": {
+    "mtime": 1788068496.2211754,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/inventory_engine/declared_inventory/declared_entry.py": {
+    "mtime": 1788228967.1795497,
+    "seen": 1792634913.0917482,
+    "ast_hash": "db936680ebcd9149befb2e5013625813",
+    "semantic_hash": "db936680ebcd9149befb2e5013625813"
+  },
+  "edge/inventory_engine/observations/__init__.py": {
+    "mtime": 1788068496.1301622,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/inventory_engine/observations/observation.py": {
+    "mtime": 1788217862.9357598,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4dbe123f62ab483f0f89dacc5af7a8f8",
+    "semantic_hash": "4dbe123f62ab483f0f89dacc5af7a8f8"
+  },
+  "edge/logging_config.py": {
+    "mtime": 1788070035.6521275,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2e3f1af04c0a5684507f0cc82bdab6a6",
+    "semantic_hash": "2e3f1af04c0a5684507f0cc82bdab6a6"
+  },
+  "edge/manipulation/__init__.py": {
+    "mtime": 1788068496.3034444,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/manipulation/line_actuation/__init__.py": {
+    "mtime": 1789613657.300415,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/manipulation/line_events_listener/__init__.py": {
+    "mtime": 1788068496.727585,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/manipulation/line_vision/__init__.py": {
+    "mtime": 1788068496.6427555,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/navigation/__init__.py": {
+    "mtime": 1788068495.6761856,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/navigation/obstacle_detection/__init__.py": {
+    "mtime": 1788068495.937302,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/navigation/odometry/__init__.py": {
+    "mtime": 1788068495.8525991,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/navigation/waypoints/__init__.py": {
+    "mtime": 1788068495.7631197,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/perception/__init__.py": {
+    "mtime": 1788068495.3095858,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/perception/aruco_localization/__init__.py": {
+    "mtime": 1788068495.5932946,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/perception/barcode_qr/__init__.py": {
+    "mtime": 1788068495.5036166,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/perception/capture_headless.py": {
+    "mtime": 1791212003.2679844,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b1b531d5a2a381b78e5b6785fd9eff87",
+    "semantic_hash": "b1b531d5a2a381b78e5b6785fd9eff87"
+  },
+  "edge/perception/generate_aruco_markers.py": {
+    "mtime": 1788217286.5828454,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d69a901ce285a82665af5581145a5fb3",
+    "semantic_hash": "d69a901ce285a82665af5581145a5fb3"
+  },
+  "edge/perception/model_weights.py": {
+    "mtime": 1791211974.745362,
+    "seen": 1792634913.0917482,
+    "ast_hash": "91a455feaabc1f4c3b245def3a497b56",
+    "semantic_hash": "91a455feaabc1f4c3b245def3a497b56"
+  },
+  "edge/perception/test_aruco.py": {
+    "mtime": 1788217296.3369453,
+    "seen": 1792634913.0917482,
+    "ast_hash": "29bb3a9ac967e9921dec38a9eefdbbba",
+    "semantic_hash": "29bb3a9ac967e9921dec38a9eefdbbba"
+  },
+  "edge/perception/test_barcode.py": {
+    "mtime": 1788209067.6546192,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e3d9442407d4c2bc860a1b49ee1537da",
+    "semantic_hash": "e3d9442407d4c2bc860a1b49ee1537da"
+  },
+  "edge/perception/test_camera.py": {
+    "mtime": 1788074911.3353713,
+    "seen": 1792634913.0917482,
+    "ast_hash": "50573787206a62ad410ef97da02d0bc9",
+    "semantic_hash": "50573787206a62ad410ef97da02d0bc9"
+  },
+  "edge/perception/test_combined.py": {
+    "mtime": 1791212003.3225322,
+    "seen": 1792634913.0917482,
+    "ast_hash": "eadfdd6b51eb054cc81bf68b7fcab726",
+    "semantic_hash": "eadfdd6b51eb054cc81bf68b7fcab726"
+  },
+  "edge/perception/test_detection_rate.py": {
+    "mtime": 1791212019.4382446,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2f4fe0971359b707777af11232228522",
+    "semantic_hash": "2f4fe0971359b707777af11232228522"
+  },
+  "edge/perception/test_yolo.py": {
+    "mtime": 1791212002.409062,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8d071b3db032426424713ef678bc435c",
+    "semantic_hash": "8d071b3db032426424713ef678bc435c"
+  },
+  "edge/perception/train_parts.py": {
+    "mtime": 1791212900.723778,
+    "seen": 1792634913.0917482,
+    "ast_hash": "185f4d66c0a9b07345330f2fbd2b17a8",
+    "semantic_hash": "185f4d66c0a9b07345330f2fbd2b17a8"
+  },
+  "edge/perception/yolo_detection/__init__.py": {
+    "mtime": 1788068495.4111173,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "edge/pyproject.toml": {
+    "mtime": 1788073342.088841,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4abdcd1ddf6d5ce740669b82d6c77831",
+    "semantic_hash": "4abdcd1ddf6d5ce740669b82d6c77831"
+  },
+  "lumina-agent/lumina.py": {
+    "mtime": 1790034088.766632,
+    "seen": 1792634913.0917482,
+    "ast_hash": "187e1d511bd984e0fb831783fcdc6c13",
+    "semantic_hash": "187e1d511bd984e0fb831783fcdc6c13"
+  },
+  "lumina-agent/server.py": {
+    "mtime": 1790596185.0962048,
+    "seen": 1792634913.0917482,
+    "ast_hash": "bfe72edd98e08ded0eefd62bbf67e79e",
+    "semantic_hash": "bfe72edd98e08ded0eefd62bbf67e79e"
+  },
+  "lumina-agent/test_lumina.py": {
+    "mtime": 1790034104.1797826,
+    "seen": 1792634913.0917482,
+    "ast_hash": "71c278a31fd962032edec0dd29a3d243",
+    "semantic_hash": "71c278a31fd962032edec0dd29a3d243"
+  },
+  "lumina-agent/web/guion.json": {
+    "mtime": 1790595967.2876525,
+    "seen": 1792634913.0917482,
+    "ast_hash": "006bd100cdd35b7d47e6fdd0a517c379",
+    "semantic_hash": "006bd100cdd35b7d47e6fdd0a517c379"
+  },
+  "lumina-agent/web/lumina-field.js": {
+    "mtime": 1790034167.080756,
+    "seen": 1792634913.0917482,
+    "ast_hash": "103656e7f41f4d1402f1c600b2a8ae8b",
+    "semantic_hash": "103656e7f41f4d1402f1c600b2a8ae8b"
+  },
+  "lumina-agent/web/lumina.js": {
+    "mtime": 1790595967.4675372,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4c27955064893562ed1843b046c2b3eb",
+    "semantic_hash": "4c27955064893562ed1843b046c2b3eb"
+  },
+  "package.json": {
+    "mtime": 1788298369.3147771,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a0c0b0752c7b3027a301e04f72785e03",
+    "semantic_hash": "a0c0b0752c7b3027a301e04f72785e03"
+  },
+  "scripts/armar_narracion_aether.py": {
+    "mtime": 1791500226.4782267,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7f62ca3d5367bdc518bf1881d5c22b3c",
+    "semantic_hash": "7f62ca3d5367bdc518bf1881d5c22b3c"
+  },
+  "scripts/dictar_elevenlabs.py": {
+    "mtime": 1791500262.9005058,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c5da60e580fa3419a4d6b916788ef04b",
+    "semantic_hash": "c5da60e580fa3419a4d6b916788ef04b"
+  },
+  "scripts/refresh_inventory.py": {
+    "mtime": 1788324998.5757203,
+    "seen": 1792634913.0917482,
+    "ast_hash": "381627bb1b8e8630d9862084d8534549",
+    "semantic_hash": "381627bb1b8e8630d9862084d8534549"
+  },
+  "skills-lock.json": {
+    "mtime": 1790621063.0197546,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7290f4be9709b76b0a0754a77e36fe45",
+    "semantic_hash": "7290f4be9709b76b0a0754a77e36fe45"
+  },
+  "tests/backend/test_camera_publisher.py": {
+    "mtime": 1788333405.4823327,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f92f5c643b87d471cec7b2a52bb5616c",
+    "semantic_hash": "f92f5c643b87d471cec7b2a52bb5616c"
+  },
+  "tests/backend/test_cell_hmi.py": {
+    "mtime": 1791312376.9041467,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a1d2f2f6837550fb0e68bb27fe8694cc",
+    "semantic_hash": "a1d2f2f6837550fb0e68bb27fe8694cc"
+  },
+  "tests/backend/test_cell_line.py": {
+    "mtime": 1792031765.3860848,
+    "seen": 1792634913.0917482,
+    "ast_hash": "fefa3f0f7798ff8e4a0e3109c11e8de1",
+    "semantic_hash": "fefa3f0f7798ff8e4a0e3109c11e8de1"
+  },
+  "tests/backend/test_cell_simulator.py": {
+    "mtime": 1790956882.5831652,
+    "seen": 1792634913.0917482,
+    "ast_hash": "21a967daa484e22c7600eaf07626dcd7",
+    "semantic_hash": "21a967daa484e22c7600eaf07626dcd7"
+  },
+  "tests/backend/test_dataset_store.py": {
+    "mtime": 1791492338.5938158,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d1d992ad905db9047ebaf62d11a48511",
+    "semantic_hash": "d1d992ad905db9047ebaf62d11a48511"
+  },
+  "tests/backend/test_inventory_refresh.py": {
+    "mtime": 1788335840.1885803,
+    "seen": 1792634913.0917482,
+    "ast_hash": "404bbeac629da973aac50d1200db5e1c",
+    "semantic_hash": "404bbeac629da973aac50d1200db5e1c"
+  },
+  "tests/backend/test_lumina_desktop.py": {
+    "mtime": 1792222411.2172794,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6c3d9a0d2645fcee91be46d0ee855ba1",
+    "semantic_hash": "6c3d9a0d2645fcee91be46d0ee855ba1"
+  },
+  "tests/backend/test_main.py": {
+    "mtime": 1792221928.9161482,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c675bfee7e8120670635c754118ec888",
+    "semantic_hash": "c675bfee7e8120670635c754118ec888"
+  },
+  "tests/backend/test_setup.py": {
+    "mtime": 1788073345.3231401,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7d7c937c2646b966f5ea70f6b3863125",
+    "semantic_hash": "7d7c937c2646b966f5ea70f6b3863125"
+  },
+  "tests/edge/test_aggregate_observations.py": {
+    "mtime": 1788228999.0228095,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c078eed171f7dea70d56401e2e70aa79",
+    "semantic_hash": "c078eed171f7dea70d56401e2e70aa79"
+  },
+  "tests/edge/test_setup.py": {
+    "mtime": 1788073344.2763302,
+    "seen": 1792634913.0917482,
+    "ast_hash": "58a46f99d4b2fc659b80a9526775aff0",
+    "semantic_hash": "58a46f99d4b2fc659b80a9526775aff0"
+  },
+  "AETHER_DICTADO.txt": {
+    "mtime": 1791500233.1419373,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7fe339514a44ee1ca3cf4103f832e056",
+    "semantic_hash": "7fe339514a44ee1ca3cf4103f832e056"
+  },
+  "ActFinal.md": {
+    "mtime": 1789656965.7203805,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c9e8a8efe42a0f323b2a49781359bacb",
+    "semantic_hash": "c9e8a8efe42a0f323b2a49781359bacb"
+  },
+  "CLAUDE.md": {
+    "mtime": 1787905226.7883646,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1ca0702c679470154f348fb1b4f1d72c",
+    "semantic_hash": "1ca0702c679470154f348fb1b4f1d72c"
+  },
+  "HANDOFF_LUMINA.md": {
+    "mtime": 1790897413.7556005,
+    "seen": 1792634913.0917482,
+    "ast_hash": "31d0f8ad8da916415cab824157ac1cc6",
+    "semantic_hash": "31d0f8ad8da916415cab824157ac1cc6"
+  },
+  "URLS_Y_COMANDOS.md": {
+    "mtime": 1790896880.730249,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0318d5d851068cd9e3c72bb2a556ed7e",
+    "semantic_hash": "0318d5d851068cd9e3c72bb2a556ed7e"
+  },
+  "aether-video/README.md": {
+    "mtime": 1790870977.554621,
+    "seen": 1792634913.0917482,
+    "ast_hash": "79fa0fe59e38c2450379fd9ae99a8659",
+    "semantic_hash": "79fa0fe59e38c2450379fd9ae99a8659"
+  },
+  "aether-video/VERIFICACION.md": {
+    "mtime": 1790704871.4654558,
+    "seen": 1792634913.0917482,
+    "ast_hash": "46991ded954f20a69f9d5d49427a7228",
+    "semantic_hash": "46991ded954f20a69f9d5d49427a7228"
+  },
+  "aether-video/phase0/REPORT.md": {
+    "mtime": 1790670315.9479692,
+    "seen": 1792634913.0917482,
+    "ast_hash": "870310d0ef3d8343a7dabc2a4fd9279c",
+    "semantic_hash": "870310d0ef3d8343a7dabc2a4fd9279c"
+  },
+  "aether-video/phase0/recognition-test.html": {
+    "mtime": 1790639887.9461915,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6be0bc118006b29738fdb598b156d490",
+    "semantic_hash": "6be0bc118006b29738fdb598b156d490"
+  },
+  "aether-video/phase0/report-intro.md": {
+    "mtime": 1790670274.0665479,
+    "seen": 1792634913.0917482,
+    "ast_hash": "47d428921f648f5f32613624a344ba49",
+    "semantic_hash": "47d428921f648f5f32613624a344ba49"
+  },
+  "aether-video/player/index.html": {
+    "mtime": 1790644311.4123552,
+    "seen": 1792634913.0917482,
+    "ast_hash": "72780ce53bf8699a6e95ae0fa322939d",
+    "semantic_hash": "72780ce53bf8699a6e95ae0fa322939d"
+  },
+  "aether_context_docs.md": {
+    "mtime": 1789613929.295508,
+    "seen": 1792634913.0917482,
+    "ast_hash": "45d238ff88e2444ef51cbb6790dd959f",
+    "semantic_hash": "45d238ff88e2444ef51cbb6790dd959f"
+  },
+  "aether_report_package/README_CLAUDE_CODE.md": {
+    "mtime": 1788297894.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6148fdb8e6049926e1247bca3b98112e",
+    "semantic_hash": "6148fdb8e6049926e1247bca3b98112e"
+  },
+  "aether_report_package/_generated_tree.txt": {
+    "mtime": 1788315850.820473,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c7cfd9db2ed82fbad0aa8d1e6a10b42d",
+    "semantic_hash": "c7cfd9db2ed82fbad0aa8d1e6a10b42d"
+  },
+  "backend/README.md": {
+    "mtime": 1787939802.6665256,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7c93afd87716ddd98328d96ae81b2c85",
+    "semantic_hash": "7c93afd87716ddd98328d96ae81b2c85"
+  },
+  "backend/requirements-dev.txt": {
+    "mtime": 1788250019.0766642,
+    "seen": 1792634913.0917482,
+    "ast_hash": "52d0f958426a85c04925286c9932ea6a",
+    "semantic_hash": "52d0f958426a85c04925286c9932ea6a"
+  },
+  "backend/requirements.txt": {
+    "mtime": 1790619354.1039608,
+    "seen": 1792634913.0917482,
+    "ast_hash": "47a4e8d57f70200a1fd12c014f694503",
+    "semantic_hash": "47a4e8d57f70200a1fd12c014f694503"
+  },
+  "baseline_aether.md": {
+    "mtime": 1789521378.7159271,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a53984893643e226eae2ddf8cf9dd974",
+    "semantic_hash": "a53984893643e226eae2ddf8cf9dd974"
+  },
+  "contracts/line_handshake_protocol.md": {
+    "mtime": 1789615069.8776166,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8ad0f32ca79c5fd4270da032b73e4bc8",
+    "semantic_hash": "8ad0f32ca79c5fd4270da032b73e4bc8"
+  },
+  "contracts/mqtt_topics.md": {
+    "mtime": 1787908498.374262,
+    "seen": 1792634913.0917482,
+    "ast_hash": "fc50ea0502eb359858d5f440c9d696c8",
+    "semantic_hash": "fc50ea0502eb359858d5f440c9d696c8"
+  },
+  "contracts/rest_api.md": {
+    "mtime": 1792031688.4841976,
+    "seen": 1792634913.0917482,
+    "ast_hash": "344e0d01a31d4f2bb7bc6da45fbd102f",
+    "semantic_hash": "344e0d01a31d4f2bb7bc6da45fbd102f"
+  },
+  "dashboard/.well-known/security.txt": {
+    "mtime": 1792205184.9785955,
+    "seen": 1792634913.0917482,
+    "ast_hash": "707f7d66ab61bb3dc1b77943efb0b818",
+    "semantic_hash": "707f7d66ab61bb3dc1b77943efb0b818"
+  },
+  "dashboard/armado.html": {
+    "mtime": 1792200088.6617177,
+    "seen": 1792634913.0917482,
+    "ast_hash": "29bfeafc397c30ab26847c491cbcfe46",
+    "semantic_hash": "29bfeafc397c30ab26847c491cbcfe46"
+  },
+  "dashboard/assets/demo/LEEME.txt": {
+    "mtime": 1792201316.045785,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5b52afb93791b9601576a92bf89de847",
+    "semantic_hash": "5b52afb93791b9601576a92bf89de847"
+  },
+  "dashboard/celda.html": {
+    "mtime": 1792031682.8527634,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a7eabe134316ec599ee9653aee3c9847",
+    "semantic_hash": "a7eabe134316ec599ee9653aee3c9847"
+  },
+  "dashboard/dataset.html": {
+    "mtime": 1792197665.2683961,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8cf31c528193a834bab9ed87175bdeaa",
+    "semantic_hash": "8cf31c528193a834bab9ed87175bdeaa"
+  },
+  "dashboard/holo.html": {
+    "mtime": 1792037615.0056112,
+    "seen": 1792634913.0917482,
+    "ast_hash": "aaebaeacb4b396ad4ec89477c36b6ebe",
+    "semantic_hash": "aaebaeacb4b396ad4ec89477c36b6ebe"
+  },
+  "dashboard/index.html": {
+    "mtime": 1792218189.3792903,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4133ba435a725d484ce4cb4102bb0e4e",
+    "semantic_hash": "4133ba435a725d484ce4cb4102bb0e4e"
+  },
+  "dashboard/inventory.html": {
+    "mtime": 1792197664.078036,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8aa61abc6aaf86724239f989ef4ba733",
+    "semantic_hash": "8aa61abc6aaf86724239f989ef4ba733"
+  },
+  "dashboard/robot.html": {
+    "mtime": 1792197665.2683961,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c1a3ff16f19b45d3efaa94089c93d272",
+    "semantic_hash": "c1a3ff16f19b45d3efaa94089c93d272"
+  },
+  "dashboard/robots.txt": {
+    "mtime": 1792201348.8652961,
+    "seen": 1792634913.0917482,
+    "ast_hash": "227a2bc784d37e16d03ab7a6217bb10f",
+    "semantic_hash": "227a2bc784d37e16d03ab7a6217bb10f"
+  },
+  "docs/CHANGELOG.md": {
+    "mtime": 1790794988.11853,
+    "seen": 1792634913.0917482,
+    "ast_hash": "024a61727d385e736cae428e860d1e68",
+    "semantic_hash": "024a61727d385e736cae428e860d1e68"
+  },
+  "docs/TODO.md": {
+    "mtime": 1789615918.2254858,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f7ee5648fe24d17e13151a1667292a0a",
+    "semantic_hash": "f7ee5648fe24d17e13151a1667292a0a"
+  },
+  "docs/academic/arquitectura_ideal.md": {
+    "mtime": 1788249042.4814272,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b247d9a2c9659fd09952778134b61111",
+    "semantic_hash": "b247d9a2c9659fd09952778134b61111"
+  },
+  "docs/architecture/decisions/0001-percepcion.md": {
+    "mtime": 1787905244.198113,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2a89852023e844da854c004ec6fd5389",
+    "semantic_hash": "2a89852023e844da854c004ec6fd5389"
+  },
+  "docs/architecture/decisions/0002-localizacion.md": {
+    "mtime": 1787905247.1601276,
+    "seen": 1792634913.0917482,
+    "ast_hash": "60e0ed04f61aa31a72be51947ec75dff",
+    "semantic_hash": "60e0ed04f61aa31a72be51947ec75dff"
+  },
+  "docs/architecture/decisions/0003-navegacion.md": {
+    "mtime": 1787905248.1290798,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a23710f3a7012e02e357c4ffac748b0b",
+    "semantic_hash": "a23710f3a7012e02e357c4ffac748b0b"
+  },
+  "docs/architecture/decisions/0004-hardware-computo.md": {
+    "mtime": 1787905250.8715143,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2537bddd0ff8787f610739a42e03e757",
+    "semantic_hash": "2537bddd0ff8787f610739a42e03e757"
+  },
+  "docs/architecture/decisions/0005-esquema-datos.md": {
+    "mtime": 1787905254.7005394,
+    "seen": 1792634913.0917482,
+    "ast_hash": "69bdd2617d43d239c263522a3fa6fc6e",
+    "semantic_hash": "69bdd2617d43d239c263522a3fa6fc6e"
+  },
+  "docs/architecture/decisions/0006-comunicaciones.md": {
+    "mtime": 1787905258.108724,
+    "seen": 1792634913.0917482,
+    "ast_hash": "daa8ed1dd7f5a85601bf22866016be72",
+    "semantic_hash": "daa8ed1dd7f5a85601bf22866016be72"
+  },
+  "docs/architecture/decisions/0007-alcance-dashboard.md": {
+    "mtime": 1787908440.7082145,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5edb87e8d7b9eb86768dc785f6ed8ab1",
+    "semantic_hash": "5edb87e8d7b9eb86768dc785f6ed8ab1"
+  },
+  "docs/architecture/decisions/0008-integracion-manipulacion.md": {
+    "mtime": 1789613542.345611,
+    "seen": 1792634913.0917482,
+    "ast_hash": "18a658de25468ff7da208c557732c8e2",
+    "semantic_hash": "18a658de25468ff7da208c557732c8e2"
+  },
+  "docs/architecture/decisions/0009-auto-refresh-inventario.md": {
+    "mtime": 1788335417.249396,
+    "seen": 1792634913.0917482,
+    "ast_hash": "83c6a00205a9ccca1f72d66ac77e57bc",
+    "semantic_hash": "83c6a00205a9ccca1f72d66ac77e57bc"
+  },
+  "docs/architecture/decisions/0010-linea-banda-piston.md": {
+    "mtime": 1789613574.0423152,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7078c03abaed60f9979c3e9e9b983e11",
+    "semantic_hash": "7078c03abaed60f9979c3e9e9b983e11"
+  },
+  "docs/architecture/decisions/criterios_aceptacion.md": {
+    "mtime": 1789613624.8079178,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2974574c199d09cff764a040a8bbd60a",
+    "semantic_hash": "2974574c199d09cff764a040a8bbd60a"
+  },
+  "docs/hardware/_dump.html": {
+    "mtime": 1791854474.8265884,
+    "seen": 1792634913.0917482,
+    "ast_hash": "43ebc065166677daa960277f9b851411",
+    "semantic_hash": "43ebc065166677daa960277f9b851411"
+  },
+  "docs/hardware/_t.html": {
+    "mtime": 1791854292.87612,
+    "seen": 1792634913.0917482,
+    "ast_hash": "48ab3616570d7f6db28212588e802306",
+    "semantic_hash": "48ab3616570d7f6db28212588e802306"
+  },
+  "docs/hardware/_tdump.html": {
+    "mtime": 1791854294.999753,
+    "seen": 1792634913.0917482,
+    "ast_hash": "97b3dd7188a098f3ff76e491d58a70dd",
+    "semantic_hash": "97b3dd7188a098f3ff76e491d58a70dd"
+  },
+  "docs/hardware/carrito-explode.html": {
+    "mtime": 1792626769.083911,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6f4a7c8e1c89281d07baecdf05055107",
+    "semantic_hash": "6f4a7c8e1c89281d07baecdf05055107"
+  },
+  "docs/hardware/datasheet-conexion-celda.md": {
+    "mtime": 1791252706.7141824,
+    "seen": 1792634913.0917482,
+    "ast_hash": "73b8bdd75e7d309ee75c7eba2f35efc0",
+    "semantic_hash": "73b8bdd75e7d309ee75c7eba2f35efc0"
+  },
+  "docs/hardware/guia-de-construccion.md": {
+    "mtime": 1791565194.0110416,
+    "seen": 1792634913.0917482,
+    "ast_hash": "cab236219fae43b0049307b10714d952",
+    "semantic_hash": "cab236219fae43b0049307b10714d952"
+  },
+  "docs/security/laboratorio.md": {
+    "mtime": 1792205283.9112394,
+    "seen": 1792634913.0917482,
+    "ast_hash": "278a4334c02a8c0983646c6160d38880",
+    "semantic_hash": "278a4334c02a8c0983646c6160d38880"
+  },
+  "docs/security/reporte.md": {
+    "mtime": 1792205298.599203,
+    "seen": 1792634913.0917482,
+    "ast_hash": "87ab98095cc47bcb6c7afd1587a9cd90",
+    "semantic_hash": "87ab98095cc47bcb6c7afd1587a9cd90"
+  },
+  "docs/security/runbook-cloudflare.md": {
+    "mtime": 1792205265.8717532,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9ace5fe7f536ea420586967b4bc9e815",
+    "semantic_hash": "9ace5fe7f536ea420586967b4bc9e815"
+  },
+  "edge/README.md": {
+    "mtime": 1787939801.6741123,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4b2c8eb2f253d2226dca6ab7c570f9e7",
+    "semantic_hash": "4b2c8eb2f253d2226dca6ab7c570f9e7"
+  },
+  "edge/manipulation/line_actuation/README.md": {
+    "mtime": 1789613640.7318451,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f8622fe1a47eabecce5a3d44d8f20296",
+    "semantic_hash": "f8622fe1a47eabecce5a3d44d8f20296"
+  },
+  "edge/manipulation/line_actuation/mcu_backend/README.md": {
+    "mtime": 1789613652.3716226,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9c5332865dbe3825265328f926971c5a",
+    "semantic_hash": "9c5332865dbe3825265328f926971c5a"
+  },
+  "edge/manipulation/line_actuation/plc_backend/README.md": {
+    "mtime": 1789613646.6487997,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2745a7610d97390ea0f1185d5a22cce8",
+    "semantic_hash": "2745a7610d97390ea0f1185d5a22cce8"
+  },
+  "edge/perception/parts/classes.txt": {
+    "mtime": 1791222889.8622348,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b4ada1c2877216b32f5e2d7792e5d9f7",
+    "semantic_hash": "b4ada1c2877216b32f5e2d7792e5d9f7"
+  },
+  "edge/requirements-dev.txt": {
+    "mtime": 1788073339.3691154,
+    "seen": 1792634913.0917482,
+    "ast_hash": "32502e3c7fa1f4a6ccb36aed8bc86f8c",
+    "semantic_hash": "32502e3c7fa1f4a6ccb36aed8bc86f8c"
+  },
+  "edge/requirements.txt": {
+    "mtime": 1787939795.4992094,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8ffd6ba9099c8f7f5d739623eeec6e91",
+    "semantic_hash": "8ffd6ba9099c8f7f5d739623eeec6e91"
+  },
+  "graphify-out/converted/AETHER_Informe_Integrador_2008303d.md": {
+    "mtime": 1792634439.7681403,
+    "seen": 1792634913.0917482,
+    "ast_hash": "46e5ebca3e9325cde064524e1c4b4284",
+    "semantic_hash": "46e5ebca3e9325cde064524e1c4b4284"
+  },
+  "graphify-out/converted/Aether-documento-maestro_647e0875.md": {
+    "mtime": 1792634440.2489052,
+    "seen": 1792634913.0917482,
+    "ast_hash": "50ac9da52db14dae5990970858a1dbb6",
+    "semantic_hash": "50ac9da52db14dae5990970858a1dbb6"
+  },
+  "graphify-out/converted/Aether_reporte_codigo_46b50cab.md": {
+    "mtime": 1792634440.0844226,
+    "seen": 1792634913.0917482,
+    "ast_hash": "889c4780fcec7e10953b529778ff3618",
+    "semantic_hash": "889c4780fcec7e10953b529778ff3618"
+  },
+  "graphify-out/converted/Conexion-de-la-celda_d46a07b0.md": {
+    "mtime": 1792634440.2981923,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b6a1ef8831bcb388021db93ca7f2777e",
+    "semantic_hash": "b6a1ef8831bcb388021db93ca7f2777e"
+  },
+  "graphify-out/converted/Manana-montaje_e80e328f.md": {
+    "mtime": 1792634440.3303068,
+    "seen": 1792634913.0917482,
+    "ast_hash": "804015f2630492742231960391373022",
+    "semantic_hash": "804015f2630492742231960391373022"
+  },
+  "graphify-out/converted/plantilla_utech_95f5fc6b.md": {
+    "mtime": 1792634439.9166608,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1dd4801ba5533508b24ffecdae9db5fb",
+    "semantic_hash": "1dd4801ba5533508b24ffecdae9db5fb"
+  },
+  "lumina-agent/README.md": {
+    "mtime": 1790035481.842746,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7be7361eb01f1489d925b283cd4189bc",
+    "semantic_hash": "7be7361eb01f1489d925b283cd4189bc"
+  },
+  "lumina-agent/design/aether-design-system.md": {
+    "mtime": 1790035481.771242,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c0818a37f93a4a7604e60c61549210dd",
+    "semantic_hash": "c0818a37f93a4a7604e60c61549210dd"
+  },
+  "lumina-agent/requirements.txt": {
+    "mtime": 1790034089.0966268,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1f849c2d1b098a51cf1b065ca3173a30",
+    "semantic_hash": "1f849c2d1b098a51cf1b065ca3173a30"
+  },
+  "lumina-agent/web/index.html": {
+    "mtime": 1790596467.4157753,
+    "seen": 1792634913.0917482,
+    "ast_hash": "3382bcd90929fbdadfd293eb488bde16",
+    "semantic_hash": "3382bcd90929fbdadfd293eb488bde16"
+  },
+  "aether_report_package/AETHER_Informe_Integrador.pdf": {
+    "mtime": 1788318981.5555682,
+    "seen": 1792634913.0917482,
+    "ast_hash": "63e4a073e5f56a2ff80c0dda84f7750d",
+    "semantic_hash": "63e4a073e5f56a2ff80c0dda84f7750d"
+  },
+  "docs/hardware/Conexion-de-la-celda.pdf": {
+    "mtime": 1791253573.707476,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c942b1e0954f56ea2c1fcdac9ae679de",
+    "semantic_hash": "c942b1e0954f56ea2c1fcdac9ae679de"
+  },
+  "docs/hardware/Manana-montaje.pdf": {
+    "mtime": 1791263435.7499695,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b8e669520dceefd9a2a8d38619c99141",
+    "semantic_hash": "b8e669520dceefd9a2a8d38619c99141"
+  },
+  "aether-video/assets/demo_overlay.png": {
+    "mtime": 1790670216.5760229,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b30c865d4372709ddd4b94aadb76a8e9",
+    "semantic_hash": "b30c865d4372709ddd4b94aadb76a8e9"
+  },
+  "aether_report_package/assets/cover_full.png": {
+    "mtime": 1788318316.7449174,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7cc4916d48628473d43a510830b2c874",
+    "semantic_hash": "7cc4916d48628473d43a510830b2c874"
+  },
+  "aether_report_package/assets/cover_full.svg": {
+    "mtime": 1788317959.412492,
+    "seen": 1792634913.0917482,
+    "ast_hash": "dd4b3c02086a2b68aa3aa8d03950fc95",
+    "semantic_hash": "dd4b3c02086a2b68aa3aa8d03950fc95"
+  },
+  "aether_report_package/assets/dashboard_hero_real.png": {
+    "mtime": 1788315692.0448663,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c285c22272a12e47276d6b35e8973de1",
+    "semantic_hash": "c285c22272a12e47276d6b35e8973de1"
+  },
+  "aether_report_package/assets/dashboard_manufacturing_line_real.png": {
+    "mtime": 1788315739.9768438,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0b20c6c37b7df6466d6ce166be37b926",
+    "semantic_hash": "0b20c6c37b7df6466d6ce166be37b926"
+  },
+  "aether_report_package/assets/dashboard_modules_real.png": {
+    "mtime": 1788315739.9464383,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a0d297e7d57973a98877eb0288424655",
+    "semantic_hash": "a0d297e7d57973a98877eb0288424655"
+  },
+  "aether_report_package/assets/diagram_architecture.png": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ae52789dcb23e92abb4b16928f686886",
+    "semantic_hash": "ae52789dcb23e92abb4b16928f686886"
+  },
+  "aether_report_package/assets/diagram_architecture.svg": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "3eeeb606360767782ad16fd5bb47d0e0",
+    "semantic_hash": "3eeeb606360767782ad16fd5bb47d0e0"
+  },
+  "aether_report_package/assets/diagram_manufacturing_line.png": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "383950f812e9896a2cd198c375b1b368",
+    "semantic_hash": "383950f812e9896a2cd198c375b1b368"
+  },
+  "aether_report_package/assets/diagram_manufacturing_line.svg": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "07857c91288a2b1249b1509587a97a28",
+    "semantic_hash": "07857c91288a2b1249b1509587a97a28"
+  },
+  "aether_report_package/assets/inventory_history_real.png": {
+    "mtime": 1788315790.31976,
+    "seen": 1792634913.0917482,
+    "ast_hash": "20ff017593d759f8daa3800dc3ecdf2c",
+    "semantic_hash": "20ff017593d759f8daa3800dc3ecdf2c"
+  },
+  "aether_report_package/assets/inventory_table_real.png": {
+    "mtime": 1788315790.2900639,
+    "seen": 1792634913.0917482,
+    "ast_hash": "035cebfca386621f75e4745172226fd6",
+    "semantic_hash": "035cebfca386621f75e4745172226fd6"
+  },
+  "aether_report_package/assets/logo_cover.png": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "369b90eaa828447538dda639f53b2486",
+    "semantic_hash": "369b90eaa828447538dda639f53b2486"
+  },
+  "aether_report_package/assets/logo_cover.svg": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2eb7fad65bdb5f3979ae8099d27ccfdf",
+    "semantic_hash": "2eb7fad65bdb5f3979ae8099d27ccfdf"
+  },
+  "aether_report_package/assets/logo_mono.png": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9f970975acddfe611a03c6f3cce035c9",
+    "semantic_hash": "9f970975acddfe611a03c6f3cce035c9"
+  },
+  "aether_report_package/assets/logo_mono.svg": {
+    "mtime": 1788297891.0,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f03cc1aad03cedef1b6fd8f42e4ed5bb",
+    "semantic_hash": "f03cc1aad03cedef1b6fd8f42e4ed5bb"
+  },
+  "dashboard/assets/demo/linea.svg": {
+    "mtime": 1792201314.0545845,
+    "seen": 1792634913.0917482,
+    "ast_hash": "d3a8e387fa7e541bb2720a060402f6dd",
+    "semantic_hash": "d3a8e387fa7e541bb2720a060402f6dd"
+  },
+  "dashboard/assets/demo/percepcion.svg": {
+    "mtime": 1792201312.8582718,
+    "seen": 1792634913.0917482,
+    "ast_hash": "605e5fca5f9262f0cd0fe57830524cf6",
+    "semantic_hash": "605e5fca5f9262f0cd0fe57830524cf6"
+  },
+  "docs/hardware/_build/figuras/01-vista.png": {
+    "mtime": 1791253544.0708535,
+    "seen": 1792634913.0917482,
+    "ast_hash": "feb41622abcbdd8bec1e7eb57834fe61",
+    "semantic_hash": "feb41622abcbdd8bec1e7eb57834fe61"
+  },
+  "docs/hardware/_build/figuras/02-cables.png": {
+    "mtime": 1791253544.194661,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1334ee340194362547a4c7f414046238",
+    "semantic_hash": "1334ee340194362547a4c7f414046238"
+  },
+  "docs/hardware/_build/figuras/03-bornes.png": {
+    "mtime": 1791253544.305737,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1dfa1af7ff6aa445a2dd35b3c5acf9e0",
+    "semantic_hash": "1dfa1af7ff6aa445a2dd35b3c5acf9e0"
+  },
+  "docs/hardware/_build/figuras/04-secuencia.png": {
+    "mtime": 1791253544.4058187,
+    "seen": 1792634913.0917482,
+    "ast_hash": "25a164120101999a0b0f729b0666c5c6",
+    "semantic_hash": "25a164120101999a0b0f729b0666c5c6"
+  },
+  "docs/hardware/_build/figuras/05-pantalla.png": {
+    "mtime": 1791253544.5100594,
+    "seen": 1792634913.0917482,
+    "ast_hash": "71af3faa59223229d1de9d8ebc62751e",
+    "semantic_hash": "71af3faa59223229d1de9d8ebc62751e"
+  },
+  "docs/hardware/_build/figuras/06-red.png": {
+    "mtime": 1791253544.5767057,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5f81db9c5f0e8365688d00fc4a185082",
+    "semantic_hash": "5f81db9c5f0e8365688d00fc4a185082"
+  },
+  "docs/hardware/_build/figuras/07-manana-camaras.png": {
+    "mtime": 1791263424.3865376,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8c598cd80a652910f4f6fb283f85ea8b",
+    "semantic_hash": "8c598cd80a652910f4f6fb283f85ea8b"
+  },
+  "docs/hardware/_build/figuras/08-manana-sensores.png": {
+    "mtime": 1791263424.429069,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2ced771b8b56c2daf2289e1495c3b971",
+    "semantic_hash": "2ced771b8b56c2daf2289e1495c3b971"
+  },
+  "docs/hardware/figuras/01-sistema.png": {
+    "mtime": 1791565142.5641506,
+    "seen": 1792634913.0917482,
+    "ast_hash": "bd0a4def73d92ee5d8430b41ba63a7cb",
+    "semantic_hash": "bd0a4def73d92ee5d8430b41ba63a7cb"
+  },
+  "docs/hardware/figuras/02-celda-electrico.png": {
+    "mtime": 1791565142.7775571,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c156d2d329efebd3b8de62c12bdbd0f9",
+    "semantic_hash": "c156d2d329efebd3b8de62c12bdbd0f9"
+  },
+  "docs/hardware/figuras/03-robot-alimentacion.png": {
+    "mtime": 1791565142.9135828,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8fba1183008f3907846e71de7cb6edb3",
+    "semantic_hash": "8fba1183008f3907846e71de7cb6edb3"
+  },
+  "docs/hardware/figuras/04-robot-cableado.png": {
+    "mtime": 1791565143.12335,
+    "seen": 1792634913.0917482,
+    "ast_hash": "313ca748494b28d3d17c530701c5cc1b",
+    "semantic_hash": "313ca748494b28d3d17c530701c5cc1b"
+  },
+  "docs/hardware/figuras/05-comunicaciones.png": {
+    "mtime": 1791565143.2226565,
+    "seen": 1792634913.0917482,
+    "ast_hash": "41fd1996461abcc93680654093d4ba20",
+    "semantic_hash": "41fd1996461abcc93680654093d4ba20"
+  },
+  "Aether_Final.mp4": {
+    "mtime": 1789599387.772009,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2b1e336e3b20b76665eeda23fbe95783",
+    "semantic_hash": "2b1e336e3b20b76665eeda23fbe95783"
+  },
+  "Aether_Logo_Reveal.mp4": {
+    "mtime": 1789597405.5310311,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c9f21ed6c466f70636f3d8e35f572e93",
+    "semantic_hash": "c9f21ed6c466f70636f3d8e35f572e93"
+  },
+  "aether-video/phase0/raw/e2e/01.mp3": {
+    "mtime": 1790704807.2777815,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7435dc95d3a84985ac4f4b1428d1bc7c",
+    "semantic_hash": "7435dc95d3a84985ac4f4b1428d1bc7c"
+  },
+  "aether-video/phase0/raw/e2e/02.mp3": {
+    "mtime": 1790704809.243655,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1b59bb46ce3f70fe0835937bc9d571df",
+    "semantic_hash": "1b59bb46ce3f70fe0835937bc9d571df"
+  },
+  "aether-video/phase0/raw/e2e/03.mp3": {
+    "mtime": 1790704809.3658948,
+    "seen": 1792634913.0917482,
+    "ast_hash": "54892ce01a203c601904c70054ce31fe",
+    "semantic_hash": "54892ce01a203c601904c70054ce31fe"
+  },
+  "aether-video/phase0/raw/e2e/04.mp3": {
+    "mtime": 1790704809.485551,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f035c8fbb2037ff11c48dc4498aa7a3c",
+    "semantic_hash": "f035c8fbb2037ff11c48dc4498aa7a3c"
+  },
+  "aether-video/phase0/raw/e2e/05.mp3": {
+    "mtime": 1790704809.603217,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e086fc57cdee4bdb88871cb04f2afdbc",
+    "semantic_hash": "e086fc57cdee4bdb88871cb04f2afdbc"
+  },
+  "aether-video/phase0/raw/e2e/06.mp3": {
+    "mtime": 1790704809.70561,
+    "seen": 1792634913.0917482,
+    "ast_hash": "51d24a0518cf684c032ba563ce2944f8",
+    "semantic_hash": "51d24a0518cf684c032ba563ce2944f8"
+  },
+  "aether-video/phase0/raw/e2e/07.mp3": {
+    "mtime": 1790704809.797373,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8b03124b28442e2a55c54eb1105a0084",
+    "semantic_hash": "8b03124b28442e2a55c54eb1105a0084"
+  },
+  "aether-video/phase0/raw/e2e/08.mp3": {
+    "mtime": 1790704809.888099,
+    "seen": 1792634913.0917482,
+    "ast_hash": "04c5a7191d44bc8f485ea6ad8d5d8869",
+    "semantic_hash": "04c5a7191d44bc8f485ea6ad8d5d8869"
+  },
+  "aether-video/phase0/raw/e2e/09.mp3": {
+    "mtime": 1790704809.9864345,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a3883a9407f26a36d8b646905e4312e9",
+    "semantic_hash": "a3883a9407f26a36d8b646905e4312e9"
+  },
+  "aether-video/phase0/raw/e2e/10.mp3": {
+    "mtime": 1790704810.088953,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2990690c43b2a3e7f102c4554e73fe71",
+    "semantic_hash": "2990690c43b2a3e7f102c4554e73fe71"
+  },
+  "aether-video/phase0/raw/e2e/11.mp3": {
+    "mtime": 1790704810.1867929,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b238d7708a05836c49ae15850292ef7d",
+    "semantic_hash": "b238d7708a05836c49ae15850292ef7d"
+  },
+  "aether-video/phase0/raw/e2e/12.mp3": {
+    "mtime": 1790704810.2746198,
+    "seen": 1792634913.0917482,
+    "ast_hash": "0383ce8e9f9ba78b8f17db80a0d20f4e",
+    "semantic_hash": "0383ce8e9f9ba78b8f17db80a0d20f4e"
+  },
+  "aether-video/phase0/raw/e2e/13.mp3": {
+    "mtime": 1790704810.3710744,
+    "seen": 1792634913.0917482,
+    "ast_hash": "52d2a315da999b91ec534a337eef9f2d",
+    "semantic_hash": "52d2a315da999b91ec534a337eef9f2d"
+  },
+  "aether-video/phase0/raw/e2e/14.mp3": {
+    "mtime": 1790704810.4738514,
+    "seen": 1792634913.0917482,
+    "ast_hash": "b558da0c610554bb1a2ede8a50f3f441",
+    "semantic_hash": "b558da0c610554bb1a2ede8a50f3f441"
+  },
+  "aether-video/phase0/raw/e2e/15.mp3": {
+    "mtime": 1790704810.564716,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2e93f0273aa081d855c9baa207318e17",
+    "semantic_hash": "2e93f0273aa081d855c9baa207318e17"
+  },
+  "aether-video/phase0/raw/e2e/16.mp3": {
+    "mtime": 1790704810.6537995,
+    "seen": 1792634913.0917482,
+    "ast_hash": "667ef36f0f8ea9163806802b3a4abc47",
+    "semantic_hash": "667ef36f0f8ea9163806802b3a4abc47"
+  },
+  "aether-video/phase0/raw/e2e/17.mp3": {
+    "mtime": 1790704810.7505906,
+    "seen": 1792634913.0917482,
+    "ast_hash": "27b4d854c958cecfe0892549d6ad487f",
+    "semantic_hash": "27b4d854c958cecfe0892549d6ad487f"
+  },
+  "aether-video/phase0/raw/e2e/18.mp3": {
+    "mtime": 1790704810.8416483,
+    "seen": 1792634913.0917482,
+    "ast_hash": "3457db4fd5d0a1c999ebe5c9395711b8",
+    "semantic_hash": "3457db4fd5d0a1c999ebe5c9395711b8"
+  },
+  "aether-video/phase0/raw/e2e/19.mp3": {
+    "mtime": 1790704810.9290175,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ef248b74f0394032eb323f5aeec8f673",
+    "semantic_hash": "ef248b74f0394032eb323f5aeec8f673"
+  },
+  "aether-video/phase0/raw/e2e/20.mp3": {
+    "mtime": 1790704811.0215752,
+    "seen": 1792634913.0917482,
+    "ast_hash": "645998f842cf3b234f7808f93fc076fc",
+    "semantic_hash": "645998f842cf3b234f7808f93fc076fc"
+  },
+  "aether-video/phase0/raw/e2e/21.mp3": {
+    "mtime": 1790704811.1198862,
+    "seen": 1792634913.0917482,
+    "ast_hash": "352ccc6a767f1e008a3f8821eced907e",
+    "semantic_hash": "352ccc6a767f1e008a3f8821eced907e"
+  },
+  "aether-video/phase0/raw/e2e/22.mp3": {
+    "mtime": 1790704811.218171,
+    "seen": 1792634913.0917482,
+    "ast_hash": "5351c2ea3737464c562cbae596c13112",
+    "semantic_hash": "5351c2ea3737464c562cbae596c13112"
+  },
+  "aether-video/phase0/raw/e2e/23.mp3": {
+    "mtime": 1790704811.3118348,
+    "seen": 1792634913.0917482,
+    "ast_hash": "7c22b2846aac34530bec1de4c055c74a",
+    "semantic_hash": "7c22b2846aac34530bec1de4c055c74a"
+  },
+  "aether-video/phase0/raw/e2e/24.mp3": {
+    "mtime": 1790704811.407523,
+    "seen": 1792634913.0917482,
+    "ast_hash": "de5348d121a3ed879e502d7c049ef904",
+    "semantic_hash": "de5348d121a3ed879e502d7c049ef904"
+  },
+  "aether-video/phase0/raw/e2e/25.mp3": {
+    "mtime": 1790704811.5048518,
+    "seen": 1792634913.0917482,
+    "ast_hash": "70c40ee6b3863e22ea3ae9e0fcd1241c",
+    "semantic_hash": "70c40ee6b3863e22ea3ae9e0fcd1241c"
+  },
+  "aether-video/phase0/raw/e2e/26.mp3": {
+    "mtime": 1790704811.6134346,
+    "seen": 1792634913.0917482,
+    "ast_hash": "fcb3a7a41f4fb827a268cf8907a63582",
+    "semantic_hash": "fcb3a7a41f4fb827a268cf8907a63582"
+  },
+  "aether-video/phase0/raw/e2e/27.mp3": {
+    "mtime": 1790704811.713185,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9c7888249af484dd2afa6c121af72bb8",
+    "semantic_hash": "9c7888249af484dd2afa6c121af72bb8"
+  },
+  "aether-video/phase0/raw/e2e/28.mp3": {
+    "mtime": 1790704811.8086877,
+    "seen": 1792634913.0917482,
+    "ast_hash": "8d0ee900c879e78c01d7e2cb1269789b",
+    "semantic_hash": "8d0ee900c879e78c01d7e2cb1269789b"
+  },
+  "aether-video/phase0/raw/e2e/29.mp3": {
+    "mtime": 1790704811.9196184,
+    "seen": 1792634913.0917482,
+    "ast_hash": "92451c035027cf14760e22699e77dfaf",
+    "semantic_hash": "92451c035027cf14760e22699e77dfaf"
+  },
+  "aether-video/phase0/raw/e2e/30.mp3": {
+    "mtime": 1790704812.01992,
+    "seen": 1792634913.0917482,
+    "ast_hash": "aff0320895ce0ff62296e6152e322c03",
+    "semantic_hash": "aff0320895ce0ff62296e6152e322c03"
+  },
+  "aether-video/phase0/raw/e2e/31.mp3": {
+    "mtime": 1790704812.1099074,
+    "seen": 1792634913.0917482,
+    "ast_hash": "434a2831c5da624424cda8d98c4523c9",
+    "semantic_hash": "434a2831c5da624424cda8d98c4523c9"
+  },
+  "aether-video/phase0/raw/e2e/32.mp3": {
+    "mtime": 1790704812.1909409,
+    "seen": 1792634913.0917482,
+    "ast_hash": "57df51476cbd42a7dd2851ff02ea202c",
+    "semantic_hash": "57df51476cbd42a7dd2851ff02ea202c"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/01.mp3": {
+    "mtime": 1790640212.1497712,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e4eb062d48e1512a21228e71d795dd7c",
+    "semantic_hash": "e4eb062d48e1512a21228e71d795dd7c"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/02.mp3": {
+    "mtime": 1790640212.1658487,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2f10faf62222649cb3823643511ffae0",
+    "semantic_hash": "2f10faf62222649cb3823643511ffae0"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/03.mp3": {
+    "mtime": 1790640212.170895,
+    "seen": 1792634913.0917482,
+    "ast_hash": "ccf8f67e2d233ee0879a5b8100ef65b8",
+    "semantic_hash": "ccf8f67e2d233ee0879a5b8100ef65b8"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/04.mp3": {
+    "mtime": 1790640212.1754718,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1c3f65612a5f3f5869532791dd2bbb47",
+    "semantic_hash": "1c3f65612a5f3f5869532791dd2bbb47"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/05.mp3": {
+    "mtime": 1790640212.187007,
+    "seen": 1792634913.0917482,
+    "ast_hash": "16c707c149b572ab872072c9875411a9",
+    "semantic_hash": "16c707c149b572ab872072c9875411a9"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/06.mp3": {
+    "mtime": 1790640212.1920035,
+    "seen": 1792634913.0917482,
+    "ast_hash": "229011fa78aedfb0df714f3c0bc8c15c",
+    "semantic_hash": "229011fa78aedfb0df714f3c0bc8c15c"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/07.mp3": {
+    "mtime": 1790640212.2065752,
+    "seen": 1792634913.0917482,
+    "ast_hash": "41897c50e5529609cfe0cb179fd20480",
+    "semantic_hash": "41897c50e5529609cfe0cb179fd20480"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/08.mp3": {
+    "mtime": 1790640212.2171323,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e3cb29342d8dfe665817bc5cf6d6a75d",
+    "semantic_hash": "e3cb29342d8dfe665817bc5cf6d6a75d"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/09.mp3": {
+    "mtime": 1790640212.220136,
+    "seen": 1792634913.0917482,
+    "ast_hash": "60fac7e0fb2438dc6567e3240b605b38",
+    "semantic_hash": "60fac7e0fb2438dc6567e3240b605b38"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/10.mp3": {
+    "mtime": 1790640212.2306714,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a8011c6802b32a117f54d083346f6be9",
+    "semantic_hash": "a8011c6802b32a117f54d083346f6be9"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/11.mp3": {
+    "mtime": 1790640212.2392075,
+    "seen": 1792634913.0917482,
+    "ast_hash": "29fcb543550b2b50a233856159da3a49",
+    "semantic_hash": "29fcb543550b2b50a233856159da3a49"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/12.mp3": {
+    "mtime": 1790640212.2467172,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e7e1986b9faeb721eff5775e3cdcb17a",
+    "semantic_hash": "e7e1986b9faeb721eff5775e3cdcb17a"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/13.mp3": {
+    "mtime": 1790640212.2557516,
+    "seen": 1792634913.0917482,
+    "ast_hash": "4d9b07577e658f709424376f2019da98",
+    "semantic_hash": "4d9b07577e658f709424376f2019da98"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/14.mp3": {
+    "mtime": 1790640212.2642837,
+    "seen": 1792634913.0917482,
+    "ast_hash": "2518ad2a5b31abb92d597bb7e522f3e2",
+    "semantic_hash": "2518ad2a5b31abb92d597bb7e522f3e2"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/15.mp3": {
+    "mtime": 1790640212.2718425,
+    "seen": 1792634913.0917482,
+    "ast_hash": "af0b61861f9dba6fedf3e4aef9728da0",
+    "semantic_hash": "af0b61861f9dba6fedf3e4aef9728da0"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/16.mp3": {
+    "mtime": 1790640212.2853682,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c27d4b43041fefcaa29ff92f76fd6ae7",
+    "semantic_hash": "c27d4b43041fefcaa29ff92f76fd6ae7"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/17.mp3": {
+    "mtime": 1790640212.2873766,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a0158d5eceae8a0c0448a0af44c9e4df",
+    "semantic_hash": "a0158d5eceae8a0c0448a0af44c9e4df"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/18.mp3": {
+    "mtime": 1790640212.2919142,
+    "seen": 1792634913.0917482,
+    "ast_hash": "52da809f5c8d342562c46ec56b383f17",
+    "semantic_hash": "52da809f5c8d342562c46ec56b383f17"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/19.mp3": {
+    "mtime": 1790640212.3044527,
+    "seen": 1792634913.0917482,
+    "ast_hash": "26a66b264aca065a46dae8664cdaf60c",
+    "semantic_hash": "26a66b264aca065a46dae8664cdaf60c"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/20.mp3": {
+    "mtime": 1790640212.3139906,
+    "seen": 1792634913.0917482,
+    "ast_hash": "c67e10b608c49f6c63bb27fb156420ac",
+    "semantic_hash": "c67e10b608c49f6c63bb27fb156420ac"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/21.mp3": {
+    "mtime": 1790640212.336583,
+    "seen": 1792634913.0917482,
+    "ast_hash": "faa7e71124573509c80298625d872f4a",
+    "semantic_hash": "faa7e71124573509c80298625d872f4a"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/22.mp3": {
+    "mtime": 1790640212.3511193,
+    "seen": 1792634913.0917482,
+    "ast_hash": "1f44ca1d1395d146c7c506b663002fad",
+    "semantic_hash": "1f44ca1d1395d146c7c506b663002fad"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/23.mp3": {
+    "mtime": 1790640212.3546495,
+    "seen": 1792634913.0917482,
+    "ast_hash": "631502f940183d3f7bd58a6b45e28c42",
+    "semantic_hash": "631502f940183d3f7bd58a6b45e28c42"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/24.mp3": {
+    "mtime": 1790640212.3616626,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f7f3f2573ab3a6d287b59fcbfb9cd39e",
+    "semantic_hash": "f7f3f2573ab3a6d287b59fcbfb9cd39e"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/25.mp3": {
+    "mtime": 1790640212.3717184,
+    "seen": 1792634913.0917482,
+    "ast_hash": "cf173eb5709baa5ceffdefde3cbeaf80",
+    "semantic_hash": "cf173eb5709baa5ceffdefde3cbeaf80"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/26.mp3": {
+    "mtime": 1790640212.3727195,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6509ce7ff6c987a7f77a9dab24e49d68",
+    "semantic_hash": "6509ce7ff6c987a7f77a9dab24e49d68"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/27.mp3": {
+    "mtime": 1790640212.3822677,
+    "seen": 1792634913.0917482,
+    "ast_hash": "187077b91d966c5592fbe3b1cf0a5c12",
+    "semantic_hash": "187077b91d966c5592fbe3b1cf0a5c12"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/28.mp3": {
+    "mtime": 1790640212.3877933,
+    "seen": 1792634913.0917482,
+    "ast_hash": "f436f78e6c094a43842d58327d27ccea",
+    "semantic_hash": "f436f78e6c094a43842d58327d27ccea"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/29.mp3": {
+    "mtime": 1790640212.3887928,
+    "seen": 1792634913.0917482,
+    "ast_hash": "82669c0bb61a7706bd4714b68de4156d",
+    "semantic_hash": "82669c0bb61a7706bd4714b68de4156d"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/30.mp3": {
+    "mtime": 1790640212.3907924,
+    "seen": 1792634913.0917482,
+    "ast_hash": "e8bb8a45a9f00cf2f02051fc48b22fc8",
+    "semantic_hash": "e8bb8a45a9f00cf2f02051fc48b22fc8"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/31.mp3": {
+    "mtime": 1790640212.3933053,
+    "seen": 1792634913.0917482,
+    "ast_hash": "a0d2b1a9728a86d24ee08d48632e3e00",
+    "semantic_hash": "a0d2b1a9728a86d24ee08d48632e3e00"
+  },
+  "aether-video/phase0/raw/none/run-03-mp3/32.mp3": {
+    "mtime": 1790640212.4048457,
+    "seen": 1792634913.0917482,
+    "ast_hash": "9f0358bfb3128d21b1a3e8f3b6cd3844",
+    "semantic_hash": "9f0358bfb3128d21b1a3e8f3b6cd3844"
+  },
+  "dashboard/assets/funcionamiento.mp4": {
+    "mtime": 1792213429.6468966,
+    "seen": 1792634913.0917482,
+    "ast_hash": "6afd648120779d61bb378a1753a88f60",
+    "semantic_hash": "6afd648120779d61bb378a1753a88f60"
+  }
+}

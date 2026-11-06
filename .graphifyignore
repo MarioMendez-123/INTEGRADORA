@@ -1,0 +1,4 @@
+# bundles minificados / librerias de terceros (ruido en el grafo)
+dashboard/call-screen.js
+dashboard/web-scenes.js
+docs/hardware/_three.min.js

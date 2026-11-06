@@ -43,6 +43,7 @@
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
+    "armado:build": "esbuild ../dashboard/armado.src.js --bundle --minify --format=esm --alias:three/addons=../dashboard/vendor/three/examples/jsm --alias:three=../dashboard/vendor/three/build/three.module.js --outfile=../dashboard/armado.js",
     "web:build": "esbuild web/embed.tsx --bundle --minify --format=iife --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=../dashboard/web-scenes.js",
     "call:build": "esbuild call/embed.tsx --bundle --minify --format=iife --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=../dashboard/call-screen.js"
   },

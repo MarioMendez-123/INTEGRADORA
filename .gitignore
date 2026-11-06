@@ -92,3 +92,11 @@ docs/architecture/decisions/sdasd.py
 # Grabaciones de prueba de voz (scripts/grabar_pruebas.py): son AUDIO, nunca se versionan
 pruebas_voz/
 pruebas_voz_sintetica/
+
+# Video de inicio: tomas 3D regenerables (node intro/scripts/capture_v3.mjs) y copia local de la cancion
+aether-video/intro/public/cart/
+aether-video/intro/public/cart3/
+aether-video/intro/public/grid.mp3
+backend/tts_cache/
+.git-rewrite/
+The Grid (Remixed by The Crystal Method).mp3

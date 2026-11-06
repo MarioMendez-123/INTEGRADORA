@@ -6,6 +6,7 @@ const { coverSection, frontMatter, bodyHeader, bodyFooter, bodyPageProps } = req
 const { introduccion, capitulo1 } = require("./ch_intro_1.js");
 const { capitulo2 } = require("./ch_2.js");
 const { capitulo3 } = require("./ch_3.js");
+const { capitulo5 } = require("./ch_5_cambios.js");
 const { capitulo4, conclusiones, referencias } = require("./ch_4_end.js");
 
 const bodySection = {
@@ -18,6 +19,7 @@ const bodySection = {
     ...capitulo2,
     ...capitulo3,
     ...capitulo4,
+    ...capitulo5,
     ...conclusiones,
     ...referencias,
   ],

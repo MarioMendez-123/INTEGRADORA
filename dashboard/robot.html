@@ -4,14 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lumina</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Schibsted+Grotesk:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="/vendor/fonts/fonts.css">
     <link rel="stylesheet" href="/style.css" />
-    <link rel="stylesheet" href="/robot.css?v=6" />
+    <link rel="stylesheet" href="/robot.css?v=10" />
   </head>
   <body class="robot-body">
     <!--
@@ -97,6 +92,13 @@
       ></button>
     </div>
     <div class="boot-flash" id="boot-flash" aria-hidden="true"></div>
+
+    <!-- ?intro=1: pantalla negra -> video de inicio (sin controles) -> Lumina. Ver "INTRO" en robot.js. -->
+    <iframe class="holo-frame" id="holo-frame" title="Proyección 3D de Lumina" hidden></iframe>
+    <iframe class="holo-frame slides-frame" id="slides-frame" title="Diapositivas" hidden></iframe>
+    <div class="intro-screen" id="intro-screen" hidden>
+      <video id="intro-video" preload="auto" playsinline disablepictureinpicture></video>
+    </div>
 
     <!-- ============ Pantalla de la cara (estado por defecto) ============
          Sin contorno de "cabeza": los ojos y la boca flotan directo sobre
@@ -223,6 +225,6 @@
     <script src="/node-field.js"></script>
     <script src="/call-screen.js"></script>
     <script src="/stream-errors.js"></script>
-    <script src="/robot.js?v=11"></script>
+    <script src="/robot.js?v=15"></script>
   </body>
 </html>

@@ -1084,6 +1084,144 @@ connectShowChannel();
 // enlace se cayó" (deja de llegar) y solo en el segundo caso avanza solo.
 setInterval(() => emitShowEvent("alive"), 1000);
 
+// ============================================================================
+// INTRO (robot.html?intro=1) — presentación local: negro tenue; con un clic o la
+// flecha del clicker corre el video sin controles; al terminar, Lumina enciende
+// y saluda; luego sigue en Modo Conversación esperando los comandos de voz.
+// Va en esta misma página (no en otra) para conservar el clic del expositor:
+// sin él, el navegador no deja sonar el video ni la voz de Lumina.
+//
+// La flecha del clicker es el respaldo de la voz: lanza el siguiente paso sin
+// hablar y, terminada la proyección, pasa a las diapositivas (slides.html).
+// ============================================================================
+const introParams = new URLSearchParams(location.search);
+const introMode = introParams.get("intro") === "1";
+const introLang = introParams.get("lang") === "en" ? "en" : "es";
+const INTRO = {
+  es: {
+    greet: "Hola, soy Lumina, el robot del proyecto Aether.",
+    steps: [
+      { re: /c[oó]mo est[aá]s/, say: "Muy bien y listo para trabajar." },
+      { re: /(ens[eé][nñ]a|mu[eé]stra)\w*\b.*qui[eé]n eres/, say: "Soy el carrito. Así estoy armada.", holo: "armada" },
+      { re: /(mu[eé]stra|ens[eé][nñ]a|abre)\w*\b.*(interior|por dentro|adentro)/, say: "Te muestro el interior, capa por capa.", holo: "reveal" },
+    ],
+  },
+  en: {
+    greet: "Hello, I'm Lumina, the robot of the Aether project.",
+    steps: [
+      { re: /how are you/, say: "Very well and ready to work." },
+      { re: /show\b.*who you are/, say: "I'm the cart. This is how I'm built.", holo: "armada" },
+      { re: /(show|open)\b.*(inside|interior)/, say: "Let me show you my interior, layer by layer.", holo: "reveal" },
+    ],
+  },
+}[introLang];
+const INTRO_NEXT_KEYS = ["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"];
+let introRunning = introMode;
+let introStep = 0; // siguiente paso del guion; lo adelantan la voz y la flecha por igual
+const holoFrameEl = document.getElementById("holo-frame");
+const slidesFrameEl = document.getElementById("slides-frame");
+
+/** Dice un paso del guion. Ignora si Lumina está hablando, para que un doble toque no lo pise. */
+function runIntroStep(step) {
+  if (conversationSubState !== "listening") return;
+  const { say, holo } = INTRO.steps[step];
+  introStep = step + 1;
+  if (holo) showHolo(holo);
+  conversationSubState = "speaking";
+  speak(say, {
+    onend: () => {
+      conversationSubState = "listening";
+      setFaceExpression(restingExpression());
+    },
+  });
+}
+
+/** Diapositivas encima de todo. Mientras se ven, Lumina no escucha: habla el equipo. */
+function openSlides() {
+  introRunning = true;
+  slidesFrameEl.classList.add("holo-frame--on");
+  slidesFrameEl.contentWindow?.focus();
+  slidesFrameEl.contentWindow?.postMessage({ type: "aether-slides-start" }, location.origin);
+}
+
+// Doble clic en la última diapositiva: vuelve Lumina, libre para conversar.
+addEventListener("message", (event) => {
+  if (event.origin !== location.origin || event.data?.type !== "aether-slides-end") return;
+  slidesFrameEl.classList.remove("holo-frame--on");
+  holoFrameEl.classList.remove("holo-frame--on");
+  window.focus();
+  introRunning = false;
+});
+
+addEventListener("keydown", (event) => {
+  if (!introMode || introRunning || !INTRO_NEXT_KEYS.includes(event.key)) return;
+  event.preventDefault();
+  if (conversationSubState !== "listening") return;
+  if (introStep < INTRO.steps.length) runIntroStep(introStep);
+  else if (holoFrameEl.classList.contains("holo-frame--on")) openSlides();
+});
+
+/** Muestra la proyección 3D encima de la cara. "armada": el robot completo; "reveal": capa por capa. */
+function showHolo(view) {
+  holoFrameEl.hidden = false;
+  holoFrameEl.classList.add("holo-frame--on");
+  const act = () => {
+    const stage = holoFrameEl.contentWindow?.__aether;
+    if (!stage) return setTimeout(act, 150); // el modelo todavía está cargando
+    if (view === "reveal") stage.revealInterior();
+    else stage.showAssembled();
+  };
+  act();
+}
+
+function finishIntro(introEl) {
+  introEl.classList.add("intro-screen--out");
+  setTimeout(() => { introEl.hidden = true; }, 600);
+  // Se carga ya, oculta, para que aparezca al instante con el comando de voz.
+  holoFrameEl.src = `/armado.html?limpio=1&pose=armada&lang=${introLang}`;
+  holoFrameEl.hidden = false;
+  slidesFrameEl.src = `/slides.html?lang=${introLang}`;
+  slidesFrameEl.hidden = false;
+  awakened = true;
+  playPowerOnAnimation(() => {
+    enterConversationMode();
+    conversationSubState = "speaking";
+    speak(INTRO.greet, {
+      onend: () => {
+        introRunning = false;
+        conversationSubState = "listening";
+        setFaceExpression(restingExpression());
+      },
+    });
+  });
+}
+
+if (introMode) {
+  document.body.classList.add("intro-show");
+  const introEl = document.getElementById("intro-screen");
+  const video = document.getElementById("intro-video");
+  video.src = "/assets/intro.mp4";
+  introEl.hidden = false;
+  const start = (event) => {
+    if (event.type === "keydown" && !INTRO_NEXT_KEYS.includes(event.key)) return;
+    event.preventDefault();
+    removeEventListener("keydown", start);
+    removeEventListener("pointerdown", start);
+    document.documentElement.requestFullscreen?.().catch(() => {}); // en Edge --kiosk ya está a pantalla completa
+    introEl.classList.add("intro-screen--playing");
+    video.play().catch((err) => {
+      console.warn("Aether: el video de inicio no pudo reproducirse.", err);
+      finishIntro(introEl);
+    });
+  };
+  video.addEventListener("ended", () => finishIntro(introEl));
+  video.addEventListener("error", () => {
+    console.warn("Aether: no se pudo cargar /assets/intro.mp4.", video.error);
+  });
+  addEventListener("keydown", start);
+  addEventListener("pointerdown", start);
+}
+
 const bootScreenEl = document.getElementById("boot-screen");
 const bootFlashEl = document.getElementById("boot-flash");
 const bootHiddenBtn = document.getElementById("boot-hidden-btn");
@@ -1161,8 +1299,8 @@ bootHiddenBtn.addEventListener("click", () => {
 // correspondencia pedida — no se crea ninguna expresión nueva.
 // ---------------------------------------------------------------------
 const PRESENTATION_SCRIPT = [
-  { speaker: "aether", text: "Buenas tardes.", pause: 0, mood: "neutral" },
-  { speaker: "aether", text: "Mi nombre es Aether.", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "Hola, mi nombre es lumina, soy un robot autónomo inteligente", pause: 0, mood: "neutral" },
+  { speaker: "aether", text: "¿Como estan todos?", pause: 0, mood: "neutral" },
   { speaker: "aether", text: "Soy un sistema autónomo de inventario.", pause: 0, mood: "neutral" },
   { speaker: "aether", text: "Yo observo.", pause: 0, mood: "neutral" },
   { speaker: "aether", text: "Eso es lo primero que hago.", pause: 0, mood: "neutral" },
@@ -1654,7 +1792,13 @@ function refreshSelectedVoice() {
     );
   }
 
-  const best = pickBestSpanishVoice(voices);
+  // En la presentación no hay internet: una voz de red ("Online") se quedaría muda.
+  const local = voices.filter((v) => v.localService);
+  const best = !introMode
+    ? pickBestSpanishVoice(voices)
+    : introLang === "en"
+      ? local.find((v) => /david/i.test(v.name)) || local.find((v) => /^en/i.test(v.lang))
+      : pickBestSpanishVoice(local);
   if (best && best !== selectedVoice) {
     selectedVoice = best;
     const isMexican = best.lang.toLowerCase() === "es-mx";
@@ -1862,7 +2006,7 @@ function speakBrowser(text, { onend, onstart } = {}) {
   pauseRecognitionForSpeech();
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "es-MX";
+  utterance.lang = introMode && introLang === "en" ? "en-US" : "es-MX";
   utterance.pitch = 1.1; // 1.05–1.15 pedido: cálido, ya no el 0.7–0.9 robótico de antes
   utterance.rate = 1.0; // ritmo natural, ya no el 0.92 mecánico de antes
 
@@ -1912,7 +2056,7 @@ async function askLumina(question) {
     const response = await fetch("/robot/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, embed: introMode }),
       signal: pendingAskController.signal,
     });
     if (!response.ok) {
@@ -2294,6 +2438,14 @@ function queueVoiceFragment(transcript) {
  * es ningún comando de control conocido, se trata como una pregunta real
  * para Lumina. */
 function handleVoiceCommand(transcript) {
+  if (introRunning) return; // la música del video no debe contar como voz
+  if (introMode) {
+    // En la presentación hay público hablando: solo cuenta lo que va dirigido a Lumina.
+    if (!LUMINA_PATTERN.test(transcript)) return;
+    const step = INTRO.steps.findIndex((s) => s.re.test(transcript));
+    if (step >= 0) return runIntroStep(step);
+    if (introLang !== "es") return; // las respuestas libres (Ollama) solo existen en español
+  }
   // Pantalla de espera (ver sección "PANTALLA DE ESPERA" arriba) — se
   // revisa primero y siempre con "return": mientras no se haya activado
   // el guion, ningún otro comando de voz (ni preguntas a Ollama) debe

@@ -8,6 +8,7 @@
 #   -Jetson          ademas, arranca el agente del Jetson por SSH (host "jetson-uni" de ~/.ssh/config).
 #   -JetsonHost X    otro nombre de host SSH para -Jetson.
 #   -Puerto N        puerto del servidor (por defecto 8000).
+#   -Ingles          el servicio de voz reconoce ingles (presentacion en ingles, robot.html?...&lang=en).
 #
 # No instala nada, no abre puertos ni cambia el firewall: lo que falte lo dice con el comando exacto.
 # El procedimiento anterior sigue valiendo (URLS_Y_COMANDOS.md, seccion 1): este script solo lo junta.
@@ -18,7 +19,8 @@ param(
     [switch]$SinVoz,
     [switch]$Jetson,
     [string]$JetsonHost = 'jetson-uni',
-    [int]$Puerto = 8000
+    [int]$Puerto = 8000,
+    [switch]$Ingles
 )
 
 $Raiz = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -124,6 +126,8 @@ if ($Jetson) {
 }
 if ($VozLista) {
     Write-Host "Abriendo el servicio de voz en su propia ventana (ahi se ve el estado del microfono) ..." -ForegroundColor Cyan
+    # El .env no pisa una variable ya definida: asi se cambia de modelo sin tocarlo.
+    if ($Ingles) { $env:AETHER_VOICE_MODEL = 'C:\aether-voz\vosk-model-small-en-us-0.15' }
     $cmd = "Set-Location '" + $Backend + "'; & '" + $Py + "' -m voice.service"
     Start-Process powershell -ArgumentList '-NoExit', '-NoProfile', '-Command', $cmd
 }

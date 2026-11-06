@@ -151,8 +151,10 @@ const frontMatter = {
     tocLine("4.2 Entorno físico planeado", 36, { sub: true }),
     tocLine("4.3 Mantenimiento", 36, { sub: true }),
     tocLine("4.4 Manual de seguridad", 37, { sub: true }),
-    tocLine("CONCLUSIONES Y RECOMENDACIONES", 38),
-    tocLine("REFERENCIAS", 39),
+    tocLine("CAPÍTULO 5. CAMBIOS POSTERIORES AL CORTE DEL INFORME", 39),
+    tocLine("Anexo A. Registro completo de commits", 50, { sub: true }),
+    tocLine("CONCLUSIONES Y RECOMENDACIONES", 52),
+    tocLine("REFERENCIAS", 54),
 
     new Paragraph({ children: [new PageBreak()] }),
 
