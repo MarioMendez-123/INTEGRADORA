@@ -144,7 +144,7 @@ def _crear_procesador():
         elif decision["resultado"] == "PASS":
             label, color, juicio = f"PIEZA REAL · {decision['nombre']} · PASS", (0, 200, 0), "PASS"
         else:
-            label, color, juicio = "NO ES PIEZA REAL · FAIL", (0, 0, 220), "FAIL"
+            label, color, juicio = f"{decision['respuesta']} · FAIL", (0, 0, 220), "FAIL"
         celda.ver(juicio)  # una sola vez por análisis, igual que antes
         cajas = [(n, box) for n, c, box in detecciones if n in clases and c >= CONFIANZA_MINIMA]
         return cajas, label, color
@@ -152,8 +152,9 @@ def _crear_procesador():
     def dibujar(frame, resultado):
         cajas, label, color = resultado
         for nombre, (x1, y1, x2, y2) in cajas:
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 200, 0), 2)
-            cv2.putText(frame, nombre, (x1, max(16, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 200, 0), 2)
+            tono = (0, 0, 220) if "scrap" in nombre else (0, 200, 0)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), tono, 2)
+            cv2.putText(frame, nombre, (x1, max(16, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, tono, 2)
         cv2.putText(frame, label, (24, 48), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 3)
 
     _procesador = AnalisisPeriodico(analizar, dibujar, ANALISIS_CADA_S)

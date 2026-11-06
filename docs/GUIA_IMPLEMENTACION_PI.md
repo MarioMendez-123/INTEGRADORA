@@ -247,7 +247,7 @@ Comprueba la ruta de red **antes** de arrancar el agente (el servidor de la lapt
 ### 2.3b Poner en el Jetson el modelo de piezas y tu dataset (cambio nuevo)
 
 **Qué cambió.** Ahora el agente del Jetson, si encuentra `parts.pt`, corre **dos modelos** en cada análisis:
-- **`parts.pt` = piezas.** Reconoce `computadora1`, `computadora2` y `computadora3` **por su clase**, sin código QR ni de barras. Estas son las únicas detecciones que se mandan al inventario de la laptop (`code_read: false`).
+- **`parts.pt` = piezas.** Hoy reconoce una sola clase, `pieza_scrap` (da FAIL), **por su clase**, sin código QR ni de barras. Estas son las únicas detecciones que se mandan al inventario de la laptop (`code_read: false`).
 - **YOLO general (`yolov8n.pt`) = obstáculos.** Se dibuja en naranja como `OBSTACULO <clase>` y se resume en `GET /status` → `obstacles` (cuántos, de qué clase y `max_area_pct`, lo que ocupa el más grande en el cuadro). **No va al inventario** y **no sustituye a los sensores**: una cámara sola no mide distancia. Hoy nada consume ese resumen: no hay navegación en el código (`edge/navigation/` está vacío).
 - Sin `parts.pt` en el Jetson, el agente funciona como el viernes (un solo modelo) y el log dice `piezas=NO`.
 
@@ -275,7 +275,7 @@ Comprueba la ruta de red **antes** de arrancar el agente (el servidor de la lapt
 ```
 [Jetson · SSH]  cd ~/aether/backend && source .venv/bin/activate && python -c "from dataset_store import pesos_piezas, pesos_entorno, read_class_names; print(pesos_piezas(), pesos_entorno(), read_class_names())"; deactivate
 ```
-Esperado: la ruta de `parts.pt`, `yolov8n.pt` y `['computadora1', 'computadora2', 'computadora3']`. Si la primera es `None`, el archivo no está en `~/aether/edge/perception/weights/`.
+Esperado: la ruta de `parts.pt`, `yolov8n.pt` y `['pieza_scrap']`. Si la primera es `None`, el archivo no está en `~/aether/edge/perception/weights/`.
 4. Variables opcionales (no hace falta tocar nada: ya traen su valor de arranque). Solo si quieres cambiar una, agrega la línea al final de `~/.aether-agent.env` (la última línea de una variable es la que vale):
 ```
 [Jetson · SSH]  echo 'AETHER_PIECE_CONF=0.6' >> ~/.aether-agent.env
@@ -369,7 +369,7 @@ Pon **una de las 3 piezas** (y, aparte, tu mano o una botella como "obstáculo")
 [Laptop · PowerShell]  curl.exe -s "http://localhost:8000/perception/recent-detections?limit=3"
 [Laptop · PowerShell]  curl.exe -s http://<IP-JETSON>:8001/status
 ```
-Esperado: detecciones con `detected_class` = `computadora1`, `computadora2` o `computadora3` (con `code_read: false`: la identidad es la clase). **Los obstáculos NO deben aparecer ahí**: se ven en naranja en el video y en `/status` → `obstacles`. En `/status`, `laptop.sent_total` crece y `laptop.reachable` es `true`. `laptop.last_error` explica el fallo (firewall, URL, red). Las observaciones se juntan en lotes de 1 s (`AETHER_OUTBOX_INTERVAL_S`): un retraso de hasta 1 s es normal.
+Esperado: detecciones con `detected_class` = `pieza_scrap` (con `code_read: false`: la identidad es la clase). **Los obstáculos NO deben aparecer ahí**: se ven en naranja en el video y en `/status` → `obstacles`. En `/status`, `laptop.sent_total` crece y `laptop.reachable` es `true`. `laptop.last_error` explica el fallo (firewall, URL, red). Las observaciones se juntan en lotes de 1 s (`AETHER_OUTBOX_INTERVAL_S`): un retraso de hasta 1 s es normal.
 
 **Fin de Fase 3: Jetson y laptop quedaron como el viernes.** No se ha usado voz ni la Pi.
 
@@ -670,7 +670,7 @@ Esperado: `{"status":"ok","error":null}`; en `/status`, `camera.open: true`, `in
 ### 5.8 Ver la celda y mandar la primera pieza (sin cableado)
 1. En el navegador de la laptop: `http://<IP-PI>:8000/celda.html` (la página la sirve **la propia Pi**, no la laptop). Pulsa "Iniciar cámara": se ve el video de la celda con el letrero (`SIN PIEZA`, `PIEZA REAL · … · PASS` o `NO ES PIEZA REAL · FAIL`).
 2. La página `celda.html` muestra un formulario **"Inicia sesión para ver y mandar la celda"** con **Usuario** y **Contraseña**. Usuario: `admin` (salvo que hayas puesto `CELDA_HMI_USUARIO` en `~/.celda.env`). Contraseña: la `CELDA_HMI_CLAVE` que pusiste en `~/.celda.env` **de la Pi**. Sin sesión, Arranque/Paro dan error 401.
-3. Pon una pieza registrada (computadora1, 2 o 3) frente a la cámara. Después de ~5 análisis iguales (≈ 2.5 s + lo que dure cada análisis) sale el juicio.
+3. Pon una pieza del dataset frente a la cámara: hoy sale `PIEZA SCRAP · FAIL`. PASS solo existirá cuando se entrene la clase de pieza buena. Después de ~5 análisis iguales (≈ 2.5 s + lo que dure cada análisis) sale el juicio.
 4. En ese modo (sin GPIO) la pieza se anota como **`pulso_no_enviado`** (PASS) o **`fallo_actuacion`** (FAIL), y la pantalla muestra la alarma **"Enlace PLC perdido"**. **Eso es lo esperado**, no un fallo: `sources.plc` no significa que haya un PLC, solo `¿se abrió el chip GPIO?`.
 5. Una pieza dispara una sola vez: hasta ver `SIN PIEZA` no se vuelve a armar. Retira la pieza para probar la siguiente.
 6. Confirma que el evento llegó a la laptop:
@@ -738,7 +738,7 @@ Mide también con el **agente andando y sin `gpiod`** (Fase 5): ahí el programa
 1. Pi apagada. LED + resistencia de 330 Ω a 1 kΩ entre **físico 24 (GPIO 8)** y tierra; otro igual entre **físico 21 (GPIO 9)** y tierra. (Polaridad: pata larga del LED hacia el pin.)
 2. Enciende la Pi **sin arrancar el agente**: anota qué LED prende. **El LED del pistón NO debe prender fijo y el de la banda tampoco** al encender. Si prende el de GPIO 8 (pull-up): es lo del 6.2; resuélvelo antes de seguir.
 3. Arranca el agente (5.7, ahora con `gpiod`). El log debe cambiar a **`GPIO abiertos`** en vez de `sin GPIO`. Con eso, `sources.plc` = `true` y la alarma de "Enlace PLC perdido" desaparece. Ambos LED deben estar **apagados**.
-4. Pon una pieza **falsa** (algo que no sea computadora1/2/3) frente a la cámara. Tras ~5 análisis iguales: espera **3 s**, el LED del pistón se enciende **1 s**, se apaga, espera **2 s**, el LED de la banda se enciende **0.5 s**. Anota los tiempos con cronómetro (los de `LINE_PISTON_*` y `LINE_BANDA_ON_S` son de diseño, no medidos).
+4. Pon una pieza **scrap** frente a la cámara. Tras ~5 análisis iguales: espera **3 s**, el LED del pistón se enciende **1 s**, se apaga, espera **2 s**, el LED de la banda se enciende **0.5 s**. Anota los tiempos con cronómetro (los de `LINE_PISTON_*` y `LINE_BANDA_ON_S` son de diseño, no medidos).
 5. Con una pieza **real**: solo el LED de la banda, 0.5 s, al terminar el análisis.
 6. **Paro:** en la HMI, pulsa Paro con un ciclo en curso: ambos LED deben apagarse al instante (`set_running(False)` aborta y apaga).
 7. **Después de parar el agente** (`tmux kill-session -t celda`): mide qué hacen los LED. Si el de GPIO 8 se enciende, es el problema del 6.2 al cerrar. Anótalo.
@@ -764,7 +764,7 @@ Solo con paro de emergencia físico listo (P-16) y con Pedro presente (P-14).
 1. **Electroválvula con su diodo de protección** (*flyback*) en paralelo con la bobina si es de CC. Contacto del relevador 1 en serie con la bobina y su fuente. Sin aire conectado.
 2. Pieza falsa: debe oírse el clic de la válvula 1 s. Mide la tensión en la bobina durante el pulso (la de su etiqueta).
 3. **Aire a presión baja, sin pieza** en la banda: el émbolo sale 1 s y regresa. Ajusta `LINE_PISTON_ON_S` y `LINE_PISTON_REGRESO_S` hasta que salga y vuelva completo.
-4. Ahora con pieza real falsa (ECU que no es computadora1/2/3): el pistón debe sacarla de la banda. Cronometra desde que la pieza pasa frente a la cámara hasta que llega frente al pistón y ajusta `LINE_PISTON_ESPERA_S` (3 s de diseño).
+4. Ahora con pieza scrap: el pistón debe sacarla de la banda. Cronometra desde que la pieza pasa frente a la cámara hasta que llega frente al pistón y ajusta `LINE_PISTON_ESPERA_S` (3 s de diseño).
 5. Con pieza registrada (PASS): el pistón **no** debe moverse.
 6. Prueba de fallo: desconecta el cable de red de la Pi (la laptop se cae): la celda debe seguir juzgando y actuando. Desconecta la cámara: el estado pasa a `DETENIDA` ("Cámara apagada") y no actúa.
 

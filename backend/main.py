@@ -385,7 +385,7 @@ def _make_line_vision_processor():
 
     El modelo del entorno dibuja lo que hay alrededor, con su nombre.
     parts.pt, si existe, decide aparte si eso es una pieza registrada:
-    PIEZA REAL (PASS), NO ES PIEZA REAL (FAIL) o SIN PIEZA. PASS es
+    PIEZA REAL (PASS), PIEZA SCRAP (FAIL), NO ES PIEZA REAL (FAIL) o SIN PIEZA. PASS es
     "el nombre está en classes.txt", no una inspección de defecto.
     Sin parts.pt no se llama pieza a una silla ni a una persona.
 
@@ -416,7 +416,7 @@ def _make_line_vision_processor():
                 confianza = float(box.conf[0])
                 detecciones.append((nombre, confianza))
                 if nombre in clases and confianza >= CONFIANZA_MINIMA:
-                    _draw_deteccion(frame, box, nombre, (0, 200, 0))
+                    _draw_deteccion(frame, box, nombre, (0, 0, 220) if "scrap" in nombre else (0, 200, 0))
             decision = clasificar_pieza(detecciones, clases, peso_es_parts=True)
             if decision["respuesta"] == "SIN PIEZA":
                 label, color = "SIN PIEZA", (0, 140, 255)
@@ -426,7 +426,7 @@ def _make_line_vision_processor():
                 color = (0, 200, 0)
                 celda.ver("PASS")
             else:
-                label, color = "NO ES PIEZA REAL · FAIL", (0, 0, 220)
+                label, color = f"{decision['respuesta']} · FAIL", (0, 0, 220)
                 celda.ver("FAIL")
         cv2.putText(frame, label, (24, 48), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 3)
 

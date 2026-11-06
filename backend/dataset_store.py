@@ -118,7 +118,8 @@ def clasificar_pieza(detecciones, clases, *, peso_es_parts):
     """Identidad de una pieza registrada. None si el peso activo no es parts.pt.
 
     detecciones son pares (nombre, confianza) que ya pasaron el corte interno.
-    PASS significa que el nombre está en clases, no que la pieza esté libre de defectos.
+    PASS significa que el nombre está en clases y no es de scrap, no que la pieza esté libre de defectos.
+    Una clase con "scrap" en el nombre es una pieza reconocida como mala: da FAIL con su nombre y su tipo.
     tipo_objeto es la posición en clases, empezando en 1.
     """
     if not peso_es_parts:
@@ -141,8 +142,8 @@ def clasificar_pieza(detecciones, clases, *, peso_es_parts):
     if len(ordenadas) > 1 and ordenadas[0][1] - ordenadas[1][1] < MARGEN_AMBIGUEDAD:
         return {"respuesta": "NO ES PIEZA REAL", "resultado": "FAIL", "tipo_objeto": None}
     return {
-        "respuesta": "PIEZA REAL",
-        "resultado": "PASS",
+        "respuesta": "PIEZA SCRAP" if "scrap" in nombre else "PIEZA REAL",
+        "resultado": "FAIL" if "scrap" in nombre else "PASS",
         "tipo_objeto": clases.index(nombre) + 1,
         "confianza": confianza,
         "nombre": nombre,

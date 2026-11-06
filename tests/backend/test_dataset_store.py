@@ -289,6 +289,18 @@ def test_clasificar_pass_con_margen():
     assert decision["confianza"] == 0.50
 
 
+def test_clasificar_clase_scrap_da_fail_con_su_nombre():
+    decision = dataset_store.clasificar_pieza([("pieza_scrap", 0.9)], ["pieza_scrap"], peso_es_parts=True)
+    assert decision["respuesta"] == "PIEZA SCRAP"
+    assert decision["resultado"] == "FAIL"
+    assert decision["nombre"] == "pieza_scrap"
+    assert decision["tipo_objeto"] == 1
+    # Cuando exista la pieza buena, las dos clases conviven.
+    clases = ["pieza_scrap", "pieza_buena"]
+    assert dataset_store.clasificar_pieza([("pieza_buena", 0.9)], clases, peso_es_parts=True)["resultado"] == "PASS"
+    assert dataset_store.clasificar_pieza([("pieza_scrap", 0.3)], clases, peso_es_parts=True)["respuesta"] == "NO ES PIEZA REAL"
+
+
 def test_clasificar_fail_por_empate():
     decision = dataset_store.clasificar_pieza(
         [("computadora1", 0.80), ("computadora2", 0.71)],

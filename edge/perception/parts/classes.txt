@@ -1,4 +1,3 @@
 # Un nombre por línea: minúsculas, números y _. Ejemplo: tornillo_m6
-computadora1
-computadora2
-computadora3
+# Un nombre con "scrap" da FAIL aunque se reconozca. La clase de la pieza buena se agrega abajo.
+pieza_scrap

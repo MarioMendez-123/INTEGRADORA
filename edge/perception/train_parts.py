@@ -1,10 +1,10 @@
 """Entrena el detector de piezas.
 
-Si ya existe weights/parts.pt, continúa desde ahí y deja congelado el
-tronco de la red (las primeras 10 capas): en CPU solo se ajusta la cabeza,
-que es lo que distingue las piezas nuevas. La primera vez parte de
-yolov8n.pt con el mismo congelado. Publica el peso nuevo solo si el mAP50
-supera al anterior.
+Si ya existe weights/parts.pt con las mismas clases, continúa desde ahí y
+deja congelado el tronco de la red (las primeras 10 capas): en CPU solo se
+ajusta la cabeza. La primera vez, o si cambiaron las clases, parte de
+yolov8n.pt con el mismo congelado. Publica el peso nuevo si el mAP50 supera
+al anterior o si cambiaron las clases.
 
 Las fotos de images/inbox se reparten solas: 4 de cada 5 a entrenamiento
 y 1 a validación, con la misma regla que backend/dataset_store.split_for.
@@ -127,9 +127,10 @@ def publish_if_better(
     weights_path: Path = WEIGHTS_FILE,
     report_path: Path = REPORT_FILE,
 ) -> bool:
-    """Copia best.pt a parts.pt solo cuando el mAP50 sube."""
+    """Copia best.pt a parts.pt solo cuando el mAP50 sube, o cuando cambiaron las clases:
+    un modelo con otras clases no se compara, y dejar el viejo daría un juicio con nombres que ya no existen."""
     previous = read_report(report_path)
-    if previous is not None and map50 <= float(previous["map50"]):
+    if previous is not None and previous.get("classes") == names and map50 <= float(previous["map50"]):
         return False
     if not best_pt.is_file():
         raise DatasetError(f"no está el checkpoint {best_pt}")
@@ -144,10 +145,15 @@ def publish_if_better(
     return True
 
 
-def base_weights(weights_path: Path) -> str:
-    if weights_path.is_file():
-        return str(weights_path)
-    return "yolov8n.pt"
+def base_weights(weights_path: Path, names: list[str] | None = None, report_path: Path = REPORT_FILE) -> str:
+    """Continúa desde parts.pt solo si tiene las mismas clases. Con otras clases se parte de yolov8n.pt:
+    al seguir desde parts.pt, con el dataset de scrap, el modelo marcó 13 de 14 imágenes sin relación."""
+    if not weights_path.is_file():
+        return "yolov8n.pt"
+    previous = read_report(report_path)
+    if names is not None and previous is not None and previous.get("classes") != names:
+        return "yolov8n.pt"
+    return str(weights_path)
 
 
 def run_ultralytics_train(
@@ -192,7 +198,7 @@ def train_parts(
     if not train or not val:
         raise DatasetError("hace falta al menos una foto etiquetada. Márcala en /dataset.html.")
     data_yaml = write_data_yaml(parts_dir, names, train, val)
-    starting = base_weights(weights_path)
+    starting = base_weights(weights_path, names, report_path)
     save_dir = (runner or run_ultralytics_train)(
         data_yaml, epochs, imgsz, batch, patience, device, runs_dir, starting
     )

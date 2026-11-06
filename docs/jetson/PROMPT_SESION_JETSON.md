@@ -1,5 +1,8 @@
 # Prompt para la sesión de Claude en la Jetson
 
+> **Reemplazado por `jetson_implementacion/`** (5-nov-2026): ya no hay que pegar nada. Ver `jetson_implementacion/LEEME_MARIO.md`.
+> Se conserva como antecedente.
+
 Pégalo completo al abrir Claude Code en la Jetson, dentro de `~/aether` (rama `jetson-agente`).
 
 ---
