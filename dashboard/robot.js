@@ -1059,6 +1059,15 @@ deactivateBtn.addEventListener("click", () => {
 // ---------------------------------------------------------------------
 let showSocket = null;
 
+// Control remoto (dashboard/control.html, desde el teléfono): solo estas teclas, nada más. Con las diapositivas abiertas
+// se las pasa a ellas; si no, las trata como la flecha del clicker (arranca el video y lanza los pasos de Lumina).
+const REMOTE_KEYS = ["ArrowRight", "ArrowLeft", "+", "-", "m"];
+function remoteKey(key) {
+  const frame = document.getElementById("slides-frame");
+  if (frame && frame.classList.contains("holo-frame--on")) frame.contentWindow?.postMessage({ type: "aether-remote", key }, location.origin);
+  else window.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+}
+
 function connectShowChannel() {
   const proto = location.protocol === "https:" ? "wss" : "ws";
   showSocket = new WebSocket(`${proto}://${location.host}/show/ws`);
@@ -1070,6 +1079,7 @@ function connectShowChannel() {
       return;
     }
     if (data.type === "wake") resolveLuminaWait("clicker");
+    if (data.type === "key" && REMOTE_KEYS.includes(data.key)) remoteKey(data.key);
   };
   showSocket.onclose = () => setTimeout(connectShowChannel, 2000);
 }
@@ -1174,14 +1184,19 @@ function showHolo(view) {
   act();
 }
 
+/** Carga el modelo 3D y las diapositivas (invisibles, tapadas por la intro) mientras se espera el clic,
+ * para que no compitan con el video ni causen un tirón justo cuando termina el logo. */
+function preloadIntroFrames() {
+  if (!holoFrameEl.getAttribute("src")) holoFrameEl.src = `/armado48.html?limpio=1&pose=armada&lang=${introLang}`;
+  if (!slidesFrameEl.getAttribute("src")) slidesFrameEl.src = `/slides.html?lang=${introLang}&v=5`;
+  holoFrameEl.hidden = false;
+  slidesFrameEl.hidden = false;
+}
+
 function finishIntro(introEl) {
   introEl.classList.add("intro-screen--out");
   setTimeout(() => { introEl.hidden = true; }, 600);
-  // Se carga ya, oculta, para que aparezca al instante con el comando de voz.
-  holoFrameEl.src = `/armado.html?limpio=1&pose=armada&lang=${introLang}`;
-  holoFrameEl.hidden = false;
-  slidesFrameEl.src = `/slides.html?lang=${introLang}`;
-  slidesFrameEl.hidden = false;
+  preloadIntroFrames(); // normalmente ya cargaron durante el negro previo
   awakened = true;
   playPowerOnAnimation(() => {
     enterConversationMode();
@@ -1202,6 +1217,7 @@ if (introMode) {
   const video = document.getElementById("intro-video");
   video.src = "/assets/intro.mp4";
   introEl.hidden = false;
+  preloadIntroFrames();
   const start = (event) => {
     if (event.type === "keydown" && !INTRO_NEXT_KEYS.includes(event.key)) return;
     event.preventDefault();
@@ -2349,7 +2365,7 @@ const voiceStatusDotEl = document.getElementById("voice-status-dot");
 // "Lumina" — sin ella la palabra clave simplemente no se reconocía.
 const LUMINA_PATTERN = /\b(lumina|ilumina|luminia|lumia)\b/i;
 const START_WORD_PATTERN =
-  /\b(inicia|inicio|iniciar|enciende|encendido|arranca|arranque|empieza|comienza|activa|prende)\b/i;
+  /\b(inicia|inicio|iniciar|enciende|encendido|arranca|arranque|empieza|comienza|activa|prende|start|turn on|activate|camera on)\b/i;
 // Bug real reportado ("no funcionan todas las preguntas"): "para" y "alto"
 // estaban aquí como sinónimos de "detente", pero son palabras demasiado
 // comunes en español — "Lumina, ¿PARA qué sirves?" (una de las preguntas
@@ -2358,7 +2374,7 @@ const START_WORD_PATTERN =
 // "termina" siguen siendo formas naturales de pedir que se detenga, sin el
 // riesgo de coincidir con el uso normal de "para"/"alto" dentro de una
 // pregunta cualquiera.
-const STOP_WORD_PATTERN = /\b(det[eé]n|detente|apaga|termina)\b/i;
+const STOP_WORD_PATTERN = /\b(det[eé]n|detente|apaga|termina|stop|turn off|camera off)\b/i;
 
 function heardStartCommand(transcript) {
   // "Lumina, iniciar presentación" es el guion, no la cámara.
@@ -2444,7 +2460,8 @@ function handleVoiceCommand(transcript) {
     if (!LUMINA_PATTERN.test(transcript)) return;
     const step = INTRO.steps.findIndex((s) => s.re.test(transcript));
     if (step >= 0) return runIntroStep(step);
-    if (introLang !== "es") return; // las respuestas libres (Ollama) solo existen en español
+    // Las respuestas libres (Ollama) solo existen en español; la cámara (start/stop) va en ambos idiomas.
+    if (introLang !== "es" && !heardStartCommand(transcript) && !heardStopCommand(transcript)) return;
   }
   // Pantalla de espera (ver sección "PANTALLA DE ESPERA" arriba) — se
   // revisa primero y siempre con "return": mientras no se haya activado

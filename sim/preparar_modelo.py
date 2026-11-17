@@ -10,6 +10,7 @@ Todo lo demás (piezas, medidas, cables, mallas de los STEP) queda igual que en 
 Cuando haya una revisión nueva de la guía, vuelve a correr este script.
 """
 import pathlib
+import shutil
 import sys
 
 AQUI = pathlib.Path(__file__).resolve().parent
@@ -34,6 +35,9 @@ if (new URLSearchParams(location.search).has('sim')) {
 
 def main():
     origen = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else POR_OMISION
+    if origen.is_dir():  # guía nueva (rev. 3.4x): carpeta con index.html y data/*.js; los datos viajan junto al html generado
+        shutil.copytree(origen / "data", AQUI / "generado" / "data", dirs_exist_ok=True)
+        origen = origen / "index.html"
     html = origen.read_text(encoding="utf-8")
     if ANCLA_IMPORT not in html or ANCLA_FINAL not in html:
         sys.exit("No reconozco esta guía: cambió su código. Avísale a Claude para ajustar el script.")

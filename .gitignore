@@ -100,3 +100,6 @@ aether-video/intro/public/grid.mp3
 backend/tts_cache/
 .git-rewrite/
 The Grid (Remixed by The Crystal Method).mp3
+
+# Paquete estático de Netlify (se regenera con scripts/build_netlify.py)
+deploy_netlify/

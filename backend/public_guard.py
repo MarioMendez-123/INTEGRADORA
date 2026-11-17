@@ -53,7 +53,7 @@ CSP = (
     "img-src 'self' data: blob:; "
     "media-src 'self' blob: data:; "
     "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; "
-    "frame-src 'self'; "
+    "frame-src 'self' http://localhost:8770 http://127.0.0.1:8770; "
     "frame-ancestors 'self'; "
     "object-src 'none'; "
     "base-uri 'self'; "

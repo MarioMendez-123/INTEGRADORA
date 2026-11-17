@@ -4,8 +4,9 @@ En la Jetson, una vez:
 
 ```bash
 cd ~/aether
-git fetch origin +refs/heads/jetson-agente:refs/remotes/origin/jetson-agente
-git switch jetson-agente 2>/dev/null || git switch -c jetson-agente --track origin/jetson-agente
+git remote set-branches --add origin jetson-agente
+git fetch origin
+git switch jetson-agente
 git pull --ff-only origin jetson-agente
 ```
 
