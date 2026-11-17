@@ -30,5 +30,5 @@ propósito: él no ve el carrito y no puede confirmar que sea seguro.
 - `PLAN.md`: las 11 etapas, con lo que existe y lo que falta.
 - `ESTADO.md`: por dónde van. Se actualiza solo.
 - `referencia/`: conexiones y armado de la guía 3.21, en texto.
-- `modelo/parts.pt`: modelo con la clase `pieza_scrap`.
+- `modelo/parts.pt`: modelo con dos clases, `pieza_scrap` (FAIL) y `pieza_buena` (PASS); mAP50 0.98 (17-nov-2026).
 - `herramientas/`: diagnóstico, instalar el modelo y escuchar al ESP32 sin moverlo.

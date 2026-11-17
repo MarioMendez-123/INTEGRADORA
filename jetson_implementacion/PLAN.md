@@ -21,7 +21,7 @@ Nada de esto se ha probado con el carrito real. Los comandos parten de `~/aether
 | Trama M0601 | Sale de la guía del DDSM115; **falta compararla byte por byte con la hoja del M0601** |
 | `carrito.py`, `mision.py`, `correr_programa.py` | Probados solo contra el simulador |
 | Agente de visión (`/status`, `/stream`) | Reportado corriendo en la Jetson en una prueba del 23-oct |
-| Modelo de piezas | `modelo/parts.pt`, solo clase `pieza_scrap` |
+| Modelo de piezas | `modelo/parts.pt`, clases `pieza_scrap` (FAIL) y `pieza_buena` (PASS) |
 | **Torre: elevador, empujador, uña, finales de carrera** | **NO existe en el firmware.** La carga y descarga de `mision.py` son una pausa |
 | **Posición con ArUco** | **NO existe en el carrito real.** El agente solo da el ID |
 | **Aviso "listo" a la banda y voz de Lumina** | **NO existe.** `decir()` solo imprime |

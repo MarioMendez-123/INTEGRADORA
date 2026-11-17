@@ -1,7 +1,8 @@
 {
   "classes": [
-    "pieza_scrap"
+    "pieza_scrap",
+    "pieza_buena"
   ],
-  "map50": 0.995,
-  "trained_at": "2026-11-06T03:50:07.556224+00:00"
+  "map50": 0.98346,
+  "trained_at": "2026-11-17T11:42:22.870959+00:00"
 }
