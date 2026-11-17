@@ -51,13 +51,17 @@ y el armado están en `jetson_implementacion/referencia/`.
 
 ## Dataset y visión: decisión vigente
 
-Todo el dataset actual (19 fotos, 20 cajas) está clasificado como **`pieza_scrap`** y el modelo `modelo/parts.pt` solo conoce esa
-clase. Reconocerla da **FAIL**. **Todavía no existe la clase de pieza buena: Mario hará ese dataset después.** Por eso hoy es
-normal que nada dé PASS; no lo trates como una falla. No reentrenes, no renombres clases y no reetiquetes fotos por tu cuenta.
+Desde el 17-nov-2026 `modelo/parts.pt` conoce **dos clases**: `pieza_scrap` (FAIL) y `pieza_buena` (PASS), entrenado con 44 fotos
+(mAP50 0.98 en una validación pequeña: es una guía, no una garantía). Ya puede dar PASS. No reentrenes, no renombres clases y no
+reetiquetes fotos por tu cuenta; si hace falta más dataset, pídeselo a Mario.
 
-**Límite del modelo:** no tiene fotos de "esto no es una pieza". Reconoce las 19 fotos, no marcó 3 fotos reales de la celda, y sí marcó
-con confianza 4 de 14 imágenes sin relación (renders 3D del carrito). Nunca se ha probado con la cámara real: mide cuánto se confunde y
-repórtalo. No conectes este juicio a nada físico.
+**Límite del modelo:** no tiene fotos de "esto no es una pieza". Antes de dar el modelo por bueno, pruébalo con la cámara real y mide
+cuánto se confunde (con el modelo anterior marcó con confianza 4 de 14 imágenes sin relación). Repórtalo. No conectes este juicio a nada físico.
+
+## Coordinación con el Claude de la laptop
+
+Hay otra sesión de Claude en la laptop de Mario (Windows) que no te ve ni tú a ella. El canal es el repo: lee
+[`COORDINACION.md`](./COORDINACION.md) y síguelo.
 
 ## Cómo reportar
 
